@@ -1,0 +1,52 @@
+dataset_label: null
+dataset_offset: 0
+dataset_size: null
+model_and_diffusion_config:
+  attention_resolutions: 28,14,7
+  channel_mult: ''
+  class_cond: false
+  clip_denoised: false
+  clip_twisted: true
+  diffusion_steps: 1000
+  dropout: 0
+  image_size: 28
+  learn_sigma: true
+  model_path: ./models/model060000.pt
+  noise_schedule: linear
+  num_channels: 64
+  num_head_channels: -1
+  num_heads: 4
+  num_heads_upsample: -1
+  num_res_blocks: 3
+  predict_xstart: false
+  resblock_updown: true
+  rescale_learned_sigmas: false
+  rescale_timesteps: false
+  rgb: false
+  sampler: tds
+  timestep_respacing: '100'
+  use_checkpoint: false
+  use_fp16: false
+  use_kl: false
+  use_new_attention_order: false
+  use_scale_shift_norm: true
+output_path: ./outputs/inpainting_half/tds_T100_P4_essthreshold1.0_truncate0/vartype6.0_tausq0.12_dataNone-0-None_20240214-131700
+sampler_config:
+  batch_p: 4
+  ess_threshold: 1.0
+  name: tds
+  num_particles: 4
+  resample_strategy: systematic
+  t_truncate_percent: 0
+seed: 42
+task_config:
+  classifier_guidance_scale: 1.0
+  classifier_path: ./models/resnet.pth.tar
+  dataset_path: datasets/mnist_test
+  image_size: 28
+  mask: half
+  name: inpainting
+  operator: inpainting
+  pred_xstart_var_type: 6.0
+  rgb: false
+  tausq: 0.12
