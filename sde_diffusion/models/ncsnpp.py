@@ -16,6 +16,7 @@
 # pylint: skip-file
 import sys
 import os
+sys.path.append(os.path.dirname(__file__))
 from model_utils import *
 from layers import *
 from layerspp import *

@@ -378,66 +378,7 @@ def plot_fixed_location_histogram(observations, fixed_index, figname, n):
                   + str(int(fixed_index/n))))
     plt.savefig(figname)
 
-minX = -10
-maxX = 10
-minY = -10
-maxY = 10
-n = 32
-m = 10
-x = np.linspace(minX, maxX, n)
-y = np.linspace(minY, maxY, n)
-X, Y = np.meshgrid(x, y)
-longitudes = X.reshape((np.prod(X.shape),1))
-latitudes = Y.reshape((np.prod(Y.shape),1))
-indices = np.random.randint(low = 0, high = n**2, size = m)
-variance = .4
-lengthscale = 1.6
-observed_vector, observed_matrix = generate_gaussian_process(minX, maxX, minY, maxY, n, variance,
-                                       lengthscale, 1, 342342)
 
-
-device = "cuda:0"
-diffusion = TwistedDDPM(betas = betas, particle_base_shape = (1,32,32),
-                        rescale_timesteps = False, conf=None,
-                        probability_flow = False, device = device,
-                        use_timesteps = [i for i in range(0,250)],
-                        original_num_steps = 250)
-resample_strategy = "systematic"
-ess_threshold = 0
-diffusion_timesteps = 250
-particle_number = 4
-model_kwargs = {}
-batch_particles = 4
-ref_image = ((th.from_numpy(observed_matrix)).to(device)).reshape((1,n,n))
-pred_xstart_var_type = 1
-
-minX = -10
-maxX = 10
-minY = -10
-maxY = 10
-n = 32
-m = 10
-indices_tuple = [(7,7), (7,15), (15,7), (15,15), (15,23), (23,7), (23,15), (23,23)]
-indices = [(7*n+7), (7*n+15), (16*n+7), (16*n+16), (16*n+24), (24*n+7), (24*n+16),
-           (24*n+24)]
-m = 8
-fixed_locations = np.zeros((m,2))
-fixed_locations[:,0] = longitudes[indices].reshape((m,))
-fixed_locations[:,1] = latitudes[indices].reshape((m,))
-number_of_replicates = 10
-
-mask = th.ones((1,n,n))
-mask[:,7:24,7:24] = 0
-mask = mask.to(th.bool)
-
-"""
-save_multiple_conditional_diffusion_samples(diffusion, mask, resample_strategy,
-                                            ess_threshold, diffusion_timesteps,
-                                            particle_number,
-                                            model_kwargs, batch_particles, ref_image, 
-                                            pred_xstart_var_type, device,
-                                            number_of_replicates)
-"""
 
 
 

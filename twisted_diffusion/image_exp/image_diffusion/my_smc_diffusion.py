@@ -345,7 +345,7 @@ class VPSDEDiffusion:
     
     def p_mean_variance_from_score(self, score_model, x_t, t, clip_denoised = True,
                                    denoised_fn = None, model_kwargs = None):
-        
+        score_model = th.nn.DataParallel(score_model, gpu_ids = [0,1,2,4])
         with th.no_grad():
             score = score_model(x_t, th.tensor([t]).to(self.device))
         #from eq in appendix a of Trippe paper or my spring 2024 notes eq 16
