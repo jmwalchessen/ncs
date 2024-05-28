@@ -2,8 +2,11 @@
 
 
 import torch as th 
-from abc import ABC, abstractmethod 
-from .my_feynman_kac_image_ddpm import log_normal_density 
+from abc import ABC, abstractmethod
+import sys
+import os
+sys.path.append(os.path.dirname(__file__))
+from my_feynman_kac_image_ddpm import log_normal_density 
 import torch.nn.functional as F
 
 

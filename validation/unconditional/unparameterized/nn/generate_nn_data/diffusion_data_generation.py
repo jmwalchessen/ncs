@@ -65,13 +65,9 @@ def generate_diffusion_samples(diffusion_sampler, trained_score_model, number_of
 
     return diffusion_images
 
-#diffusion_images = generate_diffusion_samples(smc_diffusion_model, score_model,
-                                              #number_of_replicates_per_call,
-                                              #number_of_calls, n)
-xt = th.zeros((1,1,n,n)).to("cuda")
-t = th.tensor([5]).to("cuda")
-smc_diffusion_model.p_mean_variance_from_score(score_model, xt, t, clip_denoised = True,
-                                   denoised_fn = None, model_kwargs = None)
+diffusion_images = generate_diffusion_samples(smc_diffusion_model, score_model,
+                                              number_of_replicates_per_call,
+                                              number_of_calls, n)
 
 
 

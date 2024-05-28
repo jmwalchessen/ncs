@@ -1,4 +1,4 @@
-name: tds-image
+name: ncs-tds
 channels:
   - nvidia
   - conda-forge
