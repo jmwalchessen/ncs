@@ -202,6 +202,9 @@ class TwistedDDPM(SMCDiffusion):
         assert xt.shape[1:] == self.particle_base_shape, xt.shape 
 
         log_proposal = self.cache.pop(('log_proposal', t))
+        log_potential_xt = None
+        log_potential_xtp1 = None
+        log_p_trans_untwisted = None
 
         #######################################################
         # gathering previous and current log_potential values #
@@ -246,7 +249,7 @@ class TwistedDDPM(SMCDiffusion):
         # calculating log_potential_t and the proposal at t-1 #
         #######################################################
         
-        if t > 0: 
+        if t > 0:
             batch_p = extra_vals.get("batch_p", P) 
             xtm1_mean, log_potential_xt, mean_untwisted, var_untwisted, \
                 pred_xstart, twisted_pred_xstart, grad_log_potential_xt = \
@@ -305,7 +308,7 @@ class TwistedDDPM(SMCDiffusion):
             # t = 0 
             if self.task == 'inpainting':
                 # weight_0 = p_trans_untwisted(y|x_1) / p_trans_twisted(y|x_1)
-                log_p_trans_twisted_y = log_potential_xtp1 
+                log_p_trans_twisted_y = log_potential_xtp1
                 log_w = log_p_trans_untwisted_y - log_p_trans_twisted_y 
                 log_target = th.zeros_like(log_w) # placeholder 
             elif self.task == 'class_cond_gen':
@@ -361,13 +364,14 @@ class TwistedDDPM(SMCDiffusion):
         
         assert log_w.shape == (P, ), f"t={t}, {log_w.shape}" 
 
-        return log_w 
+        return log_w, log_proposal, log_potential_xt, log_potential_xtp1, log_p_trans_untwisted
     
     def _compute_twisted_step(self, batch_p, xt, t, model, model_kwargs, debug_plot=False, 
             pred_xstart_var_type=1, target_pred_xstart_var_type=None):
         """compute xtm1_mean and xtm1_var given xt after applying the twisted operation""" 
         P = xt.shape[0]
         beta_t = self.betas[t-1]
+
 
         # do a loop here in case of memory overflow 
         
@@ -376,6 +380,12 @@ class TwistedDDPM(SMCDiffusion):
         def get_xstart_var(var_type):
             
             sigmasq_ = (1-alphas_cumprod_t) / alphas_cumprod_t
+            #sigmasq_ = self.sigmas[t-1]
+            #sigmasq_= 2*self.sigmas_cumprod[t-1]
+            #if(t>20):
+                #sigmasq_  = np.sqrt(self.sigmas_cumprod[t-1])
+            #else:
+                #sigmasq_ = np.sqrt(self.sigmas_cumprod[20])
             if var_type == 1:
                 return sigmasq_ 
             elif var_type == 2: # pseudoinverse-guided paper https://openreview.net/forum?id=9_gsMA8MRKQ 
@@ -407,7 +417,7 @@ class TwistedDDPM(SMCDiffusion):
         pred_xstart = []  
         grad_log_potential_xt = [] 
         twisted_pred_xstart = [] 
-        log_potential_xt = [] 
+        log_potential_xt = []
         xtm1_mean = [] 
         for xt_batch in xt_batches:
             xt_batch = xt_batch.to(xt.device).requires_grad_()
@@ -469,7 +479,7 @@ class TwistedDDPM(SMCDiffusion):
             
             if debug_plot:
                 twisted_pred_xstart.append(twisted_pred_xstart_batch.cpu())
-
+        
         return [safe_cat(lt) for lt in [xtm1_mean, log_potential_xt, mean_untwisted, var_untwisted, \
                                           pred_xstart, twisted_pred_xstart, grad_log_potential_xt]]
     

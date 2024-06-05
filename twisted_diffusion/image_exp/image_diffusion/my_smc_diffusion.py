@@ -13,6 +13,9 @@ import dist_util
 import unet
 import time
 
+def log_normal_density(sample, mean, var):
+    return Normal(loc=mean, scale=th.sqrt(var)).log_prob(sample)
+
 #betas are from .0001 to .02 by increments of x for length 1000
 def get_named_beta_schedule(schedule_name, num_diffusion_timesteps):
     """
@@ -445,21 +448,27 @@ class VPSDEDiffusion:
         sample = out["mean"] + nonzero_mask * \
             std * noise
         #no pred_x_start as there is in original code
-        return {"sample": sample, 
+        return {"sample": sample,
                 "mean": out['mean'], 
-                "std": std}
+                "std": std,
+                "log_density": log_normal_density(sample, out["mean"], th.exp(out["log_variance"]))}
     
     def posterior_sample_with_p_mean_variance(self, score_model, P, clip_denoised=True, denoised_fn=None,
                                               model_kwargs=None):
         
         xT = (th.randn(P, *self.particle_base_shape)).to(self.device)
         xt = xT
+        ptrans_untwisted_trace = []
         for t in range((self.num_timesteps-1),0,-1):
             timestep = (th.tensor([t])).to(self.device)
-            xt = (self.p_sample(score_model, xt, timestep, clip_denoised=True,
-                                denoised_fn=None, model_kwargs=None))['sample']
+            out = (self.p_sample(score_model, xt, timestep, clip_denoised=True,
+                                denoised_fn=None, model_kwargs=None))
+            xt = out["sample"]
+            log_density = out["log_density"]
+            ptrans_untwisted_trace.append(log_density.sum(dim=self.particle_base_dims))
+            print(log_density.shape)
         x0 = xt
-        return x0
+        return x0, ptrans_untwisted_trace
 
     
 

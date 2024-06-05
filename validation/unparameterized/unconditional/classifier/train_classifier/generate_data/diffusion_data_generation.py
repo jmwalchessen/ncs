@@ -51,14 +51,15 @@ def sample_unconditionally(diffusion_model, trained_score_model, replicates_per_
    
     return unconditional_samples
 
-"""
-replicates_per_call = 500
-calls = 2
-start = time.time()
-unconditional_samples = sample_unconditionally(twisted_diffusion_model, score_model, replicates_per_call,
-                           calls, n)
-end = time.time()
-print(print(end - start))
 
-np.save("data/diffusion/eval_unconditional_lengthscale_1.6_variance_0.4_1000.npy", unconditional_samples.numpy())
-"""
+
+replicates_per_call = 500
+calls = 20
+for i in range(3, 6):
+    start = time.time()
+    unconditional_samples = sample_unconditionally(twisted_diffusion_model, score_model, replicates_per_call,
+                           calls, n)
+    end = time.time()
+    print(print(end - start))
+
+    np.save("data/diffusion/train_unconditional_lengthscale_1.6_variance_0.4_10000_" + str(i) + ".npy", unconditional_samples.numpy())

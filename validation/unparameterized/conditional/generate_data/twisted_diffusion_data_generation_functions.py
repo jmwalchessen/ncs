@@ -6,8 +6,9 @@ import generate_true_conditional_samples
 import matplotlib.pyplot as plt
 
 home_folder = append_directory(6)
+print(home_folder)
 image_diffusion_folder = home_folder + "/twisted_diffusion/image_exp/image_diffusion"
-sde_folder = home_folder + "/sde_diffusion"
+sde_folder = home_folder + "/sde_diffusion/unparameterized"
 sys.path.append(image_diffusion_folder)
 print(image_diffusion_folder)
 import my_smc_diffusion
@@ -23,6 +24,7 @@ sde_configs_vp_folder = sde_folder + "/configs/vp"
 sys.path.append(sde_configs_vp_folder)
 import ncsnpp_config
 sys.path.append(sde_folder)
+print(sde_folder)
 from models import ncsnpp
 
 n = 32
@@ -104,7 +106,9 @@ def twisted_diffusion_samples_per_call(twisted_diffusion, replicates_per_call,
     fully_observed = ref_img.detach().cpu().numpy().reshape((32,32))
     m = mask.float().detach().cpu().numpy().reshape((32,32))
     # Sampling
-    final_samples, log_w, normalized_w, resample_indices_trace, ess_trace, log_w_trace, xt_trace  = \
+    final_samples, log_w, normalized_w, resample_indices_trace, ess_trace,\
+    log_w_trace, xt_trace, log_proposal_trace, log_potential_xt_trace,\
+    log_potential_xtp1_trace, log_p_trans_untwisted_trace  = \
     feynman_kac_pf.smc_FK(M=M, G=G, resample_strategy=resample_strategy, 
                                      ess_threshold=ess_threshold, 
                                      T=twisted_diffusion.T, 
@@ -115,7 +119,9 @@ def twisted_diffusion_samples_per_call(twisted_diffusion, replicates_per_call,
                                      "batch_p" : batch_p})
     
     final_samples.detach().cuda().reshape((replicates_per_call, n, n))
-    return final_samples, partially_observed, fully_observed, m, resample_indices_trace, ess_trace, log_w_trace
+    return final_samples, partially_observed, fully_observed, m,\
+          resample_indices_trace, ess_trace, log_w_trace, log_proposal_trace,\
+              log_potential_xt_trace, log_potential_xtp1_trace, log_p_trans_untwisted_trace
 
 
 def twisted_diffusion_samples_multiple_calls(twisted_diffusion, replicates_per_call,
@@ -126,11 +132,14 @@ def twisted_diffusion_samples_multiple_calls(twisted_diffusion, replicates_per_c
     fullfield = th.zeros((n,n))
     m = th.zeros((n,n))
     for i in range(0, calls):
-        final_samples, partialfield, fullfield, m, resample_indices, ess_trace, log_w_trace = twisted_diffusion_samples_per_call(twisted_diffusion,
+        final_samples, partialfield, fullfield, m, resample_indices, ess_trace, log_w_trace, log_proposal_trace,\
+            log_potential_xt_trace, log_potential_xtp1_trace, log_p_trans_untwisted_trace = twisted_diffusion_samples_per_call(twisted_diffusion,
                                                                                                                                  replicates_per_call,
                                                                                                                                  mask, ref_img, n)
         
         conditional_samples = np.concatenate([conditional_samples, final_samples.detach().cpu().numpy().reshape((replicates_per_call,n,n))], axis = 0)
 
-    return conditional_samples, partialfield, fullfield, m, resample_indices, ess_trace, log_w_trace
+    return conditional_samples, partialfield, fullfield, m, resample_indices, ess_trace,\
+      log_w_trace, log_proposal_trace, log_potential_xt_trace, log_potential_xtp1_trace,\
+      log_p_trans_untwisted_trace
                         
