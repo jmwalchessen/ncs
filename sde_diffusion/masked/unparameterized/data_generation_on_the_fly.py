@@ -49,14 +49,35 @@ def generate_gaussian_process(minX, maxX, minY, maxY, n, variance, lengthscale, 
 
 
 #first column of parameter_matrix is variance
-def generate_data_on_the_fly(minX, maxX, minY, maxY, n, variance, lengthscale, number_of_replicates,
+def generate_data_on_the_fly(minX, maxX, minY, maxY, n, variance, lengthscale, number_of_replicates_per_mask,
                              seed_value):
     
 
     train_images = generate_gaussian_process(minX, maxX, minY, maxY, n,
                                              variance, lengthscale,
-                                             number_of_replicates, seed_value)
+                                             number_of_replicates_per_mask, seed_value)
     return train_images
+
+#def generate_masks_on_the_fly(n, number_of_random_replicates, random_missingness_percentages,
+                              #corner_indices, half_indices, center_indices, border_indices):
+
+def generate_masks_on_the_fly(n, number_of_random_replicates, random_missingness_percentages):
+
+    mask_matrices = np.zeros((0,n,n))
+
+    for idx in range(0, len(random_missingness_percentages)):
+        missingness_percentage = random_missingness_percentages[idx]
+        mask_matrices = np.concatenate([mask_matrices, np.random.binomial(number_of_random_replicates,missingness_percentage,
+                                                                          (n,n))])
+        
+    return mask_matrices
+        
+
+    
+
+
+
+
 
 
 class CustomSpatialImageDataset(Dataset):
@@ -85,6 +106,19 @@ class CustomSpatialImageandSingleMaskDataset(Dataset):
         mask = (self.mask)
         mask = mask.view(mask.shape[0], mask.shape[2], mask.shape[3])
         return image, mask
+    
+class CustomSpatialImageandMaskDataset(Dataset):
+
+    def __init__(self, images, masks):
+        self.images = images
+        self.masks = masks
+
+    def __len__(self):
+        return ((self.images).shape[0])
+
+    def __getitem__(self, idx):
+        image = self.images[idx,:,:,:]
+        mask = self.masks[idx,:,:,:]
 
 
     
