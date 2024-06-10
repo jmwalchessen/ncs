@@ -126,6 +126,7 @@ class VPSDE(SDE):
     self.beta_1 = beta_max
     self.N = N
     self.discrete_betas = torch.linspace(beta_min / N, beta_max / N, N)
+    self.sigmas = np.sqrt(self.discrete_betas)
     self.alphas = 1. - self.discrete_betas
     self.alphas_cumprod = torch.cumprod(self.alphas, dim=0)
     self.sqrt_alphas_cumprod = torch.sqrt(self.alphas_cumprod)

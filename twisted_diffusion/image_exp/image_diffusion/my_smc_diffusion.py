@@ -9,6 +9,7 @@ import sys
 import os
 image_exp_path = os.path.dirname(os.path.dirname(__file__))
 sys.path.append((image_exp_path + "/smc_utils"))
+sys.path.append((image_exp_path + "/image_diffusion"))
 import dist_util
 import unet
 import time
@@ -466,7 +467,6 @@ class VPSDEDiffusion:
             xt = out["sample"]
             log_density = out["log_density"]
             ptrans_untwisted_trace.append(log_density.sum(dim=self.particle_base_dims))
-            print(log_density.shape)
         x0 = xt
         return x0, ptrans_untwisted_trace
 
