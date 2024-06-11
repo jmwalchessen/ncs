@@ -26,8 +26,8 @@ config = ncsnpp_config.get_config()
 config.model.num_scales = 1000
 config.model.beta_max = 20
 
-score_model = (ncsnpp.NCSNpp(config)).to("cuda:0")
-score_model.load_state_dict(th.load((sde_folder + "/trained_score_models/vpsde/model1_beta_min_max_01_20_center_mask_10000_per_20_epochs_1_draws.pth")))
+score_model = th.nn.DataParallel((ncsnpp.NCSNpp(config)).to("cuda:0"))
+score_model.load_state_dict(th.load((sde_folder + "/trained_score_models/vpsde/model4_beta_min_max_01_20_random50_masks.pth")))
 score_model.eval()
 
 sdevp = sde_lib.VPSDE(beta_min=0.1, beta_max=20, N=1000)
@@ -51,8 +51,10 @@ ref_img = generate_true_conditional_samples.generate_gaussian_process(minX, maxX
                                                                       number_of_replicates,
                                                                       seed_value)
 ref_img = th.from_numpy(ref_img[1].reshape((1,n,n))).to(device)
-mask = th.ones((1,n,n)).to(device)
-mask[:, int(n/4):int(n/4*3), int(n/4):int(n/4*3)] = 0
+#mask = th.ones((1,n,n)).to(device)
+#mask[:, int(n/4):int(n/4*3), int(n/4):int(n/4*3)] = 0
+p = .5
+mask = (th.bernoulli(p*th.ones(1,1,n,n))).to(device)
 
 #y is observed part of field
 def p_mean_and_variance_from_score_via_mask(vpsde, score_model, device, masked_xt, mask, y, t):
@@ -119,22 +121,22 @@ def plot_masked_spatial_field(spatial_field, mask, vmin, vmax, figname):
 
 
 replicates_per_call = 2
-calls = 500
+calls = 5
 y = ((th.mul(mask, ref_img)).to(device)).float()
 conditional_samples = sample_unconditionally_multiple_calls(sdevp, score_model, device, mask, y, n,
                                           replicates_per_call, calls)
 
 partially_observed = (mask*ref_img).detach().cpu().numpy().reshape((n,n))
-np.save("data/ref_image1/ref_image1.npy", ref_img.detach().cpu().numpy().reshape((n,n)))
-np.save("data/ref_image1/diffusion/model1_beta_min_max_01_20_center_mask_10000_per_20_epochs_1_draws_1000_samples.npy", conditional_samples)
-np.save("data/ref_image1/partially_observed_field.npy", partially_observed.reshape((n,n)))
-np.save("data/ref_image1/mask.npy", mask.int().detach().cpu().numpy().reshape((n,n)))
-np.save("data/ref_image1/seed_value.npy", np.array([int(seed_value)]))
+np.save("data/ref_image2/ref_image2.npy", ref_img.detach().cpu().numpy().reshape((n,n)))
+np.save("data/ref_image2/diffusion/model4_beta_min_max_01_20_random50_1000.npy", conditional_samples)
+np.save("data/ref_image2/partially_observed_field.npy", partially_observed.reshape((n,n)))
+np.save("data/ref_image2/mask.npy", mask.int().detach().cpu().numpy().reshape((n,n)))
+np.save("data/ref_image2/seed_value.npy", np.array([int(seed_value)]))
 
-plot_spatial_field(ref_img.detach().cpu().numpy().reshape((n,n)), -2, 2, "data/ref_image1/ref_image.png")
-plot_spatial_field((conditional_samples[0,:,:,:]).numpy().reshape((n,n)), -2, 2, "data/ref_image1/diffusion/visualizations/conditional_sample_0.png")
+plot_spatial_field(ref_img.detach().cpu().numpy().reshape((n,n)), -2, 2, "data/ref_image2/ref_image.png")
+plot_spatial_field((conditional_samples[0,:,:,:]).numpy().reshape((n,n)), -2, 2, "data/ref_image2/diffusion/visualizations/conditional_sample_0.png")
 plot_masked_spatial_field(spatial_field = ref_img.detach().cpu().numpy().reshape((n,n)),
-                   vmin = -2, vmax = 2, mask = mask.int().float().detach().cpu().numpy().reshape((n,n)), figname = "data/ref_image1/partially_observed_field.png")
+                   vmin = -2, vmax = 2, mask = mask.int().float().detach().cpu().numpy().reshape((n,n)), figname = "data/ref_image2/partially_observed_field.png")
 
 
 

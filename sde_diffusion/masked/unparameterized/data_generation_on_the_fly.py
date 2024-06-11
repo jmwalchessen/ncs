@@ -38,9 +38,8 @@ def generate_gaussian_process(minX, maxX, minY, maxY, n, variance, lengthscale, 
     kernel = construct_exp_kernel(minX, maxX, minY, maxY, n, variance, lengthscale)
     np.random.seed(seed_value)
     z_matrix = np.random.multivariate_normal(np.zeros(n**2), np.identity(n**2), number_of_replicates)
-    C = np.linalg.cholesky(kernel)
-    y_matrix = np.matmul(np.transpose(C),
-                                  np.transpose(z_matrix))
+    L = np.linalg.cholesky(kernel)
+    y_matrix = np.matmul(L, np.transpose(z_matrix))
     
     gp_matrix = np.zeros((number_of_replicates,1,n,n))
     for i in range(0, y_matrix.shape[1]):
