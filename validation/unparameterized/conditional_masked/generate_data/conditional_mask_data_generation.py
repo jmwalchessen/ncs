@@ -120,8 +120,8 @@ def plot_masked_spatial_field(spatial_field, mask, vmin, vmax, figname):
     plt.savefig(figname)
 
 
-replicates_per_call = 2
-calls = 5
+replicates_per_call = 500
+calls = 2
 y = ((th.mul(mask, ref_img)).to(device)).float()
 conditional_samples = sample_unconditionally_multiple_calls(sdevp, score_model, device, mask, y, n,
                                           replicates_per_call, calls)
