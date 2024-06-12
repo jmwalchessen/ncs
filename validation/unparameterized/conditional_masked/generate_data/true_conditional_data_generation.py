@@ -136,3 +136,5 @@ def sample_conditional_distribution(mask, minX, maxX, minY, maxY, n, variance, l
         return conditional_samples
     else:
         return None
+    
+

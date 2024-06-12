@@ -139,6 +139,8 @@ def construct_kriging_mean_variance(mask, minX, maxX, minY, maxY, n, variance, l
     kriging_matrix = np.matmul(np.transpose(masked_exp_kernel_vector),
                                np.linalg.inv(masked_exp_kernel))
     #construct a mx1 vector, m is the number of fixed locations vector
+    print(kriging_matrix.shape)
+    print(y.shape)
     conditional_mean =  np.matmul(kriging_matrix, y)
     unmask = (1-mask)
     variance_matrix = construct_masked_exp_kernel(unmask, minX, maxX, minY, maxY, n, variance, lengthscale)
@@ -178,3 +180,35 @@ def generate_gaussian_process(minX, maxX, minY, maxY, n, variance, lengthscale,
     for i in range(0, y_matrix.shape[1]):
         gp_matrix[i,:,:,:] = y_matrix[:,i].reshape((1,n,n))
     return y_matrix, gp_matrix
+
+from append_directories import *
+data_generation_folder = (append_directory(2) + "/generate_data")
+sys.path.append(data_generation_folder)
+
+n = 32
+number_of_replicates = 1000 
+#conditional_samples = np.load((data_generation_folder + "/data/ref_image2/diffusion/model4_beta_min_max_01_20_random50_1000.npy"))
+#conditional_samples = conditional_samples.reshape((number_of_replicates,n,n))
+#mask = np.load((data_generation_folder + "/data/ref_image1/mask.npy"), allow_pickle = True)
+n = 32
+#mask = th.zeros((1,n,n))
+#mask[:, int(n/4):int(n/4*3), int(n/4):int(n/4*3)] = 1
+device = "cuda:0"
+p = .5
+mask = np.load((data_generation_folder + "/data/ref_image2/mask.npy"))
+ref_image = (np.load((data_generation_folder + "/data/ref_image2/ref_image2.npy")))
+minX = -10
+maxX = 10
+minY = -10
+maxY = 10
+variance = .4
+lengthscale = 1.6                                                                                        
+missing_indices = np.squeeze(np.argwhere((1-mask).reshape((n**2,))))
+mask_type = "random50"
+folder_name = (data_generation_folder + "/data/ref_image2/marginal_density")
+m = missing_indices.shape[0]
+observed_vector = ref_image.reshape((n**2))
+observed_vector = np.delete(observed_vector, missing_indices)
+conditional_vectors = sample_conditional_distribution(mask, minX, maxX, minY, maxY, n,
+                                                     variance, lengthscale, observed_vector,
+                                                     number_of_replicates)
