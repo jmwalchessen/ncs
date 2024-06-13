@@ -106,7 +106,7 @@ def train_per_multiple_masks(config, data_draws, epochs_per_drawn_data,
                              random_missingness_percentages,
                              number_of_random_replicates,
                              number_of_eval_random_replicates, seed_values,
-                             variance, lengthscale, batch_size,
+                             range_value, smooth_value, batch_size,
                              eval_batch_size, score_model_path, loss_path):
     
     # Initialize model.
@@ -144,17 +144,17 @@ def train_per_multiple_masks(config, data_draws, epochs_per_drawn_data,
     
     num_train_steps = config.training.n_iters
     for data_draw in range(0, data_draws):
+        print("data draw")
         print(data_draw)
 
         train_dataloader, eval_dataloader = get_training_and_evaluation_mask_and_image_datasets_per_mask(number_of_random_replicates,
                                                                                                          random_missingness_percentages,
                                                                                                          number_of_eval_random_replicates,
-                                                                                                         batch_size, eval_batch_size, variance,
-                                                                                                         lengthscale, seed_values[data_draw])        
+                                                                                                         batch_size, eval_batch_size, range_value,
+                                                                                                         smooth_value, seed_values[data_draw])        
         
         
         for epoch in range(0, epochs_per_drawn_data):
-            print(epoch)
             #want to iterate over the same masks and images for each epoch (taking epectation with respect to p(X,M)=p(X)p(M))
             train_losses_per_epoch = []
             eval_losses_per_epoch = []
@@ -172,8 +172,8 @@ def train_per_multiple_masks(config, data_draws, epochs_per_drawn_data,
 
             while True:
                 try:
-                    batch = get_next_batch(eval_iterator, config)
-                    eval_loss = eval_step_fn(state, batch)
+                    eval_batch = get_next_batch(eval_iterator, config)
+                    eval_loss = eval_step_fn(state, eval_batch)
                     print(loss)
                     eval_losses_per_epoch.append(float(eval_loss))
                 except StopIteration:
@@ -191,30 +191,15 @@ vp_ncsnpp_configuration = vp_ncsnpp_config.get_config()
 ve_ncsnpp_configuration = ve_ncsnpp_config.get_config()
 vpconfig = vp_ncsnpp_configuration
 veconfig = ve_ncsnpp_configuration
-epochs_per_drawn_data = 20
-data_draws = 10
-number_of_replicates = 10000
-evaluation_number_of_replicates = 1000
-batch_size = 4
-eval_batch_size = 1000
-seed_value = 43234
-variance = .4
-lengthscale = 1.6
-score_model_path = "trained_score_models/vpsde/model1_beta_min_max_01_20_center_mask.pth"
-loss_path = "trained_score_models/vpsde/model1_beta_min_max_01_20_center_mask_loss.png"
-
-"""
-train_per_mask(vpconfig, data_draws, epochs_per_drawn_data, number_of_replicates,
-      evaluation_number_of_replicates, batch_size, eval_batch_size, seed_value,
-          variance, lengthscale, mask, score_model_path, loss_path)
-"""
-data_draws = 1
-epochs_per_data_draws = 2
-number_of_random_replicates = 1000
-number_of_eval_random_replicates = 256
+data_draws = 20
+epochs_per_drawn_data = 5
+number_of_random_replicates = 200
+number_of_eval_random_replicates = 32
 random_missingness_percentages = [.5]
 batch_size = 4
-eval_batch_size = 256
+eval_batch_size = 32
+range_value = 1.6
+smooth_value = 1.6
 seed_values = [(int(np.random.randint(0, 100000)),int(np.random.randint(0, 100000)))
                 for i in range(0, data_draws)]
 score_model_path = "trained_score_models/vpsde/model1_beta_min_max_01_20_random50_masks.pth"
@@ -224,5 +209,5 @@ train_per_multiple_masks(vpconfig, data_draws, epochs_per_drawn_data,
                          random_missingness_percentages,
                          number_of_random_replicates,
                          number_of_eval_random_replicates, seed_values,
-                         variance, lengthscale, batch_size,
+                         range_value, smooth_value, batch_size,
                          eval_batch_size, score_model_path, loss_path)

@@ -31,7 +31,7 @@ def generate_brown_resnick_process(range_value, smooth_value, seed_value, number
         images = np.concatenate([images, current_images], axis = 0)
     
     current_images = call_brown_resnick_script(range_value, smooth_value, seed_value,
-                                                   (number_of_replicates % n), n)
+                                                   (number_of_replicates % 100), n)
     images = np.concatenate([images, current_images])
     return images
 
@@ -183,7 +183,7 @@ def get_training_and_evaluation_mask_and_image_datasets_per_mask(number_of_rando
     train_images = generate_brown_resnick_process(range_value, smooth_value, seed_values[0],
                                                   number_of_random_replicates, n)
     eval_images = generate_brown_resnick_process(range_value, smooth_value, seed_values[1],
-                                                  number_of_random_replicates, n)
+                                                  number_of_evaluation_random_replicates, n)
     train_images = np.pad(train_images, ((0,0), (0,0), (1,0), (1,0)))
     eval_images = np.pad(eval_images, ((0,0), (0,0), (1,0), (1,0)))
     train_dataset = CustomSpatialImageandMaskDataset(train_images, train_masks)
