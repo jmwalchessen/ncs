@@ -65,6 +65,7 @@ def generate_random_masks_on_the_fly(n, number_of_random_replicates, random_miss
 
     for idx in range(0, len(random_missingness_percentages)):
         missingness_percentage = random_missingness_percentages[idx]
+        #larger p means more ones, and more ones means more missing values (unobserved values)
         current_mask_matrices = np.random.binomial(n = 1, p = missingness_percentage,
                                                    size = (number_of_random_replicates, 1, n, n))
         mask_matrices = np.concatenate([mask_matrices, current_mask_matrices])

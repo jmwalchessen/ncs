@@ -217,12 +217,13 @@ data_draws = 10
 epochs_per_data_draws = 10
 number_of_random_replicates = 10000
 number_of_eval_random_replicates = 256
-random_missingness_percentages = [.5]
+#smaller p means less ones which means more observed values
+random_missingness_percentages = [0,.1,.2,.3,.4,.5]
 batch_size = 256
 eval_batch_size = 256
 seed_values = [int(np.random.randint(0, 100000)) for i in range(0, data_draws)]
-score_model_path = "trained_score_models/vpsde/model4_beta_min_max_01_20_random50_masks.pth"
-loss_path = "trained_score_models/vpsde/model4_beta_min_max_01_20_random50_masks_loss.png"
+score_model_path = "trained_score_models/vpsde/model5_beta_min_max_01_20_random050_masks.pth"
+loss_path = "trained_score_models/vpsde/model5_beta_min_max_01_20_random050_masks_loss.png"
 torch.cuda.empty_cache()
 train_per_multiple_masks(vpconfig, data_draws, epochs_per_drawn_data,
                              random_missingness_percentages,
