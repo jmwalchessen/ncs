@@ -37,7 +37,7 @@ list_d_degree_queen_neighbors <- function(labelmatrix, d, i, j)
 {
     current_neighbors <- c()
     current_label <- labelmatrix[i,j]
-    if (((i > d) & (j > d)) & (i < (n-d)) & (j < (n-d)))
+    if (((i >= d) & (j >= d)) & (i <= (n-d)) & (j <= (n-d)))
     {
         for(k in -d:d)
         {
@@ -50,9 +50,9 @@ list_d_degree_queen_neighbors <- function(labelmatrix, d, i, j)
             }
         }
     }
-    else if ((i < d) & (j > d) & (j < (n-d)))
+    else if ((i < d) & (j >= d) & (j <= (n-d)))
     {
-        for(k in -i:i)
+        for(k in -i:d)
         {
             for(l in -d:d)
             {
@@ -63,10 +63,10 @@ list_d_degree_queen_neighbors <- function(labelmatrix, d, i, j)
             }
         }
     }
-    else if ((i > n - d) & (j > d) & (j < (n-d)))
+    else if ((i > n - d) & (j >= d) & (j <= (n-d)))
     {
         m = n-i
-        for(k in -m:m)
+        for(k in -d:m)
         {
             for(l in -d:d)
             {
@@ -77,11 +77,11 @@ list_d_degree_queen_neighbors <- function(labelmatrix, d, i, j)
             }
         }
     }
-    else if ((i > d) & (i < (n-d)) & (j < d))
+    else if ((i >= d) & (i <= (n-d)) & (j < d))
     {
        for(k in -d:d)
         {
-            for(l in -j:j)
+            for(l in -j:d)
             {
                 if((k != 0) | (l != 0))
                 {
@@ -91,12 +91,12 @@ list_d_degree_queen_neighbors <- function(labelmatrix, d, i, j)
         } 
     }
 
-    else if ((i > d) & (i < (n-d)) & (j > (n-d)))
+    else if ((i >= d) & (i <= (n-d)) & (j > (n-d)))
     {
         for(k in -d:d)
         {
-            m = n-i
-            for(l in -m:m)
+            m = n-j
+            for(l in -d:m)
             {
                 if((k != 0) | (l != 0))
                 {
@@ -107,9 +107,9 @@ list_d_degree_queen_neighbors <- function(labelmatrix, d, i, j)
     }
     else if ((i < d) & (j < d))
     {
-        for(k in -i:i)
+        for(k in -i:d)
         {
-            for(l in -j:j)
+            for(l in -j:d)
             {
                 if((k != 0) | (l != 0))
                 {
@@ -121,10 +121,10 @@ list_d_degree_queen_neighbors <- function(labelmatrix, d, i, j)
 
     else if ((i < d) & (j > (n-d)))
     {
-        for(k in -i:i)
+        for(k in -i:d)
         {
             m = n-j
-            for(l in -m:m)
+            for(l in -d:m)
             {
                 if((k != 0) | (l != 0))
                 {
@@ -137,10 +137,10 @@ list_d_degree_queen_neighbors <- function(labelmatrix, d, i, j)
     else if ((i > (n-d)) & (j > (n-d)))
     {
         p = n-i
-        for(k in -p:p)
+        for(k in -d:p)
         {
             m = n-j
-            for(l in -m:m)
+            for(l in -d:m)
             {
                 if((k != 0) | (l != 0))
                 {
@@ -152,9 +152,9 @@ list_d_degree_queen_neighbors <- function(labelmatrix, d, i, j)
     else if ((i > (n-d)) & (j < d))
     {
         p = n-i
-        for(k in -p:p)
+        for(k in -d:p)
         {
-            for(l in -j:j)
+            for(l in -j:d)
             {
                 if((k != 0) | (l != 0))
                 {
@@ -171,35 +171,32 @@ construct_d_degree_queen_contiguity_list <- function(n,d)
     labelmatrix <- seq(1,n**2,1)
     dim(labelmatrix) <- c(n,n)
     neighbors_list <- list()
-    for(i in range(1:n))
+    for(i in 1:n)
     {
-        for(j in range(1:n))
-        {
-            neighbors_list[[(i-1)*n+j]] <- list_d_degree_queen_neighbors(labelmatrix, d, i, j)
+        for(j in 1:n)
+        { 
+            current_neighbors <- list_d_degree_queen_neighbors(labelmatrix, d, i, j)
+            neighbors_list[[(j-1)*n+i]] <- as.integer(current_neighbors)
         }
     }
     return(neighbors_list)
 }
+
 n <- 32
-d <- 3
+d <- 1
+labelmatrix <- seq(1,n**2,1)
+dim(labelmatrix) <- c(n,n)
+nba <- list_d_degree_queen_neighbors(labelmatrix, d, 1, 3)
 neighbors_list <- construct_d_degree_queen_contiguity_list(n,d)
-print(neighbors_list[[4]])
 class(neighbors_list) <- c("nb")
-#W <- nb2mat(neighbors_list)
-minX <- -10
-maxX <- 10
-minY <- -10
-maxY <- 10
-n <- 4
-variance <- .2
-lengthscale <- .2
-W <- construct_exp_kernel(minX, maxX, minY, maxY, n, variance, lengthscale)
 nblist <- cell2nb(n, n, type = "queen")
-print(neighbors_list[2])
-W <- nb2mat(nblist)
+#print(nblist[[1]])
+#print(typeof(nblist[[1]]))
+W <- nb2mat(neighbors_list)
 rho <- 1
 alpha <- 1.5
 a <- compute_bound(rho, W)
-print(typeof(W))
 
-#y = sim.spARCH(n = dim(W)[1], rho = rho, alpha = alpha, W= W, type = "spARCH")
+
+
+y = sim.spARCH(n = dim(W)[1], rho = rho, alpha = alpha, W= W, type = "spARCH")
