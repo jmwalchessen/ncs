@@ -16,7 +16,7 @@ device = "cuda:0"
 config = ncsnpp_config.get_config()
 #if trained parallelized, need to be evaluated that way too
 score_model = torch.nn.DataParallel((ncsnpp.NCSNpp(config)).to("cuda:0"))
-score_model.load_state_dict(th.load((home_folder + "/trained_score_models/vpsde/model2_beta_min_max_01_20_random50_masks_20000.pth")))
+score_model.load_state_dict(th.load((home_folder + "/trained_score_models/vpsde/model5_beta_min_max_01_20_random050_masks.pth")))
 score_model.eval()
 
 def construct_norm_matrix(minX, maxX, minY, maxY, n):
@@ -146,6 +146,6 @@ for i in range(0,10):
                                                                     device, mask, y, n,
                                                                     num_samples)
 
-    figname = ("visualizations/models/model4/observed_and_generated_samples_" + str(i) + ".png")
+    figname = ("visualizations/models/model5/observed_and_generated_samples_" + str(i) + ".png")
     visualize_observed_and_generated_samples(unmasked_y, mask, diffusion_samples[0,:,:,:],
                                             diffusion_samples[1,:,:,:], n, figname)
