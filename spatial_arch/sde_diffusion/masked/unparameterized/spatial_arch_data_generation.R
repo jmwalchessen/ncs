@@ -2,6 +2,8 @@ library(spdep)
 library(spGARCH)
 library(pracma)
 library(fastmatrix)
+library(reticulate)
+library(parallel)
 
 construct_norm_matrix <- function(minX, maxX, minY, maxY, n) {
 
@@ -182,21 +184,96 @@ construct_d_degree_queen_contiguity_list <- function(n,d)
     return(neighbors_list)
 }
 
-n <- 32
-d <- 1
-labelmatrix <- seq(1,n**2,1)
-dim(labelmatrix) <- c(n,n)
-nba <- list_d_degree_queen_neighbors(labelmatrix, d, 1, 3)
-neighbors_list <- construct_d_degree_queen_contiguity_list(n,d)
-class(neighbors_list) <- c("nb")
-nblist <- cell2nb(n, n, type = "queen")
-#print(nblist[[1]])
-#print(typeof(nblist[[1]]))
-W <- nb2mat(neighbors_list)
-rho <- 1
-alpha <- 1.5
-a <- compute_bound(rho, W)
+generate_queen_spatial_arch_process <- function(rho, alpha, n)
+{
+    nblist <- cell2nb(n, n, type = "queen")
+    W <- nb2mat(nblist)
+    y <- sim.spARCH(rho = rho, alpha = alpha, W = W)
+    return(y)
+}
+
+generate_spatial_arch_processes <- function(rho, alpha, n, number_of_replicates)
+{
+    y_matrix <- array(0, dim = c(number_of_replicates,n**2))
+    
+    for(i in 1:number_of_replicates)
+    {
+        y_matrix[i,] <- generate_queen_spatial_arch_process(rho, alpha, n)
+    }
+    return(y_matrix)
+}
+
+simulate_data_per_core <- function(rho, alpha, n, number_of_replicates_per_call)
+{
+    y_matrix <- generate_spatial_arch_processes(rho, alpha, n,
+    number_of_replicates_per_call)
+}
+
+collect_data <- function(parallel_output, nn, number_of_replicates_per_call)
+{
+    m <- length(parallel_output)
+    y <- array(0, dim = c(number_of_replicates_per_call*(m-1), nn, nn))
+    for (i in 1:(m-1))
+    {
+        y[((i-1)*number_of_replicates_per_call+1):(i*number_of_replicates_per_call),,] <- parallel_output[[i]]
+    }
+    return(y)
+}
+
+cluster_and_collect <- function(rho, alpha, n, total_number_of_replicates,
+number_of_replicates_per_call)
+{
+    x <- y <- seq(-10, 10, length = n)
+    coord <- expand.grid(x, y)
+    calls <- as.integer(number_of_replicates/number_of_replicates_per_call)
+    repnumberslist <- rep(number_of_replicates_per_call, calls)
+    repnumberslist <- append(repnumberslist, (number_of_replicates %% number_of_replicates_per_call))
+    cores <- (detectCores(logical = TRUE))
+    cluster <- makeCluster(cores)
+    clusterCall(cluster, function() library(spGARCH))
+    clusterExport(cluster, c("n", "rho", "alpha", "simulate_data_per_core",
+                         "repnumberslist", "sim.sparch", "generate_spatial_arch_processes",
+                         "generate_queen_spatial_arch_process"))
+
+    y <- parSapply(cluster, repnumberslist, function(repsnumber)
+    {simulate_data_per_core(rho, alpha, n, repsnumber)})
+    stopCluster(cluster)
+    np <- import("numpy")
+    y <- collect_data(y, nn, number_of_replicates_per_call)
+    np$save("temporary_spatial_arch_samples.npy", y)
+    rm(list = ls())   
+}
+
+args = commandArgs(trailingOnly=TRUE)
+rho <- as.numeric(args[1])
+alpha <- as.numeric(args[2])
+n <- as.numeric(args[3])
+number_of_replicates <- as.numeric(args[4])
+seed <- as.numeric(args[5])
+
+number_of_replicates_per_call <- 50
+x <- y <- seq(-10, 10, length = n)
+coord <- expand.grid(x, y)
+calls <- as.integer(number_of_replicates/number_of_replicates_per_call)
+repnumberslist <- rep(number_of_replicates_per_call, calls)
+if ((number_of_replicates %% number_of_replicates_per_call) != 0)
+{
+    repnumberslist <- append(repnumberslist,
+    (number_of_replicates %% number_of_replicates_per_call))
+}
+cores <- (detectCores(logical = TRUE))
+cluster <- makeCluster(cores)
+clusterCall(cluster, function() library(spdep, spGARCH))
+clusterExport(cluster, c("n", "rho", "alpha", "simulate_data_per_core",
+                    "repnumberslist", "generate_spatial_arch_processes",
+                    "generate_queen_spatial_arch_process", "sim.spARCH"))
+
+y <- parSapply(cluster, repnumberslist, function(repsnumber)
+{simulate_data_per_core(rho, alpha, n, repsnumber)})
+stopCluster(cluster)
 
 
 
-y = sim.spARCH(n = dim(W)[1], rho = rho, alpha = alpha, W= W, type = "spARCH")
+
+
+
