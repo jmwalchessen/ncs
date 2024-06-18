@@ -129,6 +129,8 @@ def train_per_multiple_masks(config, data_draws, epochs_per_drawn_data,
         sde = sde_lib.VESDE(sigma_min=0.01, sigma_max=50, N = config.model.num_scales)
         sampling_eps = 1e-3
 
+    print("Step Number", sde.N)
+    print("Beta Max", sde.beta_max)
     # Build one-step training and evaluation functions
     optimize_fn = losses.optimization_manager(config)
     continuous = config.training.continuous
@@ -151,8 +153,8 @@ def train_per_multiple_masks(config, data_draws, epochs_per_drawn_data,
         train_dataloader, eval_dataloader = get_training_and_evaluation_mask_and_image_datasets_per_mask(number_of_random_replicates,
                                                                                                          random_missingness_percentages,
                                                                                                          number_of_eval_random_replicates,
-                                                                                                         batch_size, eval_batch_size, range_value,
-                                                                                                         smooth_value, seed_values[data_draw])        
+                                                                                                         batch_size, eval_batch_size, alpha,
+                                                                                                         rho, seed_values[data_draw])        
         
         
         for epoch in range(0, epochs_per_drawn_data):
@@ -186,3 +188,22 @@ def train_per_multiple_masks(config, data_draws, epochs_per_drawn_data,
     torch.save(score_model.state_dict(), score_model_path)
     epochs_and_draws = [i for i in range(0, len(train_losses))]
     visualize_loss(epochs_and_draws, train_losses, eval_losses, loss_path)
+
+data_draws = 10
+epochs_per_drawn_data = 2
+random_missingness_percentages = [0,0.1]
+number_of_random_replicates = 200
+number_of_eval_random_replicates = 32
+seed_values  = [(np.random.randint(0, 10000),np.random.randint(0, 10000))
+                for i in range(0, data_draws)]
+batch_size = 4
+eval_batch_size = 32
+rho = 1
+alpha = 1
+score_model_path = "trained_score_models/vpsde/model1_beta_min_max_01_25_250.pth"
+loss_path = "trained_score_models/vpsde/model1_beta_min_max_01_25_250_loss.png"
+train_per_multiple_masks(vp_ncsnpp_config, data_draws, epochs_per_drawn_data,
+                         random_missingness_percentages, number_of_random_replicates,
+                         number_of_eval_random_replicates, seed_values,
+                             rho, alpha, batch_size,
+                             eval_batch_size, score_model_path, loss_path)
