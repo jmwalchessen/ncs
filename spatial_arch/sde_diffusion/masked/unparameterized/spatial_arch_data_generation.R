@@ -261,16 +261,10 @@ if ((number_of_replicates %% number_of_replicates_per_call) != 0)
     repnumberslist <- append(repnumberslist,
     (number_of_replicates %% number_of_replicates_per_call))
 }
-cores <- (detectCores(logical = TRUE))
-cluster <- makeCluster(cores)
-clusterCall(cluster, function() library(spdep, spGARCH))
-clusterExport(cluster, c("n", "rho", "alpha", "simulate_data_per_core",
-                    "repnumberslist", "generate_spatial_arch_processes",
-                    "generate_queen_spatial_arch_process", "sim.spARCH"))
-
-y <- parSapply(cluster, repnumberslist, function(repsnumber)
-{simulate_data_per_core(rho, alpha, n, repsnumber)})
-stopCluster(cluster)
+y <- mcApply(repsnumberlist, function(repsnumber),
+simulate_data_per_core(rho, alpha, n, repsnumber))
+np <- import("numpy")
+np$save("temporary_spatial_arch_samples.npy", y)
 
 
 

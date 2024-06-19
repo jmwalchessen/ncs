@@ -43,6 +43,7 @@ def generate_train_and_evaluation_brown_resnick_process(range_value, smooth_valu
     return train_images, eval_images
 
 
+
 def generate_random_masks_on_the_fly(n, number_of_random_replicates, random_missingness_percentages):
 
     mask_matrices = np.zeros((0,1,n,n))
@@ -186,7 +187,6 @@ def get_training_and_evaluation_mask_and_image_datasets_per_mask(number_of_rando
     train_image_and_mask_number = len(random_missingness_percentages)*number_of_random_replicates
     eval_image_and_mask_number = len(random_missingness_percentages)*number_of_evaluation_random_replicates
     n = (31**2)
-    print(number_of_evaluation_random_replicates)
     train_images, eval_images = generate_train_and_evaluation_brown_resnick_process(range_value,
                                                                                     smooth_value,
                                                                                     seed_values[0],

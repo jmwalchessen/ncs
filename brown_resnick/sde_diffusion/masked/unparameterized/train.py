@@ -127,7 +127,8 @@ def train_per_multiple_masks(config, data_draws, epochs_per_drawn_data,
     else:
         sde = sde_lib.VESDE(sigma_min=0.01, sigma_max=50, N = config.model.num_scales)
         sampling_eps = 1e-3
-
+    print("N", sde.N)
+    print("beta max", config.model.beta_max)
     # Build one-step training and evaluation functions
     optimize_fn = losses.optimization_manager(config)
     continuous = config.training.continuous
@@ -194,18 +195,18 @@ veconfig = ve_ncsnpp_configuration
 data_draws = 5
 epochs_per_drawn_data = 20
 #needs to be at least 50 reps
-number_of_random_replicates = 50000
+number_of_random_replicates = 100
 #needs to be at least 50 reps
-number_of_eval_random_replicates = 200
-random_missingness_percentages = [0,.1,.2,.3,.4,.5]
-batch_size = 512
-eval_batch_size = 200
+number_of_eval_random_replicates = 100
+random_missingness_percentages = [0, .5, .9,.95]
+batch_size = 4
+eval_batch_size = 100
 range_value = 1.6
 smooth_value = 1.6
 seed_values = [(int(np.random.randint(0, 100000)),int(np.random.randint(0, 100000)))
                 for i in range(0, data_draws)]
-score_model_path = "trained_score_models/vpsde/model6_beta_min_max_01_20_1.6_1.6_random050_masks.pth"
-loss_path = "trained_score_models/vpsde/model1_beta_min_max_01_20_1.6_1.6_random050_masks_loss.png"
+score_model_path = "trained_score_models/vpsde/model1_beta_min_max_01_25_250_1.6_1.6_random05095_masks.pth"
+loss_path = "trained_score_models/vpsde/model1_beta_min_max_01_25_250_1.6_1.6_random05095_masks_loss.png"
 torch.cuda.empty_cache()
 train_per_multiple_masks(vpconfig, data_draws, epochs_per_drawn_data,
                          random_missingness_percentages,
