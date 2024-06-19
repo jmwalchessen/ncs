@@ -28,13 +28,7 @@ def generate_spatial_arch_process(rho, alpha, seed_value, number_of_replicates, 
     os.remove("temporary_spatial_arch_samples.npy")
     return images
 
-rho = 1
-alpha = 1
-seed_value = 43234
-number_of_replicates = 50
-n = 32
-y = generate_spatial_arch_process(rho, alpha, seed_value, number_of_replicates, n)
-print(y.shape)
+
 
 def generate_train_and_evaluation_spatial_arch_process(rho, alpha, seed_value,
                                                         number_of_replicates,
@@ -46,12 +40,12 @@ def generate_train_and_evaluation_spatial_arch_process(rho, alpha, seed_value,
     train_images = np.load("temporary_spatial_arch_samples.npy")
     os.remove("temporary_spatial_arch_samples.npy")
     subprocess.run(["Rscript", "spatial_arch_data_generation.R", str(rho),
-                    str(alpha), str(n), str(number_of_replicates), str(seed_value)],
+                    str(alpha), str(n), str(number_of_evaluation_replicates), str(seed_value)],
                     check = True, capture_output = True, text = False)
     eval_images = np.load("temporary_spatial_arch_samples.npy")
     os.remove("temporary_spatial_arch_samples.npy")
-    train_images = train_images.reshape((number_of_replicates,1,int(np.sqrt(n)),int(np.sqrt(n))))
-    eval_images = eval_images.reshape((number_of_evaluation_replicates,1,int(np.sqrt(n)),int(np.sqrt(n))))
+    train_images = train_images.reshape((number_of_replicates,1,n,n))
+    eval_images = eval_images.reshape((number_of_evaluation_replicates,1,n,n))
     return train_images, eval_images
 
 
@@ -228,3 +222,8 @@ def get_next_image_batch(image_iterator, config):
     images = (next(image_iterator))
     images = images.to(config.device).float()
     return images
+
+
+
+    
+

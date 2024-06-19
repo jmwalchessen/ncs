@@ -16,7 +16,7 @@ device = "cuda:0"
 config = ncsnpp_config.get_config()
 #if trained parallelized, need to be evaluated that way too
 score_model = torch.nn.DataParallel((ncsnpp.NCSNpp(config)).to("cuda:0"))
-score_model.load_state_dict(th.load((home_folder + "/trained_score_models/vpsde/model2_beta_min_max_01_20_random50_masks_20000.pth")))
+score_model.load_state_dict(th.load((home_folder + "/trained_score_models/vpsde/model1_beta_min_max_01_25_250_1.6_1.6_random05095_masks.pth")))
 score_model.eval()
 
 
@@ -55,7 +55,11 @@ def posterior_sample_with_p_mean_variance_via_mask(vpsde, score_model, device, m
 
     return masked_xt
 
+def log_transformation(images):
 
+    images = np.log(np.where(images !=0, images, np.min(images[images != 0])))
+
+    return images
 
 def visualize_sample(diffusion_sample, n):
 
@@ -85,12 +89,13 @@ def visualize_observed_and_generated_samples(observed, mask, diffusion1, diffusi
     plt.savefig(figname)
 
 
-sdevp = VPSDE(beta_min=0.1, beta_max=20, N=1000)
-n = 32
+sdevp = VPSDE(beta_min=0.1, beta_max=25, N=250)
+n = 31
 #mask = torch.ones((1,1,n,n)).to(device)
 #mask[:,:,int(n/4):int(3*n/4),int(n/4):int(3*n/4)] = 0
-p = .5
-mask = (th.bernoulli(p*th.ones(1,1,n,n))).to(device)
+p = 0
+mask = ((th.bernoulli(p*th.ones(1,1,n,n)))).numpy()
+mask = (torch.from_numpy(np.pad(mask, ((0,0), (0,0), (1,0), (1,0))))).to(device)
 num_samples = 1
 minX = -10
 maxX = 10
@@ -105,6 +110,8 @@ for i in range(0,10):
     n = (31**2)
     unmasked_y = generate_brown_resnick_process(range_value, smooth_value, seed_value,
                                                 number_of_replicates, n)
+    
+    unmasked_y = log_transformation(unmasked_y)
     unmasked_y = (torch.from_numpy(np.pad(unmasked_y, ((0,0), (0,0), (1,0), (1,0))))).to(device)
     y = ((torch.mul(mask, unmasked_y)).to(device)).float()
     num_samples = 2
@@ -113,6 +120,6 @@ for i in range(0,10):
                                                                     device, mask, y, n,
                                                                     num_samples)
 
-    figname = ("visualizations/models/model2/observed_and_generated_samples_" + str(i) + ".png")
+    figname = ("visualizations/models/model1/observed_and_generated_samples_" + str(i) + ".png")
     visualize_observed_and_generated_samples(unmasked_y, mask, diffusion_samples[0,:,:,:],
                                             diffusion_samples[1,:,:,:], n, figname)

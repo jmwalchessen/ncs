@@ -127,8 +127,7 @@ def train_per_multiple_masks(config, data_draws, epochs_per_drawn_data,
     else:
         sde = sde_lib.VESDE(sigma_min=0.01, sigma_max=50, N = config.model.num_scales)
         sampling_eps = 1e-3
-    print("N", sde.N)
-    print("beta max", config.model.beta_max)
+
     # Build one-step training and evaluation functions
     optimize_fn = losses.optimization_manager(config)
     continuous = config.training.continuous
@@ -192,49 +191,25 @@ vp_ncsnpp_configuration = vp_ncsnpp_config.get_config()
 ve_ncsnpp_configuration = ve_ncsnpp_config.get_config()
 vpconfig = vp_ncsnpp_configuration
 veconfig = ve_ncsnpp_configuration
-data_draws = 50
-epochs_per_drawn_data = 20
+data_draws = 5
+epochs_per_drawn_data = 2
 #needs to be at least 50 reps
-number_of_random_replicates = 5000
+number_of_random_replicates = 500
 #needs to be at least 50 reps
-number_of_eval_random_replicates = 50
-random_missingness_percentages = [0,.1,.2,.3,.4,.5,.6,.7,.8,.9]
-batch_size = 256
-eval_batch_size = 50
+number_of_eval_random_replicates = 200
+random_missingness_percentages = [0,.1,.2,.3,.4,.5]
+batch_size = 4
+eval_batch_size = 200
 range_value = 1.6
 smooth_value = 1.6
 seed_values = [(int(np.random.randint(0, 100000)),int(np.random.randint(0, 100000)))
                 for i in range(0, data_draws)]
-score_model_path = "trained_score_models/vpsde/model2_beta_min_max_01_25_250_1.6_1.6_random090_masks.pth"
-loss_path = "trained_score_models/vpsde/model2_beta_min_max_01_25_250_1.6_1.6_random090_masks_loss.png"
+score_model_path = "trained_score_models/vpsde/model6_beta_min_max_01_20_1.6_1.6_random050_masks.pth"
+loss_path = "trained_score_models/vpsde/model6_beta_min_max_01_20_1.6_1.6_random050_masks_loss.png"
 torch.cuda.empty_cache()
-
 train_per_multiple_masks(vpconfig, data_draws, epochs_per_drawn_data,
                          random_missingness_percentages,
                          number_of_random_replicates,
                          number_of_eval_random_replicates, seed_values,
                          range_value, smooth_value, batch_size,
                          eval_batch_size, score_model_path, loss_path)
-
-
-"""
-seed_value = 4234
-number_of_replicates = 50
-number_of_evaluation_replicates = 50
-n = 961
-train_images, eval_images = generate_train_and_evaluation_brown_resnick_process(range_value, smooth_value, seed_value,
-                                                        number_of_replicates,
-                                                        number_of_evaluation_replicates, n)
-
-score_model = nn.DataParallel((NCSNpp(vpconfig)).to(vpconfig.device))
-train_images = np.log(train_images)
-train_images = np.pad(train_images, ((0,0), (0,0), (1,0), (1,0)))
-n = 31
-train_masks = generate_random_masks_on_the_fly(n, number_of_random_replicates,
-                                                   random_missingness_percentages)
-train_masks = (torch.from_numpy((np.pad(train_masks, ((0,0), (0,0), (1,0), (1,0)))))).to(vpconfig.device)
-xt = ((torch.from_numpy(train_images[0:1,:,:,:])).to(vpconfig.device)).float()
-xt = (torch.mul(train_masks[0:1,:,:,:], xt)).float()
-t = torch.tensor([100]).to(vpconfig.device)
-print(score_model(xt, t))
-"""

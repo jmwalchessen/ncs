@@ -130,7 +130,7 @@ def train_per_multiple_masks(config, data_draws, epochs_per_drawn_data,
         sampling_eps = 1e-3
 
     print("Step Number", sde.N)
-    print("Beta Max", sde.beta_max)
+    print("Beta Max", config.model.beta_max)
     # Build one-step training and evaluation functions
     optimize_fn = losses.optimization_manager(config)
     continuous = config.training.continuous
@@ -189,20 +189,23 @@ def train_per_multiple_masks(config, data_draws, epochs_per_drawn_data,
     epochs_and_draws = [i for i in range(0, len(train_losses))]
     visualize_loss(epochs_and_draws, train_losses, eval_losses, loss_path)
 
-data_draws = 10
-epochs_per_drawn_data = 2
-random_missingness_percentages = [0,0.1]
-number_of_random_replicates = 200
-number_of_eval_random_replicates = 32
+
+vp_ncsnpp_configuration = vp_ncsnpp_config.get_config()
+vpconfig = vp_ncsnpp_configuration
+data_draws = 5
+epochs_per_drawn_data = 10
+random_missingness_percentages = [0]
+number_of_random_replicates = 1000
+number_of_eval_random_replicates = 20
 seed_values  = [(np.random.randint(0, 10000),np.random.randint(0, 10000))
                 for i in range(0, data_draws)]
 batch_size = 4
-eval_batch_size = 32
-rho = 1
-alpha = 1
-score_model_path = "trained_score_models/vpsde/model1_beta_min_max_01_25_250.pth"
-loss_path = "trained_score_models/vpsde/model1_beta_min_max_01_25_250_loss.png"
-train_per_multiple_masks(vp_ncsnpp_config, data_draws, epochs_per_drawn_data,
+eval_batch_size = 20
+rho = 1.8
+alpha = 1.8
+score_model_path = "trained_score_models/vpsde/model1_beta_min_max_01_25_250_050.pth"
+loss_path = "trained_score_models/vpsde/model1_beta_min_max_01_25_250_050_loss.png"
+train_per_multiple_masks(vpconfig, data_draws, epochs_per_drawn_data,
                          random_missingness_percentages, number_of_random_replicates,
                          number_of_eval_random_replicates, seed_values,
                              rho, alpha, batch_size,

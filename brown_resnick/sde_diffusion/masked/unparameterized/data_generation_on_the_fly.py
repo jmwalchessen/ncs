@@ -15,6 +15,13 @@ def realization_pipeline(stdoutput, n, number_of_replicates):
     #y = y.reshape((number_of_replicates,1,int(np.sqrt(n)),int(np.sqrt(n))))
     return y_str
 
+def log_transformation(images):
+
+    images = np.log(np.where(images !=0, images, np.min(images[images != 0])))
+
+    return images
+
+
 def generate_brown_resnick_process(range_value, smooth_value, seed_value, number_of_replicates, n):
 
     subprocess.run(["Rscript", "brown_resnick_data_generation.R", str(range_value),
@@ -178,7 +185,7 @@ def get_training_and_evaluation_mask_and_image_datasets_per_mask(number_of_rando
     minY = -10
     maxX = 10
     maxY = 10
-    n = 32
+    n = 31
     
     train_masks = generate_random_masks_on_the_fly(n, number_of_random_replicates,
                                                    random_missingness_percentages)
@@ -193,12 +200,18 @@ def get_training_and_evaluation_mask_and_image_datasets_per_mask(number_of_rando
                                                                                     number_of_random_replicates,
                                                                                     number_of_evaluation_random_replicates,
                                                                                     n)
-    train_images = np.log(train_images)
-    eval_images = np.log(eval_images)
-    print(train_images.shape)
-    print(eval_images.shape)
+
+    #when taking log, need to make sure there are no zero values
+    train_images = log_transformation(train_images)
+    eval_images = log_transformation(eval_images)
     train_images = np.pad(train_images, ((0,0), (0,0), (1,0), (1,0)))
     eval_images = np.pad(eval_images, ((0,0), (0,0), (1,0), (1,0)))
+    train_masks = np.pad(train_masks, ((0,0), (0,0), (1,0), (1,0)))
+    eval_masks = np.pad(eval_masks, ((0,0), (0,0), (1,0), (1,0)))
+    eval_masks[:,:,0,:] = 1
+    eval_masks[:,:,:,0] = 1
+    train_masks[:,:,0,:] = 1
+    train_masks[:,:,:,0] = 1
     train_dataset = CustomSpatialImageandMaskDataset(train_images, train_masks)
     eval_dataset = CustomSpatialImageandMaskDataset(eval_images, eval_masks)
     train_dataloader = DataLoader(train_dataset, batch_size = batch_size, shuffle = True)
