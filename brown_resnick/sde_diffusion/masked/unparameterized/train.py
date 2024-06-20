@@ -165,6 +165,7 @@ def train_per_multiple_masks(config, data_draws, epochs_per_drawn_data,
             while True:
                 try:
                     batch = get_next_batch(train_iterator, config)
+
                     loss = train_step_fn(state, batch)
                     train_losses_per_epoch.append(float(loss))
                 except StopIteration:

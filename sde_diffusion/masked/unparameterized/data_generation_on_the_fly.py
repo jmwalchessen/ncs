@@ -1,10 +1,7 @@
 import numpy as np
 import sys
-import scipy
-from scipy import linalg
 from numpy import linalg
 from torch.utils.data import Dataset, DataLoader
-from scipy.stats.qmc import LatinHypercube
 
 def construct_norm_matrix(minX, maxX, minY, maxY, n):
     # create one-dimensional arrays for x and y

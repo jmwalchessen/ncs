@@ -21,14 +21,5 @@ def call_brown_resnick_script(range_value, smooth_value, seed_value, number_of_r
 
 def generate_brown_resnick_process(range_value, smooth_value, seed_value, number_of_replicates, n):
 
-    calls = int(number_of_replicates/100)
-    images = np.zeros((0,1,int(np.sqrt(n)),int(np.sqrt(n))))
-    for i in range(0, calls):
-        current_images = call_brown_resnick_script(range_value, smooth_value, seed_value,
-                                                   100, n)
-        images = np.concatenate([images, current_images], axis = 0)
-    
-    current_images = call_brown_resnick_script(range_value, smooth_value, seed_value,
-                                                   (number_of_replicates % 100), n)
-    images = np.concatenate([images, current_images])
+    images = call_brown_resnick_script(range_value, smooth_value, seed_value, number_of_replicates, n)
     return images
