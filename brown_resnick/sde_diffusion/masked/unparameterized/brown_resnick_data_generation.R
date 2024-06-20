@@ -1,6 +1,7 @@
-library(SpatialExtremes)
 library(parallel)
 library(reticulate)
+library(devtools)
+devtools::install("/home/julia/Dropbox/spatial_extremes/my-spatial-extremes")
 
 args = commandArgs(trailingOnly=TRUE)
 range <- as.numeric(args[1])
@@ -8,7 +9,7 @@ smooth <- as.numeric(args[2])
 number_of_replicates <- as.numeric(args[3])
 seed <- as.numeric(args[4])
 
-n.size <- 961
+n.size <- 1024
 nn <- sqrt(n.size)
 x <- y <- seq(-10, 10, length = nn)
 coord <- expand.grid(x, y)
@@ -18,7 +19,7 @@ repnumberslist <- rep(number_of_replicates_per_call, calls)
 
 simulate_data_per_core <- function(number_of_replicates, nn, coord, range, smooth)
 {
-    y <- rmaxstab(n = number_of_replicates, coord = coord, cov.mod = "brown", range = range, smooth = smooth)
+    y <- SpatialExtremes::rmaxstab(n = number_of_replicates, coord = coord, cov.mod = "brown", range = range, smooth = smooth)
     return(y)
 }
 
@@ -32,7 +33,6 @@ collect_data <- function(parallel_output, nn, number_of_replicates_per_call)
     }
     return(y)
 }
-
 
 cores <- (detectCores(logical = TRUE))
 y <- mclapply(repnumberslist, function(repsnumber)

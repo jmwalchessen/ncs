@@ -201,7 +201,7 @@ seed_values  = [(np.random.randint(0, 10000),np.random.randint(0, 10000))
                 for i in range(0, data_draws)]
 batch_size = 4
 eval_batch_size = 20
-rho = 1.8
+rho = .2
 alpha = 1.8
 score_model_path = "trained_score_models/vpsde/model1_beta_min_max_01_25_250_050.pth"
 loss_path = "trained_score_models/vpsde/model1_beta_min_max_01_25_250_050_loss.png"

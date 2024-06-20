@@ -107,7 +107,7 @@ def train_per_multiple_masks(config, data_draws, epochs_per_drawn_data,
                              number_of_random_replicates,
                              number_of_eval_random_replicates, seed_values,
                              range_value, smooth_value, batch_size,
-                             eval_batch_size, score_model_path, loss_path):
+                             eval_batch_size, score_model_path, loss_path, n):
     
     # Initialize model.
     #score_model = mutils.create_model(config)
@@ -152,7 +152,7 @@ def train_per_multiple_masks(config, data_draws, epochs_per_drawn_data,
                                                                                                          random_missingness_percentages,
                                                                                                          number_of_eval_random_replicates,
                                                                                                          batch_size, eval_batch_size, range_value,
-                                                                                                         smooth_value, seed_values[data_draw])        
+                                                                                                         smooth_value, seed_values[data_draw],n)        
         
         
         for epoch in range(0, epochs_per_drawn_data):
@@ -192,21 +192,22 @@ vp_ncsnpp_configuration = vp_ncsnpp_config.get_config()
 ve_ncsnpp_configuration = ve_ncsnpp_config.get_config()
 vpconfig = vp_ncsnpp_configuration
 veconfig = ve_ncsnpp_configuration
-data_draws = 50
+data_draws = 10
 epochs_per_drawn_data = 20
 #needs to be at least 50 reps
-number_of_random_replicates = 5000
+number_of_random_replicates = 50
 #needs to be at least 50 reps
 number_of_eval_random_replicates = 50
-random_missingness_percentages = [0,.1,.2,.3,.4,.5,.6,.7,.8,.9]
-batch_size = 256
+random_missingness_percentages = [0,.5]
+batch_size = 4
 eval_batch_size = 50
 range_value = 1.6
 smooth_value = 1.6
+n = 32
 seed_values = [(int(np.random.randint(0, 100000)),int(np.random.randint(0, 100000)))
                 for i in range(0, data_draws)]
-score_model_path = "trained_score_models/vpsde/model2_beta_min_max_01_25_250_1.6_1.6_random090_masks.pth"
-loss_path = "trained_score_models/vpsde/model2_beta_min_max_01_25_250_1.6_1.6_random090_masks_loss.png"
+score_model_path = "trained_score_models/vpsde/model2_beta_min_max_01_25_250_1.6_1.6_random050_masks.pth"
+loss_path = "trained_score_models/vpsde/model2_beta_min_max_01_25_250_1.6_1.6_random050_masks_loss.png"
 torch.cuda.empty_cache()
 
 train_per_multiple_masks(vpconfig, data_draws, epochs_per_drawn_data,
@@ -214,7 +215,7 @@ train_per_multiple_masks(vpconfig, data_draws, epochs_per_drawn_data,
                          number_of_random_replicates,
                          number_of_eval_random_replicates, seed_values,
                          range_value, smooth_value, batch_size,
-                         eval_batch_size, score_model_path, loss_path)
+                         eval_batch_size, score_model_path, loss_path, n)
 
 
 """

@@ -45,8 +45,8 @@ def generate_train_and_evaluation_brown_resnick_process(range_value, smooth_valu
                     check = True, capture_output = True, text = False)
     eval_images = np.load("temporary_brown_resnick_samples.npy")
     os.remove("temporary_brown_resnick_samples.npy")
-    train_images = train_images.reshape((number_of_replicates,1,int(np.sqrt(n)),int(np.sqrt(n))))
-    eval_images = eval_images.reshape((number_of_evaluation_replicates,1,int(np.sqrt(n)),int(np.sqrt(n))))
+    train_images = train_images.reshape((number_of_replicates,1,n,n))
+    eval_images = eval_images.reshape((number_of_evaluation_replicates,1,n,n))
     return train_images, eval_images
 
 
@@ -119,10 +119,9 @@ class CustomMaskDataset(Dataset):
     
 def get_training_and_evaluation_dataset_per_mask(number_of_replicates, number_of_evaluation_replicates,
                                                  batch_size, eval_batch_size, seed_values, range_value,
-                                                 smooth_value, mask):
+                                                 smooth_value, mask, n):
     minX = minY = -10
     maxX = maxY = 10
-    n = (32**2)
     train_images = generate_brown_resnick_process(range_value, smooth_value, seed_values[0],
                                                   number_of_replicates, n)
 
@@ -178,22 +177,18 @@ def get_training_and_evaluation_mask_and_image_datasets_per_mask(number_of_rando
                                                                  random_missingness_percentages, 
                                                                  number_of_evaluation_random_replicates,
                                                                  batch_size, eval_batch_size, range_value,
-                                                                 smooth_value, seed_values):
+                                                                 smooth_value, seed_values, n):
     
     minX = -10
     maxX = 10
     minY = -10
     maxX = 10
     maxY = 10
-    n = 31
     
     train_masks = generate_random_masks_on_the_fly(n, number_of_random_replicates,
                                                    random_missingness_percentages)
     eval_masks = generate_random_masks_on_the_fly(n, number_of_evaluation_random_replicates,
                                                   random_missingness_percentages)
-    train_image_and_mask_number = len(random_missingness_percentages)*number_of_random_replicates
-    eval_image_and_mask_number = len(random_missingness_percentages)*number_of_evaluation_random_replicates
-    n = (31**2)
     train_images, eval_images = generate_train_and_evaluation_brown_resnick_process(range_value,
                                                                                     smooth_value,
                                                                                     seed_values[0],
@@ -204,14 +199,6 @@ def get_training_and_evaluation_mask_and_image_datasets_per_mask(number_of_rando
     #when taking log, need to make sure there are no zero values
     train_images = log_transformation(train_images)
     eval_images = log_transformation(eval_images)
-    train_images = np.pad(train_images, ((0,0), (0,0), (1,0), (1,0)))
-    eval_images = np.pad(eval_images, ((0,0), (0,0), (1,0), (1,0)))
-    train_masks = np.pad(train_masks, ((0,0), (0,0), (1,0), (1,0)))
-    eval_masks = np.pad(eval_masks, ((0,0), (0,0), (1,0), (1,0)))
-    eval_masks[:,:,0,:] = 1
-    eval_masks[:,:,:,0] = 1
-    train_masks[:,:,0,:] = 1
-    train_masks[:,:,:,0] = 1
     train_dataset = CustomSpatialImageandMaskDataset(train_images, train_masks)
     eval_dataset = CustomSpatialImageandMaskDataset(eval_images, eval_masks)
     train_dataloader = DataLoader(train_dataset, batch_size = batch_size, shuffle = True)
