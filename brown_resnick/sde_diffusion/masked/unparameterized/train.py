@@ -2,8 +2,6 @@ import torch
 import numpy as np
 from torch.utils.data import Dataset, DataLoader
 from data_generation_on_the_fly import *
-import scipy
-from scipy.stats.qmc import LatinHypercube
 from models.ema import ExponentialMovingAverage
 from models.ncsnpp import *
 import losses
@@ -11,6 +9,7 @@ import sde_lib
 from configs.vp import ncsnpp_config as vp_ncsnpp_config
 from configs.ve import ncsnpp_config as ve_ncsnpp_config
 import matplotlib.pyplot as plt
+
 
 def visualize_loss(epochs_and_draws, train_losses, eval_losses, figname):
 

@@ -2,8 +2,6 @@ import torch
 import numpy as np
 from torch.utils.data import Dataset, DataLoader
 from data_generation_on_the_fly import *
-import scipy
-from scipy.stats.qmc import LatinHypercube
 from models.ema import ExponentialMovingAverage
 from models.ncsnpp import *
 import losses
