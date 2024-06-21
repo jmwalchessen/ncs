@@ -1,7 +1,9 @@
 library(parallel)
 library(reticulate)
 library(devtools)
-devtools::install("/home/julia/Dropbox/spatial_extremes/my-spatial-extremes")
+working_directory <- (strsplit(getwd(), "/sde_diffusion")[[1]])[1]
+spatialextremes_directory <- paste(working_directory, "my-spatial-extremes", sep = "/")
+devtools::install(spatialextremes_directory)
 
 args = commandArgs(trailingOnly=TRUE)
 range <- as.numeric(args[1])
