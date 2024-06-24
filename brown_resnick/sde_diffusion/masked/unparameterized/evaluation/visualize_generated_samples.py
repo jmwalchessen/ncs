@@ -14,9 +14,11 @@ from configs.vp import ncsnpp_config
 
 device = "cuda:0"
 config = ncsnpp_config.get_config()
+print("T", config.models.num_scales)
+print("beta max", config.models.beta_max)
 #if trained parallelized, need to be evaluated that way too
 score_model = torch.nn.DataParallel((ncsnpp.NCSNpp(config)).to("cuda:0"))
-score_model.load_state_dict(th.load((home_folder + "/trained_score_models/vpsde/model1_beta_min_max_01_25_250_1.6_1.6_random05095_masks.pth")))
+score_model.load_state_dict(th.load((home_folder + "/trained_score_models/vpsde/model2_beta_min_max_01_25_250_1.6_1.6_random050_100000_masks.pth")))
 score_model.eval()
 
 
@@ -76,21 +78,21 @@ def visualize_observed_and_generated_samples(observed, mask, diffusion1, diffusi
                  cbar_mode="single"
                  )
     
-    im = grid[0].imshow(observed.detach().cpu().numpy().reshape((n,n)), vmin=0, vmax=15)
+    im = grid[0].imshow(observed.detach().cpu().numpy().reshape((n,n)), vmin=-2, vmax=2)
     grid[0].set_title("Observed")
-    grid[1].imshow(observed.detach().cpu().numpy().reshape((n,n)), vmin=0, vmax=15,
+    grid[1].imshow(observed.detach().cpu().numpy().reshape((n,n)), vmin=-2, vmax=2,
                    alpha = mask.detach().cpu().numpy().reshape((n,n)))
     grid[1].set_title("Partially Observed")
-    grid[2].imshow(diffusion1.detach().cpu().numpy().reshape((n,n)), vmin=0, vmax=15)
+    grid[2].imshow(diffusion1.detach().cpu().numpy().reshape((n,n)), vmin=-2, vmax=2)
     grid[2].set_title("Generated")
-    grid[3].imshow(diffusion2.detach().cpu().numpy().reshape((n,n)), vmin=0, vmax=15)
+    grid[3].imshow(diffusion2.detach().cpu().numpy().reshape((n,n)), vmin=-2, vmax=2)
     grid[3].set_title("Generated")
     grid[0].cax.colorbar(im)
     plt.savefig(figname)
 
 
 sdevp = VPSDE(beta_min=0.1, beta_max=25, N=250)
-n = 31
+n = 32
 #mask = torch.ones((1,1,n,n)).to(device)
 #mask[:,:,int(n/4):int(3*n/4),int(n/4):int(3*n/4)] = 0
 p = 0
@@ -107,12 +109,10 @@ number_of_replicates = 1
 
 for i in range(0,10):
     seed_value = int(np.random.randint(0, 100000))
-    n = (31**2)
-    unmasked_y = generate_brown_resnick_process(range_value, smooth_value, seed_value,
-                                                number_of_replicates, n)
-    
+    n = 1024
+    generate_brown_resnick_process(range_value, smooth_value, seed_value, number_of_replicates, n)
+    unmasked_y = np.load("temporary_brown_resnick_process.npy")
     unmasked_y = log_transformation(unmasked_y)
-    unmasked_y = (torch.from_numpy(np.pad(unmasked_y, ((0,0), (0,0), (1,0), (1,0))))).to(device)
     y = ((torch.mul(mask, unmasked_y)).to(device)).float()
     num_samples = 2
     n = 32
@@ -120,6 +120,6 @@ for i in range(0,10):
                                                                     device, mask, y, n,
                                                                     num_samples)
 
-    figname = ("visualizations/models/model1/observed_and_generated_samples_" + str(i) + ".png")
+    figname = ("visualizations/models/model2/observed_and_generated_samples_" + str(i) + ".png")
     visualize_observed_and_generated_samples(unmasked_y, mask, diffusion_samples[0,:,:,:],
                                             diffusion_samples[1,:,:,:], n, figname)
