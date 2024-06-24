@@ -207,5 +207,6 @@ for i in range(len(matrix_indices1)):
         produce_true_and_generated_bivariate_density(minX, maxX, minY, maxY, n, variance, lengthscale,
                                                  number_of_replicates, missing_indices,
                                                  uncond_samples, 43234,("bivariate_density/true_and_generated_bivariate_density_"
-                                                                        + str(number_of_replicates) + "_" + str(missing_indices[0]) + "_" + str(missing_indices[1]) + ".png"))
+                                                                        + str(number_of_replicates) + "_" + str(missing_indices[0])
+                                                                        + "_" + str(missing_indices[1]) + ".png"))
 

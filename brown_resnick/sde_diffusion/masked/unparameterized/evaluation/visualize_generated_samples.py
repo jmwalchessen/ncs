@@ -14,8 +14,8 @@ from configs.vp import ncsnpp_config
 
 device = "cuda:0"
 config = ncsnpp_config.get_config()
-print("T", config.models.num_scales)
-print("beta max", config.models.beta_max)
+print("T", config.model.num_scales)
+print("beta max", config.model.beta_max)
 #if trained parallelized, need to be evaluated that way too
 score_model = torch.nn.DataParallel((ncsnpp.NCSNpp(config)).to("cuda:0"))
 score_model.load_state_dict(th.load((home_folder + "/trained_score_models/vpsde/model2_beta_min_max_01_25_250_1.6_1.6_random050_100000_masks.pth")))
@@ -78,14 +78,26 @@ def visualize_observed_and_generated_samples(observed, mask, diffusion1, diffusi
                  cbar_mode="single"
                  )
     
-    im = grid[0].imshow(observed.detach().cpu().numpy().reshape((n,n)), vmin=-2, vmax=2)
+    observed = observed.detach().cpu().numpy().reshape((n,n))
+    max_value = np.quantile(observed, [.99])[0]
+    min_value = np.quantile(observed, [.01])[0]
+    im = grid[0].imshow(observed, vmin=min_value, vmax=max_value)
     grid[0].set_title("Observed")
-    grid[1].imshow(observed.detach().cpu().numpy().reshape((n,n)), vmin=-2, vmax=2,
+    grid[1].imshow(observed, vmin=min_value,
+                   vmax=max_value,
                    alpha = mask.detach().cpu().numpy().reshape((n,n)))
     grid[1].set_title("Partially Observed")
-    grid[2].imshow(diffusion1.detach().cpu().numpy().reshape((n,n)), vmin=-2, vmax=2)
+    diffusion1 = diffusion1.detach().cpu().numpy().reshape((n,n))
+    max_value = np.quantile(diffusion1, [.99])[0]
+    min_value = np.quantile(diffusion1, [.01])[0]
+    grid[2].imshow(diffusion1, vmin=min_value,
+                   vmax=max_value)
     grid[2].set_title("Generated")
-    grid[3].imshow(diffusion2.detach().cpu().numpy().reshape((n,n)), vmin=-2, vmax=2)
+    diffusion2 = diffusion2.detach().cpu().numpy().reshape((n,n))
+    max_value = np.quantile(diffusion2, [.99])[0]
+    min_value = np.quantile(diffusion2, [.01])[0]
+    grid[3].imshow(diffusion2,
+                   vmin=min_value, vmax=max_value)
     grid[3].set_title("Generated")
     grid[0].cax.colorbar(im)
     plt.savefig(figname)
@@ -96,8 +108,7 @@ n = 32
 #mask = torch.ones((1,1,n,n)).to(device)
 #mask[:,:,int(n/4):int(3*n/4),int(n/4):int(3*n/4)] = 0
 p = 0
-mask = ((th.bernoulli(p*th.ones(1,1,n,n)))).numpy()
-mask = (torch.from_numpy(np.pad(mask, ((0,0), (0,0), (1,0), (1,0))))).to(device)
+mask = ((th.bernoulli(p*th.ones(1,1,n,n)))).to(device)
 num_samples = 1
 minX = -10
 maxX = 10
@@ -105,14 +116,14 @@ minY = -10
 maxY = 10
 range_value = 1.6
 smooth_value = 1.6
-number_of_replicates = 1
+number_of_replicates = 2
 
-for i in range(0,10):
+for i in range(10,20):
     seed_value = int(np.random.randint(0, 100000))
-    n = 1024
-    generate_brown_resnick_process(range_value, smooth_value, seed_value, number_of_replicates, n)
-    unmasked_y = np.load("temporary_brown_resnick_process.npy")
-    unmasked_y = log_transformation(unmasked_y)
+    n = 32
+    unmasked_y = generate_brown_resnick_process(range_value, smooth_value, seed_value, number_of_replicates, n)
+    unmasked_y = (unmasked_y.reshape(number_of_replicates,1,n,n))[0,:,:,:]
+    unmasked_y = (torch.from_numpy(log_transformation(unmasked_y))).to(device)
     y = ((torch.mul(mask, unmasked_y)).to(device)).float()
     num_samples = 2
     n = 32
@@ -123,3 +134,8 @@ for i in range(0,10):
     figname = ("visualizations/models/model2/observed_and_generated_samples_" + str(i) + ".png")
     visualize_observed_and_generated_samples(unmasked_y, mask, diffusion_samples[0,:,:,:],
                                             diffusion_samples[1,:,:,:], n, figname)
+    
+    figname = ("visualizations/models/model2/observed_and_generated_exp_samples_" + str(i) + ".png")
+    visualize_observed_and_generated_samples(torch.exp(unmasked_y), mask,
+                                             torch.exp(diffusion_samples[0,:,:,:]),
+                                             torch.exp(diffusion_samples[1,:,:,:]), n, figname)

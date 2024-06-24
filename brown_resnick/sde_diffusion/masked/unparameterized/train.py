@@ -192,10 +192,10 @@ vp_ncsnpp_configuration = vp_ncsnpp_config.get_config()
 ve_ncsnpp_configuration = ve_ncsnpp_config.get_config()
 vpconfig = vp_ncsnpp_configuration
 veconfig = ve_ncsnpp_configuration
-data_draws = 10
-epochs_per_drawn_data = 20
+data_draws = 20
+epochs_per_drawn_data = 40
 #needs to be at least 50 reps
-number_of_random_replicates = 50
+number_of_random_replicates = 5000
 #needs to be at least 50 reps
 number_of_eval_random_replicates = 50
 random_missingness_percentages = [0,.5]
@@ -206,8 +206,8 @@ smooth_value = 1.6
 n = 32
 seed_values = [(int(np.random.randint(0, 100000)),int(np.random.randint(0, 100000)))
                 for i in range(0, data_draws)]
-score_model_path = "trained_score_models/vpsde/model2_beta_min_max_01_25_250_1.6_1.6_random050_masks.pth"
-loss_path = "trained_score_models/vpsde/model2_beta_min_max_01_25_250_1.6_1.6_random050_masks_loss.png"
+score_model_path = "trained_score_models/vpsde/model3_beta_min_max_01_20_1000_1.6_1.6_random050_masks.pth"
+loss_path = "trained_score_models/vpsde/model3_beta_min_max_01_20_1000_1.6_1.6_random050_masks_loss.png"
 torch.cuda.empty_cache()
 
 train_per_multiple_masks(vpconfig, data_draws, epochs_per_drawn_data,
