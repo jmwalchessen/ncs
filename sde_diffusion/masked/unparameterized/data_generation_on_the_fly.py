@@ -72,6 +72,7 @@ def generate_random_masks_on_the_fly(n, number_of_random_replicates, random_miss
 def generate_block_masks_on_the_fly(n, number_of_replicates_per_mask, weighted_lower_half_percentages, weighted_upper_half_percentages):
 
     block_masks = produce_nonrandom_block_masks(n, weighted_lower_half_percentages, weighted_upper_half_percentages)
+    block_masks = block_masks.reshape((block_masks.shape[0],1,n,n))
     return np.repeat(block_masks, number_of_replicates_per_mask, axis = 0)
 
 
@@ -245,13 +246,13 @@ def get_training_and_evaluation_random_and_block_mask_and_image_datasets_per_mas
     maxX = 10
     maxY = 10
     n = 32
-    
     train_masks = generate_random_and_block_masks_on_the_fly(n, number_of_replicates_per_mask, random_missingness_percentages,
                                                              weighted_lower_half_percentages, weighted_upper_half_percentages)
     eval_masks = generate_random_and_block_masks_on_the_fly(n, number_of_evaluation_replicates_per_mask, random_missingness_percentages,
                                                   weighted_lower_half_percentages, weighted_upper_half_percentages)
-    train_image_and_mask_number = train_masks.shape[0]*number_of_replicates_per_mask
-    eval_image_and_mask_number = eval_masks.shape[0]*number_of_evaluation_replicates_per_mask
+    print(train_masks.shape)
+    train_image_and_mask_number = train_masks.shape[0]
+    eval_image_and_mask_number = eval_masks.shape[0]
 
     train_images = generate_data_on_the_fly(minX, maxX, minY, maxY, n,
                                                               variance, lengthscale,

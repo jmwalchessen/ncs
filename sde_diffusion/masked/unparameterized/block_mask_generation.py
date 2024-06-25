@@ -15,8 +15,10 @@ def produce_half_mask(n):
 def produce_weighted_half_mask(n, p, q):
 
     maskpattern = np.zeros((2,n,n))
-    maskpattern[0,:int(n/2),:] = np.random.bernoulli(p, size = (int(n/2),n))
-    maskpattern[1,int(n/2):,:] = np.random.bernoulli(q, size = (int(n/2),n))
+    n_size = int(int(n/2)*n)
+    n_shape = (int(n/2),n)
+    maskpattern[0,:int(n/2),:] = np.random.binomial(n = n_size, p = p, size = n_shape)
+    maskpattern[1,int(n/2):,:] = np.random.binomial(n = n_size, p = q, size = n_shape)
     return maskpattern
 
 def produce_weighted_half_masks(n, ps, qs):
@@ -53,7 +55,6 @@ def produce_single_block_mask(n):
     block_masks = np.zeros((28, n, n))
     for i in range(len(blocksizelist)):
         block_size = int(blocksizelist[i]/2)
-        print(block_size)
         block_masks[i,(int(n/2)-block_size):(int(n/2)+block_size),
                     (int(n/2)-block_size):(int(n/2)+block_size)] = 1 
     
@@ -65,7 +66,6 @@ def produce_checkered_mask(n):
     checkered_masks = np.zeros((6,n,n))
     checkersizelist = [2,4,8]
     for i in range(len(checkersizelist)):
-        print(i)
         checkersize = checkersizelist[i]
         tophalf = np.concatenate((np.zeros((checkersize,checkersize)),
                        np.ones((checkersize, checkersize))), axis = 0)
