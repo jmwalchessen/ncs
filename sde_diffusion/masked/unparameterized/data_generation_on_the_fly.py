@@ -2,6 +2,7 @@ import numpy as np
 import sys
 from numpy import linalg
 from torch.utils.data import Dataset, DataLoader
+from block_mask_generation import *
 
 def construct_norm_matrix(minX, maxX, minY, maxY, n):
     # create one-dimensional arrays for x and y
@@ -67,6 +68,20 @@ def generate_random_masks_on_the_fly(n, number_of_random_replicates, random_miss
                                                    size = (number_of_random_replicates, 1, n, n))
         mask_matrices = np.concatenate([mask_matrices, current_mask_matrices])
     return mask_matrices
+
+def generate_block_masks_on_the_fly(n, number_of_replicates_per_mask, weighted_lower_half_percentages, weighted_upper_half_percentages):
+
+    block_masks = produce_nonrandom_block_masks(n, weighted_lower_half_percentages, weighted_upper_half_percentages)
+    return np.repeat(block_masks, number_of_replicates_per_mask, axis = 0)
+
+
+#create matrix with masks from random_masks_on_the_fly and block_masks
+def generate_random_and_block_masks_on_the_fly(n, number_of_replicates_per_mask, random_missingness_percentages, weighted_lower_half_percentages, weighted_upper_half_percentages):
+
+    random_masks = generate_random_masks_on_the_fly(n, number_of_replicates_per_mask, random_missingness_percentages)
+    block_masks = generate_block_masks_on_the_fly(n, number_of_replicates_per_mask, weighted_lower_half_percentages, weighted_upper_half_percentages)
+    return np.concatenate([random_masks, block_masks], axis = 0)
+
 
 
 class CustomSpatialImageDataset(Dataset):
@@ -184,7 +199,7 @@ def get_training_and_evaluation_image_datasets_per_mask(number_of_replicates_per
     eval_dataloader = DataLoader(eval_dataset, batch_size = eval_batch_size, shuffle = True)
     return train_dataloader, eval_dataloader
 
-def get_training_and_evaluation_mask_and_image_datasets_per_mask(number_of_random_replicates, 
+def get_training_and_evaluation_random_mask_and_image_datasets_per_mask(number_of_random_replicates, 
                                                                  random_missingness_percentages, 
                                                                  number_of_evaluation_random_replicates,
                                                                  batch_size, eval_batch_size, variance,
@@ -201,6 +216,42 @@ def get_training_and_evaluation_mask_and_image_datasets_per_mask(number_of_rando
     eval_masks = generate_random_masks_on_the_fly(n, number_of_evaluation_random_replicates, random_missingness_percentages)
     train_image_and_mask_number = len(random_missingness_percentages)*number_of_random_replicates
     eval_image_and_mask_number = len(random_missingness_percentages)*number_of_evaluation_random_replicates
+
+    train_images = generate_data_on_the_fly(minX, maxX, minY, maxY, n,
+                                                              variance, lengthscale,
+                                                              train_image_and_mask_number,
+                                                              seed_values[0])
+    eval_images = generate_data_on_the_fly(minX, maxX, minY, maxY, n,
+                                                              variance, lengthscale,
+                                                              eval_image_and_mask_number,
+                                                              seed_values[1])
+    train_dataset = CustomSpatialImageandMaskDataset(train_images, train_masks)
+    eval_dataset = CustomSpatialImageandMaskDataset(eval_images, eval_masks)
+    train_dataloader = DataLoader(train_dataset, batch_size = batch_size, shuffle = True)
+    eval_dataloader = DataLoader(eval_dataset, batch_size = eval_batch_size, shuffle = True)
+    return train_dataloader, eval_dataloader
+
+def get_training_and_evaluation_random_and_block_mask_and_image_datasets_per_mask(number_of_replicates_per_mask, 
+                                                                 random_missingness_percentages,
+                                                                 weighted_lower_half_percentages,
+                                                                 weighted_upper_half_percentages,
+                                                                 number_of_evaluation_replicates_per_mask,
+                                                                 batch_size, eval_batch_size, variance,
+                                                                 lengthscale, seed_values):
+    
+    minX = -10
+    maxX = 10
+    minY = -10
+    maxX = 10
+    maxY = 10
+    n = 32
+    
+    train_masks = generate_random_and_block_masks_on_the_fly(n, number_of_replicates_per_mask, random_missingness_percentages,
+                                                             weighted_lower_half_percentages, weighted_upper_half_percentages)
+    eval_masks = generate_random_and_block_masks_on_the_fly(n, number_of_evaluation_replicates_per_mask, random_missingness_percentages,
+                                                  weighted_lower_half_percentages, weighted_upper_half_percentages)
+    train_image_and_mask_number = train_masks.shape[0]*number_of_replicates_per_mask
+    eval_image_and_mask_number = eval_masks.shape[0]*number_of_evaluation_replicates_per_mask
 
     train_images = generate_data_on_the_fly(minX, maxX, minY, maxY, n,
                                                               variance, lengthscale,
