@@ -215,6 +215,8 @@ def train_per_multiple_random_and_block_masks(config, data_draws, epochs_per_dra
         sde = sde_lib.VESDE(sigma_min=0.01, sigma_max=50, N = config.model.num_scales)
         sampling_eps = 1e-3
 
+    print("N", config.model.num_scales)
+    print("beta_max", config.model.beta_max)
     # Build one-step training and evaluation functions
     optimize_fn = losses.optimization_manager(config)
     continuous = config.training.continuous
