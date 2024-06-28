@@ -139,8 +139,8 @@ def produce_true_and_generated_marginal_density(mask, minX, maxX, minY, maxY, n,
     mask = mask.astype(float).reshape((n,n))
     axs[0].imshow(ref_image.reshape((n,n)), alpha = (1-mask), vmin = -2, vmax = 2)
     axs[0].plot(matrix_missing_index[1], matrix_missing_index[0], "r+")
-    sns.kdeplot(data = pdd, ax = axs[1], palette=['blue'])
-    sns.kdeplot(data = generated_pdd, palette = ["orange"], ax = axs[1])
+    sns.kdeplot(data = pdd, ax = axs[1], palette=['blue'], bw = .2)
+    sns.kdeplot(data = generated_pdd, palette = ["orange"], ax = axs[1], bw = .2)
     plt.axvline(ref_image[int(matrix_missing_index[0]),int(matrix_missing_index[1])], color='red', linestyle = 'dashed')
     axs[1].set_title("Marginal")
     location = index_to_spatial_location(minX, maxX, minY, maxY, n, missing_true_index)
@@ -233,8 +233,8 @@ m = missing_indices.shape[0]
 observed_vector = ref_image.reshape((n**2))
 observed_vector = np.delete(observed_vector, missing_indices)
 
-"""
-for i in range(500,525):
+
+for i in range(500,501):
     missing_index = i
     true_missing_index = missing_indices[missing_index]
     true_missing_matrix_index = index_to_matrix_index(true_missing_index, n)
@@ -245,11 +245,12 @@ for i in range(500,525):
                                                 missing_indices, folder_name, m, observed_vector,
                                                 conditional_samples, ref_image, figname)
 
-"""
+
 indices1 = list(np.random.randint(0, m, 5))
 indices2 = list(np.random.randint(0, m, 5))
 
 
+"""
 for i in indices1:
     for j in indices2:
         missing_index1 = i
@@ -268,3 +269,4 @@ for i in indices1:
                                                     number_of_replicates, missing_two_indices,
                                                     missing_indices, mask_type, folder_name, m, observed_vector,
                                                     conditional_samples, ref_image, figname)
+"""
