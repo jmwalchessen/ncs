@@ -18,7 +18,7 @@ print("T", config.model.num_scales)
 print("beta max", config.model.beta_max)
 #if trained parallelized, need to be evaluated that way too
 score_model = torch.nn.DataParallel((ncsnpp.NCSNpp(config)).to("cuda:0"))
-score_model.load_state_dict(th.load((home_folder + "/trained_score_models/vpsde/model2_beta_min_max_01_25_250_1.6_1.6_random050_100000_masks.pth")))
+score_model.load_state_dict(th.load((home_folder + "/trained_score_models/vpsde/model3_beta_min_max_01_20_1000_1.6_1.6_random0_100000_20_epochs_masks.pth")))
 score_model.eval()
 
 
@@ -103,7 +103,7 @@ def visualize_observed_and_generated_samples(observed, mask, diffusion1, diffusi
     plt.savefig(figname)
 
 
-sdevp = VPSDE(beta_min=0.1, beta_max=25, N=250)
+sdevp = VPSDE(beta_min=0.1, beta_max=20, N=1000)
 n = 32
 #mask = torch.ones((1,1,n,n)).to(device)
 #mask[:,:,int(n/4):int(3*n/4),int(n/4):int(3*n/4)] = 0
@@ -131,11 +131,11 @@ for i in range(10,20):
                                                                     device, mask, y, n,
                                                                     num_samples)
 
-    figname = ("visualizations/models/model2/observed_and_generated_samples_" + str(i) + ".png")
+    figname = ("visualizations/models/model3/observed_and_generated_samples_" + str(i) + ".png")
     visualize_observed_and_generated_samples(unmasked_y, mask, diffusion_samples[0,:,:,:],
                                             diffusion_samples[1,:,:,:], n, figname)
     
-    figname = ("visualizations/models/model2/observed_and_generated_exp_samples_" + str(i) + ".png")
+    figname = ("visualizations/models/model3/observed_and_generated_exp_samples_" + str(i) + ".png")
     visualize_observed_and_generated_samples(torch.exp(unmasked_y), mask,
                                              torch.exp(diffusion_samples[0,:,:,:]),
                                              torch.exp(diffusion_samples[1,:,:,:]), n, figname)

@@ -16,21 +16,21 @@ from models import ncsnpp
 import sde_lib
 
 n = 32
-T = 250
+T = 1000
 device = "cuda:0"
 
 
 
 #get trained score model
 config = ncsnpp_config.get_config()
-config.model.num_scales = 250
-config.model.beta_max = 25
+config.model.num_scales = 1000
+config.model.beta_max = 20
 
 score_model = th.nn.DataParallel((ncsnpp.NCSNpp(config)).to("cuda:0"))
-score_model.load_state_dict(th.load((sde_folder + "/trained_score_models/vpsde/model2_beta_min_max_01_25_250_1.6_1.6_random050_100000_masks.pth")))
+score_model.load_state_dict(th.load((sde_folder + "/trained_score_models/vpsde/model3_beta_min_max_01_20_1000_1.6_1.6_random0_100000_20_epochs_masks.pth")))
 score_model.eval()
 
-sdevp = sde_lib.VPSDE(beta_min=0.1, beta_max=25, N=250)
+sdevp = sde_lib.VPSDE(beta_min=0.1, beta_max=20, N=1000)
 
 
 
@@ -105,9 +105,8 @@ maxY = 10
 n = 32
 range_value = 1.6
 smooth_value = 1.6
-number_of_replicates = 2
 seed_value = 43423
-"""
+number_of_replicates = 1000
 ref_img = generate_true_unconditional_samples.generate_brown_resnick_process(range_value, smooth_value,
                                                                              seed_value, number_of_replicates,
                                                                              n)
@@ -119,16 +118,16 @@ calls = 2
 y = ((th.mul(mask, ref_img)).to(device)).float()
 unconditional_samples = sample_conditionally_multiple_calls(sdevp, score_model, device, mask, y, n,
                                           replicates_per_call, calls)
-np.save("data/unconditional/diffusion/model2_beta_min_max_01_25_random050_100000.npy", unconditional_samples)
+np.save("data/unconditional/diffusion/model3_beta_min_max_01_20_random0_1000.npy", unconditional_samples)
+
 """
-number_of_replicates = 1000
+number_of_replicates = 2000
+print(number_of_replicates)
 seed_value = 23423
 unconditional_true_samples = generate_true_unconditional_samples.generate_brown_resnick_process(range_value, smooth_value,
                                                                              seed_value, number_of_replicates,
                                                                              n)
-
-np.save("data/unconditional/true/unconditoan_range_1.6_smooth_1.6_1000.npy", unconditional_true_samples)
-"""
+np.save("data/unconditional/true/unconditional_model3_range_1.6_smooth_1.6_2000.npy", unconditional_true_samples)
 partially_observed = (mask*ref_img).detach().cpu().numpy().reshape((n,n))
 np.save("data/ref_image2/ref_image2.npy", ref_img.detach().cpu().numpy().reshape((n,n)))
 np.save("data/ref_image2/diffusion/model4_beta_min_max_01_20_random50_1000.npy", conditional_samples)

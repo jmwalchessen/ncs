@@ -189,8 +189,10 @@ def train_per_multiple_random_and_block_masks(config, data_draws, epochs_per_dra
                                               random_missingness_percentages,
                                               weighted_lower_half_percentages,
                                               weighted_upper_half_percentages,
-                                              number_of_random_replicates_per_mask,
-                                              number_of_eval_random_replicates_per_mask, seed_values,
+                                              number_of_random_replicates_per_percentage,
+                                              number_of_block_replicates_per_mask,
+                                              number_of_eval_random_replicates_per_percentage,
+                                              number_of_eval_block_replicates_per_mask, seed_values,
                                               variance, lengthscale, batch_size,
                                               eval_batch_size, score_model_path, loss_path):
     
@@ -213,6 +215,8 @@ def train_per_multiple_random_and_block_masks(config, data_draws, epochs_per_dra
         sde = sde_lib.VESDE(sigma_min=0.01, sigma_max=50, N = config.model.num_scales)
         sampling_eps = 1e-3
 
+    print("N", config.model.num_scales)
+    print("beta_max", config.model.beta_max)
     # Build one-step training and evaluation functions
     optimize_fn = losses.optimization_manager(config)
     continuous = config.training.continuous
@@ -231,12 +235,15 @@ def train_per_multiple_random_and_block_masks(config, data_draws, epochs_per_dra
     for data_draw in range(0, data_draws):
         print(data_draw)
 
-        train_dataloader, eval_dataloader = get_training_and_evaluation_random_and_block_mask_and_image_datasets_per_mask(number_of_random_replicates_per_mask,
-                                                                                                         random_missingness_percentages, weighted_lower_half_percentages,
-                                                                                                         weighted_upper_half_percentages,
-                                                                                                         number_of_eval_random_replicates_per_mask,
-                                                                                                         batch_size, eval_batch_size, variance,
-                                                                                                         lengthscale, seed_values[data_draw])        
+        train_dataloader, eval_dataloader = get_training_and_evaluation_random_and_block_mask_and_image_datasets_per_mask(number_of_random_replicates_per_percentage, 
+                                                                                  random_missingness_percentages,
+                                                                                  number_of_block_replicates_per_mask,
+                                                                                  weighted_lower_half_percentages,
+                                                                                  weighted_upper_half_percentages,
+                                                                                  number_of_eval_random_replicates_per_percentage,
+                                                                                  number_of_eval_block_replicates_per_mask,
+                                                                                  batch_size, eval_batch_size, variance,
+                                                                                  lengthscale, seed_values[data_draw])        
         
         
         for epoch in range(0, epochs_per_drawn_data):
@@ -323,21 +330,25 @@ train_per_multiple_random_masks(vpconfig, data_draws, epochs_per_drawn_data,
                              """
 
 data_draws = 20
-epochs_per_data_draws = 40
-number_of_random_replicates_per_mask = 50000
-number_of_eval_random_replicates_per_mask = 256
-random_missingness_percentages = [0, .01, .05, .1, .2, .3, .4, .5, .6, .7, .8, .9, .95, .99]
+epochs_per_data_draws = 20
+number_of_random_replicates_per_percentage = 5000
+number_of_block_replicates_per_mask = 5000
+number_of_eval_random_replicates_per_percentage = 256
+number_of_eval_block_replicates_per_mask = 256
+number_of_eval_random_replicates_per_percentage = 256
+random_missingness_percentages = [0, .1]
 weighted_upper_half_mask_percentages = [.1, .25]
 weighted_lower_half_mask_percentages = [.75,.9]
-batch_size = 256
+batch_size = 512
 eval_batch_size = 256
 seed_values = [(int(np.random.randint(0, 100000)), int(np.random.randint(0, 100000))) for i in range(0, data_draws)]
-score_model_path = "trained_score_models/vpsde/model6_beta_min_max_01_25_250_random_block_masks.pth"
-loss_path = "trained_score_models/vpsde/model6_beta_min_max_01_25_250_random_block_masks_loss.png"
+score_model_path = "trained_score_models/vpsde/model6_beta_min_max_01_25_250_random010_block_masks.pth"
+loss_path = "trained_score_models/vpsde/model6_beta_min_max_01_25_250_random010_block_masks_loss.png"
 variance = .4
 lengthscale = 1.6
 
-train_per_multiple_random_and_block_masks(vpconfig, data_draws, epochs_per_data_draws, random_missingness_percentages, weighted_lower_half_mask_percentages,
-                                             weighted_upper_half_mask_percentages, number_of_random_replicates_per_mask,
-                                             number_of_eval_random_replicates_per_mask, seed_values, variance, lengthscale,
-                                             batch_size, eval_batch_size, score_model_path, loss_path)
+train_per_multiple_random_and_block_masks(vpconfig, data_draws, epochs_per_data_draws, random_missingness_percentages,
+                                          weighted_lower_half_mask_percentages, weighted_upper_half_mask_percentages,
+                                          number_of_random_replicates_per_percentage, number_of_block_replicates_per_mask,
+                                          number_of_eval_random_replicates_per_percentage, number_of_eval_block_replicates_per_mask,
+                                          seed_values, variance, lengthscale, batch_size, eval_batch_size, score_model_path, loss_path)

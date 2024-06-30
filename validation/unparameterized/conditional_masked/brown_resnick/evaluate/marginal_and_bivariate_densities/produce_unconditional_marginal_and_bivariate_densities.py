@@ -61,15 +61,18 @@ def produce_true_and_generated_marginal_density(minX, maxX, minY, maxY, n,
 
     fig, axs = plt.subplots(ncols = 2, figsize = (10,5))
     pdd = pd.DataFrame(marginal_density,
-                                    columns = None)
+                                    columns = ["true"])
     generated_pdd = pd.DataFrame(generated_marginal_density,
-                                    columns = None)
+                                    columns = ["generated"])
 
     axs[0].imshow(uncond_brm[0,:,:,:].reshape((n,n)), vmin = np.quantile(uncond_brm[0,:,:,:], [.01])[0],
-                  vmax = np.quantile(uncond_brm[0,:,:,:], [.99])[0])
+                 vmax = np.quantile(uncond_brm[0,:,:,:], [.99])[0])
+    #using scott's method to compute bandwidth which depends on number of data points and dimension of data so as long as
+    #bw_adjust is the same between true and generated and true and generated have same number of data points
+    #and the same across pixels
     axs[0].plot(matrix_index[0], matrix_index[1], "r+")
-    sns.kdeplot(data = pdd, ax = axs[1], palette=['blue'])
-    sns.kdeplot(data = generated_pdd, palette = ["orange"], ax = axs[1])
+    sns.kdeplot(pdd, bw_method = "scott", bw_adjust = 1, palette = ["blue"], ax = axs[1])
+    sns.kdeplot(data = generated_pdd["generated"], palette = ["orange"], bw_adjust = 1, ax = axs[1])
     axs[1].set_title("Marginal")
     axs[1].set_xlim(-4,10)
     axs[1].set_ylim(0,.5)
@@ -110,7 +113,7 @@ def produce_true_and_generated_bivariate_density(minX, maxX, minY, maxY, n,
     axs[0].plot(matrix_index1[0], matrix_index1[1], "r+")
     axs[0].plot(matrix_index2[0], matrix_index2[1], "r+")
     print(bivariate_density)
-    kde1 = sns.kdeplot(data = pdd, x = 'x', y = 'y',
+    kde1 = sns.kdeplot(data = pdd, x = 'x', y = 'y', bw_method = "scott", bw_adjust = 1,
                 ax = axs[1], hue = 'class', shade = True, levels = 5, alpha = .5)
     plt.xlim(-4,10)
     plt.ylim(-4,10)
@@ -138,14 +141,15 @@ missing_indices = [100,101]
 home_folder = append_directory(3)
 uncond_samples = np.load((home_folder + "/generate_data/data/unconditional/diffusion/model2_beta_min_max_01_25_random050_100000_diffusion_samples_1000.npy"))
 uncond_brv = (np.load((home_folder + "/generate_data/data/unconditional/true/unconditional_range_1.6_smooth_1.6_1000.npy"))).reshape((n**2,number_of_replicates))
-
 """
-for missing_index in range(700,1024):
+
+for missing_index in range(700,710):
 
     marginal_plot = (home_folder + "/generate_data/data/unconditional/marginal_density/true_and_generated_marginal_density_"
                     + str(number_of_replicates) + "_" + str(missing_index) + ".png")
     produce_true_and_generated_marginal_density(minX, maxX, minY, maxY, n, number_of_replicates,
                                                 missing_index, uncond_samples, uncond_brv, marginal_plot)
+
 
 
 """

@@ -77,10 +77,10 @@ def generate_block_masks_on_the_fly(n, number_of_replicates_per_mask, weighted_l
 
 
 #create matrix with masks from random_masks_on_the_fly and block_masks
-def generate_random_and_block_masks_on_the_fly(n, number_of_replicates_per_mask, random_missingness_percentages, weighted_lower_half_percentages, weighted_upper_half_percentages):
+def generate_random_and_block_masks_on_the_fly(n, number_of_random_replicates_per_percentage, random_missingness_percentages, number_of_block_replicates_per_mask, weighted_lower_half_percentages, weighted_upper_half_percentages):
 
-    random_masks = generate_random_masks_on_the_fly(n, number_of_replicates_per_mask, random_missingness_percentages)
-    block_masks = generate_block_masks_on_the_fly(n, number_of_replicates_per_mask, weighted_lower_half_percentages, weighted_upper_half_percentages)
+    random_masks = generate_random_masks_on_the_fly(n, number_of_random_replicates_per_percentage, random_missingness_percentages)
+    block_masks = generate_block_masks_on_the_fly(n, number_of_block_replicates_per_mask, weighted_lower_half_percentages, weighted_upper_half_percentages)
     return np.concatenate([random_masks, block_masks], axis = 0)
 
 
@@ -232,13 +232,15 @@ def get_training_and_evaluation_random_mask_and_image_datasets_per_mask(number_o
     eval_dataloader = DataLoader(eval_dataset, batch_size = eval_batch_size, shuffle = True)
     return train_dataloader, eval_dataloader
 
-def get_training_and_evaluation_random_and_block_mask_and_image_datasets_per_mask(number_of_replicates_per_mask, 
-                                                                 random_missingness_percentages,
-                                                                 weighted_lower_half_percentages,
-                                                                 weighted_upper_half_percentages,
-                                                                 number_of_evaluation_replicates_per_mask,
-                                                                 batch_size, eval_batch_size, variance,
-                                                                 lengthscale, seed_values):
+def get_training_and_evaluation_random_and_block_mask_and_image_datasets_per_mask(number_of_random_replicates_per_percentage, 
+                                                                                  random_missingness_percentages,
+                                                                                  number_of_block_replicates_per_mask,
+                                                                                  weighted_lower_half_percentages,
+                                                                                  weighted_upper_half_percentages,
+                                                                                  number_of_evaluation_random_replicates_per_percentage,
+                                                                                  number_of_evaluation_block_replicates_per_mask,
+                                                                                  batch_size, eval_batch_size, variance,
+                                                                                  lengthscale, seed_values):
     
     minX = -10
     maxX = 10
@@ -246,11 +248,11 @@ def get_training_and_evaluation_random_and_block_mask_and_image_datasets_per_mas
     maxX = 10
     maxY = 10
     n = 32
-    train_masks = generate_random_and_block_masks_on_the_fly(n, number_of_replicates_per_mask, random_missingness_percentages,
-                                                             weighted_lower_half_percentages, weighted_upper_half_percentages)
-    eval_masks = generate_random_and_block_masks_on_the_fly(n, number_of_evaluation_replicates_per_mask, random_missingness_percentages,
-                                                  weighted_lower_half_percentages, weighted_upper_half_percentages)
-    print(train_masks.shape)
+    train_masks = generate_random_and_block_masks_on_the_fly(n, number_of_random_replicates_per_percentage, random_missingness_percentages,
+                                                             number_of_block_replicates_per_mask, weighted_lower_half_percentages, weighted_upper_half_percentages)
+    eval_masks = generate_random_and_block_masks_on_the_fly(n, number_of_evaluation_random_replicates_per_percentage, random_missingness_percentages,
+                                                            number_of_evaluation_block_replicates_per_mask, weighted_lower_half_percentages,
+                                                            weighted_upper_half_percentages)
     train_image_and_mask_number = train_masks.shape[0]
     eval_image_and_mask_number = eval_masks.shape[0]
 
