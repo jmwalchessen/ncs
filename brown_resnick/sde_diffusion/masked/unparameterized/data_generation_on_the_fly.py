@@ -32,6 +32,15 @@ def generate_brown_resnick_process(range_value, smooth_value, seed_value, number
     os.remove("temporary_brown_resnick_samples.npy")
     return images
 
+def log_and_boundary_process(images):
+
+    log_images = log_transformation(images)
+    log01_images = (log_images - np.min(log_images))/(np.max(log_images) - np.min(log_images))
+    centered_batch = log01_images - .5
+    scaled_centered_batch = 6*centered_batch
+    return scaled_centered_batch
+
+
 def generate_train_and_evaluation_brown_resnick_process(range_value, smooth_value, seed_value,
                                                         number_of_replicates,
                                                         number_of_evaluation_replicates, n):
@@ -48,6 +57,8 @@ def generate_train_and_evaluation_brown_resnick_process(range_value, smooth_valu
     os.remove("temporary_brown_resnick_samples.npy")
     train_images = train_images.reshape((number_of_replicates,1,n,n))
     eval_images = eval_images.reshape((number_of_evaluation_replicates,1,n,n))
+    train_images = log_and_boundary_process(train_images)
+    eval_images = log_and_boundary_process(eval_images)
     return train_images, eval_images
 
 
@@ -214,9 +225,6 @@ def get_training_and_evaluation_mask_and_image_datasets_per_mask(number_of_rando
                                                                                     number_of_evaluation_random_replicates,
                                                                                     n)
 
-    #when taking log, need to make sure there are no zero values
-    train_images = log_transformation(train_images)
-    eval_images = log_transformation(eval_images)
     train_dataset = CustomSpatialImageandMaskDataset(train_images, train_masks)
     eval_dataset = CustomSpatialImageandMaskDataset(eval_images, eval_masks)
     train_dataloader = DataLoader(train_dataset, batch_size = batch_size, shuffle = True)

@@ -23,13 +23,13 @@ device = "cuda:0"
 
 #get trained score model
 config = ncsnpp_config.get_config()
-config.model.num_scales = 250
-config.model.beta_max = 25
+config.model.num_scales = 1000
+config.model.beta_max = 20
 
 score_model = th.nn.DataParallel((ncsnpp.NCSNpp(config)).to("cuda:0"))
-score_model.load_state_dict(th.load((sde_folder + "/trained_score_models/vpsde/model2_beta_min_max_01_25_250_1.6_1.6_random050_100000_masks.pth")))
+score_model.load_state_dict(th.load((sde_folder + "/trained_score_models/vpsde/model4_beta_min_max_01_20_1000_1.6_1.6_random050_masks.pth")))
 score_model.eval()
-sdevp = sde_lib.VPSDE(beta_min=0.1, beta_max=25, N=250)
+sdevp = sde_lib.VPSDE(beta_min=0.1, beta_max=20, N=1000)
 
 
 
@@ -86,12 +86,12 @@ def sample_conditionally_multiple_calls(vpsde, score_model, device, mask, y, n,
     
 
 
-def plot_spatial_field(spatial_field, vmin, vmax):
+def plot_spatial_field(spatial_field, vmin, vmax, figname):
 
     fig, ax = plt.subplots()
     ax.imshow(spatial_field, vmin = vmin, vmax = vmax)
-    #plt.savefig(figname)
-    plt.show()
+    plt.savefig(figname)
+    #plt.show()
 
 def plot_masked_spatial_field(spatial_field, mask, vmin, vmax, figname):
 
@@ -115,15 +115,14 @@ ref_img = generate_true_unconditional_samples.generate_brown_resnick_process(ran
                                                                              seed_value, 2,
                                                                              n)
 ref_img = ((th.from_numpy(ref_img.reshape((2,1,n,n))))[0,:,:,:]).to(device)
-p = .5
+p = .1
 mask = (th.bernoulli(p*th.ones(1,1,n,n))).to(device)
 replicates_per_call = 250
 calls = 1
 y = ((th.mul(mask, ref_img)).to(device)).float()
 conditional_samples = sample_conditionally_multiple_calls(sdevp, score_model, device, mask, y, n,
                                           replicates_per_call, calls)
-np.save("data/conditional/ref_img2/model4_random050_beta_min_max_01_20_1000_250_0.npy", conditional_samples)
-plot_spatial_field(conditional_samples[0,:,:,:].detach().cpu().numpy().reshape((n,n)), -4, 10)
+np.save("data/conditional/ref_img3/model4_random050_beta_min_max_01_20_1000_250_0.npy", conditional_samples)
 """
 number_of_replicates = 2250
 print(number_of_replicates)
@@ -135,13 +134,13 @@ np.save("data/unconditional/true/unconditional_model3_range_1.6_smooth_1.6_2250.
 
 """
 partially_observed = (mask*ref_img).detach().cpu().numpy().reshape((n,n))
-np.save("data/conditional/ref_img2/ref_image2.npy", ref_img.detach().cpu().numpy().reshape((n,n)))
-np.save("data/conditional/ref_img2/partially_observed_field.npy", partially_observed.reshape((n,n)))
-np.save("data/conditional/ref_img2/mask.npy", mask.int().detach().cpu().numpy().reshape((n,n)))
-np.save("data/conditional/ref_img2/seed_value.npy", np.array([int(seed_value)]))
+np.save("data/conditional/ref_img3/ref_image3.npy", ref_img.detach().cpu().numpy().reshape((n,n)))
+np.save("data/conditional/ref_img3/partially_observed_field.npy", partially_observed.reshape((n,n)))
+np.save("data/conditional/ref_img3/mask.npy", mask.int().detach().cpu().numpy().reshape((n,n)))
+np.save("data/conditional/ref_img3/seed_value.npy", np.array([int(seed_value)]))
 
-plot_spatial_field(ref_img.detach().cpu().numpy().reshape((n,n)), -2, 2, "data/conditional/ref_img2/ref_image.png")
-plot_spatial_field((conditional_samples[0,:,:,:]).numpy().reshape((n,n)), -2, 2, "data/conditional/ref_img2/conditional_sample_0.png")
+plot_spatial_field(ref_img.detach().cpu().numpy().reshape((n,n)), -2, 2, "data/conditional/ref_img3/ref_image.png")
+plot_spatial_field((conditional_samples[0,:,:,:]).numpy().reshape((n,n)), -2, 2, "data/conditional/ref_img3/conditional_sample_0.png")
 plot_masked_spatial_field(spatial_field = ref_img.detach().cpu().numpy().reshape((n,n)),
                    vmin = -2, vmax = 2, mask = mask.int().float().detach().cpu().numpy().reshape((n,n)), figname = "data/conditional/ref_img2/partially_observed_field.png")
 
