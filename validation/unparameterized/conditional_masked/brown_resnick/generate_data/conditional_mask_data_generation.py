@@ -115,14 +115,14 @@ ref_img = generate_true_unconditional_samples.generate_brown_resnick_process(ran
                                                                              seed_value, 2,
                                                                              n)
 ref_img = ((th.from_numpy(ref_img.reshape((2,1,n,n))))[0,:,:,:]).to(device)
-p = 0
+p = .5
 mask = (th.bernoulli(p*th.ones(1,1,n,n))).to(device)
-replicates_per_call = 5
+replicates_per_call = 250
 calls = 1
 y = ((th.mul(mask, ref_img)).to(device)).float()
 conditional_samples = sample_conditionally_multiple_calls(sdevp, score_model, device, mask, y, n,
                                           replicates_per_call, calls)
-#np.save("data/conditional/ref_img1/model2_random010_beta_min_max_01_25_random050_250_4.npy", conditional_samples)
+np.save("data/conditional/ref_img2/model4_random050_beta_min_max_01_20_1000_250_0.npy", conditional_samples)
 plot_spatial_field(conditional_samples[0,:,:,:].detach().cpu().numpy().reshape((n,n)), -4, 10)
 """
 number_of_replicates = 2250
@@ -133,15 +133,16 @@ unconditional_true_samples = generate_true_unconditional_samples.generate_brown_
                                                                              n)
 np.save("data/unconditional/true/unconditional_model3_range_1.6_smooth_1.6_2250.npy", unconditional_true_samples)
 
-partially_observed = (mask*ref_img).detach().cpu().numpy().reshape((n,n))
-np.save("data/conditional/ref_img1/ref_image1.npy", ref_img.detach().cpu().numpy().reshape((n,n)))
-np.save("data/conditional/ref_img1/partially_observed_field.npy", partially_observed.reshape((n,n)))
-np.save("data/conditional/ref_img1/mask.npy", mask.int().detach().cpu().numpy().reshape((n,n)))
-np.save("data/conditional/ref_img1/seed_value.npy", np.array([int(seed_value)]))
-
-plot_spatial_field(ref_img.detach().cpu().numpy().reshape((n,n)), -2, 2, "data/conditional/ref_img1/ref_image.png")
-plot_spatial_field((conditional_samples[0,:,:,:]).numpy().reshape((n,n)), -2, 2, "data/conditional/ref_img1/conditional_sample_0.png")
-plot_masked_spatial_field(spatial_field = ref_img.detach().cpu().numpy().reshape((n,n)),
-                   vmin = -2, vmax = 2, mask = mask.int().float().detach().cpu().numpy().reshape((n,n)), figname = "data/conditional/ref_img1/partially_observed_field.png")
-
 """
+partially_observed = (mask*ref_img).detach().cpu().numpy().reshape((n,n))
+np.save("data/conditional/ref_img2/ref_image2.npy", ref_img.detach().cpu().numpy().reshape((n,n)))
+np.save("data/conditional/ref_img2/partially_observed_field.npy", partially_observed.reshape((n,n)))
+np.save("data/conditional/ref_img2/mask.npy", mask.int().detach().cpu().numpy().reshape((n,n)))
+np.save("data/conditional/ref_img2/seed_value.npy", np.array([int(seed_value)]))
+
+plot_spatial_field(ref_img.detach().cpu().numpy().reshape((n,n)), -2, 2, "data/conditional/ref_img2/ref_image.png")
+plot_spatial_field((conditional_samples[0,:,:,:]).numpy().reshape((n,n)), -2, 2, "data/conditional/ref_img2/conditional_sample_0.png")
+plot_masked_spatial_field(spatial_field = ref_img.detach().cpu().numpy().reshape((n,n)),
+                   vmin = -2, vmax = 2, mask = mask.int().float().detach().cpu().numpy().reshape((n,n)), figname = "data/conditional/ref_img2/partially_observed_field.png")
+
+
