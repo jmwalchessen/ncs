@@ -23,14 +23,13 @@ device = "cuda:0"
 
 #get trained score model
 config = ncsnpp_config.get_config()
-config.model.num_scales = 1000
-config.model.beta_max = 20
+config.model.num_scales = 250
+config.model.beta_max = 25
 
 score_model = th.nn.DataParallel((ncsnpp.NCSNpp(config)).to("cuda:0"))
-score_model.load_state_dict(th.load((sde_folder + "/trained_score_models/vpsde/model3_beta_min_max_01_20_1000_1.6_1.6_random0_100000_20_epochs_masks.pth")))
+score_model.load_state_dict(th.load((sde_folder + "/trained_score_models/vpsde/model2_beta_min_max_01_25_250_1.6_1.6_random050_100000_masks.pth")))
 score_model.eval()
-
-sdevp = sde_lib.VPSDE(beta_min=0.1, beta_max=20, N=1000)
+sdevp = sde_lib.VPSDE(beta_min=0.1, beta_max=25, N=250)
 
 
 
@@ -65,6 +64,7 @@ def posterior_sample_with_p_mean_variance_via_mask(vpsde, score_model, device, m
     masked_xT = th.mul((1-mask), unmasked_xT) + th.mul(mask, y)
     masked_xt = masked_xT
     for t in range((vpsde.N-1), 0, -1):
+        print(t)
         masked_xt = sample_with_p_mean_variance_via_mask(vpsde, score_model, device, masked_xt,
                                                          mask, y, t, num_samples)
 
@@ -75,6 +75,7 @@ def sample_conditionally_multiple_calls(vpsde, score_model, device, mask, y, n,
     
     diffusion_samples = th.zeros((0, 1, n, n))
     for call in range(0, calls):
+        print(call)
         current_diffusion_samples = posterior_sample_with_p_mean_variance_via_mask(vpsde, score_model,
                                                                                    device, mask, y, n,
                                                                                    num_samples_per_call)
@@ -85,11 +86,12 @@ def sample_conditionally_multiple_calls(vpsde, score_model, device, mask, y, n,
     
 
 
-def plot_spatial_field(spatial_field, vmin, vmax, figname):
+def plot_spatial_field(spatial_field, vmin, vmax):
 
     fig, ax = plt.subplots()
     ax.imshow(spatial_field, vmin = vmin, vmax = vmax)
-    plt.savefig(figname)
+    #plt.savefig(figname)
+    plt.show()
 
 def plot_masked_spatial_field(spatial_field, mask, vmin, vmax, figname):
 
@@ -107,61 +109,39 @@ range_value = 1.6
 smooth_value = 1.6
 seed_value = 43423
 number_of_replicates = 1000
+
+
 ref_img = generate_true_unconditional_samples.generate_brown_resnick_process(range_value, smooth_value,
-                                                                             seed_value, number_of_replicates,
+                                                                             seed_value, 2,
                                                                              n)
-ref_img = ((th.from_numpy(ref_img.reshape((number_of_replicates,1,n,n))))[0,:,:,:]).to(device)
+ref_img = ((th.from_numpy(ref_img.reshape((2,1,n,n))))[0,:,:,:]).to(device)
 p = 0
 mask = (th.bernoulli(p*th.ones(1,1,n,n))).to(device)
-replicates_per_call = 500
-calls = 2
+replicates_per_call = 5
+calls = 1
 y = ((th.mul(mask, ref_img)).to(device)).float()
-unconditional_samples = sample_conditionally_multiple_calls(sdevp, score_model, device, mask, y, n,
+conditional_samples = sample_conditionally_multiple_calls(sdevp, score_model, device, mask, y, n,
                                           replicates_per_call, calls)
-np.save("data/unconditional/diffusion/model3_beta_min_max_01_20_random0_1000.npy", unconditional_samples)
-
+#np.save("data/conditional/ref_img1/model2_random010_beta_min_max_01_25_random050_250_4.npy", conditional_samples)
+plot_spatial_field(conditional_samples[0,:,:,:].detach().cpu().numpy().reshape((n,n)), -4, 10)
 """
-number_of_replicates = 2000
+number_of_replicates = 2250
 print(number_of_replicates)
 seed_value = 23423
 unconditional_true_samples = generate_true_unconditional_samples.generate_brown_resnick_process(range_value, smooth_value,
                                                                              seed_value, number_of_replicates,
                                                                              n)
-np.save("data/unconditional/true/unconditional_model3_range_1.6_smooth_1.6_2000.npy", unconditional_true_samples)
-partially_observed = (mask*ref_img).detach().cpu().numpy().reshape((n,n))
-np.save("data/ref_image2/ref_image2.npy", ref_img.detach().cpu().numpy().reshape((n,n)))
-np.save("data/ref_image2/diffusion/model4_beta_min_max_01_20_random50_1000.npy", conditional_samples)
-np.save("data/ref_image2/partially_observed_field.npy", partially_observed.reshape((n,n)))
-np.save("data/ref_image2/mask.npy", mask.int().detach().cpu().numpy().reshape((n,n)))
-np.save("data/ref_image2/seed_value.npy", np.array([int(seed_value)]))
+np.save("data/unconditional/true/unconditional_model3_range_1.6_smooth_1.6_2250.npy", unconditional_true_samples)
 
-plot_spatial_field(ref_img.detach().cpu().numpy().reshape((n,n)), -2, 2, "data/ref_image2/ref_image.png")
-plot_spatial_field((conditional_samples[0,:,:,:]).numpy().reshape((n,n)), -2, 2, "data/ref_image2/diffusion/visualizations/conditional_sample_0.png")
+partially_observed = (mask*ref_img).detach().cpu().numpy().reshape((n,n))
+np.save("data/conditional/ref_img1/ref_image1.npy", ref_img.detach().cpu().numpy().reshape((n,n)))
+np.save("data/conditional/ref_img1/partially_observed_field.npy", partially_observed.reshape((n,n)))
+np.save("data/conditional/ref_img1/mask.npy", mask.int().detach().cpu().numpy().reshape((n,n)))
+np.save("data/conditional/ref_img1/seed_value.npy", np.array([int(seed_value)]))
+
+plot_spatial_field(ref_img.detach().cpu().numpy().reshape((n,n)), -2, 2, "data/conditional/ref_img1/ref_image.png")
+plot_spatial_field((conditional_samples[0,:,:,:]).numpy().reshape((n,n)), -2, 2, "data/conditional/ref_img1/conditional_sample_0.png")
 plot_masked_spatial_field(spatial_field = ref_img.detach().cpu().numpy().reshape((n,n)),
-                   vmin = -2, vmax = 2, mask = mask.int().float().detach().cpu().numpy().reshape((n,n)), figname = "data/ref_image2/partially_observed_field.png")
+                   vmin = -2, vmax = 2, mask = mask.int().float().detach().cpu().numpy().reshape((n,n)), figname = "data/conditional/ref_img1/partially_observed_field.png")
 
 """
-
-
-
-
-        
-
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
-

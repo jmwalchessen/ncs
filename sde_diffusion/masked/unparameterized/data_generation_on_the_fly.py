@@ -1,7 +1,6 @@
 import numpy as np
 import sys
 from numpy import linalg
-from torch.utils.data import Dataset, DataLoader
 from block_mask_generation import *
 
 def construct_norm_matrix(minX, maxX, minY, maxY, n):
