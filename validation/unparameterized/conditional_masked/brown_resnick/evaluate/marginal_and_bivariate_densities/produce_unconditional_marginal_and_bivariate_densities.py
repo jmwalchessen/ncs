@@ -46,6 +46,7 @@ def log_transformation(images):
 
     return images
 
+
 def produce_true_and_generated_marginal_density(minX, maxX, minY, maxY, n,
                                                 number_of_replicates, missing_index,
                                                 unconditional_generated_samples, uncond_brv,
@@ -54,7 +55,7 @@ def produce_true_and_generated_marginal_density(minX, maxX, minY, maxY, n,
     #log transformation
     uncond_brv = log_transformation(uncond_brv)
     #conditional_vectors is shape (number of replicates, m)
-    marginal_density = (uncond_brv[missing_index,:]).reshape((number_of_replicates,1))
+    marginal_density = (uncond_brv[:,missing_index]).reshape((number_of_replicates,1))
     matrix_index = index_to_matrix_index(missing_index, n)
     generated_marginal_density = unconditional_generated_samples[:,0,int(matrix_index[0]),int(matrix_index[1])]
     uncond_brm = uncond_brv.reshape((number_of_replicates, 1, n, n))
@@ -92,7 +93,7 @@ def produce_true_and_generated_bivariate_density(minX, maxX, minY, maxY, n,
     uncond_brv = log_transformation(uncond_brv)
     #conditional_vectors is shape (number of replicates, m)
     uncond_brm = uncond_brv.reshape((number_of_replicates, 1, n, n))
-    bivariate_density = (uncond_brv[missing_two_indices,:]).reshape((2,number_of_replicates)).T
+    bivariate_density = (uncond_brv[:,missing_two_indices]).reshape((number_of_replicates,2))
     matrix_index1 = index_to_matrix_index(missing_indices[0], n)
     matrix_index2 = index_to_matrix_index(missing_indices[1], n)
     generated_bivariate_density = np.concatenate([(unconditional_generated_samples[:,0,int(matrix_index1[0]),int(matrix_index1[1])]).reshape((number_of_replicates,1)),
@@ -135,21 +136,22 @@ maxY = 10
 n = 32
 range_value = 1.6
 smooth_value = 1.6
-number_of_replicates = 1000
+number_of_replicates = 2250
 missing_index = 700
 missing_indices = [100,101]
 home_folder = append_directory(3)
-uncond_samples = np.load((home_folder + "/generate_data/data/unconditional/diffusion/model2_beta_min_max_01_25_random050_100000_diffusion_samples_1000.npy"))
-uncond_brv = (np.load((home_folder + "/generate_data/data/unconditional/true/unconditional_range_1.6_smooth_1.6_1000.npy"))).reshape((n**2,number_of_replicates))
-"""
+uncond_samples = np.load((home_folder + "/generate_data/data/unconditional/diffusion/model3_beta_min_max_01_20_random0_2250.npy"))
+uncond_brv = (np.load((home_folder + "/generate_data/data/unconditional/true/unconditional_model3_range_1.6_smooth_1.6_2250.npy")))
+print(uncond_brv.shape)
+
+
 
 for missing_index in range(700,710):
 
-    marginal_plot = (home_folder + "/generate_data/data/unconditional/marginal_density/true_and_generated_marginal_density_"
+    marginal_plot = (home_folder + "/generate_data/data/unconditional/marginal_density/model3_random0_2250_true_and_generated_marginal_density_"
                     + str(number_of_replicates) + "_" + str(missing_index) + ".png")
     produce_true_and_generated_marginal_density(minX, maxX, minY, maxY, n, number_of_replicates,
                                                 missing_index, uncond_samples, uncond_brv, marginal_plot)
-
 
 
 """
@@ -158,12 +160,12 @@ indices2 = np.random.randint(0, n**2, 2)
 indices1 = [500]
 indices2 = [i for i in range(495,505)]
 matrix_indices1 = [(16,16)]
-matrix_indices2 = [(i,j) for i in range(11,16) for j in range(17,20)]
+matrix_indices2 = [(i,j) for i in range(11,20) for j in range(11,20)]
 
 for i in range(len(matrix_indices1)):
     for j in range(len(matrix_indices2)):
         bivarity_density_fig = (home_folder + "/generate_data/data/unconditional/" +
-                                "bivariate_density/true_and_generated_bivariate_density_"
+                                "bivariate_density/model3_random0_true_and_generated_bivariate_density_"
                                                                         + str(number_of_replicates) + "_" + str(missing_indices[0])
                                                                         + "_" + str(missing_indices[1]) + ".png")
         missing_indices = [matrix_index_to_index(matrix_indices1[i], n),
@@ -172,4 +174,4 @@ for i in range(len(matrix_indices1)):
         produce_true_and_generated_bivariate_density(minX, maxX, minY, maxY, n,
                                                  number_of_replicates, missing_indices,
                                                  uncond_samples, uncond_brv, bivarity_density_fig)
-                                                               
+"""

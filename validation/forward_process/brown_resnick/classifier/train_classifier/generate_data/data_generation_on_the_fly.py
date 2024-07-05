@@ -3,7 +3,11 @@ from append_directories import *
 import torch
 from torch.utils.data import Dataset, DataLoader
 import os
+import sys
 import subprocess
+home_folder = append_directory(7)
+sde_diffusion_folder = (home_folder + "/sde_diffusion/masked/unparameterized")
+sys.path.append(sde_diffusion_folder)
 from sde_lib import *
 
 def log_transformation(images):
@@ -20,6 +24,7 @@ def generate_brown_resnick_process(range_value, smooth_value, seed_value, number
     images = np.load("temporary_brown_resnick_samples.npy")
     os.remove("temporary_brown_resnick_samples.npy")
     return images
+
 
 class CustomSpatialImageDataset(Dataset):
     def __init__(self, images):

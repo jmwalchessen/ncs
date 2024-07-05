@@ -18,7 +18,7 @@ print("T", config.model.num_scales)
 print("beta max", config.model.beta_max)
 #if trained parallelized, need to be evaluated that way too
 score_model = torch.nn.DataParallel((ncsnpp.NCSNpp(config)).to("cuda:0"))
-score_model.load_state_dict(th.load((home_folder + "/trained_score_models/vpsde/model3_beta_min_max_01_20_1000_1.6_1.6_random0_100000_20_epochs_masks.pth")))
+score_model.load_state_dict(th.load((home_folder + "/trained_score_models/vpsde/model3_beta_min_max_01_20_1000_1.6_1.6_random0_200000_30_epochs_masks.pth")))
 score_model.eval()
 
 
@@ -131,11 +131,11 @@ for i in range(10,20):
                                                                     device, mask, y, n,
                                                                     num_samples)
 
-    figname = ("visualizations/models/model3/observed_and_generated_samples_" + str(i) + ".png")
+    figname = ("visualizations/models/model3/random0_observed_and_generated_samples_" + str(i) + ".png")
     visualize_observed_and_generated_samples(unmasked_y, mask, diffusion_samples[0,:,:,:],
                                             diffusion_samples[1,:,:,:], n, figname)
     
-    figname = ("visualizations/models/model3/observed_and_generated_exp_samples_" + str(i) + ".png")
+    figname = ("visualizations/models/model3/random0_observed_and_generated_exp_samples_" + str(i) + ".png")
     visualize_observed_and_generated_samples(torch.exp(unmasked_y), mask,
                                              torch.exp(diffusion_samples[0,:,:,:]),
                                              torch.exp(diffusion_samples[1,:,:,:]), n, figname)

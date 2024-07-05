@@ -258,6 +258,7 @@ def train_per_multiple_random_and_block_masks(config, data_draws, epochs_per_dra
                 try:
                     batch = get_next_batch(train_iterator, config)
                     loss = train_step_fn(state, batch)
+                    print("train", loss)
                     train_losses_per_epoch.append(float(loss))
                 except StopIteration:
                     train_losses.append((sum(train_losses_per_epoch)/len(train_losses_per_epoch)))
@@ -331,16 +332,16 @@ train_per_multiple_random_masks(vpconfig, data_draws, epochs_per_drawn_data,
 
 data_draws = 20
 epochs_per_data_draws = 20
-number_of_random_replicates_per_percentage = 5000
-number_of_block_replicates_per_mask = 5000
-number_of_eval_random_replicates_per_percentage = 256
-number_of_eval_block_replicates_per_mask = 256
-number_of_eval_random_replicates_per_percentage = 256
+number_of_random_replicates_per_percentage = 500
+number_of_block_replicates_per_mask = 500
+number_of_eval_random_replicates_per_percentage = 50
+number_of_eval_block_replicates_per_mask = 50
+number_of_eval_random_replicates_per_percentage = 50
 random_missingness_percentages = [0, .1]
 weighted_upper_half_mask_percentages = [.1, .25]
 weighted_lower_half_mask_percentages = [.75,.9]
-batch_size = 512
-eval_batch_size = 256
+batch_size = 4
+eval_batch_size = 16
 seed_values = [(int(np.random.randint(0, 100000)), int(np.random.randint(0, 100000))) for i in range(0, data_draws)]
 score_model_path = "trained_score_models/vpsde/model6_beta_min_max_01_25_250_random010_block_masks.pth"
 loss_path = "trained_score_models/vpsde/model6_beta_min_max_01_25_250_random010_block_masks_loss.png"

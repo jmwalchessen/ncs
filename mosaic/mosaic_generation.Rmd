@@ -1,0 +1,21 @@
+---
+title: "mosaic_generation"
+output: html_document
+date: "2024-06-30"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+library(spatstat)
+```
+
+```{r}
+X <- rpoislinetess(lambda = 3)
+plot(as.im(X), main="rpoislinetess(3)")
+plot(X, add=TRUE)
+```
+
