@@ -332,19 +332,19 @@ train_per_multiple_random_masks(vpconfig, data_draws, epochs_per_drawn_data,
 
 data_draws = 20
 epochs_per_data_draws = 20
-number_of_random_replicates_per_percentage = 500
+number_of_random_replicates_per_percentage = 5000
 number_of_block_replicates_per_mask = 500
 number_of_eval_random_replicates_per_percentage = 50
 number_of_eval_block_replicates_per_mask = 50
 number_of_eval_random_replicates_per_percentage = 50
-random_missingness_percentages = [0, .1]
+random_missingness_percentages = [.8,.9]
 weighted_upper_half_mask_percentages = [.1, .25]
 weighted_lower_half_mask_percentages = [.75,.9]
-batch_size = 4
+batch_size = 512
 eval_batch_size = 16
 seed_values = [(int(np.random.randint(0, 100000)), int(np.random.randint(0, 100000))) for i in range(0, data_draws)]
-score_model_path = "trained_score_models/vpsde/model6_beta_min_max_01_25_250_random010_block_masks.pth"
-loss_path = "trained_score_models/vpsde/model6_beta_min_max_01_25_250_random010_block_masks_loss.png"
+score_model_path = "trained_score_models/vpsde/model7_beta_min_max_01_25_250_random8090_block_masks.pth"
+loss_path = "trained_score_models/vpsde/model7_beta_min_max_01_25_250_random8090_block_masks_loss.png"
 variance = .4
 lengthscale = 1.6
 

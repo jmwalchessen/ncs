@@ -1,0 +1,58 @@
+---
+title: "Untitled"
+output: html_document
+date: "2024-07-04"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(SpatialExtremes)
+```
+
+```{r}
+n.size <- 25
+nn <- sqrt(n.size)
+x <- y <- seq(-10, 10, length = nn)
+coord <- expand.grid(x, y)
+y <- rmaxstab(n = 1, coord = coord, cov.mod = "brown", range = 1, smooth = 1)
+```
+
+
+```{r}
+condcoord <- coord[1:3,]
+coord <- coord[4:25,]
+condy <- y[,1:3]
+condrmaxstab(k = 20, coord = coord, cond.coord = condcoord, cond.data = condy, cov.mod = "brown", range = 1, smooth = 1, do.sim = TRUE, burnin = 1000)
+```
+```{r}
+range <- 1
+smooth <- 1
+cond.coord <- condcoord
+n.site <- nrow(coord)
+n.cond <- nrow(cond.coord)
+all.coord <- scale(rbind(cond.coord, coord), scale = FALSE)
+dim <- ncol(coord)
+dist <- as.matrix(dist(all.coord, diag = TRUE, upper = TRUE))
+n <- n.site + n.cond
+model <- "Brown-Resnick"
+one <- rep(1, n)
+one.sub <- rep(1, n.cond)
+h <- sqrt(rowSums(all.coord^2))
+sigma2 <- 2 * (h / range)^smooth
+cov <- - (dist / range)^smooth
+for (i in 1:n)
+{
+  for (j in 1:n)
+  {
+    cov[i,j] <- 0.5 * (sigma2[i] + sigma2[j]) + cov[i,j]
+  }
+}
+
+cov.sub <- cov[1:n.cond, 1:n.cond]
+cov.chol <- chol(cov)
+cov.chol.sub <- chol(cov.sub)
+```
+

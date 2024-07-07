@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import ImageGrid
 import os
 import sys
-from brown_resnick_data_generation import *
 from append_directories import *
 home_folder = append_directory(2)
 sys.path.append(home_folder)
@@ -18,7 +17,7 @@ print("T", config.model.num_scales)
 print("beta max", config.model.beta_max)
 #if trained parallelized, need to be evaluated that way too
 score_model = torch.nn.DataParallel((ncsnpp.NCSNpp(config)).to("cuda:0"))
-score_model.load_state_dict(th.load((home_folder + "/trained_score_models/vpsde/model3_beta_min_max_01_20_1000_1.6_1.6_random0_200000_30_epochs_masks.pth")))
+score_model.load_state_dict(th.load((home_folder + "/trained_score_models/vpsde/model6_beta_min_max_01_20_1000_1.6_1.6_random3050_bounded_masks.pth")))
 score_model.eval()
 
 
@@ -63,6 +62,14 @@ def log_transformation(images):
 
     return images
 
+def log_and_boundary_process(images):
+
+    log_images = log_transformation(images)
+    log01_images = (log_images - np.min(log_images))/(np.max(log_images) - np.min(log_images))
+    centered_batch = log01_images - .5
+    scaled_centered_batch = 6*centered_batch
+    return scaled_centered_batch
+
 def visualize_sample(diffusion_sample, n):
 
     fig, ax = plt.subplots(figsize = (5,5))
@@ -102,13 +109,43 @@ def visualize_observed_and_generated_samples(observed, mask, diffusion1, diffusi
     grid[0].cax.colorbar(im)
     plt.savefig(figname)
 
+def visualize_observed_and_generated_sample(observed, mask, diffusion, n, figname):
+
+    fig = plt.figure(figsize=(10,10))
+    grid = ImageGrid(fig, 111,  # similar to subplot(111)
+                 nrows_ncols=(2, 2),  # creates 2x2 grid of Axes
+                 axes_pad=0.1,  # pad between Axes in inch.
+                 cbar_mode="single"
+                 )
+    
+    observed = observed.detach().cpu().numpy()
+    diffusion = diffusion.detach().cpu().numpy()
+    max_value = np.quantile(observed, [.995])[0]
+    min_value = np.quantile(observed, [.005])[0]
+    observed = observed.reshape((n,n))
+    diffusion = diffusion.reshape((n,n))
+    im = grid[0].imshow(observed, vmin=min_value, vmax=max_value)
+    grid[0].set_title("Observed")
+    grid[1].imshow(observed, vmin=min_value,
+                   vmax=max_value,
+                   alpha = mask.detach().cpu().numpy().reshape((n,n)))
+    grid[1].set_title("Partially Observed")
+    grid[2].imshow(diffusion, vmin=min_value,
+                   vmax=max_value)
+    grid[2].set_title("Generated")
+    grid[3].imshow(diffusion, vmin=min_value, vmax=max_value, alpha = mask.detach().cpu().numpy().reshape((n,n)))
+    grid[3].set_title("Generated Partially Observed")
+    grid[0].cax.colorbar(im)
+    plt.savefig(figname)
+
 
 sdevp = VPSDE(beta_min=0.1, beta_max=20, N=1000)
 n = 32
 #mask = torch.ones((1,1,n,n)).to(device)
 #mask[:,:,int(n/4):int(3*n/4),int(n/4):int(3*n/4)] = 0
-p = 0
+p = .4
 mask = ((th.bernoulli(p*th.ones(1,1,n,n)))).to(device)
+print(torch.sum(mask))
 num_samples = 1
 minX = -10
 maxX = 10
@@ -116,26 +153,29 @@ minY = -10
 maxY = 10
 range_value = 1.6
 smooth_value = 1.6
-number_of_replicates = 2
+number_of_replicates = 250
+seed_value = int(np.random.randint(0, 100000))
+from brown_resnick_data_generation import *
+#unmasked_ys = generate_brown_resnick_process(range_value, smooth_value, seed_value, number_of_replicates, n)
+unmasked_ys = np.load("brown_resnick_samples_250.npy")
+unmasked_ys = log_and_boundary_process(unmasked_ys)
+unmasked_ys = (unmasked_ys.reshape(number_of_replicates,1,n,n))
 
 for i in range(10,20):
-    seed_value = int(np.random.randint(0, 100000))
+    print(i)
     n = 32
-    unmasked_y = generate_brown_resnick_process(range_value, smooth_value, seed_value, number_of_replicates, n)
-    unmasked_y = (unmasked_y.reshape(number_of_replicates,1,n,n))[0,:,:,:]
-    unmasked_y = (torch.from_numpy(log_transformation(unmasked_y))).to(device)
+    unmasked_y = (torch.from_numpy(unmasked_ys[i,:,:,:])).to(device).float()
     y = ((torch.mul(mask, unmasked_y)).to(device)).float()
-    num_samples = 2
+    num_samples = 1
     n = 32
     diffusion_samples = posterior_sample_with_p_mean_variance_via_mask(sdevp, score_model,
-                                                                    device, mask, y, n,
+                                                                    device, mask, unmasked_y, n,
                                                                     num_samples)
 
-    figname = ("visualizations/models/model3/random0_observed_and_generated_samples_" + str(i) + ".png")
-    visualize_observed_and_generated_samples(unmasked_y, mask, diffusion_samples[0,:,:,:],
-                                            diffusion_samples[1,:,:,:], n, figname)
+    figname = ("visualizations/models/model6/random40_observed_and_generated_samples_" + str(i) + ".png")
+    visualize_observed_and_generated_sample(unmasked_y, mask, diffusion_samples[0,:,:,:],
+                                            n, figname)
     
-    figname = ("visualizations/models/model3/random0_observed_and_generated_exp_samples_" + str(i) + ".png")
-    visualize_observed_and_generated_samples(torch.exp(unmasked_y), mask,
-                                             torch.exp(diffusion_samples[0,:,:,:]),
-                                             torch.exp(diffusion_samples[1,:,:,:]), n, figname)
+    figname = ("visualizations/models/model6/random40_observed_and_generated_exp_samples_" + str(i) + ".png")
+    visualize_observed_and_generated_sample(torch.exp(unmasked_y), mask,
+                                             torch.exp(diffusion_samples[0,:,:,:]), n, figname)

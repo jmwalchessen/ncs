@@ -101,7 +101,9 @@ condrmaxstab <- function(k = 1, coord, cond.coord, cond.data, cov.mod = "powexp"
 
     cov <- cov.fun(dist)
     cov.sub <- cov[1:n.cond, 1:n.cond]
+    print("a")
     cov.chol.sub <- chol(cov.sub)
+    print("b")
   }
 
   if (missing(parts)){

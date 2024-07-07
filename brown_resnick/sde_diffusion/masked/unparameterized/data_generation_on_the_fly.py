@@ -32,6 +32,15 @@ def generate_brown_resnick_process(range_value, smooth_value, seed_value, number
     os.remove("temporary_brown_resnick_samples.npy")
     return images
 
+range_value = 1.6
+smooth_value = 1.6
+seed_value = 2342
+number_of_replicates = 20
+n = 32
+br = generate_brown_resnick_process(range_value, smooth_value, seed_value, number_of_replicates, n)
+logbr = log_transformation(br)
+print(logbr[logbr < -2])
+
 def log_and_boundary_process(images):
 
     log_images = log_transformation(images)

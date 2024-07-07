@@ -140,21 +140,29 @@ number_of_replicates = 2250
 missing_index = 700
 missing_indices = [100,101]
 home_folder = append_directory(3)
+sys.path.append((home_folder + "/generate_data"))
+import generate_true_unconditional_samples
 uncond_samples = np.load((home_folder + "/generate_data/data/unconditional/diffusion/model3_beta_min_max_01_20_random0_2250.npy"))
-uncond_brv = (np.load((home_folder + "/generate_data/data/unconditional/true/unconditional_model3_range_1.6_smooth_1.6_2250.npy")))
+#uncond_brv = (np.load((home_folder + "/generate_data/data/unconditional/true/unconditional_model3_range_1.6_smooth_1.6_2250.npy")))
+seed_value = 3242
+#uncond_brv = generate_true_unconditional_samples.generate_brown_resnick_process(range_value, smooth_value,
+                                                                   #seed_value, number_of_replicates, n)
+uncond_brv = np.load("brown_resnick_samples_2250.npy")
 print(uncond_brv.shape)
 
+missing_marginal_indices = (np.random.randint(low = 0, high = 1024, size = 400)).tolist()
 
 
-for missing_index in range(700,710):
+'''
+for missing_index in missing_marginal_indices:
 
     marginal_plot = (home_folder + "/generate_data/data/unconditional/marginal_density/model3_random0_2250_true_and_generated_marginal_density_"
                     + str(number_of_replicates) + "_" + str(missing_index) + ".png")
     produce_true_and_generated_marginal_density(minX, maxX, minY, maxY, n, number_of_replicates,
                                                 missing_index, uncond_samples, uncond_brv, marginal_plot)
 
+'''
 
-"""
 indices1 = np.random.randint(0, n**2, 2)
 indices2 = np.random.randint(0, n**2, 2)
 indices1 = [500]
@@ -174,4 +182,3 @@ for i in range(len(matrix_indices1)):
         produce_true_and_generated_bivariate_density(minX, maxX, minY, maxY, n,
                                                  number_of_replicates, missing_indices,
                                                  uncond_samples, uncond_brv, bivarity_density_fig)
-"""

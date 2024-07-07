@@ -11,12 +11,13 @@ sys.path.append(home_folder)
 from models import ncsnpp
 from sde_lib import *
 from configs.vp import ncsnpp_config
+from block_mask_generation import *
 
 device = "cuda:0"
 config = ncsnpp_config.get_config()
 #if trained parallelized, need to be evaluated that way too
 score_model = torch.nn.DataParallel((ncsnpp.NCSNpp(config)).to("cuda:0"))
-score_model.load_state_dict(th.load((home_folder + "/trained_score_models/vpsde/model5_beta_min_max_01_20_random050_masks.pth")))
+score_model.load_state_dict(th.load((home_folder + "/trained_score_models/vpsde/model6_beta_min_max_01_25_250_random0_block_masks.pth")))
 score_model.eval()
 
 def construct_norm_matrix(minX, maxX, minY, maxY, n):
@@ -120,12 +121,13 @@ def visualize_observed_and_generated_samples(observed, mask, diffusion1, diffusi
     plt.savefig(figname)
 
 
-sdevp = VPSDE(beta_min=0.1, beta_max=20, N=250)
+sdevp = VPSDE(beta_min=0.1, beta_max=25, N=250)
 n = 32
 #mask = torch.ones((1,1,n,n)).to(device)
 #mask[:,:,int(n/4):int(3*n/4),int(n/4):int(3*n/4)] = 0
-p = .5
+p = 0
 mask = (th.bernoulli(p*th.ones(1,1,n,n))).to(device)
+mask = (th.from_numpy(((produce_checkered_mask(n))[0,:,:]).reshape((1,1,n,n))).to(device)).float()
 num_samples = 1
 minX = -10
 maxX = 10
@@ -135,7 +137,7 @@ variance = .4
 lengthscale = 1.6
 number_of_replicates = 1
 
-for i in range(0,10):
+for i in range(0,2):
     seed_value = int(np.random.randint(0, 100000))
     unmasked_y = (th.from_numpy(generate_gaussian_process(minX, maxX, minY, maxY, n, variance,
                                                         lengthscale, number_of_replicates,
@@ -146,6 +148,6 @@ for i in range(0,10):
                                                                     device, mask, y, n,
                                                                     num_samples)
 
-    figname = ("visualizations/models/model5/observed_and_generated_samples_" + str(i) + ".png")
+    figname = ("visualizations/models/model6/checkered_mask_observed_and_generated_samples_" + str(i) + ".png")
     visualize_observed_and_generated_samples(unmasked_y, mask, diffusion_samples[0,:,:,:],
                                             diffusion_samples[1,:,:,:], n, figname)

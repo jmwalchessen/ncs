@@ -21,13 +21,13 @@ state = {
 }
 variance = .4
 lengthscale = 1.6
-number_of_train_replicates = 500
-number_of_eval_replicates = 100
+number_of_train_replicates = 10
+number_of_eval_replicates = 5
 train_first_class_seed_value = 23423
 eval_first_class_seed_value = 23945
 
-number_of_train_replicates_per_call = 250
-number_of_eval_replicates_per_call = 100
+number_of_train_replicates_per_call = 5
+number_of_eval_replicates_per_call = 5
 train_calls = 2
 eval_calls = 1
 train_second_class_seed_values = [23423, 23945]

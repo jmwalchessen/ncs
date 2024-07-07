@@ -147,11 +147,14 @@ def generate_second_class_from_first_class(first_class_images, score_model, sdev
     diffusion_samples = torch.zeros((0, 1, n, n))
     masks = torch.zeros((0, 1, n, n))
     for i in range(calls):
-        masks = torch.cat([masks, (generate_masks(n, p, number_of_samples_per_call, seed_values[i]).to(device)).detach().cpu()], dim = 0)
-        current_diffusion_samples = posterior_sample_with_p_mean_variance_via_mask(sdevp, score_model, device, masks,
-                                                                                   first_class_images[calls*number_of_samples_per_call:(calls+1)*number_of_samples_per_call,:,:,:],
+        current_first_class_images = (first_class_images[i*number_of_samples_per_call:(i+1)*number_of_samples_per_call,:,:,:]).to(device)
+        print(seed_values[i])
+        current_masks = (generate_masks(n, p, number_of_samples_per_call, seed_values[i]).to(device))
+        current_diffusion_samples = posterior_sample_with_p_mean_variance_via_mask(sdevp, score_model, device, current_masks,
+                                                                                   current_first_class_images,
                                                                                    n, number_of_samples_per_call)
-        diffusion_samples = torch.cat([current_diffusion_samples.detach().cpu(),diffusion_samples])
+        diffusion_samples = torch.cat([current_diffusion_samples.detach().cpu(), diffusion_samples])
+        masks = torch.cat([masks, current_masks.detach().cpu()], dim = 0)
     return masks, diffusion_samples
 
 def plot_spatial_field(image, min_value, max_value, figname):
@@ -178,7 +181,25 @@ def generate_two_classes(minX, maxX, minY, maxY, n, variance, lengthscale, numbe
     masks, second_class_images = generate_second_class_from_first_class(first_class_images, score_model,
                                                            sdevp, device, number_of_replicates_per_call,
                                                            calls, n, p, second_class_seed_values)
+    first_class_images = first_class_images.detach().cpu()
+    second_class_images = second_class_images.detach().cpu()
     return first_class_images, second_class_images, masks
+
+def generate_class_labels(first_class_images, second_class_images):
+
+    first_class_number = first_class_images.shape[0]
+    second_class_number = second_class_images.shape[0]
+    first_class_labels = torch.cat([torch.ones(first_class_number,1),
+                                    torch.zeros((first_class_number,1))], dim = 1)
+    second_class_labels = torch.cat([torch.zeros((first_class_number,1)),
+                                     torch.ones((second_class_number,1))], dim = 1)
+    images = torch.cat([first_class_images, second_class_images], dim = 0)
+    class_labels = torch.cat([first_class_labels, second_class_labels], dim = 0)
+    return images, class_labels
+
+
+
+
 
 class CustomSpatialImageDataset(Dataset):
     def __init__(self, images):
@@ -190,6 +211,19 @@ class CustomSpatialImageDataset(Dataset):
     def __getitem__(self, idx):
         image = self.images[idx,:,:,:]
         return image
+
+class CustomSpatialImageandClassDataset(Dataset):
+    def __init__(self, images, classes):
+        self.images = images
+        self.classes = classes
+
+    def __len__(self):
+        return ((self.images).shape[0])
+
+    def __getitem__(self, idx):
+        image = self.images[idx,:,:,:]
+        class_label = self.classes[idx]
+        return image, class_label
     
 def get_training_and_evaluation_datasets(variance, lengthscale, number_of_train_replicates, number_of_train_replicates_per_call, train_calls,
                                          number_of_eval_replicates, number_of_eval_replicates_per_call, eval_calls,
@@ -204,42 +238,17 @@ def get_training_and_evaluation_datasets(variance, lengthscale, number_of_train_
     maxY = 10
     n = 32
 
-    train_images = generate_two_classes(minX, maxX, minY, maxY, n, variance, lengthscale, number_of_train_replicates,
+    train_first_images, train_second_images, train_masks = generate_two_classes(minX, maxX, minY,
+                                        maxY, n, variance, lengthscale, number_of_train_replicates,
                                         number_of_train_replicates_per_call, train_calls, train_first_class_seed_value,
                                         train_second_class_seed_values, num_scales, beta_min, beta_max, model_name, p, device)
-    eval_images = generate_two_classes(minX, maxX, minY, maxY, n, variance, lengthscale, number_of_eval_replicates,
+    eval_first_images, eval_second_images, eval_masks = generate_two_classes(minX, maxX, minY, maxY, n, variance, lengthscale, number_of_eval_replicates,
                                        number_of_eval_replicates_per_call, eval_calls, eval_first_class_seed_value,
                                         eval_second_class_seed_values, num_scales, beta_min, beta_max, model_name, p, device)
-    train_dataset = CustomSpatialImageDataset(train_images)
-    eval_dataset = CustomSpatialImageDataset(eval_images)
+    train_images, train_class_labels = generate_class_labels(train_first_images, train_second_images)
+    eval_images, eval_class_labels = generate_class_labels(eval_first_images, eval_second_images)
+    train_dataset = CustomSpatialImageandClassDataset(train_images, train_class_labels)
+    eval_dataset = CustomSpatialImageandClassDataset(eval_images, eval_class_labels)
     train_dataloader = DataLoader(train_dataset, batch_size = batch_size, shuffle = True)
     eval_dataloader = DataLoader(eval_dataset, batch_size = eval_batch_size, shuffle = True)
     return train_dataloader, eval_dataloader
-
-variance = .4
-lengthscale = 1.6
-number_of_train_replicates = 10
-number_of_train_replicates = 5
-train_calls = 2
-number_of_eval_replicates = 5
-number_of_eval_replicates_per_call = 5
-eval_calls = 1
-
-
-get_training_and_evaluation_datasets(variance, lengthscale, number_of_train_replicates, number_of_train_replicates_per_call, train_calls,
-                                         number_of_eval_replicates, number_of_eval_replicates_per_call, eval_calls,
-                                         train_first_class_seed_value, eval_first_class_seed_value, train_second_class_seed_values,
-                                         eval_second_class_seed_values, num_scales, beta_min, beta_max, 
-                                         model_name, p, device, batch_size, eval_batch_size):
-    
-
-
-
-
-
-
-
-    
-
-
-    

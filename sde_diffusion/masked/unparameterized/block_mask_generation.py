@@ -19,6 +19,8 @@ def produce_weighted_half_mask(n, p, q):
     n_size = int(int(n/2)*n)
     n_shape = (int(n/2),n)
     maskpattern[0,:int(n/2),:] = torch.bernoulli(p*torch.ones((1,int(n/2),n)))
+    maskpattern[0,int(n/2):,:] = torch.bernoulli(q*torch.ones((1,int(n/2),n)))
+    maskpattern[1,:int(n/2),:] = torch.bernoulli(p*torch.ones((1,int(n/2),n)))
     maskpattern[1,int(n/2):,:] = torch.bernoulli(q*torch.ones((1,int(n/2),n)))
     return maskpattern
 
