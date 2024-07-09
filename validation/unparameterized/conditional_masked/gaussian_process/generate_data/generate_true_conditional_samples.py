@@ -181,6 +181,7 @@ def generate_gaussian_process(minX, maxX, minY, maxY, n, variance, lengthscale,
         gp_matrix[i,:,:,:] = y_matrix[:,i].reshape((1,n,n))
     return y_matrix, gp_matrix
 
+"""
 from append_directories import *
 data_generation_folder = (append_directory(2) + "/generate_data")
 sys.path.append(data_generation_folder)
@@ -212,3 +213,4 @@ observed_vector = np.delete(observed_vector, missing_indices)
 conditional_vectors = sample_conditional_distribution(mask, minX, maxX, minY, maxY, n,
                                                      variance, lengthscale, observed_vector,
                                                      number_of_replicates)
+                                                     """

@@ -210,7 +210,7 @@ def produce_true_and_generated_bivariate_density(mask, minX, maxX, minY, maxY, n
 
 n = 32
 number_of_replicates = 1000 
-conditional_samples = np.load((data_generation_folder + "/data/gpmodel5/ref_image1/diffusion/model5_beta_min_max_01_20_random050.npy"))
+conditional_samples = np.load((data_generation_folder + "/data/gpmodel6/ref_image1/diffusion/model6_beta_min_max_01_20_random3050.npy"))
 conditional_samples = conditional_samples.reshape((number_of_replicates,n,n))
 #mask = np.load((data_generation_folder + "/data/ref_image1/mask.npy"), allow_pickle = True)
 n = 32

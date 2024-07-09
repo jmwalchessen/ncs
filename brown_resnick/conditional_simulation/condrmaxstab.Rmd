@@ -22,10 +22,10 @@ y <- rmaxstab(n = 1, coord = coord, cov.mod = "brown", range = 1, smooth = 1)
 
 
 ```{r}
-condcoord <- coord[1:3,]
-coord <- coord[4:25,]
+condcoord <- as.matrix(coord[1:3,])
+coord <- as.matrix(coord[4:25,])
 condy <- y[,1:3]
-condrmaxstab(k = 20, coord = coord, cond.coord = condcoord, cond.data = condy, cov.mod = "brown", range = 1, smooth = 1, do.sim = TRUE, burnin = 1000)
+condrmaxstab(k = 30, coord = coord, cond.coord = condcoord, cond.data = condy, cov.mod = "brown", range = 1, smooth = 1, nugget = .001)
 ```
 ```{r}
 range <- 1
@@ -54,5 +54,37 @@ for (i in 1:n)
 cov.sub <- cov[1:n.cond, 1:n.cond]
 cov.chol <- chol(cov)
 cov.chol.sub <- chol(cov.sub)
+```
+```{r}
+set.seed(123)
+n.size <- 25
+nn <- sqrt(n.size)
+x <- y <- seq(-10, 10, length = nn)
+coord <- expand.grid(x, y)
+data <- rmaxstab(50, coord, "brown", range = 1, smooth = 1)
+```
+
+```{r}
+# Fit a Brown-Resnick model
+fit <- fitmaxstab(data, coord, "brown", method = "L-BFGS-B", control = list(pgtol = 100, maxit = 0), start = list(range = 1, smooth = 1))
+```
+
+```{r}
+# Define the locations where you want to conditionally sample
+new_coord <- coord[6:25,]
+
+# Define the locations and data for conditioning
+cond_coord <- coord[1:5, ]
+cond_data <- data[1, 1:5]  # Use the first observation for conditioning
+
+# Perform conditional sampling
+set.seed(123)
+cond_sample <- condrmaxstab(1, fit, cond.coord = cond_coord, cond.data = cond_data, coord = new_coord, cov.mod = "brown", range = 1, smooth = 1)
+```
+
+```{r}
+# Plot the conditional samples
+plot(new_coord, col = 'blue', pch = 19, xlab = "X", ylab = "Y", main = "Conditional Samples")
+points(cond_coord, col = 'red', pch = 19)
 ```
 

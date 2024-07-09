@@ -15,13 +15,11 @@ def produce_half_mask(n):
 #there is a probability of p in the first half and probability q in the second half
 def produce_weighted_half_mask(n, p, q):
 
-    maskpattern = np.zeros((2,n,n))
+    maskpattern = np.zeros((1,n,n))
     n_size = int(int(n/2)*n)
     n_shape = (int(n/2),n)
     maskpattern[0,:int(n/2),:] = torch.bernoulli(p*torch.ones((1,int(n/2),n)))
     maskpattern[0,int(n/2):,:] = torch.bernoulli(q*torch.ones((1,int(n/2),n)))
-    maskpattern[1,:int(n/2),:] = torch.bernoulli(p*torch.ones((1,int(n/2),n)))
-    maskpattern[1,int(n/2):,:] = torch.bernoulli(q*torch.ones((1,int(n/2),n)))
     return maskpattern
 
 def produce_weighted_half_masks(n, ps, qs):

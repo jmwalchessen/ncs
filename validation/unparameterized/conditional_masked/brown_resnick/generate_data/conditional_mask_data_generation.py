@@ -27,11 +27,23 @@ config.model.num_scales = 1000
 config.model.beta_max = 20
 
 score_model = th.nn.DataParallel((ncsnpp.NCSNpp(config)).to("cuda:0"))
-score_model.load_state_dict(th.load((sde_folder + "/trained_score_models/vpsde/model4_beta_min_max_01_20_1000_1.6_1.6_random050_masks.pth")))
+score_model.load_state_dict(th.load((sde_folder + "/trained_score_models/vpsde/model6_beta_min_max_01_20_1000_1.6_1.6_random3050_bounded_masks.pth")))
 score_model.eval()
 sdevp = sde_lib.VPSDE(beta_min=0.1, beta_max=20, N=1000)
 
+def log_transformation(images):
 
+    images = np.log(np.where(images !=0, images, np.min(images[images != 0])))
+
+    return images
+
+def log_and_boundary_process(images):
+
+    log_images = log_transformation(images)
+    log01_images = (log_images - np.min(log_images))/(np.max(log_images) - np.min(log_images))
+    centered_batch = log01_images - .5
+    scaled_centered_batch = 6*centered_batch
+    return scaled_centered_batch
 
 #y is observed part of field
 def p_mean_and_variance_from_score_via_mask(vpsde, score_model, device, masked_xt, mask, y, t):
@@ -111,18 +123,31 @@ seed_value = 43423
 number_of_replicates = 1000
 
 
-ref_img = generate_true_unconditional_samples.generate_brown_resnick_process(range_value, smooth_value,
-                                                                             seed_value, 2,
-                                                                             n)
-ref_img = ((th.from_numpy(ref_img.reshape((2,1,n,n))))[0,:,:,:]).to(device)
-p = .1
+#ref_img = generate_true_unconditional_samples.generate_brown_resnick_process(range_value, smooth_value,
+                                                                             #seed_value, 256,
+                                                                             #n)
+ref_img = np.load("brown_resnick_samples_256.npy")
+print(ref_img.shape)
+ref_img = (th.from_numpy(log_and_boundary_process(ref_img)).reshape((250,1,n,n))[0,:,:,:]).to(device)
+p = .5
 mask = (th.bernoulli(p*th.ones(1,1,n,n))).to(device)
 replicates_per_call = 250
 calls = 1
-y = ((th.mul(mask, ref_img)).to(device)).float()
-conditional_samples = sample_conditionally_multiple_calls(sdevp, score_model, device, mask, y, n,
+for i in range(2,8):
+    y = ((th.mul(mask, ref_img)).to(device)).float()
+    conditional_samples = sample_conditionally_multiple_calls(sdevp, score_model, device, mask, y, n,
                                           replicates_per_call, calls)
-np.save("data/conditional/ref_img3/model4_random050_beta_min_max_01_20_1000_250_0.npy", conditional_samples)
+    np.save("data/conditional/ref_img4/model6_random3050_beta_min_max_01_20_1000_random50_250_" + str(i) + ".npy", conditional_samples)
+    partially_observed = (mask*ref_img).detach().cpu().numpy().reshape((n,n))
+    np.save("data/conditional/ref_img4/ref_image4.npy", ref_img.detach().cpu().numpy().reshape((n,n)))
+    np.save("data/conditional/ref_img4/partially_observed_field.npy", partially_observed.reshape((n,n)))
+    np.save("data/conditional/ref_img4/mask.npy", mask.int().detach().cpu().numpy().reshape((n,n)))
+    np.save("data/conditional/ref_img4/seed_value.npy", np.array([int(seed_value)]))
+
+    plot_spatial_field(ref_img.detach().cpu().numpy().reshape((n,n)), -2, 4, "data/conditional/ref_img4/ref_image.png")
+    plot_spatial_field((conditional_samples[0,:,:,:]).numpy().reshape((n,n)), -2, 4, "data/conditional/ref_img4/conditional_sample_0.png")
+    plot_masked_spatial_field(spatial_field = ref_img.detach().cpu().numpy().reshape((n,n)),
+                   vmin = -2, vmax = 4, mask = mask.int().float().detach().cpu().numpy().reshape((n,n)), figname = "data/conditional/ref_img4/partially_observed_field.png")
 """
 number_of_replicates = 2250
 print(number_of_replicates)
@@ -130,18 +155,8 @@ seed_value = 23423
 unconditional_true_samples = generate_true_unconditional_samples.generate_brown_resnick_process(range_value, smooth_value,
                                                                              seed_value, number_of_replicates,
                                                                              n)
-np.save("data/unconditional/true/unconditional_model3_range_1.6_smooth_1.6_2250.npy", unconditional_true_samples)
+np.save("data/unconditional/true/unconditional_model4_range_1.6_smooth_1.6_2250.npy", unconditional_true_samples)
 
 """
-partially_observed = (mask*ref_img).detach().cpu().numpy().reshape((n,n))
-np.save("data/conditional/ref_img3/ref_image3.npy", ref_img.detach().cpu().numpy().reshape((n,n)))
-np.save("data/conditional/ref_img3/partially_observed_field.npy", partially_observed.reshape((n,n)))
-np.save("data/conditional/ref_img3/mask.npy", mask.int().detach().cpu().numpy().reshape((n,n)))
-np.save("data/conditional/ref_img3/seed_value.npy", np.array([int(seed_value)]))
-
-plot_spatial_field(ref_img.detach().cpu().numpy().reshape((n,n)), -2, 2, "data/conditional/ref_img3/ref_image.png")
-plot_spatial_field((conditional_samples[0,:,:,:]).numpy().reshape((n,n)), -2, 2, "data/conditional/ref_img3/conditional_sample_0.png")
-plot_masked_spatial_field(spatial_field = ref_img.detach().cpu().numpy().reshape((n,n)),
-                   vmin = -2, vmax = 2, mask = mask.int().float().detach().cpu().numpy().reshape((n,n)), figname = "data/conditional/ref_img2/partially_observed_field.png")
 
 
