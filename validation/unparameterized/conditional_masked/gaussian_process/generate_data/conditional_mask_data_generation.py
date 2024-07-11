@@ -131,7 +131,7 @@ for i in range(0, 4):
 
     partially_observed = (mask*ref_img).detach().cpu().numpy().reshape((n,n))
     np.save("data/gpmodel7/ref_image1/ref_image1.npy", ref_img.detach().cpu().numpy().reshape((n,n)))
-    np.save("data/gpmodel7/ref_image1/diffusion/model7_beta_min_max_01_25_random80_250_0.npy", conditional_samples)
+    np.save("data/gpmodel7/ref_image1/diffusion/model7_beta_min_max_01_25_random80_250_" + str(i) + ".npy", conditional_samples)
     np.save("data/gpmodel7/ref_image1/partially_observed_field.npy", partially_observed.reshape((n,n)))
     np.save("data/gpmodel7/ref_image1/mask.npy", mask.int().detach().cpu().numpy().reshape((n,n)))
     np.save("data/gpmodel7/ref_image1/seed_value.npy", np.array([int(seed_value)]))

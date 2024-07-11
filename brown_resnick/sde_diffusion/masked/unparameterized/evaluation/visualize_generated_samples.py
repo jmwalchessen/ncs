@@ -164,7 +164,7 @@ unmasked_ys = (unmasked_ys.reshape(number_of_replicates,1,n,n))
 for i in range(10,20):
     print(i)
     n = 32
-    unmasked_y = (torch.from_numpy(unmasked_ys[i,:,:,:])).to(device).float()
+    unmasked_y = torch.from_numpy(ndary_process(uunmasked_ys[i,:,:,:])).to(device).float()
     y = ((torch.mul(mask, unmasked_y)).to(device)).float()
     num_samples = 1
     n = 32

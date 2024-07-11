@@ -6,15 +6,6 @@ import os
 from block_mask_generation import *
 
 
-def realization_pipeline(stdoutput, n, number_of_replicates):
-
-    stdout_str = (stdoutput.stdout).decode()
-    y_str_split = stdout_str.split()
-    y_str = y_str_split[slice(2, ((3*(n**2)*number_of_replicates) + 2), 3)]
-    #print(y_str)
-    #y = np.asarray([float(y_str[i]) for i in range(0,n*number_of_replicates)])
-    #y = y.reshape((number_of_replicates,1,int(np.sqrt(n)),int(np.sqrt(n))))
-    return y_str
 
 def log_transformation(images):
 
@@ -32,14 +23,6 @@ def generate_brown_resnick_process(range_value, smooth_value, seed_value, number
     os.remove("temporary_brown_resnick_samples.npy")
     return images
 
-range_value = 1.6
-smooth_value = 1.6
-seed_value = 2342
-number_of_replicates = 20
-n = 32
-br = generate_brown_resnick_process(range_value, smooth_value, seed_value, number_of_replicates, n)
-logbr = log_transformation(br)
-print(logbr[logbr < -2])
 
 def log_and_boundary_process(images):
 

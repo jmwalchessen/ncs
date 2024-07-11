@@ -57,17 +57,70 @@ cov.chol.sub <- chol(cov.sub)
 ```
 ```{r}
 set.seed(123)
-n.size <- 25
+n.size <- 1024
 nn <- sqrt(n.size)
 x <- y <- seq(-10, 10, length = nn)
-coord <- expand.grid(x, y)
+coord <- as.matrix(expand.grid(x, y))
 data <- rmaxstab(50, coord, "brown", range = 1, smooth = 1)
 ```
+
+
 
 ```{r}
 # Fit a Brown-Resnick model
 fit <- fitmaxstab(data, coord, "brown", method = "L-BFGS-B", control = list(pgtol = 100, maxit = 0), start = list(range = 1, smooth = 1))
 ```
+```{r}
+sample.int(n = 32, size = 7)
+condxindices <- sample.int(n = 32, size = 5)
+condyindices <- sample.int(n = 32, size = 10)
+cond_x <- sort(x[condxindices])
+cond_y <- sort(y[condyindices])
+cond_coord <- as.matrix(expand.grid(cond_x,cond_y))
+new_x <- sort(x[-condxindices])
+new_y <- sort(y[-condyindices])
+new_coord <- as.matrix(expand.grid(new_x,new_y))
+```
+
+
+
+```{r}
+index_of_conditional_coordinate_in_original_coordinates <- function(cond_coord, coord, i)
+{
+  index <- which(coord[,1] == cond_coord[i,1] & coord[,2] == cond_coord[i,2])
+  return(index)
+}
+
+produce_cond_data <- function(cond_coord, coord, data)
+{
+  n <- dim(cond_coord)[1]
+  indices <- c()
+  for(i in 1:n)
+  {
+    indices[i] <- index_of_conditional_coordinate_in_original_coordinates(cond_coord, coord, i)
+  }
+  return(data[1,indices])
+}
+```
+
+```{r}
+cond_data <- produce_cond_data(cond_coord, coord, data)
+```
+
+
+```{r}
+new_x <- seq(-10, 10, 3)
+new_y <- seq(-10, 10, 3)
+new_coord <- expand.grid(new_x,new_y)
+#Define the locations and data for conditioning
+cond_coord <- coord[1:5, ]
+cond_data <- data[1, 1:5]  # Use the first observation for conditioning
+
+# Perform conditional sampling
+set.seed(123)
+cond_sample <- condrmaxstab(50, fit, cond.coord = cond_coord, cond.data = cond_data, coord = new_coord, cov.mod = "brown", range = 1, smooth = 1)
+```
+
 
 ```{r}
 # Define the locations where you want to conditionally sample
@@ -86,5 +139,45 @@ cond_sample <- condrmaxstab(1, fit, cond.coord = cond_coord, cond.data = cond_da
 # Plot the conditional samples
 plot(new_coord, col = 'blue', pch = 19, xlab = "X", ylab = "Y", main = "Conditional Samples")
 points(cond_coord, col = 'red', pch = 19)
+```
+
+```{r}
+x <- seq(-10, 10, length.out = 5)
+y <- seq(-10, 10, length.out = 5)
+grid_coords <- expand.grid(x = x, y = y)
+set.seed(123)
+data <- rmaxstab(1, grid_coords, "brown", range = 1, smooth = 1)
+```
+
+```{r}
+set.seed(123)
+observed_indices <- sample(1:nrow(grid_coords), 2)
+missing_indices <- setdiff(1:nrow(grid_coords), observed_indices)
+
+observed_coords <- grid_coords[observed_indices, ]
+observed_data <- data[, observed_indices]
+```
+
+```{r}
+range_param <- 1  # range parameter
+smooth_param <- 1  # smoothness parameter (for Whittle-Matern covariance)
+nugget_param <- 0  # nugget effect (set to 0 for no nugget)
+```
+
+
+```{r}
+missing_coords <- grid_coords[missing_indices, ]
+
+set.seed(123)
+cond_sample <- condrmaxstab(
+  k = 1,
+  coord = observed_coords,
+  cond.data = observed_data,
+  cond.coord = missing_coords,
+  cov.model = "brown",
+  range = range_param,
+  smooth = smooth_param,
+  nugget = nugget_param
+)
 ```
 
