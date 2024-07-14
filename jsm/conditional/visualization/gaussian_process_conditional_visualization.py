@@ -239,8 +239,9 @@ def true_conditional_image_sampling(mask, minX, maxX, minY, maxY, n, variance, l
         matrix_index = index_to_matrix_index(missing_indices[i], n)
         conditional_samples[:,matrix_index[0],matrix_index[1]] = cond_unobserved_samples[:,i]
 
-    #observed_matrix = np.repeat(observed_matrix.reshape((1,n,n)), repeats = number_of_replicates, axis = 0)
-    #conditional_samples = np.add(observed_matrix, conditional_samples)
+    observed_matrix = np.repeat(observed_matrix.reshape((1,n,n)), repeats = number_of_replicates, axis = 0)
+    conditional_samples = np.add(observed_matrix, conditional_samples)
+    #conditional_samples = observed_matrix
     return conditional_samples
 
     
@@ -307,7 +308,7 @@ def plot_conditional_true_and_difussion_samples(vpsde, score_model, device, mask
     fig = plt.figure(figsize=(20, 7.2))
 
     grid = ImageGrid(fig, 111,          # as in plt.subplot(111)
-                    nrows_ncols=(2,3),
+                    nrows_ncols=(2,4),
                     axes_pad=0.35,
                     share_all=False,
                     cbar_location="right",
@@ -335,14 +336,28 @@ def plot_conditional_true_and_difussion_samples(vpsde, score_model, device, mask
                                                                        number_of_replicates)
     diffusion_samples = diffusion_samples.detach().cpu().numpy().reshape((3,n,n))
     for i, ax in enumerate(grid):
-        if(i < 3):
-            im = ax.imshow(gaussian_samples[i,:,:], vmin = -2, vmax = 2)
+        if(i == 0):
+            im = ax.imshow(ref_image.detach().cpu().numpy().reshape((n,n)),
+                           alpha = mask.detach().cpu().numpy().reshape((n,n)), vmin = -2, vmax = 2)
             ax.set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
             ax.set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
+            ax.set_title("Partially Observed")
+        elif(i < 4):
+            im = ax.imshow(gaussian_samples[(i-1),:,:], vmin = -2, vmax = 2)
+            ax.set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
+            ax.set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
+            ax.set_title("True")
+        
+        elif(i==4):
+            im = ax.imshow(ref_image.detach().cpu().numpy().reshape((n,n)), vmin = -2, vmax = 2)
+            ax.set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
+            ax.set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
+            ax.set_title("Fully Observed")
         else:
-            im = ax.imshow(diffusion_samples[(i-3),:,:], vmin = -2, vmax = 2)
+            im = ax.imshow(diffusion_samples[(i-5),:,:], vmin = -2, vmax = 2)
             ax.set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
             ax.set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
+            ax.set_title("Diffusion")
 
     cbar = grid.cbar_axes[0].colorbar(im)
     cbar.set_ticks([-2,-1,0,1,2])
@@ -378,3 +393,7 @@ number_of_replicates = 3
 #                                    number_of_replicates, missing_indices)
 plot_conditional_true_samples(mask, observed_vector, observed_matrix,
                               missing_indices, n, figname)
+
+plot_conditional_true_and_difussion_samples(vpsde, score_model, device, mask, observed_vector,
+                                                observed_matrix, ref_image, missing_indices, n,
+                                                figname)
