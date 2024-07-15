@@ -45,7 +45,8 @@ factor_to_value <- function(factoredimage, n, uniquefactors, factornumber)
   {
     for(j in 1:n)
     {
-      which(uniquefactors == factoredimage[i,j])[[1]]
+      current_index <- which(uniquefactors == factoredimage[i,j])[[1]]
+      print(current_index)
       image[i,j] <- values[df$factorvalues[current_index]]
     }
   }

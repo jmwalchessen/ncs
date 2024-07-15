@@ -152,6 +152,7 @@ def produce_true_and_generated_marginal_density(mask, minX, maxX, minY, maxY, n,
 
 def produce_true_and_generated_marginal_densities(mask, minX, maxX, minY, maxY, n, variance, lengthscale,
                                   number_of_replicates, missing_index1, missing_index2, missing_index3,
+                                  missing_index4,
                                   missing_indices, observed_vector,
                                   conditional_generated_samples, ref_image,
                                   figname):
@@ -164,18 +165,22 @@ def produce_true_and_generated_marginal_densities(mask, minX, maxX, minY, maxY, 
     marginal_density1 = (conditional_vectors[:,missing_index1]).reshape((number_of_replicates,1))
     marginal_density2 = (conditional_vectors[:,missing_index2]).reshape((number_of_replicates,1))
     marginal_density3 = (conditional_vectors[:,missing_index3]).reshape((number_of_replicates,1))
+    marginal_density4 = (conditional_vectors[:,missing_index3]).reshape((number_of_replicates,1))
     missing_true_index1 = missing_indices[missing_index1]
     matrix_missing_index1 = index_to_matrix_index(missing_true_index1, n)
     missing_true_index2 = missing_indices[missing_index2]
     matrix_missing_index2 = index_to_matrix_index(missing_true_index2, n)
     missing_true_index3 = missing_indices[missing_index3]
     matrix_missing_index3 = index_to_matrix_index(missing_true_index3, n)
+    missing_true_index4 = missing_indices[missing_index4]
+    matrix_missing_index4 = index_to_matrix_index(missing_true_index4, n)
     generated_marginal_density1 = conditional_generated_samples[:,int(matrix_missing_index1[0]),int(matrix_missing_index1[1])]
     generated_marginal_density2 = conditional_generated_samples[:,int(matrix_missing_index2[0]),int(matrix_missing_index2[1])]
     generated_marginal_density3 = conditional_generated_samples[:,int(matrix_missing_index3[0]),int(matrix_missing_index3[1])]
+    generated_marginal_density4 = conditional_generated_samples[:,int(matrix_missing_index4[0]),int(matrix_missing_index4[1])]
     #fig, ax = plt.subplots(1)
     #ax.hist(marginal_disalsotribution, density = True, histtype = 'step', bins = 100)
-    fig, axs = plt.subplots(ncols = 4, figsize = (20,5))
+    fig, axs = plt.subplots(ncols = 4, nrows = 2, figsize = (20,10))
     pdd = pd.DataFrame(marginal_density1,
                                     columns = None)
     generated_pdd = pd.DataFrame(generated_marginal_density1,
@@ -183,35 +188,50 @@ def produce_true_and_generated_marginal_densities(mask, minX, maxX, minY, maxY, 
 
     #partially_observed_field = np.multiply(mask.astype(bool), observed_vector.reshape((n,n)))
     mask = mask.astype(float).reshape((n,n))
-    axs[0].imshow(ref_image.reshape((n,n)), alpha = mask, vmin = -2, vmax = 2)
-    axs[0].plot(matrix_missing_index1[1], matrix_missing_index1[0], "rx", markersize = 20, linewidth = 20)
-    axs[0].plot(matrix_missing_index2[1], matrix_missing_index2[0], "yx", markersize = 20, linewidth = 20)
-    axs[0].plot(matrix_missing_index3[1], matrix_missing_index3[0], "mx", markersize = 20, linewidth = 20)
-    sns.kdeplot(data = pdd, ax = axs[1], palette=['blue'])
-    sns.kdeplot(data = generated_pdd, palette = ["orange"], ax = axs[1])
-    plt.axvline(ref_image[int(matrix_missing_index1[0]),int(matrix_missing_index1[1])], color='red', linestyle = 'dashed')
-    axs[1].set_title("Marginal")
-    axs[1].legend(labels = ['true', 'generated'])
+    axs[0,0].imshow(ref_image.reshape((n,n)), alpha = mask, vmin = -2, vmax = 2)
+    axs[0,0].plot(matrix_missing_index1[1], matrix_missing_index1[0], "rx", markersize = 20, linewidth = 20)
+    sns.kdeplot(data = pdd, ax = axs[0,1], palette=['blue'])
+    sns.kdeplot(data = generated_pdd, palette = ["orange"], ax = axs[0,1])
+    axs[0,1].axvline(ref_image[int(matrix_missing_index1[0]),int(matrix_missing_index1[1])], color='red', linestyle = 'dashed')
+    axs[0,1].set_title("Marginal")
+    axs[0,1].legend(labels = ['true', 'generated'])
+
 
     pdd = pd.DataFrame(marginal_density2,
                                     columns = None)
     generated_pdd = pd.DataFrame(generated_marginal_density2,
                                     columns = None)
-    sns.kdeplot(data = pdd, ax = axs[2], palette=['blue'])
-    sns.kdeplot(data = generated_pdd, palette = ["orange"], ax = axs[2])
-    plt.axvline(ref_image[int(matrix_missing_index2[0]),int(matrix_missing_index2[1])], color='red', linestyle = 'dashed')
-    axs[2].set_title("Marginal")
-    axs[2].legend(labels = ['true', 'generated'])
+    axs[0,2].imshow(ref_image.reshape((n,n)), alpha = mask, vmin = -2, vmax = 2)
+    axs[0,2].plot(matrix_missing_index2[1], matrix_missing_index2[0], "rx", markersize = 20, linewidth = 20)
+    sns.kdeplot(data = pdd, ax = axs[0,3], palette=['blue'])
+    sns.kdeplot(data = generated_pdd, palette = ["orange"], ax = axs[0,3])
+    axs[0,3].axvline(ref_image[int(matrix_missing_index2[0]),int(matrix_missing_index2[1])], color='red', linestyle = 'dashed')
+    axs[0,3].set_title("Marginal")
+    axs[0,3].legend(labels = ['true', 'generated'])
 
     pdd = pd.DataFrame(marginal_density3,
                                     columns = None)
     generated_pdd = pd.DataFrame(generated_marginal_density3,
                                     columns = None)
-    sns.kdeplot(data = pdd, ax = axs[3], palette=['blue'])
-    sns.kdeplot(data = generated_pdd, palette = ["orange"], ax = axs[3])
-    plt.axvline(ref_image[int(matrix_missing_index3[0]),int(matrix_missing_index3[1])], color='red', linestyle = 'dashed')
-    axs[3].set_title("Marginal")
-    axs[3].legend(labels = ['true', 'generated'])
+    axs[1,0].imshow(ref_image.reshape((n,n)), alpha = mask, vmin = -2, vmax = 2)
+    axs[1,0].plot(matrix_missing_index3[1], matrix_missing_index3[0], "rx", markersize = 20, linewidth = 20)
+    sns.kdeplot(data = pdd, ax = axs[1,1], palette=['blue'])
+    sns.kdeplot(data = generated_pdd, palette = ["orange"], ax = axs[1,1])
+    axs[1,1].axvline(ref_image[int(matrix_missing_index3[0]),int(matrix_missing_index3[1])], color='red', linestyle = 'dashed')
+    axs[1,1].set_title("Marginal")
+    axs[1,1].legend(labels = ['true', 'generated'])
+
+    pdd = pd.DataFrame(marginal_density4,
+                                    columns = None)
+    generated_pdd = pd.DataFrame(generated_marginal_density4,
+                                    columns = None)
+    axs[1,2].imshow(ref_image.reshape((n,n)), alpha = mask, vmin = -2, vmax = 2)
+    axs[1,2].plot(matrix_missing_index4[1], matrix_missing_index4[0], "rx", markersize = 20, linewidth = 20)
+    sns.kdeplot(data = pdd, ax = axs[1,3], palette=['blue'])
+    sns.kdeplot(data = generated_pdd, palette = ["orange"], ax = axs[1,3])
+    axs[1,3].axvline(ref_image[int(matrix_missing_index4[0]),int(matrix_missing_index4[1])], color='red', linestyle = 'dashed')
+    axs[1,3].set_title("Marginal")
+    axs[1,3].legend(labels = ['true', 'generated'])
     plt.savefig(figname)
     plt.clf()
 
@@ -221,7 +241,7 @@ def produce_true_and_generated_bivariate_density(mask, minX, maxX, minY, maxY, n
                                                  conditional_generated_samples, ref_image, figname):
     
     #missing_index is in between 0 and m, it's not the original missing index from n x n field
-    conditional_vectors = sample_conditional_distribution(mask, minX, maxX, minY, maxY, n,
+    conditional_vectors = sample_conditional_distribution((1-mask), minX, maxX, minY, maxY, n,
                                                           variance, lengthscale, observed_vector,
                                                           number_of_replicates)
     #conditional_vectors is shape (number of replicates, m)
@@ -266,6 +286,163 @@ def produce_true_and_generated_bivariate_density(mask, minX, maxX, minY, maxY, n
     plt.savefig(figname)
     plt.clf()
 
+def produce_true_and_generated_bivariate_densities(mask, minX, maxX, minY, maxY, n, variance, lengthscale,
+                                                 number_of_replicates, matrixindex11, matrixindex12, matrixindex21,
+                                                 matrixindex22, matrixindex31, matrixindex32, matrixindex41,
+                                                 matrixindex42, missing_indices, conditional_generated_samples,
+                                                 ref_image, figname):
+    
+    #missing_index is in between 0 and m, it's not the original missing index from n x n field
+    conditional_vectors = sample_conditional_distribution((1-mask), minX, maxX, minY, maxY, n,
+                                                          variance, lengthscale, observed_vector,
+                                                          number_of_replicates)
+    #conditional_vectors is shape (number of replicates, m)
+    missing_two_indices = np.array([matrixindex11, matrixindex12])
+    bivariate_density = (conditional_vectors[:,missing_two_indices]).reshape((number_of_replicates,2))
+    matrixindex11 = missing_indices[matrixindex11]
+    matrixindex12 = missing_indices[matrixindex12]
+    matrixindex11 = index_to_matrix_index(matrixindex11, n)
+    matrixindex12 = index_to_matrix_index(matrixindex12, n)
+    generated_bivariate_density = np.concatenate([(conditional_generated_samples[:,int(matrixindex11[0]),int(matrixindex11[1])]).reshape((number_of_replicates,1)),
+                                                   (conditional_generated_samples[:,int(matrixindex12[0]),int(matrixindex12[1])]).reshape((number_of_replicates,1))],
+                                                   axis = 1)
+    bivariate_density = np.concatenate([bivariate_density, generated_bivariate_density], axis = 0)
+    class_vector = np.concatenate([(np.repeat('true', number_of_replicates)).reshape((number_of_replicates,1)),
+                                   (np.repeat('generated', number_of_replicates)).reshape((number_of_replicates,1))], axis = 0)
+    bivariate_density = np.concatenate([bivariate_density, class_vector], axis = 1)
+
+
+    fig, axs = plt.subplots(ncols = 4, nrows = 2, figsize = (20,10))
+
+    pdd = pd.DataFrame(bivariate_density,
+                                    columns = ['x', 'y', 'class'])
+    pdd = pdd.astype({'x': 'float64', 'y': 'float64'})
+    #partially_observed_field = np.multiply(mask.astype(bool), observed_vector.reshape((n,n)))
+    mask_reshaped = (mask.reshape((n,n))).astype(float)
+    axs[0,0].imshow(ref_image.reshape((n,n)), alpha = mask_reshaped, vmin = -2, vmax = 2)
+    axs[0,0].plot(matrixindex11[1], matrixindex11[0], "r+")
+    axs[0,0].plot(matrixindex12[1], matrixindex12[0], "r+")
+    kde1 = sns.kdeplot(data = pdd, x = 'x', y = 'y',
+                ax = axs[0,1], hue = 'class', shade = True, levels = 5, alpha = .5)
+    blue_patch = mpatches.Patch(color='blue')
+    orange_patch = mpatches.Patch(color='orange')
+    axs[0,1].axvline(ref_image[int(matrixindex11[0]),int(matrixindex11[1])], color='red', linestyle = 'dashed')
+    axs[0,1].axhline(ref_image[int(matrixindex12[0]),int(matrixindex12[1])], color='red', linestyle = 'dashed')
+    plt.xlim(-2,2)
+    plt.ylim(-2,2)
+    axs[0,1].set_title("Marginal")
+    axs[0,1].legend(handles = [blue_patch, orange_patch],labels = ['true', 'generated'])
+
+    #second set
+
+    missing_two_indices = np.array([matrixindex21,matrixindex22])
+    bivariate_density = (conditional_vectors[:,missing_two_indices]).reshape((number_of_replicates,2))
+    matrixindex21 = missing_indices[matrixindex21]
+    matrixindex22 = missing_indices[matrixindex22]
+    matrixindex21 = index_to_matrix_index(matrixindex21, n)
+    matrixindex22 = index_to_matrix_index(matrixindex22, n)
+    generated_bivariate_density = np.concatenate([(conditional_generated_samples[:,int(matrixindex21[0]),int(matrixindex21[1])]).reshape((number_of_replicates,1)),
+                                                   (conditional_generated_samples[:,int(matrixindex22[0]),int(matrixindex22[1])]).reshape((number_of_replicates,1))],
+                                                   axis = 1)
+    bivariate_density = np.concatenate([bivariate_density, generated_bivariate_density], axis = 0)
+    class_vector = np.concatenate([(np.repeat('true', number_of_replicates)).reshape((number_of_replicates,1)),
+                                   (np.repeat('generated', number_of_replicates)).reshape((number_of_replicates,1))], axis = 0)
+    bivariate_density = np.concatenate([bivariate_density, class_vector], axis = 1)
+
+    pdd = pd.DataFrame(bivariate_density,
+                                    columns = ['x', 'y', 'class'])
+    pdd = pdd.astype({'x': 'float64', 'y': 'float64'})
+    #partially_observed_field = np.multiply(mask.astype(bool), observed_vector.reshape((n,n)))
+    mask_reshaped = (mask.reshape((n,n))).astype(float)
+    axs[0,2].imshow(ref_image.reshape((n,n)), alpha = mask_reshaped, vmin = -2, vmax = 2)
+    axs[0,2].plot(matrixindex21[1], matrixindex21[0], "r+")
+    axs[0,2].plot(matrixindex22[1], matrixindex22[0], "r+")
+    kde1 = sns.kdeplot(data = pdd, x = 'x', y = 'y',
+                ax = axs[0,3], hue = 'class', shade = True, levels = 5, alpha = .5)
+    blue_patch = mpatches.Patch(color='blue')
+    orange_patch = mpatches.Patch(color='orange')
+    axs[0,3].axvline(ref_image[int(matrixindex21[0]),int(matrixindex21[1])], color='red', linestyle = 'dashed')
+    axs[0,3].axhline(ref_image[int(matrixindex22[0]),int(matrixindex22[1])], color='red', linestyle = 'dashed')
+    plt.xlim(-2,2)
+    plt.ylim(-2,2)
+    axs[0,3].set_title("Marginal")
+    axs[0,3].legend(handles = [blue_patch, orange_patch],labels = ['true', 'generated'])
+
+    #third set
+
+    missing_two_indices = np.array([matrixindex31, matrixindex32])
+    bivariate_density = (conditional_vectors[:,missing_two_indices]).reshape((number_of_replicates,2))
+    matrixindex31 = missing_indices[matrixindex31]
+    matrixindex32 = missing_indices[matrixindex32]
+    matrixindex31 = index_to_matrix_index(matrixindex31, n)
+    matrixindex32 = index_to_matrix_index(matrixindex32, n)
+    generated_bivariate_density = np.concatenate([(conditional_generated_samples[:,int(matrixindex31[0]),int(matrixindex31[1])]).reshape((number_of_replicates,1)),
+                                                   (conditional_generated_samples[:,int(matrixindex32[0]),int(matrixindex32[1])]).reshape((number_of_replicates,1))],
+                                                   axis = 1)
+    bivariate_density = np.concatenate([bivariate_density, generated_bivariate_density], axis = 0)
+    class_vector = np.concatenate([(np.repeat('true', number_of_replicates)).reshape((number_of_replicates,1)),
+                                   (np.repeat('generated', number_of_replicates)).reshape((number_of_replicates,1))], axis = 0)
+    bivariate_density = np.concatenate([bivariate_density, class_vector], axis = 1)
+
+    pdd = pd.DataFrame(bivariate_density,
+                                    columns = ['x', 'y', 'class'])
+    pdd = pdd.astype({'x': 'float64', 'y': 'float64'})
+    #partially_observed_field = np.multiply(mask.astype(bool), observed_vector.reshape((n,n)))
+    mask_reshaped = (mask.reshape((n,n))).astype(float)
+    axs[1,0].imshow(ref_image.reshape((n,n)), alpha = mask_reshaped, vmin = -2, vmax = 2)
+    axs[1,0].plot(matrixindex31[1], matrixindex31[0], "r+")
+    axs[1,0].plot(matrixindex32[1], matrixindex32[0], "r+")
+    kde1 = sns.kdeplot(data = pdd, x = 'x', y = 'y',
+                ax = axs[1,1], hue = 'class', shade = True, levels = 5, alpha = .5)
+    blue_patch = mpatches.Patch(color='blue')
+    orange_patch = mpatches.Patch(color='orange')
+    axs[1,1].axvline(ref_image[int(matrixindex31[0]),int(matrixindex31[1])], color='red', linestyle = 'dashed')
+    axs[1,1].axhline(ref_image[int(matrixindex32[0]),int(matrixindex32[1])], color='red', linestyle = 'dashed')
+    plt.xlim(-2,2)
+    plt.ylim(-2,2)
+    axs[1,1].set_title("Marginal")
+    axs[1,1].legend(handles = [blue_patch, orange_patch],labels = ['true', 'generated'])
+
+    #fourth set
+
+    missing_two_indices = np.array([matrixindex41, matrixindex42])
+    bivariate_density = (conditional_vectors[:,missing_two_indices]).reshape((number_of_replicates,2))
+    matrixindex41 = missing_indices[matrixindex41]
+    matrixindex42 = missing_indices[matrixindex42]
+    matrixindex41 = index_to_matrix_index(matrixindex41, n)
+    matrixindex42 = index_to_matrix_index(matrixindex42, n)
+    generated_bivariate_density = np.concatenate([(conditional_generated_samples[:,int(matrixindex41[0]),int(matrixindex41[1])]).reshape((number_of_replicates,1)),
+                                                   (conditional_generated_samples[:,int(matrixindex42[0]),int(matrixindex42[1])]).reshape((number_of_replicates,1))],
+                                                   axis = 1)
+    bivariate_density = np.concatenate([bivariate_density, generated_bivariate_density], axis = 0)
+    class_vector = np.concatenate([(np.repeat('true', number_of_replicates)).reshape((number_of_replicates,1)),
+                                   (np.repeat('generated', number_of_replicates)).reshape((number_of_replicates,1))], axis = 0)
+    bivariate_density = np.concatenate([bivariate_density, class_vector], axis = 1)
+
+    pdd = pd.DataFrame(bivariate_density,
+                                    columns = ['x', 'y', 'class'])
+    pdd = pdd.astype({'x': 'float64', 'y': 'float64'})
+    #partially_observed_field = np.multiply(mask.astype(bool), observed_vector.reshape((n,n)))
+    mask_reshaped = (mask.reshape((n,n))).astype(float)
+    axs[1,2].imshow(ref_image.reshape((n,n)), alpha = mask_reshaped, vmin = -2, vmax = 2)
+    axs[1,2].plot(matrixindex41[1], matrixindex41[0], "r+")
+    axs[1,2].plot(matrixindex42[1], matrixindex42[0], "r+")
+    kde1 = sns.kdeplot(data = pdd, x = 'x', y = 'y',
+                ax = axs[1,3], hue = 'class', shade = True, levels = 5, alpha = .5)
+    blue_patch = mpatches.Patch(color='blue')
+    orange_patch = mpatches.Patch(color='orange')
+    axs[1,3].axvline(ref_image[int(matrixindex41[0]),int(matrixindex41[1])], color='red', linestyle = 'dashed')
+    axs[1,3].axhline(ref_image[int(matrixindex42[0]),int(matrixindex42[1])], color='red', linestyle = 'dashed')
+    plt.xlim(-2,2)
+    plt.ylim(-2,2)
+    axs[1,3].set_title("Marginal")
+    axs[1,3].legend(handles = [blue_patch, orange_patch],labels = ['true', 'generated'])
+
+    plt.savefig(figname)
+    plt.clf()
+
+
+
 
 n = 32
 number_of_replicates = 1000 
@@ -291,13 +468,29 @@ folder_name = (data_generation_folder + "/data/gpmodel5/ref_image1/marginal_dens
 m = missing_indices.shape[0]
 observed_vector = ref_image.reshape((n**2))
 observed_vector = np.delete(observed_vector, missing_indices)
-missing_index1 = 200
-missing_index2 = 400
-missing_index3 = 450
+missing_index1 = 75
+missing_index2 = 220
+missing_index3 = 334
+missing_index4 = 381
 figname = "gp_conditional_model5_marginal_random50.png"
 produce_true_and_generated_marginal_densities(mask, minX, maxX, minY, maxY, n, variance, lengthscale,
                                   number_of_replicates, missing_index1, missing_index2, missing_index3,
+                                  missing_index4,
                                   missing_indices, observed_vector,
                                   conditional_samples, ref_image,
                                   figname)
 
+
+figname = "gp_conditional_model5_bivariate_random50.png"
+matrixindex11 = 75
+matrixindex12 = 76
+matrixindex21 = 200
+matrixindex22 = 400
+matrixindex31 = 350
+matrixindex32 = 333
+matrixindex41 = 432
+matrixindex42 = 433
+produce_true_and_generated_bivariate_densities(mask, minX, maxX, minY, maxY, n, variance, lengthscale,
+                                                 number_of_replicates, matrixindex11, matrixindex12, matrixindex21,
+                                                 matrixindex22, matrixindex31, matrixindex32, matrixindex41,
+                                                 matrixindex42, missing_indices, conditional_samples, ref_image, figname)
