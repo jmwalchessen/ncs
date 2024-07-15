@@ -5,6 +5,7 @@ from mpl_toolkits.axes_grid1 import ImageGrid
 import os
 import sys
 from append_directories import *
+import scipy
 
 home_folder = append_directory(2)
 sys.path.append(home_folder)
@@ -17,7 +18,7 @@ device = "cuda:0"
 config = ncsnpp_config.get_config()
 #if trained parallelized, need to be evaluated that way too
 score_model = torch.nn.DataParallel((ncsnpp.NCSNpp(config)).to("cuda:0"))
-score_model.load_state_dict(th.load((home_folder + "/trained_score_models/vpsde/model9_beta_min_max_01_25_250_random0_001_0025_mask.pth")))
+score_model.load_state_dict(th.load((home_folder + "/trained_score_models/vpsde/model1_variance_10_lengthscale_1.6_df_1_beta_min_max_01_20_1000_random050_masks.pth")))
 score_model.eval()
 
 def construct_norm_matrix(minX, maxX, minY, maxY, n):
@@ -55,6 +56,17 @@ def generate_gaussian_process(minX, maxX, minY, maxY, n, variance, lengthscale, 
     for i in range(0, y_matrix.shape[1]):
         gp_matrix[i,:,:,:] = y_matrix[:,i].reshape((1,n,n))
     return gp_matrix
+
+def generate_student_nugget(minX, maxX, minY, maxY, n, variance, lengthscale, df, number_of_replicates):
+
+    kernel = construct_exp_kernel(minX, maxX, minY, maxY, n, variance, lengthscale)
+    studentgenerator = scipy.stats.multivariate_t(loc = np.zeros(n**2), shape = kernel, df = df, seed = 23423)
+    #shape = (number_of_replicates, n**2)
+    studentsamples = (studentgenerator.rvs(size = number_of_replicates))
+    student_matrix = np.zeros((number_of_replicates,1,n,n))
+    for i in range(0, number_of_replicates):
+        student_matrix[i,:,:,:] = studentsamples[i,:].reshape((1,n,n))
+    return student_matrix
 
 #y is observed part of field
 def p_mean_and_variance_from_score_via_mask(vpsde, score_model, device, masked_xt, mask, y, t):
@@ -121,7 +133,7 @@ def visualize_observed_and_generated_samples(observed, mask, diffusion1, diffusi
     plt.savefig(figname)
 
 
-sdevp = VPSDE(beta_min=0.1, beta_max=25, N=250)
+sdevp = VPSDE(beta_min=0.1, beta_max=20, N=1000)
 n = 32
 #mask = torch.ones((1,1,n,n)).to(device)
 #mask[:,:,int(n/4):int(3*n/4),int(n/4):int(3*n/4)] = 0
@@ -131,32 +143,33 @@ minX = -10
 maxX = 10
 minY = -10
 maxY = 10
-variance = .4
+variance = 10
 lengthscale = 1.6
-number_of_replicates = 1
-
-
-masked_xt = ((torch.ones((2,1,32,32))).to(device)).float()
-timestep = ((torch.tensor([998,998])).to(device))
+number_of_replicates = 2
+df = 1
+masked_xt = ((torch.zeros((1,1,32,32))).to(device)).float()
+timestep = ((torch.tensor([999])).to(device)).float()
 with th.no_grad():
-    score = score_model(masked_xt, timestep)
+        score = score_model(masked_xt, timestep)
 
 """
 for i in range(0,10):
-    p = .0025
+    p = .5
     mask = (th.bernoulli(p*th.ones(1,1,n,n))).to(device)
     seed_value = int(np.random.randint(0, 100000))
-    unmasked_y = (th.from_numpy(generate_gaussian_process(minX, maxX, minY, maxY, n, variance,
-                                                        lengthscale, number_of_replicates,
-                                                        seed_value))).to(device)
-    print(unmasked_y.min())
+    unmasked_y = ((th.from_numpy(generate_student_nugget(minX, maxX, minY, maxY, n,
+                                                        variance, lengthscale, df,
+                                                        number_of_replicates))).to(device)).float()
+    unmasked_y = unmasked_y[0:1,:,:,:]
     y = ((torch.mul(mask, unmasked_y)).to(device)).float()
+    print(y.shape)
+    print(mask.shape)
     num_samples = 2
     diffusion_samples = posterior_sample_with_p_mean_variance_via_mask(sdevp, score_model,
                                                                     device, mask, y, n,
                                                                     num_samples)
 
-    figname = ("visualizations/models/model9/random0_variance_.4_lengthscale_1.6_observed_and_generated_samples_" + str(i) + ".png")
+    figname = ("visualizations/models/model1/random50_variance_10_lengthscale_1.6_df_1_observed_and_generated_samples_" + str(i) + ".png")
     visualize_observed_and_generated_samples(unmasked_y, mask, diffusion_samples[0,:,:,:],
-                                            diffusion_samples[1,:,:,:], n, figname) 
-                                            """                                   
+                                            diffusion_samples[1,:,:,:], n, figname)
+                                            """
