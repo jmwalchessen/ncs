@@ -18,7 +18,7 @@ device = "cuda:0"
 config = ncsnpp_config.get_config()
 #if trained parallelized, need to be evaluated that way too
 score_model = torch.nn.DataParallel((ncsnpp.NCSNpp(config)).to("cuda:0"))
-score_model.load_state_dict(th.load((home_folder + "/trained_score_models/vpsde/model1_variance_10_lengthscale_1.6_df_1_beta_min_max_01_20_1000_random050_masks.pth")))
+score_model.load_state_dict(th.load((home_folder + "/trained_score_models/vpsde/model2_variance_10_lengthscale_1.6_df_10_beta_min_max_01_25_250_random050_masks.pth")))
 score_model.eval()
 
 def construct_norm_matrix(minX, maxX, minY, maxY, n):
@@ -120,20 +120,20 @@ def visualize_observed_and_generated_samples(observed, mask, diffusion1, diffusi
                  cbar_mode="single"
                  )
     
-    im = grid[0].imshow(observed.detach().cpu().numpy().reshape((n,n)), vmin=-2, vmax=2)
+    im = grid[0].imshow(observed.detach().cpu().numpy().reshape((n,n)), vmin=-8, vmax=8)
     grid[0].set_title("Observed")
-    grid[1].imshow(observed.detach().cpu().numpy().reshape((n,n)), vmin=-2, vmax=2,
+    grid[1].imshow(observed.detach().cpu().numpy().reshape((n,n)), vmin=-8, vmax=8,
                    alpha = mask.detach().cpu().numpy().reshape((n,n)))
     grid[1].set_title("Partially Observed")
-    grid[2].imshow(diffusion1.detach().cpu().numpy().reshape((n,n)), vmin=-2, vmax=2)
+    grid[2].imshow(diffusion1.detach().cpu().numpy().reshape((n,n)), vmin=-8, vmax=8)
     grid[2].set_title("Generated")
-    grid[3].imshow(diffusion2.detach().cpu().numpy().reshape((n,n)), vmin=-2, vmax=2)
+    grid[3].imshow(diffusion2.detach().cpu().numpy().reshape((n,n)), vmin=-8, vmax=8)
     grid[3].set_title("Generated")
     grid[0].cax.colorbar(im)
     plt.savefig(figname)
 
 
-sdevp = VPSDE(beta_min=0.1, beta_max=20, N=1000)
+sdevp = VPSDE(beta_min=0.1, beta_max=25, N=250)
 n = 32
 #mask = torch.ones((1,1,n,n)).to(device)
 #mask[:,:,int(n/4):int(3*n/4),int(n/4):int(3*n/4)] = 0
@@ -146,13 +146,9 @@ maxY = 10
 variance = 10
 lengthscale = 1.6
 number_of_replicates = 2
-df = 1
-masked_xt = ((torch.zeros((1,1,32,32))).to(device)).float()
-timestep = ((torch.tensor([999])).to(device)).float()
-with th.no_grad():
-        score = score_model(masked_xt, timestep)
+df = 10
 
-"""
+
 for i in range(0,10):
     p = .5
     mask = (th.bernoulli(p*th.ones(1,1,n,n))).to(device)
@@ -169,7 +165,6 @@ for i in range(0,10):
                                                                     device, mask, y, n,
                                                                     num_samples)
 
-    figname = ("visualizations/models/model1/random50_variance_10_lengthscale_1.6_df_1_observed_and_generated_samples_" + str(i) + ".png")
+    figname = ("visualizations/models/model2/random50_variance_10_lengthscale_1.6_df_10_observed_and_generated_samples_" + str(i) + ".png")
     visualize_observed_and_generated_samples(unmasked_y, mask, diffusion_samples[0,:,:,:],
                                             diffusion_samples[1,:,:,:], n, figname)
-                                            """

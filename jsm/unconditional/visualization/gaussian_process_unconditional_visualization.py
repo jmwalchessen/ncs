@@ -163,6 +163,55 @@ def plot_unconditional_diffusion_samples(vpsde, score_model, device, mask, y, n,
     plt.tight_layout()
     plt.savefig(figname)
 
+def plot_unconditional_true_and_diffusion_samples(vpsde, score_model, device, mask, y, n, figname):
+
+    num_samples = 4
+    diffusion_samples = posterior_sample_with_p_mean_variance_via_mask(vpsde, score_model, device,
+                                                                       mask, y, n, num_samples)
+    fig = plt.figure(figsize=(20, 7.2))
+
+    grid = ImageGrid(fig, 111,          # as in plt.subplot(111)
+                    nrows_ncols=(2,4),
+                    axes_pad=0.35,
+                    share_all=False,
+                    cbar_location="right",
+                    cbar_mode="single",
+                    cbar_size="7%",
+                    cbar_pad=0.15,
+                    label_mode = "L"
+                    )
+    
+    minX = minY = -10
+    maxX = maxY = 10
+    variance = .4
+    lengthscale = 1.6
+    number_of_replicates = 4
+    seed_value = 23423
+    n = 32
+    gaussian_samples = generate_gaussian_process(minX, maxX, minY, maxY, n,
+                                                 variance, lengthscale,
+                                                 number_of_replicates, seed_value)
+    
+    diffusion_samples = diffusion_samples.detach().cpu().numpy().reshape((4,n,n))
+    for i, ax in enumerate(grid):
+        if(i > 3):
+            im = ax.imshow(diffusion_samples[(i-4),:,:], vmin = -2, vmax = 2)
+            ax.set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
+            ax.set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
+            ax.set_title("Unconditional Diffusion")
+        else:
+            im = ax.imshow(gaussian_samples[i,:,:], vmin = -2, vmax = 2)
+            ax.set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
+            ax.set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
+            ax.set_title("Unconditional True")
+
+    cbar = grid.cbar_axes[0].colorbar(im)
+    cbar.set_ticks([-2,-1,0,1,2])
+    #fig.text(0.5, 0.9, 'Unconditional Diffusion', ha='center', va='center', fontsize = 25)
+    #fig.text(0.1, 0.5, 'range', ha='center', va='center', rotation = 'vertical', fontsize = 40)
+    plt.tight_layout()
+    plt.savefig(figname)
+
 
 vpsde = VPSDE(beta_min=0.1, beta_max=25, N=250)
 p = 0

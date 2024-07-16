@@ -32,6 +32,13 @@ def log_and_boundary_process(images):
     scaled_centered_batch = 6*centered_batch
     return scaled_centered_batch
 
+def global_boundary_process(images, minvalue, maxvalue):
+
+    log01 = (images-minvalue)/(maxvalue-minvalue)
+    log01c = log01 - .5
+    log01cs = 6*log01c
+    return log01cs
+
 def log_and_normalize(images):
 
     images = np.log(images)
@@ -198,11 +205,12 @@ def get_training_and_evaluation_image_datasets_per_mask(number_of_replicates_per
     eval_dataloader = DataLoader(eval_dataset, batch_size = eval_batch_size, shuffle = True)
     return train_dataloader, eval_dataloader
 
-def get_training_and_evaluation_mask_and_image_datasets_per_mask(number_of_random_replicates, 
+def get_training_and_evaluation_mask_and_image_datasets_per_mask(draw_number, number_of_random_replicates, 
                                                                  random_missingness_percentages, 
                                                                  number_of_evaluation_random_replicates,
                                                                  batch_size, eval_batch_size, range_value,
-                                                                 smooth_value, seed_values, n):
+                                                                 smooth_value, seed_values, n,
+                                                                 trainmaxminfile, evalmaxminfile):
     
     minX = -10
     maxX = 10
@@ -220,8 +228,28 @@ def get_training_and_evaluation_mask_and_image_datasets_per_mask(number_of_rando
                                                                                     number_of_random_replicates,
                                                                                     number_of_evaluation_random_replicates,
                                                                                     n)
-    train_images = log_and_normalize(train_images)
-    eval_images = log_and_normalize(eval_images)
+    if(draw_number == 0):
+        train_images = log_transformation(train_images)
+        eval_images = log_transformation(eval_images)
+        trainlogmin = float(np.min(train_images))
+        trainlogmax = float(np.max(train_images))
+        evallogmin = float(np.min(eval_images))
+        evallogmax = float(np.max(train_images))
+        train_images = global_boundary_process(train_images, trainlogmin, trainlogmax)
+        trainlogmaxmin = np.array([trainlogmin, trainlogmax])
+        eval_images = global_boundary_process(eval_images, evallogmin, evallogmax)
+        evallogmaxmin = np.array([float(np.min(eval_images)), float(np.max(eval_images))])
+        np.save(trainmaxminfile, trainlogmaxmin)
+        np.save(evalmaxminfile, evallogmaxmin)
+
+    else:
+        trainlogmaxmin = np.load(trainmaxminfile)
+        evallogmaxmin = np.load(evalmaxminfile)
+        train_images = log_transformation(train_images)
+        eval_images = log_transformation(eval_images)
+        train_images = global_boundary_process(train_images, trainlogmaxmin[0], trainlogmaxmin[1])
+        eval_images = global_boundary_process(eval_images, evallogmaxmin[0], evallogmaxmin[1])
+
     train_dataset = CustomSpatialImageandMaskDataset(train_images, train_masks)
     eval_dataset = (CustomSpatialImageandMaskDataset)(eval_images, eval_masks)
     train_dataloader = DataLoader(train_dataset, batch_size = batch_size, shuffle = True)

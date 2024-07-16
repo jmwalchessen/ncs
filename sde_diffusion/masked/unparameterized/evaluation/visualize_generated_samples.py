@@ -136,12 +136,7 @@ lengthscale = 1.6
 number_of_replicates = 1
 
 
-masked_xt = ((torch.ones((2,1,32,32))).to(device)).float()
-timestep = ((torch.tensor([998,998])).to(device))
-with th.no_grad():
-    score = score_model(masked_xt, timestep)
 
-"""
 for i in range(0,10):
     p = .0025
     mask = (th.bernoulli(p*th.ones(1,1,n,n))).to(device)
@@ -159,4 +154,4 @@ for i in range(0,10):
     figname = ("visualizations/models/model9/random0_variance_.4_lengthscale_1.6_observed_and_generated_samples_" + str(i) + ".png")
     visualize_observed_and_generated_samples(unmasked_y, mask, diffusion_samples[0,:,:,:],
                                             diffusion_samples[1,:,:,:], n, figname) 
-                                            """                                   
+                                                                              
