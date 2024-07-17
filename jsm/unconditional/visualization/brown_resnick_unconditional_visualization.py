@@ -142,7 +142,7 @@ def plot_unconditional_diffusion_samples(vpsde, score_model, device, mask, y, n,
     diffusion_samples = np.exp(diffusion_samples)
     #diffusion_samples = inverse_boundary_process(diffusion_samples, logbrmin, logbrmax)
     for i, ax in enumerate(grid):
-        im = ax.imshow(diffusion_samples[i,:,:], vmin = 0, vmax = 30)
+        im = ax.imshow(diffusion_samples[i,:], vmin = 0, vmax = 30)
         ax.set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
         ax.set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
 
@@ -154,18 +154,61 @@ def plot_unconditional_diffusion_samples(vpsde, score_model, device, mask, y, n,
     plt.tight_layout()
     plt.savefig(figname)
 
+def plot_unconditional_true_and_diffusion_samples(br_samples, vpsde, score_model, device, mask, y, n, figname):
+
+    num_samples = 4
+    diffusion_samples = posterior_sample_with_p_mean_variance_via_mask(vpsde, score_model, device,
+                                                                       mask, y, n, num_samples)
+    fig = plt.figure(figsize=(20, 10))
+
+    grid = ImageGrid(fig, 111,          # as in plt.subplot(111)
+                    nrows_ncols=(2,4),
+                    axes_pad=0.35,
+                    share_all=False,
+                    cbar_location="right",
+                    cbar_mode="single",
+                    cbar_size="7%",
+                    cbar_pad=0.15,
+                    label_mode = "L"
+                    )
+    
+    diffusion_samples = (diffusion_samples.detach().cpu().numpy().reshape((4,n,n)))
+    #diffusion_samples = np.exp(diffusion_samples)
+    
+
+    for i, ax in enumerate(grid):
+        if(i > 3):
+            im = ax.imshow(diffusion_samples[(i-4),:,:], vmin = -2, vmax = 6)
+            ax.set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
+            ax.set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
+            ax.set_title("Unconditional Diffusion (log)", fontsize = 20)
+        else:
+            im = ax.imunconditional_lengthscale_1.6_variance_0.4_1000.npyshow(br_samples[i,:,:], vmin = -2, vmax = 6)
+            ax.set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
+            ax.set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
+            ax.set_title("Unconditional True (log)", fontsize = 20)
+
+    cbar = grid.cbar_axes[0].colorbar(im)
+    #cbar.set_ticks([])
+    cbar.set_ticks([-2,0,2,4,6])
+    #fig.text(0.5, 0.9, 'Unconditional Diffusion', ha='center', va='center', fontsize = 25)
+    #fig.text(0.1, 0.5, 'range', ha='center', va='center', rotation = 'vertical', fontsize = 40)
+    plt.tight_layout()
+    plt.savefig(figname)
+
 
 vpsde = VPSDE(beta_min=0.1, beta_max=20, N=1000)
 p = 0
 n = 32
 mask = ((torch.bernoulli(p*torch.ones((1,1,n,n)))).to(device)).float()
 number_of_replicates = 4
-seed_value = 43234
+seed_value = int(np.random.randint(0, 10000, 1))
 range_value = 1.6
 smooth_value = 1.6
 br_samples = log_transformation(np.load("brown_resnick_samples_1024_512.npy"))
 print(np.quantile(np.exp(br_samples[0,:]), [.99]))
 y = ((torch.from_numpy(br_samples))[0,:]).reshape((1,n,n))
 y = y.to(device).float()
-plot_unconditional_diffusion_samples(vpsde, score_model, device, mask, y, n, "expbrdiffusion.png")
-plot_unconditional_true_samples((br_samples[0:4,:]).reshape(4,n,n), "expbrtrue.png")
+figname = "br_unconditional_true_and_diffusion_samples_1000.png"
+br_samples = (br_samples[0:number_of_replicates,:]).reshape((number_of_replicates, n, n))
+plot_unconditional_true_and_diffusion_samples(br_samples, vpsde, score_model, device, mask, y, n, figname)

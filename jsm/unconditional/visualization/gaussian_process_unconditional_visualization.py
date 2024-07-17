@@ -191,7 +191,7 @@ def plot_unconditional_true_and_diffusion_samples(vpsde, score_model, device, ma
     gaussian_samples = generate_gaussian_process(minX, maxX, minY, maxY, n,
                                                  variance, lengthscale,
                                                  number_of_replicates, seed_value)
-    
+    gaussian_samples = gaussian_samples.reshape((number_of_replicates,n,n))
     diffusion_samples = diffusion_samples.detach().cpu().numpy().reshape((4,n,n))
     for i, ax in enumerate(grid):
         if(i > 3):
@@ -226,7 +226,6 @@ seed_value = 43234
 
 y = (torch.from_numpy(generate_gaussian_process(minX, maxX, minY, maxY, n, variance,
                                                lengthscale, number_of_replicates, seed_value)))
-y = y.to(device).float()
-plot_unconditional_diffusion_samples(vpsde, score_model, device, mask, y, n, "diffusion.png")  
-
-
+y = y.to(device).float() 
+figname = "gp_unconditional_true_and_diffusion_samples_1000.png"
+plot_unconditional_true_and_diffusion_samples(vpsde, score_model, device, mask, y, n, figname)

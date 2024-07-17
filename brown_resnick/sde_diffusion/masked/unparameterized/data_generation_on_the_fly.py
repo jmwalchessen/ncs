@@ -45,6 +45,13 @@ def log_and_normalize(images):
     images = (images - np.mean(images))/np.std(images)
     return images
 
+def global_quantile_boundary_process(images, minvalue, maxvalue, quantvalue01):
+
+    log01 = (images-minvalue)/(maxvalue-minvalue)
+    log01c = log01 - quantvalue01
+    log01cs = 6*log01c
+    return log01cs
+
 
 def generate_train_and_evaluation_brown_resnick_process(range_value, smooth_value, seed_value,
                                                         number_of_replicates,
@@ -210,7 +217,7 @@ def get_training_and_evaluation_mask_and_image_datasets_per_mask(draw_number, nu
                                                                  number_of_evaluation_random_replicates,
                                                                  batch_size, eval_batch_size, range_value,
                                                                  smooth_value, seed_values, n,
-                                                                 trainmaxminfile, evalmaxminfile):
+                                                                 trainmaxminfile):
     
     minX = -10
     maxX = 10
@@ -233,22 +240,19 @@ def get_training_and_evaluation_mask_and_image_datasets_per_mask(draw_number, nu
         eval_images = log_transformation(eval_images)
         trainlogmin = float(np.min(train_images))
         trainlogmax = float(np.max(train_images))
-        evallogmin = float(np.min(eval_images))
-        evallogmax = float(np.max(train_images))
-        train_images = global_boundary_process(train_images, trainlogmin, trainlogmax)
-        trainlogmaxmin = np.array([trainlogmin, trainlogmax])
-        eval_images = global_boundary_process(eval_images, evallogmin, evallogmax)
-        evallogmaxmin = np.array([float(np.min(eval_images)), float(np.max(eval_images))])
+        trainimages01 = (train_images - trainlogmin)/(trainlogmax - trainlogmin)
+        trainquant01 = float(np.quantile(trainimages01, [.4]))
+        train_images = global_quantile_boundary_process(train_images, trainlogmin, trainlogmax, trainquant01)
+        trainlogmaxmin = np.array([trainlogmin, trainlogmax, trainquant01])
+        eval_images = global_quantile_boundary_process(eval_images, trainlogmin, trainlogmax, trainquant01)
         np.save(trainmaxminfile, trainlogmaxmin)
-        np.save(evalmaxminfile, evallogmaxmin)
 
     else:
         trainlogmaxmin = np.load(trainmaxminfile)
-        evallogmaxmin = np.load(evalmaxminfile)
         train_images = log_transformation(train_images)
         eval_images = log_transformation(eval_images)
-        train_images = global_boundary_process(train_images, trainlogmaxmin[0], trainlogmaxmin[1])
-        eval_images = global_boundary_process(eval_images, evallogmaxmin[0], evallogmaxmin[1])
+        train_images = global_quantile_boundary_process(train_images, trainlogmaxmin[0], trainlogmaxmin[1], trainlogmaxmin[2])
+        eval_images = global_quantile_boundary_process(eval_images, trainlogmaxmin[0], trainlogmaxmin[1], trainlogmaxmin[2])
 
     train_dataset = CustomSpatialImageandMaskDataset(train_images, train_masks)
     eval_dataset = (CustomSpatialImageandMaskDataset)(eval_images, eval_masks)

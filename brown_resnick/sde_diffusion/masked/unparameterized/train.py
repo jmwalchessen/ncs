@@ -107,7 +107,7 @@ def train_per_multiple_masks(config, data_draws, epochs_per_drawn_data,
                              number_of_eval_random_replicates, seed_values,
                              range_value, smooth_value, batch_size,
                              eval_batch_size, score_model_path, loss_path, n,
-                             trainmaxminfile, evalmaxminfile):
+                             trainmaxminfile):
     
     # Initialize model.
     #score_model = mutils.create_model(config)
@@ -152,7 +152,7 @@ def train_per_multiple_masks(config, data_draws, epochs_per_drawn_data,
                                                                                                          number_of_eval_random_replicates,
                                                                                                          batch_size, eval_batch_size, range_value,
                                                                                                          smooth_value, seed_values[data_draw],
-                                                                                                         n, trainmaxminfile, evalmaxminfile)       
+                                                                                                         n, trainmaxminfile)       
         
         
         for epoch in range(0, epochs_per_drawn_data):
@@ -166,6 +166,8 @@ def train_per_multiple_masks(config, data_draws, epochs_per_drawn_data,
                 try:
                     batch = get_next_batch(train_iterator, config)
                     loss = train_step_fn(state, batch)
+                    print(torch.max((batch[0])[0,:,:,:]))
+                    print(torch.min((batch[0])[0,:,:,:]))
                     train_losses_per_epoch.append(float(loss))
                 except StopIteration:
                     train_losses.append((sum(train_losses_per_epoch)/len(train_losses_per_epoch)))
@@ -290,13 +292,13 @@ veconfig = ve_ncsnpp_config
 data_draws = 20
 epochs_per_drawn_data = 20
 random_missingness_percentages = [0,.5]
-number_of_random_replicates = 5000
+number_of_random_replicates = 100
 number_of_eval_random_replicates = 250
 seed_values = [(int(np.random.randint(0, 100000)),int(np.random.randint(0, 100000)))
                 for i in range(0, data_draws)]
 range_value = 1.6
 smooth_value = 1.6
-batch_size = 512
+batch_size = 4
 eval_batch_size = 250
 score_model_path = "trained_score_models/vpsde/model8_beta_min_max_01_20_1000_1.6_1.6_random050_logglobalbound_masks.pth"
 loss_path = "trained_score_models/vpsde/model8_beta_min_max_01_20_1000_1.6_1.6_random050_logglobalbound_masks_loss.png"
@@ -309,7 +311,7 @@ train_per_multiple_masks(vpconfig, data_draws, epochs_per_drawn_data,
                              number_of_eval_random_replicates, seed_values,
                              range_value, smooth_value, batch_size,
                              eval_batch_size, score_model_path, loss_path, n,
-                             trainmaxminfile, evalmaxminfile)
+                             trainmaxminfile)
 
 """
 data_draws = 20
