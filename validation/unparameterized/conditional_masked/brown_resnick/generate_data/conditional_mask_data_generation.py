@@ -137,7 +137,7 @@ print(ref_img.shape)
 
 ref_img = (th.from_numpy(global_quantile_boundary_process(ref_img, trainlogmaxmin[0],
 trainlogmaxmin[1], trainlogmaxmin[2])).reshape((250,1,n,n))[0,:,:,:]).to(device)
-p = 0
+p = .5
 mask = (th.bernoulli(p*th.ones(1,1,n,n))).to(device)
 replicates_per_call = 250
 calls = 1
@@ -145,17 +145,17 @@ for i in range(0,4):
     y = ((th.mul(mask, ref_img)).to(device)).float()
     conditional_samples = sample_conditionally_multiple_calls(sdevp, score_model, device, mask, y, n,
                                           replicates_per_call, calls)
-    np.save("data/conditional/model10/ref_img1/model10_random0_beta_min_max_01_20_1000_random0_250_" + str(i) + ".npy", conditional_samples)
+    np.save("data/conditional/model10/ref_img2/model10_random0_beta_min_max_01_20_1000_random0_250_" + str(i) + ".npy", conditional_samples)
     partially_observed = (mask*ref_img).detach().cpu().numpy().reshape((n,n))
-    np.save("data/conditional/model10/ref_img1/ref_image1.npy", ref_img.detach().cpu().numpy().reshape((n,n)))
-    np.save("data/conditional/model10/ref_img1/partially_observed_field.npy", partially_observed.reshape((n,n)))
-    np.save("data/conditional/model10/ref_img1/mask.npy", mask.int().detach().cpu().numpy().reshape((n,n)))
-    np.save("data/conditional/model10/ref_img1/seed_value.npy", np.array([int(seed_value)]))
+    np.save("data/conditional/model10/ref_img2/ref_image1.npy", ref_img.detach().cpu().numpy().reshape((n,n)))
+    np.save("data/conditional/model10/ref_img2/partially_observed_field.npy", partially_observed.reshape((n,n)))
+    np.save("data/conditional/model10/ref_img2/mask.npy", mask.int().detach().cpu().numpy().reshape((n,n)))
+    np.save("data/conditional/model10/ref_img2/seed_value.npy", np.array([int(seed_value)]))
 
-    plot_spatial_field(ref_img.detach().cpu().numpy().reshape((n,n)), -2, 4, "data/conditional/model10/ref_img1/ref_image.png")
-    plot_spatial_field((conditional_samples[0,:,:,:]).numpy().reshape((n,n)), -2, 4, "data/conditional/model10/ref_img1/conditional_sample_0.png")
+    plot_spatial_field(ref_img.detach().cpu().numpy().reshape((n,n)), -2, 4, "data/conditional/model10/ref_img2/ref_image.png")
+    plot_spatial_field((conditional_samples[0,:,:,:]).numpy().reshape((n,n)), -2, 4, "data/conditional/model10/ref_img2/conditional_sample_0.png")
     plot_masked_spatial_field(spatial_field = ref_img.detach().cpu().numpy().reshape((n,n)),
-                   vmin = -2, vmax = 4, mask = mask.int().float().detach().cpu().numpy().reshape((n,n)), figname = "data/conditional/ref_img1/partially_observed_field.png")
+                   vmin = -2, vmax = 4, mask = mask.int().float().detach().cpu().numpy().reshape((n,n)), figname = "data/conditional/ref_img2/partially_observed_field.png")
 """
 number_of_replicates = 2250
 print(number_of_replicates)
