@@ -18,7 +18,7 @@ device = "cuda:0"
 config = ncsnpp_config.get_config()
 #if trained parallelized, need to be evaluated that way too
 score_model = torch.nn.DataParallel((ncsnpp.NCSNpp(config)).to("cuda:0"))
-score_model.load_state_dict(th.load((home_folder + "/trained_score_models/vpsde/model2_variance_10_lengthscale_1.6_df_10_beta_min_max_01_25_250_random050_masks.pth")))
+score_model.load_state_dict(th.load((home_folder + "/trained_score_models/vpsde/model1_variance_10_lengthscale_1.6_df_1_beta_min_max_01_25_250_random050_masks.pth")))
 score_model.eval()
 
 def construct_norm_matrix(minX, maxX, minY, maxY, n):
@@ -57,10 +57,11 @@ def generate_gaussian_process(minX, maxX, minY, maxY, n, variance, lengthscale, 
         gp_matrix[i,:,:,:] = y_matrix[:,i].reshape((1,n,n))
     return gp_matrix
 
-def generate_student_nugget(minX, maxX, minY, maxY, n, variance, lengthscale, df, number_of_replicates):
+def generate_student_nugget(minX, maxX, minY, maxY, n, variance, lengthscale, df, number_of_replicates,
+                            seed_value):
 
     kernel = construct_exp_kernel(minX, maxX, minY, maxY, n, variance, lengthscale)
-    studentgenerator = scipy.stats.multivariate_t(loc = np.zeros(n**2), shape = kernel, df = df, seed = 23423)
+    studentgenerator = scipy.stats.multivariate_t(loc = np.zeros(n**2), shape = kernel, df = df, seed = seed_value)
     #shape = (number_of_replicates, n**2)
     studentsamples = (studentgenerator.rvs(size = number_of_replicates))
     student_matrix = np.zeros((number_of_replicates,1,n,n))
@@ -146,25 +147,25 @@ maxY = 10
 variance = 10
 lengthscale = 1.6
 number_of_replicates = 2
-df = 10
+df = 1
+seed_value = 9342
 
 
 for i in range(0,10):
-    p = .5
+    print(i)
+    p = 0
     mask = (th.bernoulli(p*th.ones(1,1,n,n))).to(device)
     seed_value = int(np.random.randint(0, 100000))
     unmasked_y = ((th.from_numpy(generate_student_nugget(minX, maxX, minY, maxY, n,
                                                         variance, lengthscale, df,
-                                                        number_of_replicates))).to(device)).float()
+                                                        number_of_replicates, seed_value))).to(device)).float()
     unmasked_y = unmasked_y[0:1,:,:,:]
     y = ((torch.mul(mask, unmasked_y)).to(device)).float()
-    print(y.shape)
-    print(mask.shape)
     num_samples = 2
     diffusion_samples = posterior_sample_with_p_mean_variance_via_mask(sdevp, score_model,
                                                                     device, mask, y, n,
                                                                     num_samples)
 
-    figname = ("visualizations/models/model2/random50_variance_10_lengthscale_1.6_df_10_observed_and_generated_samples_" + str(i) + ".png")
+    figname = ("visualizations/models/model1/random0_variance_10_lengthscale_1.6_df_10_observed_and_generated_samples_" + str(i) + ".png")
     visualize_observed_and_generated_samples(unmasked_y, mask, diffusion_samples[0,:,:,:],
                                             diffusion_samples[1,:,:,:], n, figname)
