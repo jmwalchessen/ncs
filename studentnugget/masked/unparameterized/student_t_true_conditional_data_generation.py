@@ -108,6 +108,20 @@ def construct_masked_exp_kernel_vector(mask, minX, maxX, minY, maxY, n, variance
     masked_exp_vector = variance*np.exp((-1/lengthscale)*masked_norm_vector)
     return masked_exp_vector
 
+def generate_gaussian_process(minX, maxX, minY, maxY, n, variance, lengthscale, number_of_replicates,
+                              seed_value):
+
+    kernel = construct_exp_kernel(minX, maxX, minY, maxY, n, variance, lengthscale)
+    np.random.seed(seed_value)
+    z_matrix = np.random.multivariate_normal(np.zeros(n**2), np.identity(n**2), number_of_replicates)
+    L = np.linalg.cholesky(kernel)
+    y_matrix = np.matmul(L, np.transpose(z_matrix))
+    
+    gp_matrix = np.zeros((number_of_replicates,1,n,n))
+    for i in range(0, y_matrix.shape[1]):
+        gp_matrix[i,:,:,:] = y_matrix[:,i].reshape((1,n,n))
+    return y_matrix, gp_matrix
+
 
 def generate_student_nugget(minX, maxX, minY, maxY, n, variance, lengthscale, df, number_of_replicates):
 
