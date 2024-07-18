@@ -27,7 +27,7 @@ config.model.num_scales = 250
 config.model.beta_max = 25.
 
 score_model = th.nn.DataParallel((ncsnpp.NCSNpp(config)).to("cuda:0"))
-score_model.load_state_dict(th.load((home_folder + "/trained_score_models/vpsde/model2_variance_10_lengthscale_1.6_df_10_beta_min_max_01_25_250_random050_masks.pth")))
+score_model.load_state_dict(th.load((home_folder + "/trained_score_models/vpsde/model1_variance_10_lengthscale_1.6_df_1_beta_min_max_01_25_250_random050_masks.pth")))
 score_model.eval()
 
 sdevp = sde_lib.VPSDE(beta_min=0.1, beta_max=25, N=250)
@@ -116,7 +116,7 @@ maxX = maxY = 10
 n = 32
 variance = 10
 lengthscale = 1.6
-df = 10
+df = 1
 number_of_replicates = 2
 ref_vec, ref_img = generate_student_nugget(minX, maxX, minY, maxY, n, variance,
                                   lengthscale, df, number_of_replicates)
@@ -133,14 +133,14 @@ for i in range(0, 4):
                                           replicates_per_call, calls)
 
     partially_observed = (mask*ref_img).detach().cpu().numpy().reshape((n,n))
-    np.save("data/model2/ref_image1/ref_image1.npy", ref_img.detach().cpu().numpy().reshape((n,n)))
-    np.save("data/model2/ref_image1/diffusion/model2_beta_min_max_01_25_random0_250_" + str(i) + ".npy", conditional_samples)
-    np.save("data/model2/ref_image1/partially_observed_field.npy", partially_observed.reshape((n,n)))
-    np.save("data/model2/ref_image1/mask.npy", mask.int().detach().cpu().numpy().reshape((n,n)))
-    np.save("data/model2/ref_image1/seed_value.npy", np.array([int(seed_value)]))
+    np.save("data/model1/ref_image2/ref_image2.npy", ref_img.detach().cpu().numpy().reshape((n,n)))
+    np.save("data/model1/ref_image2/diffusion/model1_beta_min_max_01_25_random0_250_" + str(i) + ".npy", conditional_samples)
+    np.save("data/model1/ref_image2/partially_observed_field.npy", partially_observed.reshape((n,n)))
+    np.save("data/model1/ref_image2/mask.npy", mask.int().detach().cpu().numpy().reshape((n,n)))
+    np.save("data/model1/ref_image2/seed_value.npy", np.array([int(seed_value)]))
 
-    plot_spatial_field(ref_img.detach().cpu().numpy().reshape((n,n)), -8, 8, "data/model2/ref_image1/ref_image.png")
-    plot_spatial_field((conditional_samples[0,:,:,:]).numpy().reshape((n,n)), -8, 8, "data/model2/ref_image1/diffusion/visualizations/conditional_sample_0.png")
+    plot_spatial_field(ref_img.detach().cpu().numpy().reshape((n,n)), -8, 8, "data/model1/ref_image2/ref_image.png")
+    plot_spatial_field((conditional_samples[0,:,:,:]).numpy().reshape((n,n)), -8, 8, "data/model1/ref_image2/diffusion/visualizations/conditional_sample_0.png")
     plot_masked_spatial_field(spatial_field = ref_img.detach().cpu().numpy().reshape((n,n)),
-                   vmin = -8, vmax = 8, mask = mask.int().float().detach().cpu().numpy().reshape((n,n)), figname = "data/model2/ref_image1/partially_observed_field.png")
+                   vmin = -8, vmax = 8, mask = mask.int().float().detach().cpu().numpy().reshape((n,n)), figname = "data/model1/ref_image2/partially_observed_field.png")
                    
