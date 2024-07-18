@@ -17,9 +17,15 @@ print("T", config.model.num_scales)
 print("beta max", config.model.beta_max)
 #if trained parallelized, need to be evaluated that way too
 score_model = torch.nn.DataParallel((ncsnpp.NCSNpp(config)).to("cuda:0"))
-score_model.load_state_dict(th.load((home_folder + "/trained_score_models/vpsde/model5_beta_min_max_01_20_1000_1.6_1.6_random50_bounded_masks.pth")))
+score_model.load_state_dict(th.load((home_folder + "/trained_score_models/vpsde/model9_beta_min_max_01_20_1000_1.6_1.6_random050_logglobalmedianbound_masks.pth")))
 score_model.eval()
 
+def global_quantile_boundary_process(images, minvalue, maxvalue, quantvalue01):
+
+    log01 = (images-minvalue)/(maxvalue-minvalue)
+    log01c = log01 - quantvalue01
+    log01cs = 6*log01c
+    return log01cs
 
 #y is observed part of field
 def p_mean_and_variance_from_score_via_mask(vpsde, score_model, device, masked_xt, mask, y, t):
@@ -135,16 +141,16 @@ def visualize_observed_and_generated_sample(observed, mask, diffusion, n, fignam
     diffusion = diffusion.detach().cpu().numpy()
     observed = observed.reshape((n,n))
     diffusion = diffusion.reshape((n,n))
-    im = grid[0].imshow(observed, vmin=-3, vmax=1)
+    im = grid[0].imshow(observed, vmin=-3, vmax=3)
     grid[0].set_title("Observed")
     grid[1].imshow(observed, vmin=-3,
-                   vmax=1,
+                   vmax=3,
                    alpha = mask.detach().cpu().numpy().reshape((n,n)))
     grid[1].set_title("Partially Observed")
     grid[2].imshow(diffusion, vmin=-3,
-                   vmax=1)
+                   vmax=3)
     grid[2].set_title("Generated")
-    grid[3].imshow(diffusion, vmin=-3, vmax=1, alpha = mask.detach().cpu().numpy().reshape((n,n)))
+    grid[3].imshow(diffusion, vmin=-3, vmax=3, alpha = mask.detach().cpu().numpy().reshape((n,n)))
     grid[3].set_title("Generated Partially Observed")
     grid[0].cax.colorbar(im)
     plt.savefig(figname)
@@ -200,7 +206,13 @@ for i in range(10,20):
     """
 
 unmasked_ys = unmasked_ys.reshape((5000,1,n,n))
-unmasked_ys = log_and_boundary_process(unmasked_ys[0:512,:,:,:])
+unmasked_ys = log_transformation(unmasked_ys)
+print(unmasked_ys[0,:,:,:])
+trainmaxminfile = (home_folder + "/trained_score_models/vpsde/model9_train_log_0001_9999_5.npy")
+trainlogmaxmin = np.load(trainmaxminfile)
+print(trainlogmaxmin)
+unmasked_ys = global_quantile_boundary_process(unmasked_ys, trainlogmaxmin[0], trainlogmaxmin[1], trainlogmaxmin[2])
+
 
 for i in range(10,20):
     print(i)
@@ -215,6 +227,6 @@ for i in range(10,20):
                                                                     device, mask, unmasked_y, n,
                                                                     num_samples)
 
-    figname = ("visualizations/models/model5/random50_observed_and_generated_samples_" + str(i) + ".png")
+    figname = ("visualizations/models/model9/random50_observed_and_generated_samples_" + str(i) + ".png")
     visualize_observed_and_generated_sample(unmasked_y, mask, diffusion_samples[0,:,:,:],
                                             n, figname)
