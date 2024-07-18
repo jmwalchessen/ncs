@@ -17,7 +17,7 @@ print("T", config.model.num_scales)
 print("beta max", config.model.beta_max)
 #if trained parallelized, need to be evaluated that way too
 score_model = torch.nn.DataParallel((ncsnpp.NCSNpp(config)).to("cuda:0"))
-score_model.load_state_dict(th.load((home_folder + "/trained_score_models/vpsde/model9_beta_min_max_01_20_1000_1.6_1.6_random050_logglobalmedianbound_masks.pth")))
+score_model.load_state_dict(th.load((home_folder + "/trained_score_models/vpsde/model10_beta_min_max_01_20_1000_1.6_1.6_random050_logglobalbound_masks.pth")))
 score_model.eval()
 
 def global_quantile_boundary_process(images, minvalue, maxvalue, quantvalue01):
@@ -141,16 +141,54 @@ def visualize_observed_and_generated_sample(observed, mask, diffusion, n, fignam
     diffusion = diffusion.detach().cpu().numpy()
     observed = observed.reshape((n,n))
     diffusion = diffusion.reshape((n,n))
-    im = grid[0].imshow(observed, vmin=-3, vmax=3)
+    im = grid[0].imshow(observed, vmin=-2, vmax=2)
     grid[0].set_title("Observed")
-    grid[1].imshow(observed, vmin=-3,
-                   vmax=3,
+    grid[1].imshow(observed, vmin=-2,
+                   vmax=2,
                    alpha = mask.detach().cpu().numpy().reshape((n,n)))
     grid[1].set_title("Partially Observed")
-    grid[2].imshow(diffusion, vmin=-3,
-                   vmax=3)
+    grid[2].imshow(diffusion, vmin=-2,
+                   vmax=2)
     grid[2].set_title("Generated")
-    grid[3].imshow(diffusion, vmin=-3, vmax=3, alpha = mask.detach().cpu().numpy().reshape((n,n)))
+    grid[3].imshow(diffusion, vmin=-2, vmax=2, alpha = mask.detach().cpu().numpy().reshape((n,n)))
+    grid[3].set_title("Generated Partially Observed")
+    grid[0].cax.colorbar(im)
+    plt.savefig(figname)
+
+def global_quantile_boundary_process_inverse(images, trainlogmaxmin):
+
+    images = (images/6) + trainlogmaxmin[2]
+    images = (trainlogmaxmin[1]-trainlogmaxmin[0])*images
+    print((trainlogmaxmin[1]-trainlogmaxmin[0]))
+    images = images + trainlogmaxmin[0]
+    return images
+
+def visualize_globalquantilebound_observed_and_generated_sample(observed, mask, diffusion, n, figname,
+trainlogminmax):
+
+    fig = plt.figure(figsize=(10,10))
+    grid = ImageGrid(fig, 111,  # similar to subplot(111)
+                 nrows_ncols=(2, 2),  # creates 2x2 grid of Axes
+                 axes_pad=0.1,  # pad between Axes in inch.
+                 cbar_mode="single"
+                 )
+    
+    observed = observed.detach().cpu().numpy()
+    diffusion = diffusion.detach().cpu().numpy()
+    observed = observed.reshape((n,n))
+    diffusion = diffusion.reshape((n,n))
+    observed = global_quantile_boundary_process_inverse(observed, trainlogminmax)
+    diffusion = global_quantile_boundary_process_inverse(diffusion, trainlogminmax)
+    im = grid[0].imshow(observed, vmin=-2, vmax=4)
+    grid[0].set_title("Observed")
+    grid[1].imshow(observed, vmin=-2,
+                   vmax=4,
+                   alpha = mask.detach().cpu().numpy().reshape((n,n)))
+    grid[1].set_title("Partially Observed")
+    grid[2].imshow(diffusion, vmin=-2,
+                   vmax=4)
+    grid[2].set_title("Generated")
+    grid[3].imshow(diffusion, vmin=-2, vmax=4, alpha = mask.detach().cpu().numpy().reshape((n,n)))
     grid[3].set_title("Generated Partially Observed")
     grid[0].cax.colorbar(im)
     plt.savefig(figname)
@@ -176,11 +214,11 @@ from brown_resnick_data_generation import *
 #unmasked_ys = generate_brown_resnick_process(range_value, smooth_value, seed_value, number_of_replicates, n)
 unmasked_ys = np.load("brown_resnick_samples_5000.npy")
 
-"""
+
 unmasked_ys = log_transformation(unmasked_ys)
 unmasked_ys = (unmasked_ys.reshape(number_of_replicates,1,n,n))
-trainlogminmax = np.load((home_folder + "/trained_score_models/vpsde/model8_train_logminmax.npy"))
-unmasked_ys = global_boundary_process(unmasked_ys, trainlogminmax[0], trainlogminmax[1])
+trainlogminmax = np.load((home_folder + "/trained_score_models/vpsde/model10_train_logminmax.npy"))
+unmasked_ys = global_quantile_boundary_process(unmasked_ys, trainlogminmax[0], trainlogminmax[1], trainlogminmax[2])
 
 
 for i in range(10,20):
@@ -196,9 +234,12 @@ for i in range(10,20):
                                                                     device, mask, unmasked_y, n,
                                                                     num_samples)
 
-    figname = ("visualizations/models/model8/random50_observed_and_generated_samples_" + str(i) + ".png")
+    figname = ("visualizations/models/model10/random50_observed_and_generated_samples_" + str(i) + ".png")
     visualize_observed_and_generated_sample(unmasked_y, mask, diffusion_samples[0,:,:,:],
                                             n, figname)
+    figname = ("visualizations/models/model10/random50_rebounded_observed_and_generated_samples_" + str(i) + ".png")
+    visualize_globalquantilebound_observed_and_generated_sample(unmasked_y, mask, diffusion_samples[0,:,:,:],
+                                            n, figname, trainlogminmax)
     
     #figname = ("visualizations/models/model8/random50_observed_and_generated_exp_samples_" + str(i) + ".png")
     #visualize_observed_and_generated_sample(torch.exp(unmasked_y), mask,
@@ -229,4 +270,4 @@ for i in range(10,20):
 
     figname = ("visualizations/models/model9/random50_observed_and_generated_samples_" + str(i) + ".png")
     visualize_observed_and_generated_sample(unmasked_y, mask, diffusion_samples[0,:,:,:],
-                                            n, figname)
+                                            n, figname)"""

@@ -261,6 +261,8 @@ def train_per_multiple_random_and_block_masks(config, data_draws, epochs_per_dra
             while True:
                 try:
                     batch = get_next_batch(train_iterator, config)
+                    print(torch.min(batch[0])[0,:,:,:])
+                    print(torch.max(batch[0][0,:,:,:]))
                     loss = train_step_fn(state, batch)
                     train_losses_per_epoch.append(float(loss))
                 except StopIteration:
@@ -289,22 +291,21 @@ ve_ncsnpp_configuration = ve_ncsnpp_config.get_config()
 vpconfig = vp_ncsnpp_configuration
 veconfig = ve_ncsnpp_config
 
-data_draws = 20
-epochs_per_drawn_data = 20
+data_draws = 40
+epochs_per_drawn_data = 40
 random_missingness_percentages = [0,.5]
-number_of_random_replicates = 100
+number_of_random_replicates = 5000
 number_of_eval_random_replicates = 250
 seed_values = [(int(np.random.randint(0, 100000)),int(np.random.randint(0, 100000)))
                 for i in range(0, data_draws)]
 range_value = 1.6
 smooth_value = 1.6
-batch_size = 4
+batch_size = 512
 eval_batch_size = 250
-score_model_path = "trained_score_models/vpsde/model10_beta_min_max_01_20_1000_1.6_1.6_random050_logglobalbound_masks.pth"
-loss_path = "trained_score_models/vpsde/model10_beta_min_max_01_20_1000_1.6_1.6_random050_logglobalbound_masks_loss.png"
+score_model_path = "trained_score_models/vpsde/model11_beta_min_max_01_20_1000_1.6_1.6_random050_logglobalbound_200000_40_masks.pth"
+loss_path = "trained_score_models/vpsde/model11_beta_min_max_01_20_1000_1.6_1.6_random050_logglobalbound_masks_200000_40_loss.png"
 n = 32
-trainmaxminfile = "trained_score_models/vpsde/model8_train_logminmax.npy"
-evalmaxminfile = "trained_score_models/vpsde/model8_eval_logminmax.npy"
+trainmaxminfile = "trained_score_models/vpsde/model11_train_logminmax.npy"
 train_per_multiple_masks(vpconfig, data_draws, epochs_per_drawn_data,
                              random_missingness_percentages,
                              number_of_random_replicates,
