@@ -123,10 +123,11 @@ def generate_gaussian_process(minX, maxX, minY, maxY, n, variance, lengthscale, 
     return y_matrix, gp_matrix
 
 
-def generate_student_nugget(minX, maxX, minY, maxY, n, variance, lengthscale, df, number_of_replicates):
+def generate_student_nugget(minX, maxX, minY, maxY, n, variance, lengthscale, df, number_of_replicates,
+                            seed_value):
 
     kernel = construct_exp_kernel(minX, maxX, minY, maxY, n, variance, lengthscale)
-    studentgenerator = scipy.stats.multivariate_t(loc = np.zeros(n**2), shape = kernel, df = df, seed = 23423)
+    studentgenerator = scipy.stats.multivariate_t(loc = np.zeros(n**2), shape = kernel, df = df, seed = seed_value)
     #shape = (number_of_replicates, n**2)
     studentsamples = (studentgenerator.rvs(size = number_of_replicates))
     student_matrix = np.zeros((number_of_replicates,1,n,n))
@@ -264,8 +265,10 @@ maxX = maxY = 10
 variance = .4
 lengthscale = 1.6
 df = 1
+seed_value = 85634
 student_vector, student_matrix = generate_student_nugget(minX, maxX, minY, maxY, n, variance,
-                                                         lengthscale, df, number_of_replicates)
+                                                         lengthscale, df, seed_value,
+                                                         number_of_replicates)
 number_of_replicates = 1
 student_vector = student_vector[0,:].reshape((1,n**2))
 student_matrix = student_matrix[0,:,:].reshape((n,n))
