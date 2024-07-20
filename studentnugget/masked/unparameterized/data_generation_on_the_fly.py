@@ -240,6 +240,64 @@ def get_training_and_evaluation_random_mask_and_image_datasets_per_mask(number_o
     eval_dataloader = DataLoader(eval_dataset, batch_size = eval_batch_size, shuffle = True)
     return train_dataloader, eval_dataloader
 
+def box_cox_transformation(images, lmbda, buffer, number_of_replicates, n):
+
+    nonnegativeimages = images - np.min(images) + buffer
+    boxcoximages = (scipy.stats.boxcox((nonnegativeimages).reshape((number_of_replicates*(n**2))), lmbda = lmbda))
+    boxcoximages = boxcoximages - np.mean(boxcoximages)
+    return boxcoximages, np.min(images), np.mean(boxcoximages)
+
+def box_cox_transformation_with_fixed_values(images, lmbda, minvalue, buffer, boxcoxmean, number_of_replicates, n):
+
+    nonnegativeimages = images - minvalue + buffer
+    boxcoximages = (scipy.stats.boxcox((nonnegativeimages).reshape((number_of_replicates*(n**2))), lmbda = lmbda))
+    boxcoximages = boxcoximages + boxcoxmean
+    return boxcoximages
+
+def get_box_cox_training_and_evaluation_random_mask_and_image_datasets_per_mask(data_draw, number_of_random_replicates, 
+                                                                 random_missingness_percentages, 
+                                                                 number_of_evaluation_random_replicates,
+                                                                 batch_size, eval_batch_size, variance,
+                                                                 lengthscale, df, lmbda, buffer, boxcoxfile):
+    
+    minX = -10
+    maxX = 10
+    minY = -10
+    maxX = 10
+    maxY = 10
+    n = 32
+    
+    train_masks = generate_random_masks_on_the_fly(n, number_of_random_replicates, random_missingness_percentages)
+    eval_masks = generate_random_masks_on_the_fly(n, number_of_evaluation_random_replicates, random_missingness_percentages)
+    train_image_and_mask_number = len(random_missingness_percentages)*number_of_random_replicates
+    eval_image_and_mask_number = len(random_missingness_percentages)*number_of_evaluation_random_replicates
+
+    train_images = generate_data_on_the_fly(minX, maxX, minY, maxY, n,
+                                                              variance, lengthscale, df,
+                                                              train_image_and_mask_number)
+    eval_images = generate_data_on_the_fly(minX, maxX, minY, maxY, n,
+                                                              variance, lengthscale, df,
+                                                              eval_image_and_mask_number)
+    if(data_draw == 0):
+        train_images, boxcoxmin, boxcoxmean = box_cox_transformation(train_images, lmbda, buffer,
+                                                                     number_of_random_replicates, n)
+        eval_images = box_cox_transformation_with_fixed_values(eval_images, lmbda, boxcoxmin, buffer, boxcoxmean,
+                                                               boxcoxmean, number_of_evaluation_random_replicates, n)
+        boxcoxvalues = np.array([boxcoxmin, boxcoxmean])
+        np.save(boxcoxvalues, boxcoxfile)
+    else:
+        boxcoxvalues = np.load(boxcoxfile)
+        train_images, eval_images = box_cox_transformation_with_fixed_values(train_images, lmbda, boxcoxvalues[0], buffer,
+                                                                             boxcoxmean[1], number_of_evaluation_random_replicates,
+                                                                             n)
+        
+
+    train_dataset = CustomSpatialImageandMaskDataset(train_images, train_masks)
+    eval_dataset = CustomSpatialImageandMaskDataset(eval_images, eval_masks)
+    train_dataloader = DataLoader(train_dataset, batch_size = batch_size, shuffle = True)
+    eval_dataloader = DataLoader(eval_dataset, batch_size = eval_batch_size, shuffle = True)
+    return train_dataloader, eval_dataloader
+
 def get_training_and_evaluation_random_and_block_mask_and_image_datasets_per_mask(number_of_random_replicates_per_percentage, 
                                                                                   random_missingness_percentages,
                                                                                   number_of_block_replicates_per_mask,
