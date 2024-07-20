@@ -13,6 +13,12 @@ def log_transformation(images):
 
     return images
 
+def log10_transformation(images):
+
+    images = np.log10(np.where(images !=0, images, np.min(images[images != 0])))
+
+    return images
+
 
 def generate_brown_resnick_process(range_value, smooth_value, seed_value, number_of_replicates, n):
 
@@ -45,6 +51,7 @@ def log_and_normalize(images):
     images = (images - np.mean(images))/np.std(images)
     return images
 
+#.99999 quantile, .00001 quantile, .7 quantile of the transformed by .99999 and .00001 quantile
 def global_quantile_boundary_process(images, minvalue, maxvalue, quantvalue01):
 
     log01 = (images-minvalue)/(maxvalue-minvalue)
@@ -268,6 +275,57 @@ def get_training_and_evaluation_mask_and_image_datasets_per_mask(draw_number, nu
     eval_dataloader = DataLoader(eval_dataset, batch_size = eval_batch_size, shuffle = True)
     return train_dataloader, eval_dataloader
 
+
+def get_training_and_evaluation_mask_and_image_datasets_per_mask_log10(draw_number, number_of_random_replicates, 
+                                                                       random_missingness_percentages, 
+                                                                       number_of_evaluation_random_replicates,
+                                                                       batch_size, eval_batch_size, range_value,
+                                                                       smooth_value, seed_values, n,
+                                                                       trainquantfile):
+    
+    minX = -10
+    maxX = 10
+    minY = -10
+    maxX = 10
+    maxY = 10
+    
+    train_masks = generate_random_masks_on_the_fly(n, number_of_random_replicates,
+                                                   random_missingness_percentages)
+    eval_masks = generate_random_masks_on_the_fly(n, number_of_evaluation_random_replicates,
+                                                  random_missingness_percentages)
+    train_images, eval_images = generate_train_and_evaluation_brown_resnick_process(range_value,
+                                                                                    smooth_value,
+                                                                                    seed_values[0],
+                                                                                    number_of_random_replicates,
+                                                                                    number_of_evaluation_random_replicates,
+                                                                                    n)
+    if(draw_number == 0):
+        train_images = log10_transformation(train_images)
+        eval_images = log10_transformation(eval_images)
+        trainquant = float(np.quantile(train_images, [.9]))
+        train_images = train_images - trainquant
+        trainlogmin = float(np.min(train_images))
+        trainlogmax = float(np.max(train_images))
+        print(trainlogmax)
+        print(trainlogmin)
+        eval_images = eval_images - trainquant
+        trainquant = np.array([trainquant])
+        np.save(trainquantfile, trainquant)
+
+    else:
+        trainquant = np.load(trainquantfile)
+        train_images = log10_transformation(train_images)
+        eval_images = log10_transformation(eval_images)
+        train_images = train_images - float(trainquant)
+        eval_images = eval_images - float(trainquant)
+
+    train_dataset = CustomSpatialImageandMaskDataset(train_images, train_masks)
+    eval_dataset = (CustomSpatialImageandMaskDataset)(eval_images, eval_masks)
+    train_dataloader = DataLoader(train_dataset, batch_size = batch_size, shuffle = True)
+    eval_dataloader = DataLoader(eval_dataset, batch_size = eval_batch_size, shuffle = True)
+    return train_dataloader, eval_dataloader
+
+
 def get_training_and_evaluation_random_and_block_mask_and_image_datasets_per_mask(number_of_random_replicates_per_percentage, 
                                                                                   random_missingness_percentages,
                                                                                   number_of_block_replicates_per_mask,
@@ -301,6 +359,9 @@ def get_training_and_evaluation_random_and_block_mask_and_image_datasets_per_mas
     train_dataloader = DataLoader(train_dataset, batch_size = batch_size, shuffle = True)
     eval_dataloader = DataLoader(eval_dataset, batch_size = eval_batch_size, shuffle = True)
     return train_dataloader, eval_dataloader
+
+
+
 
 
 def get_next_batch(image_and_mask_iterator, config):

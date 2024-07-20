@@ -47,13 +47,47 @@ def log_transformation(images):
     return images
 
 
+def log_and_boundary_process(images):
+
+    log_images = log_transformation(images)
+    log01_images = (log_images - np.min(log_images))/(np.max(log_images) - np.min(log_images))
+    centered_batch = log01_images - .5
+    scaled_centered_batch = 6*centered_batch
+    return scaled_centered_batch
+
+def global_boundary_process(images, minvalue, maxvalue):
+
+    log01 = (images-minvalue)/(maxvalue-minvalue)
+    log01c = log01 - .5
+    log01cs = 6*log01c
+    return log01cs
+
+def log_and_normalize(images):
+
+    images = np.log(images)
+    images = (images - np.mean(images))/np.std(images)
+    return images
+
+def global_quantile_boundary_process(images, minvalue, maxvalue, quantvalue01):
+
+    log01 = (images-minvalue)/(maxvalue-minvalue)
+    log01c = log01 - quantvalue01
+    log01cs = 6*log01c
+    return log01cs
+
+def global_quantile_boundary_inverse(images, minvalue, maxvalue, quantvalue01):
+
+    images = (images/6)+quantvalue01
+    images = (maxvalue-minvalue)*images
+    images = images + minvalue
+    return images
+
+
 def produce_true_and_generated_marginal_density(minX, maxX, minY, maxY, n,
                                                 number_of_replicates, missing_index,
                                                 unconditional_generated_samples, uncond_brv,
                                                 figname):
     
-    #log transformation
-    uncond_brv = log_transformation(uncond_brv)
     #conditional_vectors is shape (number of replicates, m)
     marginal_density = (uncond_brv[:,missing_index]).reshape((number_of_replicates,1))
     matrix_index = index_to_matrix_index(missing_index, n)
@@ -76,7 +110,7 @@ def produce_true_and_generated_marginal_density(minX, maxX, minY, maxY, n,
     sns.kdeplot(data = generated_pdd["generated"], palette = ["orange"], bw_adjust = 1, ax = axs[1])
     axs[1].set_title("Marginal")
     axs[1].set_xlim(-4,10)
-    axs[1].set_ylim(0,.5)
+    axs[1].set_ylim(0,1)
     location = index_to_spatial_location(minX, maxX, minY, maxY, n, missing_index)
     rlocation = (round(location[0],2), round(location[1],2))
     axs[1].set_xlabel("location: " + str(rlocation))
@@ -90,7 +124,7 @@ def produce_true_and_generated_bivariate_density(minX, maxX, minY, maxY, n,
                                                  figname):
     
     #log transformation
-    uncond_brv = log_transformation(uncond_brv)
+    #uncond_brv = log_transformation(uncond_brv)
     #conditional_vectors is shape (number of replicates, m)
     uncond_brm = uncond_brv.reshape((number_of_replicates, 1, n, n))
     bivariate_density = (uncond_brv[:,missing_two_indices]).reshape((number_of_replicates,2))
@@ -100,7 +134,6 @@ def produce_true_and_generated_bivariate_density(minX, maxX, minY, maxY, n,
                                                    (unconditional_generated_samples[:,0,int(matrix_index2[0]),int(matrix_index2[1])]).reshape((number_of_replicates,1))],
                                                    axis = 1)
     bivariate_density = np.concatenate([bivariate_density, generated_bivariate_density], axis = 0)
-    print(bivariate_density)
     class_vector = np.concatenate([(np.repeat('true', number_of_replicates)).reshape((number_of_replicates,1)),
                                    (np.repeat('generated', number_of_replicates)).reshape((number_of_replicates,1))], axis = 0)
     bivariate_density = np.concatenate([bivariate_density, class_vector], axis = 1)
@@ -136,32 +169,40 @@ maxY = 10
 n = 32
 range_value = 1.6
 smooth_value = 1.6
-number_of_replicates = 2250
+number_of_replicates = 1000
 missing_index = 700
 missing_indices = [100,101]
 home_folder = append_directory(3)
 sys.path.append((home_folder + "/generate_data"))
 import generate_true_unconditional_samples
-uncond_samples = np.load((home_folder + "/generate_data/data/unconditional/diffusion/model3_beta_min_max_01_20_random0_2250.npy"))
+uncond_samples = np.load((home_folder + "/generate_data/data/conditional/model10/ref_img1/model10_random0_beta_min_max_01_20_1000_random0_1000.npy"))
 #uncond_brv = (np.load((home_folder + "/generate_data/data/unconditional/true/unconditional_model3_range_1.6_smooth_1.6_2250.npy")))
 seed_value = 3242
 #uncond_brv = generate_true_unconditional_samples.generate_brown_resnick_process(range_value, smooth_value,
                                                                    #seed_value, number_of_replicates, n)
-uncond_brv = np.load("brown_resnick_samples_2250.npy")
-print(uncond_brv.shape)
+br_folder= (append_directory(7) + "/brown_resnick/sde_diffusion/masked/unparameterized")
 
-missing_marginal_indices = (np.random.randint(low = 0, high = 1024, size = 400)).tolist()
+trainlogmaxmin = np.load((br_folder + "/trained_score_models/vpsde/model10_train_logminmax.npy"))
+uncond_brv = (np.load("brown_resnick_samples_2250.npy"))[0:1000,:]
+uncond_brv = log_transformation(uncond_brv)
+#uncond_brv = global_quantile_boundary_process(uncond_brv, trainlogmaxmin[0], trainlogmaxmin[1],
+#                                              trainlogmaxmin[2])
+uncond_samples = global_quantile_boundary_inverse(uncond_samples,trainlogmaxmin[0], trainlogmaxmin[1],
+                                                  trainlogmaxmin[2])
+"""
 
+missing_marginal_indices = (np.random.randint(low = 0, high = 1024, size = 50)).tolist()
 
-'''
 for missing_index in missing_marginal_indices:
 
-    marginal_plot = (home_folder + "/generate_data/data/unconditional/marginal_density/model3_random0_2250_true_and_generated_marginal_density_"
+    marginal_plot = (home_folder + "/generate_data/data/unconditional/marginal_density/model10_log_random0_1000_true_and_generated_marginal_density_"
                     + str(number_of_replicates) + "_" + str(missing_index) + ".png")
     produce_true_and_generated_marginal_density(minX, maxX, minY, maxY, n, number_of_replicates,
                                                 missing_index, uncond_samples, uncond_brv, marginal_plot)
 
-'''
+
+
+"""
 
 indices1 = np.random.randint(0, n**2, 2)
 indices2 = np.random.randint(0, n**2, 2)
@@ -173,7 +214,7 @@ matrix_indices2 = [(i,j) for i in range(11,20) for j in range(11,20)]
 for i in range(len(matrix_indices1)):
     for j in range(len(matrix_indices2)):
         bivarity_density_fig = (home_folder + "/generate_data/data/unconditional/" +
-                                "bivariate_density/model3_random0_true_and_generated_bivariate_density_"
+                                "bivariate_density/model10_log_random0_true_and_generated_bivariate_density_"
                                                                         + str(number_of_replicates) + "_" + str(missing_indices[0])
                                                                         + "_" + str(missing_indices[1]) + ".png")
         missing_indices = [matrix_index_to_index(matrix_indices1[i], n),
