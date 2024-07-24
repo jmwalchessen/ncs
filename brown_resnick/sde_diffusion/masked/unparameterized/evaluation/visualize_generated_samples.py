@@ -17,7 +17,7 @@ print("T", config.model.num_scales)
 print("beta max", config.model.beta_max)
 #if trained parallelized, need to be evaluated that way too
 score_model = torch.nn.DataParallel((ncsnpp.NCSNpp(config)).to("cuda:0"))
-score_model.load_state_dict(th.load((home_folder + "/trained_score_models/vpsde/model11_beta_min_max_01_20_1000_1.6_1.6_random050_200000_40_logglobalbound_masks.pth")))
+score_model.load_state_dict(th.load((home_folder + "/trained_score_models/vpsde/model12_beta_min_max_01_20_1000_1.6_1.6_random050_log10quantile9_masks.pth")))
 score_model.eval()
 
 def global_quantile_boundary_process(images, minvalue, maxvalue, quantvalue01):
@@ -65,6 +65,12 @@ def posterior_sample_with_p_mean_variance_via_mask(vpsde, score_model, device, m
 def log_transformation(images):
 
     images = np.log(np.where(images !=0, images, np.min(images[images != 0])))
+
+    return images
+
+def log10_transformation(images):
+
+    images = np.log10(np.where(images !=0, images, np.min(images[images != 0])))
 
     return images
 
@@ -215,10 +221,17 @@ from brown_resnick_data_generation import *
 unmasked_ys = np.load("brown_resnick_samples_5000.npy")
 
 
+"""
 unmasked_ys = log_transformation(unmasked_ys)
 unmasked_ys = (unmasked_ys.reshape(number_of_replicates,1,n,n))
 trainlogminmax = np.load((home_folder + "/trained_score_models/vpsde/model11_train_logminmax.npy"))
 unmasked_ys = global_quantile_boundary_process(unmasked_ys, trainlogminmax[0], trainlogminmax[1], trainlogminmax[2])
+"""
+
+unmasked_ys = log10_transformation(unmasked_ys)
+unmasked_ys = (unmasked_ys.reshape(number_of_replicates,1,n,n))
+trainquant = np.load((home_folder + "/trained_score_models/vpsde/model12_train_quant9.npy"))
+unmasked_ys = unmasked_ys - float(trainquant)
 
 
 for i in range(10,20):
@@ -234,12 +247,12 @@ for i in range(10,20):
                                                                     device, mask, unmasked_y, n,
                                                                     num_samples)
 
-    figname = ("visualizations/models/model10/random50_observed_and_generated_samples_" + str(i) + ".png")
+    figname = ("visualizations/models/model12/random50_observed_and_generated_samples_" + str(i) + ".png")
     visualize_observed_and_generated_sample(unmasked_y, mask, diffusion_samples[0,:,:,:],
                                             n, figname)
-    figname = ("visualizations/models/model11/random50_rebounded_observed_and_generated_samples_" + str(i) + ".png")
-    visualize_globalquantilebound_observed_and_generated_sample(unmasked_y, mask, diffusion_samples[0,:,:,:],
-                                            n, figname, trainlogminmax)
+    #figname = ("visualizations/models/model12/random50_rebounded_observed_and_generated_samples_" + str(i) + ".png")
+    #visualize_globalquantilebound_observed_and_generated_sample(unmasked_y, mask, diffusion_samples[0,:,:,:],
+                                            #n, figname, trainlogminmax)
     
     #figname = ("visualizations/models/model8/random50_observed_and_generated_exp_samples_" + str(i) + ".png")
     #visualize_observed_and_generated_sample(torch.exp(unmasked_y), mask,
