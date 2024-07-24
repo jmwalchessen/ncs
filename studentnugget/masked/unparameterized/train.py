@@ -229,7 +229,7 @@ def train_per_multiple_random_masks_box(config, data_draws, epochs_per_drawn_dat
     for data_draw in range(0, data_draws):
         print(data_draw)
 
-        train_dataloader, eval_dataloader = get_box_cox_training_and_evaluation_random_mask_and_image_datasets_per_mask(number_of_random_replicates,
+        train_dataloader, eval_dataloader = get_box_cox_training_and_evaluation_random_mask_and_image_datasets_per_mask(data_draw, number_of_random_replicates,
                                                                                                          random_missingness_percentages,
                                                                                                          number_of_eval_random_replicates,
                                                                                                          batch_size, eval_batch_size, variance,
@@ -401,16 +401,16 @@ number_of_random_replicates = 10000
 number_of_eval_random_replicates = 256
 #smaller p means less ones which means more observed values
 random_missingness_percentages = [0,.0025, .005]
-batch_size = 4
+batch_size = 512
 eval_batch_size = 256
 variance = .4
 lengthscale = 1.6
 df = 2
 buffer = 500
 boxcoxfile = "trained_score_models/vpsde/model4_boxcoxminmean.npy"
-lmbda = .95
-score_model_path = "trained_score_models/vpsde/model4_boxcox_lmbda9_variance_.4_lengthscale_1.6_df_2_beta_min_max_01_20_1000_random0005_masks.pth"
-loss_path = "trained_score_models/vpsde/model4_boxcox_lmbda9_variance_.4_lengthscale_1.6_df_2_beta_min_max_01_20_1000_random0005_masks_loss.png"
+lmbda = .8
+score_model_path = "trained_score_models/vpsde/model4_boxcox_lmbda8_variance_.4_lengthscale_1.6_df_2_beta_min_max_01_20_1000_random0005_masks.pth"
+loss_path = "trained_score_models/vpsde/model4_boxcox_lmbda8_variance_.4_lengthscale_1.6_df_2_beta_min_max_01_20_1000_random0005_masks_loss.png"
 torch.cuda.empty_cache()
 train_per_multiple_random_masks_box(vpconfig, data_draws, epochs_per_data_draws,
                              random_missingness_percentages,
