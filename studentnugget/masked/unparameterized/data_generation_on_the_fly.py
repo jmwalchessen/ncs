@@ -240,18 +240,22 @@ def get_training_and_evaluation_random_mask_and_image_datasets_per_mask(number_o
     eval_dataloader = DataLoader(eval_dataset, batch_size = eval_batch_size, shuffle = True)
     return train_dataloader, eval_dataloader
 
-def box_cox_transformation(images, lmbda, buffer, number_of_replicates, n):
+def box_cox_transformation(images, lmbda, buffer, n):
 
     nonnegativeimages = images - np.min(images) + buffer
+    number_of_replicates = images.shape[0]
     boxcoximages = (scipy.stats.boxcox((nonnegativeimages).reshape((number_of_replicates*(n**2))), lmbda = lmbda))
     boxcoximages = boxcoximages - np.mean(boxcoximages)
+    boxcoximages = boxcoximages.reshape((number_of_replicates, 1, n, n))
     return boxcoximages, np.min(images), np.mean(boxcoximages)
 
-def box_cox_transformation_with_fixed_values(images, lmbda, minvalue, buffer, boxcoxmean, number_of_replicates, n):
+def box_cox_transformation_with_fixed_values(images, lmbda, minvalue, buffer, boxcoxmean, n):
 
     nonnegativeimages = images - minvalue + buffer
+    number_of_replicates = images.shape[0]
     boxcoximages = (scipy.stats.boxcox((nonnegativeimages).reshape((number_of_replicates*(n**2))), lmbda = lmbda))
     boxcoximages = boxcoximages + boxcoxmean
+    boxcoximages = boxcoximages.reshape((number_of_replicates, 1, n, n))
     return boxcoximages
 
 def get_box_cox_training_and_evaluation_random_mask_and_image_datasets_per_mask(data_draw, number_of_random_replicates, 
@@ -279,17 +283,26 @@ def get_box_cox_training_and_evaluation_random_mask_and_image_datasets_per_mask(
                                                               variance, lengthscale, df,
                                                               eval_image_and_mask_number)
     if(data_draw == 0):
-        train_images, boxcoxmin, boxcoxmean = box_cox_transformation(train_images, lmbda, buffer,
-                                                                     number_of_random_replicates, n)
-        eval_images = box_cox_transformation_with_fixed_values(eval_images, lmbda, boxcoxmin, buffer, boxcoxmean,
-                                                               boxcoxmean, number_of_evaluation_random_replicates, n)
+        train_images, boxcoxmin, boxcoxmean = box_cox_transformation(train_images, lmbda, buffer, n)
+        eval_images = box_cox_transformation_with_fixed_values(eval_images, lmbda, boxcoxmin, buffer, boxcoxmean, n)
         boxcoxvalues = np.array([boxcoxmin, boxcoxmean])
-        np.save(boxcoxvalues, boxcoxfile)
+        np.save(boxcoxfile, boxcoxvalues)
+        print(np.max(train_images))
+        print(np.min(train_images))
+        """
+        import matplotlib.pyplot as plt
+        import seaborn as sns
+        plt.imshow(train_images[0,:,:,:].reshape((n,n)))
+        plt.savefig("temp.png")
+        plt.clf()
+        fig, ax = plt.subplots(1)
+        sns.kdeplot(train_images[:,:,4,4].reshape((30000)))
+        ax.set_xlim(-10,10)
+        plt.savefig("temp1.png")"""
     else:
         boxcoxvalues = np.load(boxcoxfile)
         train_images, eval_images = box_cox_transformation_with_fixed_values(train_images, lmbda, boxcoxvalues[0], buffer,
-                                                                             boxcoxmean[1], number_of_evaluation_random_replicates,
-                                                                             n)
+                                                                             boxcoxmean[1], n)
         
 
     train_dataset = CustomSpatialImageandMaskDataset(train_images, train_masks)

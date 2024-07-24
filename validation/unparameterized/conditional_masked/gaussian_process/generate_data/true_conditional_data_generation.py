@@ -27,7 +27,8 @@ def construct_masked_norm_matrix(mask, minX, maxX, minY, maxY, n):
     #X is a matrix of nxn which is latitudes of all nxn obs, same for Y
     X = X.reshape((np.prod(X.shape),1))
     Y = Y.reshape((np.prod(Y.shape),1))
-    missing_indices = np.squeeze((np.argwhere(mask.reshape((n**2)))))
+    missing_indices = (np.squeeze((np.argwhere(mask.reshape((n**2)))))).reshape((-1,1))
+    print(missing_indices.shape)
     m = missing_indices.shape[0]
     missing_indices = missing_indices.reshape((m))
     X = np.delete(X, missing_indices, axis = 0)

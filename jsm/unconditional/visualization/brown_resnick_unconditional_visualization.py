@@ -183,7 +183,7 @@ def plot_unconditional_true_and_diffusion_samples(br_samples, vpsde, score_model
             ax.set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
             ax.set_title("Unconditional Diffusion (log)", fontsize = 20)
         else:
-            im = ax.imunconditional_lengthscale_1.6_variance_0.4_1000.npyshow(br_samples[i,:,:], vmin = -2, vmax = 6)
+            im = ax.imshow(br_samples[i,:,:], vmin = -2, vmax = 6)
             ax.set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
             ax.set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
             ax.set_title("Unconditional True (log)", fontsize = 20)

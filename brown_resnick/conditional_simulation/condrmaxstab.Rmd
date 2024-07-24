@@ -144,14 +144,14 @@ points(cond_coord, col = 'red', pch = 19)
 ```{r}
 x <- seq(-10, 10, length.out = 3)
 y <- seq(-10, 10, length.out = 3)
-grid_coords <- expand.grid(x = x, y = y)
+grid_coords <- as.matrix(expand.grid(x = x, y = y))
 set.seed(123)
-data <- rmaxstab(1, grid_coords, "brown", range = 1, smooth = 1)
+data <- rmaxstab(1, grid_coords, "powexp", nugget = 0, range = 1, smooth = 1)
 ```
 
 ```{r}
 set.seed(123)
-observed_indices <- sample(1:nrow(grid_coords), 1)
+observed_indices <- sample(1:nrow(grid_coords), 2)
 missing_indices <- setdiff(1:nrow(grid_coords), observed_indices)
 
 observed_coords <- grid_coords[observed_indices, ]
@@ -174,7 +174,7 @@ cond_sample <- condrmaxstab(
   coord = as.matrix(observed_coords),
   cond.data = observed_data,
   cond.coord = as.matrix(missing_coords),
-  cov.model = "brown",
+  cov.model = "powexp",
   range = range_param,
   smooth = smooth_param,
   nugget = nugget_param
