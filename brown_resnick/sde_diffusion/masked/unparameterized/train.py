@@ -375,8 +375,8 @@ ve_ncsnpp_configuration = ve_ncsnpp_config.get_config()
 vpconfig = vp_ncsnpp_configuration
 veconfig = ve_ncsnpp_config
 
-data_draws = 20
-epochs_per_drawn_data = 20
+data_draws = 40
+epochs_per_drawn_data = 40
 random_missingness_percentages = [0,.5]
 number_of_random_replicates = 5000
 number_of_eval_random_replicates = 250
@@ -384,9 +384,9 @@ seed_values = [(int(np.random.randint(0, 100000)),int(np.random.randint(0, 10000
                 for i in range(0, data_draws)]
 range_value = 1.6
 smooth_value = 1.6
-batch_size = 512
+batch_size = 64
 eval_batch_size = 250
-score_model_path = "trained_score_models/vpsde/model12_beta_min_max_01_20_1000_1.6_1.6_random050_log10quantile9_masks.pth"
+score_model_path = "trained_score_models/vpsde/model12_beta_min_max_01_20_1000_1.6_1.6_random050_log10quantile9_64_batch_masks.pth"
 loss_path = "trained_score_models/vpsde/model12_beta_min_max_01_20_1000_1.6_1.6_random050_log10quantile9_masks_loss.png"
 n = 32
 trainquantfile = "trained_score_models/vpsde/model12_train_quant9.npy"
