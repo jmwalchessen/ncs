@@ -31,4 +31,4 @@ condvector <- condrmaxstab(1, coord = df[idx_pred_locs, 1:2] %>% as.matrix(),
                            cond.coord = df[-idx_pred_locs ,1:2] %>% as.matrix(),
                            cond.data = df[-idx_pred_locs, "z"], cov.mod = "brown",
                            nugget = 0, range = 1.6, smooth = 1.6)
-print(condvector$sim)
+print(condvector["sim"])
