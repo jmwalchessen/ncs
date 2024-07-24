@@ -5,7 +5,6 @@ from mpl_toolkits.axes_grid1 import ImageGrid
 import os
 import sys
 from append_directories import *
-
 home_folder = append_directory(4)
 br_sde_folder = (home_folder + "/brown_resnick/sde_diffusion/masked/unparameterized")
 sys.path.append(br_sde_folder)
@@ -13,20 +12,55 @@ from models import ncsnpp
 from sde_lib import *
 from configs.vp import ncsnpp_config
 from block_mask_generation import *
-
 device = "cuda:0"
 config = ncsnpp_config.get_config()
 config.model.beta_max = 20.
 config.model.num_scales = 1000
 #if trained parallelized, need to be evaluated that way too
 score_model = torch.nn.DataParallel((ncsnpp.NCSNpp(config)).to("cuda:0"))
-score_model.load_state_dict(torch.load((br_sde_folder + "/trained_score_models/vpsde/model5_beta_min_max_01_20_1000_1.6_1.6_random50_bounded_masks.pth")))
+score_model.load_state_dict(torch.load((br_sde_folder + "/trained_score_models/vpsde/model12_beta_min_max_01_20_1000_1.6_1.6_random050_log10quantile9_masks.pth")))
 score_model.eval()
 
 def log_transformation(images):
 
     images = np.log(np.where(images !=0, images, np.min(images[images != 0])))
     return images
+
+def log10_transformation(images):
+
+    images = np.log10(np.where(images !=0, images, np.min(images[images != 0])))
+
+    return images
+
+def log_and_boundary_process(images):
+
+    log_images = log_transformation(images)
+    log01_images = (log_images - np.min(log_images))/(np.max(log_images) - np.min(log_images))
+    centered_batch = log01_images - .5
+    scaled_centered_batch = 6*centered_batch
+    return scaled_centered_batch
+
+def global_boundary_process(images, minvalue, maxvalue):
+
+    log01 = (images-minvalue)/(maxvalue-minvalue)
+    log01c = log01 - .5
+    log01cs = 6*log01c
+    return log01cs
+
+def log_and_normalize(images):
+
+    images = np.log(images)
+    images = (images - np.mean(images))/np.std(images)
+    return images
+
+#.99999 quantile, .00001 quantile, .7 quantile of the transformed by .99999 and .00001 quantile
+def global_quantile_boundary_process(images, minvalue, maxvalue, quantvalue01):
+
+    log01 = (images-minvalue)/(maxvalue-minvalue)
+    log01c = log01 - quantvalue01
+    log01cs = 6*log01c
+    return log01cs
+
 
 
 #y is observed part of field
@@ -51,9 +85,6 @@ def sample_with_p_mean_variance_via_mask(vpsde, score_model, device, masked_xt, 
     masked_noise = torch.mul((1-mask), noise)
     sample = p_mean + std*masked_noise
     return sample
-
-    
-
 
 def posterior_sample_with_p_mean_variance_via_mask(vpsde, score_model, device, mask, y, n, num_samples):
 
@@ -133,6 +164,9 @@ p = .5
 n = 32
 mask = ((torch.bernoulli(p*torch.ones((1,1,n,n)))).to(device)).float()
 ref_image = (((torch.from_numpy(np.load("brown_resnick_samples_1024_1000.npy").reshape((1000,1,n,n))))[0:1,:,:,:]).to(device)).float()
+ref_image = log10_transformation(ref_image)
+trainquant = np.load((br_sde_folder + "/trained_score_models/vpsde/model12_train_quant9.npy"))
+ref_image = ref_image - float(trainquant[0])
 figname = "br_conditional_diffusion.png"
 plot_conditional_difussion_samples(vpsde, score_model, device, mask, ref_image, n,
                                        figname)
