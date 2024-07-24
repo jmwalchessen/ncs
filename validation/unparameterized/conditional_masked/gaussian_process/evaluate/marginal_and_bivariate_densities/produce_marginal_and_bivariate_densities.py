@@ -233,7 +233,7 @@ m = missing_indices.shape[0]
 observed_vector = ref_image.reshape((n**2))
 observed_vector = np.delete(observed_vector, missing_indices)
 
-
+"""
 
 for i in range(0,m):
     missing_index = i
@@ -249,20 +249,20 @@ for i in range(0,m):
 
 
 """
-indices1 = list(np.random.randint(0, m, 200))
-indices2 = list(np.random.randint(0, m, 40))
+indices1 = list(np.random.randint(0, 300, 20))
+indices2 = list(np.random.randint(0, 300, 20))
 print(missing_indices[105])
 
 for i in indices1:
-    for j in [105]:
+    for j in indices2:
         missing_index1 = i
         missing_index2 = j
-        folder_name = (data_generation_folder + "/data/gpmodel7/ref_image1/bivariate_density")
+        folder_name = (data_generation_folder + "/data/gpmodel9/ref_image1/bivariate_density")
         true_missing_index1 = missing_indices[missing_index1]
         true_missing_matrix_index1 = index_to_matrix_index(true_missing_index1, n)
         true_missing_index2 = missing_indices[missing_index2]
         true_missing_matrix_index2 = index_to_matrix_index(true_missing_index2, n)
-        figname = (folder_name + "/bivariate_density_model7_" + str(int(true_missing_matrix_index1[0]))
+        figname = (folder_name + "/bivariate_density_model9_" + str(int(true_missing_matrix_index1[0]))
                 + "_" + str(int(true_missing_matrix_index1[1])) + "_" +
                 str(int(true_missing_matrix_index2[0])) + "_" + str(int(true_missing_matrix_index2[1]))
                     + ".png")
@@ -271,4 +271,3 @@ for i in indices1:
                                                     number_of_replicates, missing_two_indices,
                                                     missing_indices, mask_type, folder_name, m, observed_vector,
                                                     conditional_samples, ref_image, figname)
-"""

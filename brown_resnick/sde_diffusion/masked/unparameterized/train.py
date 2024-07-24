@@ -254,8 +254,6 @@ def train_per_multiple_masks_log10(config, data_draws, epochs_per_drawn_data,
                 try:
                     batch = get_next_batch(train_iterator, config)
                     loss = train_step_fn(state, batch)
-                    print(torch.max((batch[0])[0,:,:,:]))
-                    print(torch.min((batch[0])[0,:,:,:]))
                     train_losses_per_epoch.append(float(loss))
                 except StopIteration:
                     train_losses.append((sum(train_losses_per_epoch)/len(train_losses_per_epoch)))
@@ -349,8 +347,6 @@ def train_per_multiple_random_and_block_masks(config, data_draws, epochs_per_dra
             while True:
                 try:
                     batch = get_next_batch(train_iterator, config)
-                    print(torch.min(batch[0])[0,:,:,:])
-                    print(torch.max(batch[0][0,:,:,:]))
                     loss = train_step_fn(state, batch)
                     train_losses_per_epoch.append(float(loss))
                 except StopIteration:
@@ -379,8 +375,8 @@ ve_ncsnpp_configuration = ve_ncsnpp_config.get_config()
 vpconfig = vp_ncsnpp_configuration
 veconfig = ve_ncsnpp_config
 
-data_draws = 40
-epochs_per_drawn_data = 40
+data_draws = 20
+epochs_per_drawn_data = 20
 random_missingness_percentages = [0,.5]
 number_of_random_replicates = 5000
 number_of_eval_random_replicates = 250
