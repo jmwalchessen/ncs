@@ -301,8 +301,10 @@ def get_box_cox_training_and_evaluation_random_mask_and_image_datasets_per_mask(
         plt.savefig("temp1.png")"""
     else:
         boxcoxvalues = np.load(boxcoxfile)
-        train_images, eval_images = box_cox_transformation_with_fixed_values(train_images, lmbda, boxcoxvalues[0], buffer,
-                                                                             boxcoxmean[1], n)
+        train_images = box_cox_transformation_with_fixed_values(train_images, lmbda, boxcoxvalues[0], buffer,
+                                                                             boxcoxvalues[1], n)
+        eval_images = box_cox_transformation_with_fixed_values(eval_images, lmbda, boxcoxvalues[0], buffer,
+                                                                             boxcoxvalues[1], n)
         
 
     train_dataset = CustomSpatialImageandMaskDataset(train_images, train_masks)
