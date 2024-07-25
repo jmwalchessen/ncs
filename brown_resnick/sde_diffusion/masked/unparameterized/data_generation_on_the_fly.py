@@ -60,17 +60,17 @@ def global_quantile_boundary_process(images, minvalue, maxvalue, quantvalue01):
     return log01cs
 
 
-def generate_train_and_evaluation_brown_resnick_process(range_value, smooth_value, seed_value,
+def generate_train_and_evaluation_brown_resnick_process(range_value, smooth_value, seed_values,
                                                         number_of_replicates,
                                                         number_of_evaluation_replicates, n):
 
     subprocess.run(["Rscript", "brown_resnick_data_generation.R", str(range_value),
-                    str(smooth_value), str(number_of_replicates), str(seed_value)],
+                    str(smooth_value), str(number_of_replicates), str(seed_values[0])],
                     check = True, capture_output = True, text = False)
     train_images = np.load("temporary_brown_resnick_samples.npy")
     os.remove("temporary_brown_resnick_samples.npy")
     subprocess.run(["Rscript", "brown_resnick_data_generation.R", str(range_value),
-                    str(smooth_value), str(number_of_evaluation_replicates), str(seed_value)],
+                    str(smooth_value), str(number_of_evaluation_replicates), str(seed_values[1])],
                     check = True, capture_output = True, text = False)
     eval_images = np.load("temporary_brown_resnick_samples.npy")
     os.remove("temporary_brown_resnick_samples.npy")
