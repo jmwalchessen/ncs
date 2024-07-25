@@ -1,10 +1,24 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+n = 32
 refimg_folder = "data/ref_img2"
-ref_img = np.load((refimg_folder + "/ref_img.npy"))
+ref_img = (np.load((refimg_folder + "/ref_img.npy"))).reshape((1,n**2))
 mask = np.load((refimg_folder + "/mask01.npy"))
-conditional_samples = np.load((refimg_folder + "/conditional_simulations_100.npy"))
+l = (np.sum(mask))
+m = (n**2)-l
+k = 100
+observed_indices = np.argwhere(mask==1)
+missing_indices = (np.argwhere(mask==0))[:,0]
+conditional_samples = (np.load((refimg_folder + "/conditional_simulations_100.npy"))).reshape((k,m))
+conditional_full_vectors = np.zeros((k,(n**2)))
+conditional_full_vectors[:,missing_indices] = conditional_samples
+print(ref_img[:,observed_indices])
+print(ref_img[:,observed_indices].shape)
+print((np.repeat(ref_img[:,observed_indices], repeats = k, axis = 0)).shape)
+#conditional_full_vectors[:,observed_indices] = np.repeat(ref_img[observed_indices], 
+print(ref_img.shape)
+mask = mask.reshape((n,n))
 
 def log_transformation(images):
 
@@ -37,6 +51,7 @@ def visualize_mask_field(image, n, mask, figname):
     #logimage = log_transformation(image)
     ax.imshow(image.reshape((n,n)), vmin = 0, vmax = 10, alpha = mask.astype(float).reshape((n,n)))
     plt.savefig(figname)
+
 """
 figname = (refimg_folder + "/logref_img.png")
 n = 32
@@ -53,6 +68,3 @@ for i in range(0, 100, 10):
     figname = "data/ref_img2/conditional_log_sample_" + str(i) + ".png"
     visualize_log_field(conditional_samples[i,:,:,:], n, figname)
 """
-n = 32
-observed_indices = (mask==1).reshape((n**2))
-print(conditional_samples[:,observed_indices])

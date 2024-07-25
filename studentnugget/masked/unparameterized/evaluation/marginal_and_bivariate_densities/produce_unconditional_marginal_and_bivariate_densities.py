@@ -179,15 +179,16 @@ minX = -10
 maxX = 10
 minY = -10
 maxY = 10
-variance = .2
+variance = .4
 lengthscale = 1.6
-number_of_replicates = 1000
+number_of_replicates = 5000
 missing_index = 200
-df = 2
+df = 3
 seed_value = np.random.randint(0, 100000, 1)[0]
-figname = "student_t_variance_.2_lengthscale_1.6_df_2_vs_gp_marginal_density.png"
+figname = "student_t_variance_.4_lengthscale_1.6_df_3_vs_gp_marginal_density.png"
 produce_t_vs_normal_marginal_density(minX, maxX, minY, maxY, n, variance, lengthscale, df,
                                      seed_value, number_of_replicates, missing_index, figname)
+
 
 """"
 for i in range(0, 25):

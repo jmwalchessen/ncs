@@ -125,7 +125,8 @@ def train_per_multiple_random_masks(config, data_draws, epochs_per_drawn_data,
     else:
         sde = sde_lib.VESDE(sigma_min=0.01, sigma_max=50, N = config.model.num_scales)
         sampling_eps = 1e-3
-
+    print("beta max", config.model.beta_max)
+    print("N", config.model.num_scales)
     # Build one-step training and evaluation functions
     optimize_fn = losses.optimization_manager(config)
     continuous = config.training.continuous
@@ -162,6 +163,7 @@ def train_per_multiple_random_masks(config, data_draws, epochs_per_drawn_data,
             while True:
                 try:
                     batch = get_next_batch(train_iterator, config)
+                    print(np.max(batch[0]))
                     loss = train_step_fn(state, batch)
                     train_losses_per_epoch.append(float(loss))
                 except StopIteration:
@@ -172,7 +174,7 @@ def train_per_multiple_random_masks(config, data_draws, epochs_per_drawn_data,
                 try:
                     batch = get_next_batch(eval_iterator, config)
                     eval_loss = eval_step_fn(state, batch)
-                    print(loss)
+                    print(eval_loss)
                     eval_losses_per_epoch.append(float(eval_loss))
                 except StopIteration:
                     eval_losses.append((sum(eval_losses_per_epoch)/len(eval_losses_per_epoch)))
@@ -371,78 +373,28 @@ vp_ncsnpp_configuration = vp_ncsnpp_config.get_config()
 ve_ncsnpp_configuration = ve_ncsnpp_config.get_config()
 vpconfig = vp_ncsnpp_configuration
 veconfig = ve_ncsnpp_configuration
-"""
-epochs_per_drawn_data = 20
-data_draws = 10
-number_of_replicates = 10000
-evaluation_number_of_replicates = 1000
-batch_size = 4
-eval_batch_size = 1000
-seed_value = 43234
-variance = .4
-lengthscale = 1.6
-score_model_path = "trained_score_models/vpsde/model1_beta_min_max_01_20_center_mask.pth"
-loss_path = "trained_score_models/vpsde/model1_beta_min_max_01_20_center_mask_loss.png"
 
-mask = torch.zeros((1,1,32,32))
-n = 32
-mask[:, int(n/4):int(n/4*3), int(n/4):int(n/4*3)] = 1
-mask.to("cuda:0")
-
-
-train_per_mask(vpconfig, data_draws, epochs_per_drawn_data, number_of_replicates,
-      evaluation_number_of_replicates, batch_size, eval_batch_size, seed_value,
-          variance, lengthscale, mask, score_model_path, loss_path)
-"""
 
 data_draws = 10
 epochs_per_data_draws = 20
 number_of_random_replicates = 10000
 number_of_eval_random_replicates = 256
 #smaller p means less ones which means more observed values
-random_missingness_percentages = [0,.0025, .005]
+random_missingness_percentages = [0,.0025, .005, .01, .1, .25, .5]
 batch_size = 512
 eval_batch_size = 256
 variance = .4
 lengthscale = 1.6
-df = 2
-buffer = 500
-boxcoxfile = "trained_score_models/vpsde/model4_boxcoxminmean.npy"
-lmbda = .8
-score_model_path = "trained_score_models/vpsde/model4_boxcox_lmbda8_variance_.4_lengthscale_1.6_df_2_beta_min_max_01_20_1000_random0005_masks.pth"
-loss_path = "trained_score_models/vpsde/model4_boxcox_lmbda8_variance_.4_lengthscale_1.6_df_2_beta_min_max_01_20_1000_random0005_masks_loss.png"
+df = 3
+score_model_path = "trained_score_models/vpsde/model5_variance_.4_lengthscale_1.6_df_3_beta_min_max_01_20_1000_random050_masks.pth"
+loss_path = "trained_score_models/vpsde/model5_variance_.4_lengthscale_1.6_df_3_beta_min_max_01_20_1000_random050_masks_loss.png"
 torch.cuda.empty_cache()
-train_per_multiple_random_masks_box(vpconfig, data_draws, epochs_per_data_draws,
+train_per_multiple_random_masks(vpconfig, data_draws, epochs_per_data_draws,
                              random_missingness_percentages,
                              number_of_random_replicates,
                              number_of_eval_random_replicates, df,
                              variance, lengthscale, batch_size,
-                             eval_batch_size, score_model_path, loss_path,
-                             buffer, boxcoxfile, lmbda)
+                             eval_batch_size, score_model_path, loss_path)
                             
 
-"""
-data_draws = 20
-epochs_per_data_draws = 20
-number_of_random_replicates_per_percentage = 5000
-number_of_block_replicates_per_mask = 500
-number_of_eval_random_replicates_per_percentage = 50
-number_of_eval_block_replicates_per_mask = 50
-number_of_eval_random_replicates_per_percentage = 50
-random_missingness_percentages = [.8,.9]
-weighted_upper_half_mask_percentages = [.1, .25]
-weighted_lower_half_mask_percentages = [.75,.9]
-batch_size = 512
-eval_batch_size = 16
-seed_values = [(int(np.random.randint(0, 100000)), int(np.random.randint(0, 100000))) for i in range(0, data_draws)]
-score_model_path = "trained_score_models/vpsde/model7_beta_min_max_01_25_250_random8090_block_masks.pth"
-loss_path = "trained_score_models/vpsde/model7_beta_min_max_01_25_250_random8090_block_masks_loss.png"
-variance = .4
-lengthscale = 1.6
 
-train_per_multiple_random_and_block_masks(vpconfig, data_draws, epochs_per_data_draws, random_missingness_percentages,
-                                          weighted_lower_half_mask_percentages, weighted_upper_half_mask_percentages,
-                                          number_of_random_replicates_per_percentage, number_of_block_replicates_per_mask,
-                                          number_of_eval_random_replicates_per_percentage, number_of_eval_block_replicates_per_mask,
-                                          seed_values, variance, lengthscale, batch_size, eval_batch_size, score_model_path, loss_path)
-"""
