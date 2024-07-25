@@ -206,13 +206,13 @@ def get_masked_ddpm_loss_fn(vpsde, train, reduce_mean = True):
     #weighted losses
     stds = stds.view((batch_images.shape[0],1,1,1))
     losses = torch.square(torch.mul(stds, (torch.mul(stds, score) + noise)))
-    #masked_losses = torch.mul((1-batch_masks), losses)
-    #masked_losses = reduce_op(masked_losses.reshape(masked_losses.shape[0], -1), dim=-1)
-    #mask_loss = torch.mean(masked_losses)
-    losses = reduce_op(losses.reshape(losses.shape[0], -1), dim=-1)
-    print(losses)
-    loss = torch.mean(losses)
-    return loss
+    masked_losses = torch.mul((1-batch_masks), losses)
+    masked_losses = reduce_op(masked_losses.reshape(masked_losses.shape[0], -1), dim=-1)
+    mask_loss = torch.mean(masked_losses)
+    #losses = reduce_op(losses.reshape(losses.shape[0], -1), dim=-1)
+    #print(losses)
+    #loss = torch.mean(losses)
+    return mask_loss
   
   return loss_fn
 

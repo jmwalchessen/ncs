@@ -274,14 +274,10 @@ def train_per_multiple_masks_log10(config, data_draws, epochs_per_drawn_data,
     epochs_and_draws = [i for i in range(0, len(train_losses))]
     visualize_loss(epochs_and_draws, train_losses, eval_losses, loss_path)
 
-def train_per_multiple_masks_log10_checker(config, data_draws, epochs_per_drawn_data,
-                             random_missingness_percentages,
-                             number_of_random_replicates,
-                             number_of_eval_random_replicates, seed_values,
-                             range_value, smooth_value, batch_size,
-                             eval_batch_size, score_model_path, loss_path, n,
-                             trainquantfile, number_of_checker_replicates,
-                             number_of_eval_checker_replicates):
+def train_per_multiple_masks_log10_checker(config, data_draws, epochs_per_drawn_data, seed_values,
+                                           range_value, smooth_value, batch_size, eval_batch_size,
+                                           score_model_path, loss_path, n, number_of_checker_replicates,
+                                           number_of_eval_checker_replicates):
     
     # Initialize model.
     #score_model = mutils.create_model(config)
@@ -321,13 +317,11 @@ def train_per_multiple_masks_log10_checker(config, data_draws, epochs_per_drawn_
     for data_draw in range(0, data_draws):
         print("data draw")
         print(data_draw)
-        train_dataloader, eval_dataloader = get_training_and_evaluation_mask_and_image_datasets_per_mask_log10_checker(data_draw, number_of_random_replicates,
-                                                                                                         random_missingness_percentages,
-                                                                                                         number_of_eval_random_replicates,
-                                                                                                         batch_size, eval_batch_size, range_value,
-                                                                                                         smooth_value, seed_values[data_draw],
-                                                                                                         n, trainquantfile, number_of_checker_replicates,
-                                                                                                         number_of_eval_checker_replicates)       
+        train_dataloader, eval_dataloader = get_training_and_evaluation_mask_and_image_datasets_per_mask_log10_checker(data_draw, 
+                                                                       batch_size, eval_batch_size, range_value,
+                                                                       smooth_value, seed_values, n,
+                                                                       number_of_checker_replicates,
+                                                                       number_of_eval_checker_replicates)       
         
         
         for epoch in range(0, epochs_per_drawn_data):
@@ -462,27 +456,25 @@ ve_ncsnpp_configuration = ve_ncsnpp_config.get_config()
 vpconfig = vp_ncsnpp_configuration
 veconfig = ve_ncsnpp_config
 
-data_draws = 20
+data_draws = 10
 epochs_per_drawn_data = 20
-random_missingness_percentages = [0,.25,.5,.75,.9]
-number_of_random_replicates = 5000
-number_of_eval_random_replicates = 250
+#random_missingness_percentages = [0,.25,.5,.75,.9]
 seed_values = [(int(np.random.randint(0, 100000)),int(np.random.randint(0, 100000)))
                 for i in range(0, data_draws)]
 range_value = 1.6
 smooth_value = 1.6
 batch_size = 512
-eval_batch_size = 250
-score_model_path = "trained_score_models/vpsde/model14_beta_min_max_01_20_1000_1.6_1.6_log10_batch_512_unmaskedloss_025507590_masks.pth"
-loss_path = "trained_score_models/vpsde/model14_beta_min_max_01_20_1000_1.6_1.6_log10_batch_512_unmaskedloss_025507590_loss.png"
+eval_batch_size = 32
+number_of_checker_replicates = 10000
+number_of_eval_checker_replicates = 32
+score_model_path = "trained_score_models/vpsde/model15_beta_min_max_01_20_1000_1.6_1.6_log10_batch_512_large_checker_masks.pth"
+loss_path = "trained_score_models/vpsde/model15_beta_min_max_01_20_1000_1.6_1.6_log10_batch_512_large_checker_loss.png"
 n = 32
 
-train_per_multiple_masks_log10(vpconfig, data_draws, epochs_per_drawn_data,
-                             random_missingness_percentages,
-                             number_of_random_replicates,
-                             number_of_eval_random_replicates, seed_values,
-                             range_value, smooth_value, batch_size,
-                             eval_batch_size, score_model_path, loss_path, n)
+train_per_multiple_masks_log10_checker(vpconfig, data_draws, epochs_per_drawn_data, seed_values,
+                                           range_value, smooth_value, batch_size, eval_batch_size,
+                                           score_model_path, loss_path, n, number_of_checker_replicates,
+                                           number_of_eval_checker_replicates)
 """
 data_draws = 20
 epochs_per_drawn_data = 20
