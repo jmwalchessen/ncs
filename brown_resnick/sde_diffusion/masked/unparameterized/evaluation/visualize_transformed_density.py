@@ -47,13 +47,17 @@ def global_quantile_boundary_process(images, minvalue, maxvalue, quantvalue01):
 
 
 log10samples = log10_transformation(br_samples)
-log10samples = (log10samples - np.quantile(log10samples, [.9]))
+#log10samples = (log10samples-np.mean(log10samples))/np.std(log10samples)
+logsamples = log_transformation(br_samples)
+print(np.mean(log10samples))
+#logsamples = (logsamples - np.mean(logsamples))/np.std(log10samples)
+#log10samples = (log10samples - np.quantile(log10samples, [.9]))
 print(np.min(log10samples[0,:]))
 print(np.max(log10samples[0,:]))
 log10density = log10samples[:,343]
 print(np.min(log10density))
 print(np.max(log10density))
-logdensity = log_transformation(br_samples[:,343])
+logdensity = logsamples[:,343]
 fig, ax = plt.subplots(1)
 pdd = pd.DataFrame(log10density, columns = ["log10"])
 logpdd = pd.DataFrame(logdensity, columns = ["log"])

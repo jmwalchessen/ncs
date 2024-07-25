@@ -294,8 +294,7 @@ def get_training_and_evaluation_mask_and_image_datasets_per_mask_log10(draw_numb
                                                                        random_missingness_percentages, 
                                                                        number_of_evaluation_random_replicates,
                                                                        batch_size, eval_batch_size, range_value,
-                                                                       smooth_value, seed_values, n,
-                                                                       trainquantfile):
+                                                                       smooth_value, seed_values, n):
     
     minX = -10
     maxX = 10
@@ -316,22 +315,22 @@ def get_training_and_evaluation_mask_and_image_datasets_per_mask_log10(draw_numb
     if(draw_number == 0):
         train_images = log10_transformation(train_images)
         eval_images = log10_transformation(eval_images)
-        trainquant = float(np.quantile(train_images, [.9]))
-        train_images = train_images - trainquant
-        trainlogmin = float(np.min(train_images))
-        trainlogmax = float(np.max(train_images))
-        print(trainlogmax)
-        print(trainlogmin)
-        eval_images = eval_images - trainquant
-        trainquant = np.array([trainquant])
-        np.save(trainquantfile, trainquant)
+        #trainmean = float(np.mean(train_images))
+        #train_images = train_images - trainmean
+        #trainlogmin = float(np.min(train_images))
+        #trainlogmax = float(np.max(train_images))
+        #print(trainlogmax)
+        #print(trainlogmin)
+        #eval_images = eval_images - trainmean
+        #trainmean = np.array([trainmean])
+        #np.save(trainmeanfile, trainmean)
 
     else:
-        trainquant = np.load(trainquantfile)
+        #trainquant = np.load(trainquantfile)
         train_images = log10_transformation(train_images)
         eval_images = log10_transformation(eval_images)
-        train_images = train_images - float(trainquant)
-        eval_images = eval_images - float(trainquant)
+        #train_images = train_images - float(trainquant)
+        #eval_images = eval_images - float(trainquant)
 
     train_dataset = CustomSpatialImageandMaskDataset(train_images, train_masks)
     eval_dataset = (CustomSpatialImageandMaskDataset)(eval_images, eval_masks)
