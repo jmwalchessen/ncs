@@ -357,7 +357,7 @@ def get_training_and_evaluation_mask_and_image_datasets_per_mask_log10_checker(d
     maxY = 10
     
     train_masks = generate_large_checkered_masks_on_the_fly(n, number_of_checker_replicates)
-    eval_masks = generate_random_and_checker_masks_on_the_fly(n, number_of_evaluation_checker_replicates)
+    eval_masks = generate_large_checkered_masks_on_the_fly(n, number_of_evaluation_checker_replicates)
     train_images, eval_images = generate_train_and_evaluation_brown_resnick_process(range_value,
                                                                                     smooth_value,
                                                                                     seed_values[0],

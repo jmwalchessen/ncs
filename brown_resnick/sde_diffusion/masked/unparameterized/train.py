@@ -471,7 +471,7 @@ score_model_path = "trained_score_models/vpsde/model15_beta_min_max_01_20_1000_1
 loss_path = "trained_score_models/vpsde/model15_beta_min_max_01_20_1000_1.6_1.6_log10_batch_512_large_checker_loss.png"
 n = 32
 
-train_per_multiple_masks_log10_checker(vpconfig, data_draws, epochs_per_drawn_data, seed_values,
+train_per_multiple_masks_log10_checker(vpconfig, data_draws, epochs_pe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r_drawn_data, seed_values,
                                            range_value, smooth_value, batch_size, eval_batch_size,
                                            score_model_path, loss_path, n, number_of_checker_replicates,
                                            number_of_eval_checker_replicates)
