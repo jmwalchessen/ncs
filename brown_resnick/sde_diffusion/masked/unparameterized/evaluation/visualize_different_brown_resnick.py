@@ -21,5 +21,5 @@ def log10_transformation(images):
 
 
 n = 32
-br_samples = log_transformation(np.load("brown_resnick_samples_range_1.6_smooth_.4_500.npy"))
+br_samples = log_transformation(np.load("brown_resnick_samples_range_1.6_smooth_1.2_500.npy"))
 visualize_field(br_samples[10,:].reshape((n,n)))
