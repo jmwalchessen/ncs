@@ -257,7 +257,7 @@ def get_training_and_evaluation_mask_and_image_datasets_per_mask(draw_number, nu
                                                   random_missingness_percentages)
     train_images, eval_images = generate_train_and_evaluation_brown_resnick_process(range_value,
                                                                                     smooth_value,
-                                                                                    seed_values[0],
+                                                                                    seed_values,
                                                                                     number_of_random_replicates,
                                                                                     number_of_evaluation_random_replicates,
                                                                                     n)
