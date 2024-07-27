@@ -131,6 +131,7 @@ def produce_t_vs_normal_marginal_density(minX, maxX, minY, maxY, n, variance, le
     sns.kdeplot(data = pdd, ax = axs[1], palette=['blue'])
     sns.kdeplot(data = npdd, palette = ["orange"], ax = axs[1])
     axs[1].set_title("Marginal")
+    axs[1].set_xlim(-5,5)
     #location = index_to_spatial_location(minX, maxX, minY, maxY, n, missing_index)
     #rlocation = (round(location[0],2), round(location[1],2))
     #axs[1].set_xlabel("location: " + str(rlocation))

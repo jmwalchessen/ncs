@@ -166,12 +166,12 @@ def produce_generated_marginal_densities(conditional_generated_samples,
     pdd4 = pd.DataFrame(marginal_density4,
                                     columns = None)
     #partially_observed_field = np.multiply(mask.astype(bool), observed_vector.reshape((n,n)))
-    axs[0,0].imshow(ref_image.reshape((n,n)), alpha = mask, vmin = -2, vmax = 4)
+    axs[0,0].imshow(ref_image.reshape((n,n)), alpha = mask, vmin = -2, vmax = 6)
     axs[0,0].set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
     axs[0,0].set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
     axs[0,0].plot(missing_matrix_index1[0], missing_matrix_index1[1], "ro", markersize = 20)
     sns.kdeplot(data = pdd1, ax = axs[0,1], palette = ["orange"])
-    axs[0,1].axvline(ref_image[int(missing_matrix_index1[0]),int(missing_matrix_index1[1])], color='red', linestyle = 'dashed')
+    axs[0,1].axvline(ref_image[int(missing_matrix_index1[1]),int(missing_matrix_index1[0])], color='red', linestyle = 'dashed')
     axs[0,1].set_title("Marginal")
     axs[0,1].set_xlim(-4,6)
     axs[0,1].set_ylim(0,.8)
@@ -180,12 +180,12 @@ def produce_generated_marginal_densities(conditional_generated_samples,
     #axs[1].set_xlabel("location: " + str(rlocation))
     axs[0,1].legend(labels = ['diffusion'])
 
-    axs[0,2].imshow(ref_image.reshape((n,n)), alpha = mask, vmin = -2, vmax = 4)
+    axs[0,2].imshow(ref_image.reshape((n,n)), alpha = mask, vmin = -2, vmax = 6)
     axs[0,2].set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
     axs[0,2].set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
     axs[0,2].plot(missing_matrix_index2[0], missing_matrix_index2[1], "ro", markersize = 20)
     sns.kdeplot(data = pdd2, ax = axs[0,3], palette = ["orange"])
-    axs[0,3].axvline(ref_image[int(missing_matrix_index2[0]),int(missing_matrix_index2[1])], color='red', linestyle = 'dashed')
+    axs[0,3].axvline(ref_image[int(missing_matrix_index2[1]),int(missing_matrix_index2[0])], color='red', linestyle = 'dashed')
     axs[0,3].set_title("Marginal")
     axs[0,3].set_xlim(-4,6)
     axs[0,3].set_ylim(0,.8)
@@ -194,12 +194,12 @@ def produce_generated_marginal_densities(conditional_generated_samples,
     #axs[1].set_xlabel("location: " + str(rlocation))
     axs[0,3].legend(labels = ['diffusion'])
 
-    axs[1,0].imshow(ref_image.reshape((n,n)), alpha = mask, vmin = -2, vmax = 4)
+    axs[1,0].imshow(ref_image.reshape((n,n)), alpha = mask, vmin = -2, vmax = 6)
     axs[1,0].set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
     axs[1,0].set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
     axs[1,0].plot(missing_matrix_index3[0], missing_matrix_index3[1], "ro", markersize = 20)
     sns.kdeplot(data = pdd3, ax = axs[1,1], palette = ["orange"])
-    axs[1,1].axvline(ref_image[int(missing_matrix_index3[0]),int(missing_matrix_index3[1])], color='red', linestyle = 'dashed')
+    axs[1,1].axvline(ref_image[int(missing_matrix_index3[1]),int(missing_matrix_index3[0])], color='red', linestyle = 'dashed')
     axs[1,1].set_title("Marginal")
     axs[1,1].set_xlim(-4,6)
     axs[1,1].set_ylim(0,.8)
@@ -208,12 +208,12 @@ def produce_generated_marginal_densities(conditional_generated_samples,
     #axs[1].set_xlabel("location: " + str(rlocation))
     axs[1,1].legend(labels = ['diffusion'])
 
-    axs[1,2].imshow(ref_image.reshape((n,n)), alpha = mask, vmin = -2, vmax = 4)
+    axs[1,2].imshow(ref_image.reshape((n,n)), alpha = mask, vmin = -2, vmax = 6)
     axs[1,2].set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
     axs[1,2].set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
-    axs[1,2].plot(missing_matrix_index4[0], missing_matrix_index4[1], "ro", markersize = 20)
+    axs[1,2].plot(missing_matrix_index4[1], missing_matrix_index4[0], "ro", markersize = 20)
     sns.kdeplot(data = pdd4, ax = axs[1,3], palette = ["orange"])
-    axs[1,3].axvline(ref_image[int(missing_matrix_index4[0]),int(missing_matrix_index4[1])], color='red', linestyle = 'dashed')
+    axs[1,3].axvline(ref_image[int(missing_matrix_index4[1]),int(missing_matrix_index4[0])], color='red', linestyle = 'dashed')
     axs[1,3].set_title("Marginal")
     axs[1,3].set_xlim(-4,6)
     axs[1,3].set_ylim(0,.8)
@@ -242,13 +242,13 @@ def produce_generated_bivariate_densities(conditional_generated_samples,
                                         (conditional_generated_samples[:,:,missing_matrix_index42[0],missing_matrix_index42[1]]).reshape((number_of_replicates,1))], axis = 1)
     fig, axs = plt.subplots(ncols = 4, nrows = 2, figsize = (20,10))
     #partially_observed_field = np.multiply(mask.astype(bool), observed_vector.reshape((n,n)))
-    axs[0,0].imshow(ref_image.reshape((n,n)), alpha = mask, vmin = -2, vmax = 4)
+    axs[0,0].imshow(ref_image.reshape((n,n)), alpha = mask, vmin = -2, vmax = 6)
     axs[0,0].set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
     axs[0,0].set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
-    axs[0,0].plot(missing_matrix_index11[0], missing_matrix_index11[1], "r^", markersize = 20)
-    axs[0,0].plot(missing_matrix_index12[0], missing_matrix_index12[1], "k^", markersize = 20)
+    axs[0,0].plot(missing_matrix_index11[1], missing_matrix_index11[0], "r^", markersize = 20)
+    axs[0,0].plot(missing_matrix_index12[1], missing_matrix_index12[0], "k^", markersize = 20)
     sns.kdeplot(x = bivariate_density1[:,0], y = bivariate_density1[:,1],
-                ax = axs[0,1], color = "orange", fill = False, levels = 8)
+                ax = axs[0,1], color = "orange", fill = False, levels = [.1,.2,.3,.4,.5,.6,.7,.8,.9,.95,.99])
     axs[0,1].axvline(ref_image[missing_matrix_index11[0],missing_matrix_index11[1]], color='red', linestyle = 'dashed')
     axs[0,1].axhline(ref_image[missing_matrix_index12[0],missing_matrix_index12[1]], color='red', linestyle = 'dashed')
     axs[0,1].set_xlim(-4,8)
@@ -258,15 +258,15 @@ def produce_generated_bivariate_densities(conditional_generated_samples,
     axs[0,1].legend(handles = [orange_patch], labels = ['diffusion'])
 
     #partially_observed_field = np.multiply(mask.astype(bool), observed_vector.reshape((n,n)))
-    axs[0,2].imshow(ref_image.reshape((n,n)), alpha = mask, vmin = -2, vmax = 4)
+    axs[0,2].imshow(ref_image.reshape((n,n)), alpha = mask, vmin = -2, vmax = 6)
     axs[0,2].set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
     axs[0,2].set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
-    axs[0,2].plot(missing_matrix_index21[0], missing_matrix_index21[1], "r^", markersize = 20)
-    axs[0,2].plot(missing_matrix_index22[0], missing_matrix_index22[1], "k^", markersize = 20)
+    axs[0,2].plot(missing_matrix_index21[1], missing_matrix_index21[0], "r^", markersize = 20)
+    axs[0,2].plot(missing_matrix_index22[1], missing_matrix_index22[0], "k^", markersize = 20)
     sns.kdeplot(x = bivariate_density2[:,0], y = bivariate_density2[:,1],
-                ax = axs[0,3], color = "orange", fill = False, levels = 8)
-    axs[0,3].axvline(ref_image[missing_matrix_index11[0],missing_matrix_index11[1]], color='red', linestyle = 'dashed')
-    axs[0,3].axhline(ref_image[missing_matrix_index12[0],missing_matrix_index12[1]], color='red', linestyle = 'dashed')
+                ax = axs[0,3], color = "orange", fill = False, levels = [.1,.2,.3,.4,.5,.6,.7,.8,.9,.95,.99])
+    axs[0,3].axvline(ref_image[missing_matrix_index21[0],missing_matrix_index21[1]], color='red', linestyle = 'dashed')
+    axs[0,3].axhline(ref_image[missing_matrix_index22[0],missing_matrix_index22[1]], color='red', linestyle = 'dashed')
     axs[0,3].set_xlim(-4,8)
     axs[0,3].set_ylim(-4,8)
     axs[0,3].set_title("Bivariate")
@@ -275,13 +275,13 @@ def produce_generated_bivariate_densities(conditional_generated_samples,
 
 
     #partially_observed_field = np.multiply(mask.astype(bool), observed_vector.reshape((n,n)))
-    axs[1,0].imshow(ref_image.reshape((n,n)), alpha = mask, vmin = -2, vmax = 4)
-    axs[1,0].plot(missing_matrix_index31[0], missing_matrix_index31[1], "r^", markersize = 20)
-    axs[1,0].plot(missing_matrix_index32[0], missing_matrix_index32[1], "k^", markersize = 20)
+    axs[1,0].imshow(ref_image.reshape((n,n)), alpha = mask, vmin = -2, vmax = 6)
+    axs[1,0].plot(missing_matrix_index31[1], missing_matrix_index31[0], "r^", markersize = 20)
+    axs[1,0].plot(missing_matrix_index32[1], missing_matrix_index32[0], "k^", markersize = 20)
     axs[1,0].set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
     axs[1,0].set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
     sns.kdeplot(x = bivariate_density3[:,0], y = bivariate_density3[:,1],
-                ax = axs[1,1], color = "orange", fill = False, levels = 8)
+                ax = axs[1,1], color = "orange", fill = False, levels = [.1,.2,.3,.4,.5,.6,.7,.8,.9,.95,.99])
     axs[1,1].axvline(ref_image[missing_matrix_index31[0],missing_matrix_index31[1]], color='red', linestyle = 'dashed')
     axs[1,1].axhline(ref_image[missing_matrix_index32[0],missing_matrix_index32[1]], color='red', linestyle = 'dashed')
     axs[1,1].set_xlim(-4,8)
@@ -291,13 +291,13 @@ def produce_generated_bivariate_densities(conditional_generated_samples,
     axs[1,1].legend(handles = [orange_patch], labels = ['diffusion'])
 
     #partially_observed_field = np.multiply(mask.astype(bool), observed_vector.reshape((n,n)))
-    axs[1,2].imshow(ref_image.reshape((n,n)), alpha = mask, vmin = -2, vmax = 4)
-    axs[1,2].plot(missing_matrix_index41[0], missing_matrix_index41[1], "r^", markersize = 20)
-    axs[1,2].plot(missing_matrix_index42[0], missing_matrix_index42[1], "k^", markersize = 20)
+    axs[1,2].imshow(ref_image.reshape((n,n)), alpha = mask, vmin = -2, vmax = 6)
+    axs[1,2].plot(missing_matrix_index41[1], missing_matrix_index41[0], "r^", markersize = 20)
+    axs[1,2].plot(missing_matrix_index42[1], missing_matrix_index42[0], "k^", markersize = 20)
     axs[1,2].set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
     axs[1,2].set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
     sns.kdeplot(x = bivariate_density4[:,0], y = bivariate_density4[:,1],
-                ax = axs[1,3], color = "orange", fill = False, levels = 8)
+                ax = axs[1,3], color = "orange", fill = False, levels = [.1,.2,.3,.4,.5,.6,.7,.8,.9,.95,.99])
     axs[1,3].axvline(ref_image[missing_matrix_index41[0],missing_matrix_index41[1]], color='red', linestyle = 'dashed')
     axs[1,3].axhline(ref_image[missing_matrix_index42[0],missing_matrix_index42[1]], color='red', linestyle = 'dashed')
     axs[1,3].set_xlim(-4,8)
@@ -327,33 +327,33 @@ conditional_generated_samples = global_quantile_boundary_inverse(conditional_gen
 #0 in mask means missing
 mask = ((th.from_numpy(np.load(data_generation_folder + "/data/conditional/model11/ref_img2/mask.npy"))).float()).numpy()
 n = 32
-figname = "br_conditional_marginal_density.png"
+figname = "br_conditional_marginal_density_model11.png"
 produce_generated_marginal_density(conditional_generated_samples, number_of_replicates, missing_matrix_index,
                                    ref_image, mask, n, figname)
-figname = "br_conditional_bivariate_density.png"
-missing_matrix_index1 = (1,1)
-missing_matrix_index2 = (16,19)
+figname = "br_conditional_bivariate_density_model11.png"
+missing_matrix_index1 = (16,15)
+missing_matrix_index2 = (5,5)
 produce_generated_bivariate_density(conditional_generated_samples,
                                         number_of_replicates, missing_matrix_index1,
                                         missing_matrix_index2, ref_image, mask, n, figname)
 
-missing_matrix_index3 = (10,10)
-missing_matrix_index4 = (10,11)
-figname = "br_conditional_marginal_densities.png"
+missing_matrix_index3 = (10,27)
+missing_matrix_index4 = (7,21)
+figname = "br_conditional_marginal_densities_model11.png"
 produce_generated_marginal_densities(conditional_generated_samples,
                                        number_of_replicates, missing_matrix_index1,
                                        missing_matrix_index2, missing_matrix_index3,
                                        missing_matrix_index4, ref_image, mask, n, figname)
 
-missing_matrix_index11 = (2,4)
-missing_matrix_index12 = (2,5)
-missing_matrix_index21 = (28,1)
-missing_matrix_index22 = (29,2)
-missing_matrix_index31 = (18,15)
-missing_matrix_index32 = (18,16)
-missing_matrix_index41 = (24,8)
-missing_matrix_index42 = (24,9)
-figname = "br_conditional_bivariate_densities.png"
+missing_matrix_index11 = (25,12)
+missing_matrix_index12 = (25,26)
+missing_matrix_index21 = (18,14)
+missing_matrix_index22 = (18,16)
+missing_matrix_index31 = (5,26)
+missing_matrix_index32 = (7,23)
+missing_matrix_index41 = (24,12)
+missing_matrix_index42 = (24,13)
+figname = "br_conditional_bivariate_densities_model11.png"
 produce_generated_bivariate_densities(conditional_generated_samples,
                                         number_of_replicates, missing_matrix_index11,
                                         missing_matrix_index12, missing_matrix_index21,

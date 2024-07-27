@@ -60,17 +60,17 @@ def global_quantile_boundary_process(images, minvalue, maxvalue, quantvalue01):
     return log01cs
 
 
-def generate_train_and_evaluation_brown_resnick_process(range_value, smooth_value, seed_value,
+def generate_train_and_evaluation_brown_resnick_process(range_value, smooth_value, seed_values,
                                                         number_of_replicates,
                                                         number_of_evaluation_replicates, n):
 
     subprocess.run(["Rscript", "brown_resnick_data_generation.R", str(range_value),
-                    str(smooth_value), str(number_of_replicates), str(seed_value)],
+                    str(smooth_value), str(number_of_replicates), str(seed_values[0])],
                     check = True, capture_output = True, text = False)
     train_images = np.load("temporary_brown_resnick_samples.npy")
     os.remove("temporary_brown_resnick_samples.npy")
     subprocess.run(["Rscript", "brown_resnick_data_generation.R", str(range_value),
-                    str(smooth_value), str(number_of_evaluation_replicates), str(seed_value)],
+                    str(smooth_value), str(number_of_evaluation_replicates), str(seed_values[1])],
                     check = True, capture_output = True, text = False)
     eval_images = np.load("temporary_brown_resnick_samples.npy")
     os.remove("temporary_brown_resnick_samples.npy")
@@ -104,6 +104,11 @@ def generate_checkered_masks_on_the_fly(n, number_of_replicates_per_mask):
     checkered_masks = checkered_masks.reshape((checkered_masks.shape[0],1,n,n))
     return np.repeat(checkered_masks, number_of_replicates_per_mask, axis = 0)
 
+def generate_large_checkered_masks_on_the_fly(n, number_of_replicates_per_mask):
+
+    checkered_masks = (produce_checkered_mask(n))[2:3,:,:]
+    checkered_masks = checkered_masks.reshape((1,1,n,n))
+    return np.repeat(checkered_masks, number_of_replicates_per_mask, axis = 0)
 
 #create matrix with masks from random_masks_on_the_fly and block_masks
 def generate_random_and_block_masks_on_the_fly(n, number_of_random_replicates_per_percentage, random_missingness_percentages,
@@ -227,7 +232,7 @@ def get_training_and_evaluation_image_datasets_per_mask(number_of_replicates_per
     train_dataset = CustomSpatialImageDataset(train_images)
     train_dataloader = DataLoader(train_dataset, batch_size = image_batch_size, shuffle = True)
 
-    eval_images = generate_brown_resnick_process(range_value, smooth_value, seed_values[0],
+    eval_images = generate_brown_resnick_process(range_value, smooth_value, seed_values[1],
                                                   number_of_evaluation_replicates_per_mask, n)
     eval_dataset = CustomSpatialImageDataset(eval_images)
     eval_dataloader = DataLoader(eval_dataset, batch_size = eval_batch_size, shuffle = True)
@@ -252,7 +257,7 @@ def get_training_and_evaluation_mask_and_image_datasets_per_mask(draw_number, nu
                                                   random_missingness_percentages)
     train_images, eval_images = generate_train_and_evaluation_brown_resnick_process(range_value,
                                                                                     smooth_value,
-                                                                                    seed_values[0],
+                                                                                    seed_values,
                                                                                     number_of_random_replicates,
                                                                                     number_of_evaluation_random_replicates,
                                                                                     n)
@@ -316,22 +321,22 @@ def get_training_and_evaluation_mask_and_image_datasets_per_mask_log10(draw_numb
     if(draw_number == 0):
         train_images = log10_transformation(train_images)
         eval_images = log10_transformation(eval_images)
-        trainquant = float(np.quantile(train_images, [.9]))
-        train_images = train_images - trainquant
-        trainlogmin = float(np.min(train_images))
-        trainlogmax = float(np.max(train_images))
-        print(trainlogmax)
-        print(trainlogmin)
-        eval_images = eval_images - trainquant
-        trainquant = np.array([trainquant])
-        np.save(trainquantfile, trainquant)
+        #trainmean = float(np.mean(train_images))
+        #train_images = train_images - trainmean
+        #trainlogmin = float(np.min(train_images))
+        #trainlogmax = float(np.max(train_images))
+        #print(trainlogmax)
+        #print(trainlogmin)
+        #eval_images = eval_images - trainmean
+        #trainmean = np.array([trainmean])
+        #np.save(trainmeanfile, trainmean)
 
     else:
-        trainquant = np.load(trainquantfile)
+        #trainquant = np.load(trainquantfile)
         train_images = log10_transformation(train_images)
         eval_images = log10_transformation(eval_images)
-        train_images = train_images - float(trainquant)
-        eval_images = eval_images - float(trainquant)
+        #train_images = train_images - float(trainquant)
+        #eval_images = eval_images - float(trainquant)
 
     train_dataset = CustomSpatialImageandMaskDataset(train_images, train_masks)
     eval_dataset = (CustomSpatialImageandMaskDataset)(eval_images, eval_masks)
@@ -339,12 +344,10 @@ def get_training_and_evaluation_mask_and_image_datasets_per_mask_log10(draw_numb
     eval_dataloader = DataLoader(eval_dataset, batch_size = eval_batch_size, shuffle = True)
     return train_dataloader, eval_dataloader
 
-def get_training_and_evaluation_mask_and_image_datasets_per_mask_log10_checker(draw_number, number_of_random_replicates, 
-                                                                       random_missingness_percentages, 
-                                                                       number_of_evaluation_random_replicates,
+def get_training_and_evaluation_mask_and_image_datasets_per_mask_log10_checker(draw_number, 
                                                                        batch_size, eval_batch_size, range_value,
                                                                        smooth_value, seed_values, n,
-                                                                       trainquantfile, number_of_checker_replicates,
+                                                                       number_of_checker_replicates,
                                                                        number_of_evaluation_checker_replicates):
     
     minX = -10
@@ -353,37 +356,21 @@ def get_training_and_evaluation_mask_and_image_datasets_per_mask_log10_checker(d
     maxX = 10
     maxY = 10
     
-    train_masks = generate_random_and_checker_masks_on_the_fly(n, number_of_evaluation_random_replicates,
-                                                                random_missingness_percentages,
-                                                                number_of_evaluation_checker_replicates)
-    eval_masks = generate_random_and_checker_masks_on_the_fly(n, number_of_evaluation_random_replicates,
-                                                                random_missingness_percentages,
-                                                                number_of_evaluation_checker_replicates)
+    train_masks = generate_large_checkered_masks_on_the_fly(n, number_of_checker_replicates)
+    eval_masks = generate_large_checkered_masks_on_the_fly(n, number_of_evaluation_checker_replicates)
     train_images, eval_images = generate_train_and_evaluation_brown_resnick_process(range_value,
                                                                                     smooth_value,
-                                                                                    seed_values[0],
-                                                                                    number_of_random_replicates,
-                                                                                    number_of_evaluation_random_replicates,
+                                                                                    seed_values,
+                                                                                    number_of_checker_replicates,
+                                                                                    number_of_evaluation_checker_replicates,
                                                                                     n)
     if(draw_number == 0):
         train_images = log10_transformation(train_images)
         eval_images = log10_transformation(eval_images)
-        trainquant = float(np.quantile(train_images, [.8]))
-        train_images = 2*(train_images - trainquant)
-        trainlogmin = float(np.min(train_images))
-        trainlogmax = float(np.max(train_images))
-        print(trainlogmax)
-        print(trainlogmin)
-        eval_images = 2*(eval_images - trainquant)
-        trainquant = np.array([trainquant])
-        np.save(trainquantfile, trainquant)
 
     else:
-        trainquant = np.load(trainquantfile)
         train_images = log10_transformation(train_images)
         eval_images = log10_transformation(eval_images)
-        train_images = train_images - float(trainquant)
-        eval_images = eval_images - float(trainquant)
 
     train_dataset = CustomSpatialImageandMaskDataset(train_images, train_masks)
     eval_dataset = (CustomSpatialImageandMaskDataset)(eval_images, eval_masks)
