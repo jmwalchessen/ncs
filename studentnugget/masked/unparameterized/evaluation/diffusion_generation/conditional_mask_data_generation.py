@@ -16,21 +16,21 @@ import sde_lib
 from student_t_true_conditional_data_generation import *
 
 n = 32
-T = 250
+T = 1000
 device = "cuda:0"
 
 
 
 #get trained score model
 config = ncsnpp_config.get_config()
-config.model.num_scales = 250
-config.model.beta_max = 25.
+config.model.num_scales = 1000
+config.model.beta_max = 20.
 
 score_model = th.nn.DataParallel((ncsnpp.NCSNpp(config)).to("cuda:0"))
-score_model.load_state_dict(th.load((home_folder + "/trained_score_models/vpsde/model1_variance_10_lengthscale_1.6_df_1_beta_min_max_01_25_250_random050_masks.pth")))
+score_model.load_state_dict(th.load((home_folder + "/trained_score_models/vpsde/model5_variance_.4_lengthscale_1.6_df_3_beta_min_max_01_20_1000_random050_masks.pth")))
 score_model.eval()
 
-sdevp = sde_lib.VPSDE(beta_min=0.1, beta_max=25, N=250)
+sdevp = sde_lib.VPSDE(beta_min=0.1, beta_max=20, N=1000)
 
 #mask is a True/False (1,32,32) vector with .5 randomly missing pixels
 #function gen_mask is in image_utils.py, 50 at end of random50 denotes
@@ -40,7 +40,7 @@ maxX = 10
 minY = -10
 maxY = 10
 n = 32
-variance = 10
+variance = .4
 lengthscale = 1.6
 
 #y is observed part of field
@@ -110,20 +110,21 @@ def plot_masked_spatial_field(spatial_field, mask, vmin, vmax, figname):
 replicates_per_call = 250
 calls = 1
 number_of_replicates = 1
-seed_value = 83423
+seed_value = 834529
 minX = minY = -10
 maxX = maxY = 10
 n = 32
-variance = 10
+variance = .4
 lengthscale = 1.6
-df = 1
+df = 3
 number_of_replicates = 2
 ref_vec, ref_img = generate_student_nugget(minX, maxX, minY, maxY, n, variance,
-                                  lengthscale, df, number_of_replicates)
+                                  lengthscale, df, number_of_replicates, seed_value)
 ref_img = ref_img[0,:,:]
 ref_img = th.from_numpy(ref_img.reshape((1,n,n))).to(device)
-p = 0
+p = .5
 mask = (th.bernoulli(p*th.ones(1,1,n,n))).to(device)
+print(th.sum(mask))
 
 for i in range(0, 4):
 #mask = th.ones((1,n,n)).to(device)
@@ -133,14 +134,14 @@ for i in range(0, 4):
                                           replicates_per_call, calls)
 
     partially_observed = (mask*ref_img).detach().cpu().numpy().reshape((n,n))
-    np.save("data/model1/ref_image2/ref_image2.npy", ref_img.detach().cpu().numpy().reshape((n,n)))
-    np.save("data/model1/ref_image2/diffusion/model1_beta_min_max_01_25_random0_250_" + str(i) + ".npy", conditional_samples)
-    np.save("data/model1/ref_image2/partially_observed_field.npy", partially_observed.reshape((n,n)))
-    np.save("data/model1/ref_image2/mask.npy", mask.int().detach().cpu().numpy().reshape((n,n)))
-    np.save("data/model1/ref_image2/seed_value.npy", np.array([int(seed_value)]))
+    np.save("data/model5/ref_image7/ref_image7.npy", ref_img.detach().cpu().numpy().reshape((n,n)))
+    np.save("data/model5/ref_image7/diffusion/model5_beta_min_max_01_20_random50_250_" + str(i) + ".npy", conditional_samples)
+    np.save("data/model5/ref_image7/partially_observed_field.npy", partially_observed.reshape((n,n)))
+    np.save("data/model5/ref_image7/mask.npy", mask.int().detach().cpu().numpy().reshape((n,n)))
+    np.save("data/model5/ref_image7/seed_value.npy", np.array([int(seed_value)]))
 
-    plot_spatial_field(ref_img.detach().cpu().numpy().reshape((n,n)), -8, 8, "data/model1/ref_image2/ref_image.png")
-    plot_spatial_field((conditional_samples[0,:,:,:]).numpy().reshape((n,n)), -8, 8, "data/model1/ref_image2/diffusion/visualizations/conditional_sample_0.png")
+    plot_spatial_field(ref_img.detach().cpu().numpy().reshape((n,n)), -8, 8, "data/model5/ref_image7/ref_image.png")
+    plot_spatial_field((conditional_samples[0,:,:,:]).numpy().reshape((n,n)), -8, 8, "data/model5/ref_image7/diffusion/visualizations/conditional_sample_0.png")
     plot_masked_spatial_field(spatial_field = ref_img.detach().cpu().numpy().reshape((n,n)),
-                   vmin = -8, vmax = 8, mask = mask.int().float().detach().cpu().numpy().reshape((n,n)), figname = "data/model1/ref_image2/partially_observed_field.png")
+                   vmin = -8, vmax = 8, mask = mask.int().float().detach().cpu().numpy().reshape((n,n)), figname = "data/model5/ref_image7/partially_observed_field.png")
                    
