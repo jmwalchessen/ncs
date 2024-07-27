@@ -456,25 +456,30 @@ ve_ncsnpp_configuration = ve_ncsnpp_config.get_config()
 vpconfig = vp_ncsnpp_configuration
 veconfig = ve_ncsnpp_config
 
-data_draws = 10
-epochs_per_drawn_data = 20
-#random_missingness_percentages = [0,.25,.5,.75,.9]
+data_draws = 100
+epochs_per_drawn_data = 30
+random_missingness_percentages = [0,.25,.5,.75]
 seed_values = [(int(np.random.randint(0, 100000)),int(np.random.randint(0, 100000)))
                 for i in range(0, data_draws)]
 range_value = 1.6
-smooth_value = 1.6
+smooth_value = 1.2
 batch_size = 512
-eval_batch_size = 32
-number_of_checker_replicates = 500
-number_of_eval_checker_replicates = 32
-score_model_path = "trained_score_models/vpsde/model15_beta_min_max_01_20_1000_1.6_1.6_log10_batch_512_large_checker_masks.pth"
-loss_path = "trained_score_models/vpsde/model15_beta_min_max_01_20_1000_1.6_1.6_log10_batch_512_large_checker_loss.png"
+eval_batch_size = 50
+number_of_random_replicates = 5000
+number_of_eval_random_replicates = 50
+score_model_path = "trained_score_models/vpsde/model19_beta_min_max_01_20_1000_1.6_1.2_logglobalbound_masks.pth"
+loss_path = "trained_score_models/vpsde/model19_beta_min_max_01_20_1000_1.6_1.2_logglobalbound_loss.png"
 n = 32
+#.99999, .00001, .75
+trainmaxminfile = "trained_score_models/vpsde/model19_trainlogmaxmin.npy"
+train_per_multiple_masks(vpconfig, data_draws, epochs_per_drawn_data,
+                             random_missingness_percentages,
+                             number_of_random_replicates,
+                             number_of_eval_random_replicates, seed_values,
+                             range_value, smooth_value, batch_size,
+                             eval_batch_size, score_model_path, loss_path, n,
+                             trainmaxminfile)
 
-train_per_multiple_masks_log10_checker(vpconfig, data_draws, epochs_per_drawn_data, seed_values,
-                                           range_value, smooth_value, batch_size, eval_batch_size,
-                                           score_model_path, loss_path, n, number_of_checker_replicates,
-                                           number_of_eval_checker_replicates)
 """
 data_draws = 20
 epochs_per_drawn_data = 20

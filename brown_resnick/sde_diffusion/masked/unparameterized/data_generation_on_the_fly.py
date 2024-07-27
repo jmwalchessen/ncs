@@ -232,7 +232,7 @@ def get_training_and_evaluation_image_datasets_per_mask(number_of_replicates_per
     train_dataset = CustomSpatialImageDataset(train_images)
     train_dataloader = DataLoader(train_dataset, batch_size = image_batch_size, shuffle = True)
 
-    eval_images = generate_brown_resnick_process(range_value, smooth_value, seed_values[0],
+    eval_images = generate_brown_resnick_process(range_value, smooth_value, seed_values[1],
                                                   number_of_evaluation_replicates_per_mask, n)
     eval_dataset = CustomSpatialImageDataset(eval_images)
     eval_dataloader = DataLoader(eval_dataset, batch_size = eval_batch_size, shuffle = True)
@@ -360,7 +360,7 @@ def get_training_and_evaluation_mask_and_image_datasets_per_mask_log10_checker(d
     eval_masks = generate_large_checkered_masks_on_the_fly(n, number_of_evaluation_checker_replicates)
     train_images, eval_images = generate_train_and_evaluation_brown_resnick_process(range_value,
                                                                                     smooth_value,
-                                                                                    seed_values[0],
+                                                                                    seed_values,
                                                                                     number_of_checker_replicates,
                                                                                     number_of_evaluation_checker_replicates,
                                                                                     n)
