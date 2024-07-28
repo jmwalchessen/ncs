@@ -85,11 +85,11 @@ def produce_true_and_generated_marginal_densities(mask, minX, maxX, minY, maxY, 
                                   missing_index4,
                                   missing_indices, observed_vector,
                                   conditional_generated_samples, ref_image,
-                                  df, figname):
+                                  df, seed_value, figname):
 
     
     unobserved_unconditional_mean = np.zeros((m,1))
-    observed_unconditional_mean = np.zeros(((n**2)-m),1)
+    observed_unconditional_mean = np.zeros((((n**2)-m),1))
     conditional_vectors = sample_conditional_distribution(mask, minX, maxX, minY, maxY, n,
                                                           variance, lengthscale,
                                                           observed_vector,
@@ -132,9 +132,9 @@ def produce_true_and_generated_marginal_densities(mask, minX, maxX, minY, maxY, 
     axs[0,1].axvline(ref_image[int(matrix_missing_index1[0]),int(matrix_missing_index1[1])], color='red', linestyle = 'dashed')
     axs[0,1].set_title("Marginal")
     axs[0,1].set_xlim(-2.5,2.5)
-    axs[0,1].set_ylim(0,1.2)
+    axs[0,1].set_ylim(0,1.4)
     axs[0,1].set_xticks(ticks = [-2,-1,0,1,2], labels = [-2,-1,0,1,2])
-    axs[0,1].set_yticks(ticks = [0,.2,.4,.6,.8,1, 1.2], labels = [0,.2,.4,.6,.8,1,1.2])
+    axs[0,1].set_yticks(ticks = [0,.2,.4,.6,.8,1, 1.2,1.4], labels = [0,.2,.4,.6,.8,1,1.2,1.4])
     axs[0,1].set(xlabel = None, ylabel = None)
     axs[0,1].legend(labels = ['true', 'diffusion'])
 
@@ -152,9 +152,9 @@ def produce_true_and_generated_marginal_densities(mask, minX, maxX, minY, maxY, 
     axs[0,3].axvline(ref_image[int(matrix_missing_index2[0]),int(matrix_missing_index2[1])], color='red', linestyle = 'dashed')
     axs[0,3].set_title("Marginal")
     axs[0,3].set_xlim(-2.5,2.5)
-    axs[0,3].set_ylim(0,1.2)
+    axs[0,3].set_ylim(0,1.4)
     axs[0,3].set_xticks(ticks = [-2,-1,0,1,2], labels = [-2,-1,0,1,2])
-    axs[0,3].set_yticks(ticks = [0,.2,.4,.6,.8,1,1.2], labels = [0,.2,.4,.6,.8,1,1.2])
+    axs[0,3].set_yticks(ticks = [0,.2,.4,.6,.8,1,1.2,1.4], labels = [0,.2,.4,.6,.8,1,1.2,1.4])
     axs[0,3].legend(labels = ['true', 'diffusion'])
     axs[0,3].set(xlabel = None, ylabel = None)
 
@@ -171,9 +171,9 @@ def produce_true_and_generated_marginal_densities(mask, minX, maxX, minY, maxY, 
     axs[1,1].axvline(ref_image[int(matrix_missing_index3[0]),int(matrix_missing_index3[1])], color='red', linestyle = 'dashed')
     axs[1,1].set_title("Marginal")
     axs[1,1].set_xlim(-2.5,2.5)
-    axs[1,1].set_ylim(0,1.2)
+    axs[1,1].set_ylim(0,1.4)
     axs[1,1].set_xticks(ticks = [-2,-1,0,1,2], labels = [-2,-1,0,1,2])
-    axs[1,1].set_yticks(ticks = [0,.2,.4,.6,.8,1,1.2], labels = [0,.2,.4,.6,.8,1,1.2])
+    axs[1,1].set_yticks(ticks = [0,.2,.4,.6,.8,1,1.2,1.4], labels = [0,.2,.4,.6,.8,1,1.2,1.4])
     axs[1,1].legend(labels = ['true', 'diffusion'])
     axs[1,1].set(xlabel = None, ylabel = None)
 
@@ -190,9 +190,9 @@ def produce_true_and_generated_marginal_densities(mask, minX, maxX, minY, maxY, 
     axs[1,3].axvline(ref_image[int(matrix_missing_index4[0]),int(matrix_missing_index4[1])], color='red', linestyle = 'dashed')
     axs[1,3].set_title("Marginal")
     axs[1,3].set_xlim(-2.5,2.5)
-    axs[1,3].set_ylim(0,1.2)
+    axs[1,3].set_ylim(0,1.4)
     axs[1,3].set_xticks(ticks = [-2,-1,0,1,2], labels = [-2,-1,0,1,2])
-    axs[1,3].set_yticks(ticks = [0,.2,.4,.6,.8,1,1.2], labels = [0,.2,.4,.6,.8,1,1.2])
+    axs[1,3].set_yticks(ticks = [0,.2,.4,.6,.8,1,1.2,1.4], labels = [0,.2,.4,.6,.8,1,1.2,1.4])
     axs[1,3].legend(labels = ['true', 'diffusion'])
     axs[1,3].set(xlabel = None, ylabel = None)
     plt.savefig(figname)
@@ -260,7 +260,7 @@ def produce_true_and_generated_bivariate_densities(mask, minX, maxX, minY, maxY,
                                                  ref_image, df, figname):
     
     unobserved_unconditional_mean = np.zeros((m,1))
-    observed_unconditional_mean = np.zeros(((n**2)-m),1)
+    observed_unconditional_mean = np.zeros((((n**2)-m),1))
     conditional_vectors = sample_conditional_distribution(mask, minX, maxX, minY, maxY, n,
                                                           variance, lengthscale,
                                                           observed_vector,
@@ -296,7 +296,7 @@ def produce_true_and_generated_bivariate_densities(mask, minX, maxX, minY, maxY,
     axs[0,0].plot(matrixindex11[1], matrixindex11[0], "k^", markersize = 20)
     axs[0,0].plot(matrixindex12[1], matrixindex12[0], "r^", markersize = 20)
     kde1 = sns.kdeplot(data = pdd, x = 'x', y = 'y',
-                ax = axs[0,1], hue = 'class', fill = False, levels = 8, alpha = .8)
+                ax = axs[0,1], hue = 'class', fill = False, levels = [.01,.05,.1,.2,.3,.4,.5,.6,.7,.8,.9], alpha = .8)
     blue_patch = mpatches.Patch(color='blue')
     orange_patch = mpatches.Patch(color='orange')
     axs[0,1].axvline(ref_image[int(matrixindex11[0]),int(matrixindex11[1])], color='red', linestyle = 'dashed')
@@ -336,7 +336,7 @@ def produce_true_and_generated_bivariate_densities(mask, minX, maxX, minY, maxY,
     axs[0,2].plot(matrixindex21[1], matrixindex21[0], "k^", markersize = 20)
     axs[0,2].plot(matrixindex22[1], matrixindex22[0], "r^", markersize = 20)
     kde1 = sns.kdeplot(data = pdd, x = 'x', y = 'y',
-                ax = axs[0,3], hue = 'class', fill = False, levels = 8, alpha = .8)
+                ax = axs[0,3], hue = 'class', fill = False, levels = [.01,.05,.1,.2,.3,.4,.5,.6,.7,.8,.9], alpha = .8)
     blue_patch = mpatches.Patch(color='blue')
     orange_patch = mpatches.Patch(color='orange')
     axs[0,3].axvline(ref_image[int(matrixindex21[0]),int(matrixindex21[1])], color='red', linestyle = 'dashed')
@@ -376,7 +376,7 @@ def produce_true_and_generated_bivariate_densities(mask, minX, maxX, minY, maxY,
     axs[1,0].plot(matrixindex31[1], matrixindex31[0], "k^", markersize = 20)
     axs[1,0].plot(matrixindex32[1], matrixindex32[0], "r^", markersize = 20)
     kde1 = sns.kdeplot(data = pdd, x = 'x', y = 'y',
-                ax = axs[1,1], hue = 'class', fill = False, levels = 8, alpha = .8)
+                ax = axs[1,1], hue = 'class', fill = False, levels = [.01,.05,.1,.2,.3,.4,.5,.6,.7,.8,.9], alpha = .8)
     blue_patch = mpatches.Patch(color='blue')
     orange_patch = mpatches.Patch(color='orange')
     axs[1,1].axvline(ref_image[int(matrixindex31[0]),int(matrixindex31[1])], color='red', linestyle = 'dashed')
@@ -416,7 +416,7 @@ def produce_true_and_generated_bivariate_densities(mask, minX, maxX, minY, maxY,
     axs[1,2].plot(matrixindex41[1], matrixindex41[0], "k^", markersize = 20)
     axs[1,2].plot(matrixindex42[1], matrixindex42[0], "r^", markersize = 20)
     kde1 = sns.kdeplot(data = pdd, x = 'x', y = 'y',
-                ax = axs[1,3], hue = 'class', fill = False, levels = 8, alpha = .8)
+                ax = axs[1,3], hue = 'class', fill = False, levels = [.01,.05,.1,.2,.3,.4,.5,.6,.7,.8,.9], alpha = .8)
     blue_patch = mpatches.Patch(color='blue')
     orange_patch = mpatches.Patch(color='orange')
     axs[1,3].axvline(ref_image[int(matrixindex41[0]),int(matrixindex41[1])], color='red', linestyle = 'dashed')
@@ -437,7 +437,7 @@ def produce_true_and_generated_bivariate_densities(mask, minX, maxX, minY, maxY,
 
 n = 32
 number_of_replicates = 1000 
-conditional_samples = np.load("model5_beta_min_max_01_20_random50_1000.npy"))
+conditional_samples = np.load("model5_beta_min_max_01_20_random50_1000.npy")
 conditional_samples = conditional_samples.reshape((number_of_replicates,n,n))
 device = "cuda:0"
 mask = np.load(("mask.npy"))
@@ -452,27 +452,28 @@ df = 3
 missing_indices = np.squeeze(np.argwhere((1-mask).reshape((n**2,))))
 m = missing_indices.shape[0]
 observed_vector = ref_image.reshape((n**2))
-observed_vector = np.delete(observed_vector, missing_indices)
-missing_index1 = 75
-missing_index2 = 220
-missing_index3 = 334
-missing_index4 = 381
+observed_vector = (np.delete(observed_vector, missing_indices)).reshape((((n**2)-m),1))
+missing_index1 = 274
+missing_index2 = 122
+missing_index3 = 130
+missing_index4 = 454
+seed_value = 29351
 figname = "tconditional_model5_marginal_random50.png"
 produce_true_and_generated_marginal_densities(mask, minX, maxX, minY, maxY, n, variance, lengthscale,
                                   number_of_replicates, missing_index1, missing_index2, missing_index3,
                                   missing_index4,
                                   missing_indices, observed_vector,
-                                  conditional_samples, ref_image, df,
+                                  conditional_samples, ref_image, df, seed_value,
                                   figname)
 
 
 figname = "tconditional_model5_bivariate_random50.png"
-matrixindex11 = 75
-matrixindex12 = 76
+matrixindex11 = 240
+matrixindex12 = 241
 matrixindex21 = 200
 matrixindex22 = 400
-matrixindex31 = 350
-matrixindex32 = 333
+matrixindex31 = 389
+matrixindex32 = 391
 matrixindex41 = 432
 matrixindex42 = 433
 produce_true_and_generated_bivariate_densities(mask, minX, maxX, minY, maxY, n, variance, lengthscale,
