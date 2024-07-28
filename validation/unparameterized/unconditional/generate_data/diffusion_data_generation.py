@@ -23,11 +23,11 @@ T = 250
 device = "cuda:0"
 #get trained score model
 config = ncsnpp_config.get_config()
-config.model.num_scales = 250
+config.model.num_scales = 1000
 config.model.beta_max = 20
 
 score_model = (ncsnpp.NCSNpp(config)).to("cuda:0")
-score_model.load_state_dict(th.load((sde_folder + "/trained_score_models/model24_large_ncsnpp_weighted_250_timesteps_beta_max_20_correct_images_20_epochs_batch_size_128_500000_lengthscale_1.6_variance_0.4_ncsnpp.pth")))
+score_model.load_state_dict(th.load((sde_folder + "/trained_score_models/model5_beta_min_max_01_20_random050_masks.pth")))
 score_model.eval()
 
 #get smc diffusion sampler
@@ -52,15 +52,15 @@ def sample_unconditionally(diffusion_model, trained_score_model, replicates_per_
     return unconditional_samples
 
 
-replicates_per_call = 200
-calls = 5
+replicates_per_call = 500
+calls = 200
 start = time.time()
 unconditional_samples = sample_unconditionally(twisted_diffusion_model, score_model, replicates_per_call,
                            calls, n)
 end = time.time()
 print(print(end - start))
 
-np.save("data/diffusion/unconditional_lengthscale_1.6_variance_0.4_1000.npy", unconditional_samples.numpy())
+np.save("data/diffusion/model5_unconditional_lengthscale_1.6_variance_0.4_100000.npy", unconditional_samples.numpy())
 
 
 
