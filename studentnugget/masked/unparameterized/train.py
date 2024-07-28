@@ -163,7 +163,6 @@ def train_per_multiple_random_masks(config, data_draws, epochs_per_drawn_data,
             while True:
                 try:
                     batch = get_next_batch(train_iterator, config)
-                    print(np.max(batch[0]))
                     loss = train_step_fn(state, batch)
                     train_losses_per_epoch.append(float(loss))
                 except StopIteration:
@@ -375,19 +374,20 @@ vpconfig = vp_ncsnpp_configuration
 veconfig = ve_ncsnpp_configuration
 
 
-data_draws = 10
-epochs_per_data_draws = 20
+data_draws = 50
+epochs_per_data_draws = 30
 number_of_random_replicates = 10000
-number_of_eval_random_replicates = 256
+number_of_eval_random_replicates = 50
 #smaller p means less ones which means more observed values
-random_missingness_percentages = [0,.0025, .005, .01, .1, .25, .5]
+random_missingness_percentages = [0, .25, .5]
 batch_size = 512
-eval_batch_size = 256
+eval_batch_size = 50
+
 variance = .4
 lengthscale = 1.6
 df = 3
-score_model_path = "trained_score_models/vpsde/model5_variance_.4_lengthscale_1.6_df_3_beta_min_max_01_20_1000_random050_masks.pth"
-loss_path = "trained_score_models/vpsde/model5_variance_.4_lengthscale_1.6_df_3_beta_min_max_01_20_1000_random050_masks_loss.png"
+score_model_path = "trained_score_models/vpsde/model6_variance_.4_lengthscale_1.6_df_3_beta_min_max_01_20_1000_random02550_masks.pth"
+loss_path = "trained_score_models/vpsde/model6_variance_.4_lengthscale_1.6_df_3_beta_min_max_01_20_1000_random02550_masks_loss.png"
 torch.cuda.empty_cache()
 train_per_multiple_random_masks(vpconfig, data_draws, epochs_per_data_draws,
                              random_missingness_percentages,
