@@ -3,6 +3,7 @@ import numpy as np
 import sys
 import os
 from append_directories import *
+from true_unconditional_data_generation import *
 
 home_folder = append_directory(5)
 sde_folder = home_folder + "/sde_diffusion/masked/unparameterized"
@@ -77,10 +78,21 @@ def sample_unconditionally_multiple_calls(vpsde, score_model, device, mask, y, n
                                     dim = 0)
     return diffusion_samples
     
+minX = -10
+maxX = 10
+minY = -10
+maxY = 10
+n = 32
+variance = .4
+lengthscale = 1.6
+number_of_replicates = 1
+seed_value = 235963
+gpv, y = generate_gaussian_process(minX, maxX, minY, maxY, n, variance, lengthscale,
+                              number_of_replicates, seed_value)
+y = (th.from_numpy(y)).float().to(device)
 
 
-
-for i in range(0, 100):
+for i in range(50,100):
     replicates_per_call = 500
     calls = 2
     p = 0
