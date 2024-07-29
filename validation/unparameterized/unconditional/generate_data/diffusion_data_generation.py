@@ -24,7 +24,7 @@ config.model.num_scales = 1000
 config.model.beta_max = 20
 
 score_model = (ncsnpp.NCSNpp(config)).to("cuda:0")
-score_model.load_state_dict(th.load((sde_folder + "/trained_score_models/model5_beta_min_max_01_20_random050_masks.pth")))
+score_model.load_state_dict(th.load((sde_folder + "/trained_score_models/vpsde/model5_beta_min_max_01_20_random050_masks.pth")))
 score_model.eval()
 
 sdevp = sde_lib.VPSDE(beta_min=0.1, beta_max=20, N=1000)
