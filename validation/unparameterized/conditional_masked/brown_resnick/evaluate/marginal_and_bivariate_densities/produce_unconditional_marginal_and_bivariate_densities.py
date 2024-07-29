@@ -168,34 +168,32 @@ minY = -10
 maxY = 10
 n = 32
 range_value = 1.6
-smooth_value = 1.6
+smooth_value = 1.2
 number_of_replicates = 1000
 missing_index = 700
 missing_indices = [100,101]
 home_folder = append_directory(3)
-sys.path.append((home_folder + "/generate_data"))
-import generate_true_unconditional_samples
-uncond_samples = np.load((home_folder + "/generate_data/data/conditional/model10/ref_img1/model10_random0_beta_min_max_01_20_1000_random0_1000.npy"))
+uncond_samples = np.load((home_folder + "/generate_data/data/conditional/model19/ref_img1/model19_random0_smooth_1.2_beta_min_max_01_20_1000_random0_1000.npy"))
 #uncond_brv = (np.load((home_folder + "/generate_data/data/unconditional/true/unconditional_model3_range_1.6_smooth_1.6_2250.npy")))
 seed_value = 3242
 #uncond_brv = generate_true_unconditional_samples.generate_brown_resnick_process(range_value, smooth_value,
                                                                    #seed_value, number_of_replicates, n)
 br_folder= (append_directory(7) + "/brown_resnick/sde_diffusion/masked/unparameterized")
 
-trainlogmaxmin = np.load((br_folder + "/trained_score_models/vpsde/model10_train_logminmax.npy"))
+trainlogmaxmin = np.load((br_folder + "/trained_score_models/vpsde/model19_trainlogmaxmin.npy"))
 uncond_brv = (np.load("brown_resnick_samples_2250.npy"))[0:1000,:]
 uncond_brv = log_transformation(uncond_brv)
 #uncond_brv = global_quantile_boundary_process(uncond_brv, trainlogmaxmin[0], trainlogmaxmin[1],
 #                                              trainlogmaxmin[2])
 uncond_samples = global_quantile_boundary_inverse(uncond_samples,trainlogmaxmin[0], trainlogmaxmin[1],
                                                   trainlogmaxmin[2])
-"""
 
-missing_marginal_indices = (np.random.randint(low = 0, high = 1024, size = 50)).tolist()
+
+missing_marginal_indices = (np.random.randint(low = 0, high = 1024, size = 100)).tolist()
 
 for missing_index in missing_marginal_indices:
 
-    marginal_plot = (home_folder + "/generate_data/data/unconditional/marginal_density/model10_log_random0_1000_true_and_generated_marginal_density_"
+    marginal_plot = (home_folder + "/generate_data/data/unconditional/marginal_density/model19_log_random0_1000_true_and_generated_marginal_density_"
                     + str(number_of_replicates) + "_" + str(missing_index) + ".png")
     produce_true_and_generated_marginal_density(minX, maxX, minY, maxY, n, number_of_replicates,
                                                 missing_index, uncond_samples, uncond_brv, marginal_plot)
@@ -203,7 +201,6 @@ for missing_index in missing_marginal_indices:
 
 
 """
-
 indices1 = np.random.randint(0, n**2, 2)
 indices2 = np.random.randint(0, n**2, 2)
 indices1 = [500]
@@ -222,4 +219,4 @@ for i in range(len(matrix_indices1)):
         print(missing_indices)
         produce_true_and_generated_bivariate_density(minX, maxX, minY, maxY, n,
                                                  number_of_replicates, missing_indices,
-                                                 uncond_samples, uncond_brv, bivarity_density_fig)
+                                                 uncond_samples, uncond_brv, bivarity_density_fig)"""

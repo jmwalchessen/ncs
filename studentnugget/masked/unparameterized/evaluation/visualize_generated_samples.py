@@ -18,7 +18,7 @@ device = "cuda:0"
 config = ncsnpp_config.get_config()
 #if trained parallelized, need to be evaluated that way too
 score_model = torch.nn.DataParallel((ncsnpp.NCSNpp(config)).to("cuda:0"))
-score_model.load_state_dict(th.load((home_folder + "/trained_score_models/vpsde/model5_variance_.4_lengthscale_1.6_df_3_beta_min_max_01_20_1000_random050_masks.pth")))
+score_model.load_state_dict(th.load((home_folder + "/trained_score_models/vpsde/model6_variance_.4_lengthscale_1.6_df_3_beta_min_max_01_20_1000_random02550_masks.pth")))
 score_model.eval()
 
 def construct_norm_matrix(minX, maxX, minY, maxY, n):
@@ -148,7 +148,7 @@ variance = .4
 lengthscale = 1.6
 number_of_replicates = 2
 df = 3
-seed_value = 9342355
+seed_value = 9342332
 
 
 for i in range(0,10):
@@ -166,6 +166,6 @@ for i in range(0,10):
                                                                     device, mask, y, n,
                                                                     num_samples)
 
-    figname = ("visualizations/models/model5/random50_variance_.4_lengthscale_1.6_df_3_observed_and_generated_samples_" + str(i) + ".png")
+    figname = ("visualizations/models/model6/random50_variance_.4_lengthscale_1.6_df_3_observed_and_generated_samples_" + str(i) + ".png")
     visualize_observed_and_generated_samples(unmasked_y, mask, diffusion_samples[0,:,:,:],
                                             diffusion_samples[1,:,:,:], n, figname)

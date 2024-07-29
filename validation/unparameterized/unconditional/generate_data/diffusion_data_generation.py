@@ -92,7 +92,7 @@ gpv, y = generate_gaussian_process(minX, maxX, minY, maxY, n, variance, lengthsc
 y = (th.from_numpy(y)).float().to(device)
 
 
-for i in range(50,100):
+for i in range(25,50):
     replicates_per_call = 500
     calls = 2
     p = 0

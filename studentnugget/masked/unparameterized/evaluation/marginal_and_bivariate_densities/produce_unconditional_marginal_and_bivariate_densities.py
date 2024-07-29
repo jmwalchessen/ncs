@@ -215,11 +215,11 @@ def produce_true_and_generated_bivariate_density(minX, maxX, minY, maxY, n, vari
     axs[0].plot(missingmatrixindex1[0], missingmatrixindex1[1], "r+")
     axs[0].plot(missingmatrixindex2[0], missingmatrixindex2[1], "r+")
     sns.kdeplot(x = bivariate_density[:,0], y = bivariate_density[:,1],
-                ax = axs[1], levels = 20)
+                ax = axs[1], levels = [.01,.05,.1,.2,.3,.4,.5,.6,.7,.8,.9])
     sns.kdeplot(x = generated_bivariate_density[:,0], y = generated_bivariate_density[:,1],
-                ax = axs[1], levels = 20)
+                ax = axs[1], levels = [.01,.05,.1,.2,.3,.4,.5,.6,.7,.8,.9])
     sns.kdeplot(x = gpbivariatedensity[:,0], y = gpbivariatedensity[:,1],
-                ax = axs[1], levels = 20)
+                ax = axs[1], levels = [.01,.05,.1,.2,.3,.4,.5,.6,.7,.8,.9])
     axs[1].set_title("Bivariate")
     axs[1].set_xlim(-10,10)
     axs[1].set_ylim(-10,10)
@@ -248,7 +248,7 @@ produce_t_vs_normal_marginal_density(minX, maxX, minY, maxY, n, variance, length
                                      seed_value, number_of_replicates, missing_index, figname)
 
 
-"""
+
 for i in range(342,400):
     print(i)
     missing_index = i
@@ -263,21 +263,23 @@ for i in range(342,400):
     df = 3
 
     unconditional_generated_samples = np.load((home_folder + 
-                                            "/evaluation/diffusion_generation/data/model5/ref_image1/diffusion/model5_beta_min_max_01_20_random0_1000.npy"))
-    figname = "marginal/model5/ref_image1/true_vs_generated_1000_marginal_density_ " + str(missing_index) + ".png"
+                                            "/evaluation/diffusion_generation/data/model6/ref_image1/diffusion/model6_beta_min_max_01_20_random0_1000.npy"))
+    figname = "marginal/model6/ref_image1/true_vs_generated_1000_marginal_density_ " + str(missing_index) + ".png"
     produce_true_and_generated_marginal_density(minX, maxX, minY, maxY, n, variance, lengthscale, df,
                                                     number_of_replicates, missing_index, unconditional_generated_samples,
                                                     figname)
-                                                    """
+                                                    
+
+"""
 number_of_replicates = 1000
 fixedindex = (15,15)
 movingindex = [(i,j) for i in range(10,20) for j in range(10,20)]
 unconditional_generated_samples = np.load((home_folder + 
-                                            "/evaluation/diffusion_generation/data/model5/ref_image1/diffusion/model5_beta_min_max_01_20_random0_1000.npy"))
+                                            "/evaluation/diffusion_generation/data/model6/ref_image1/diffusion/model6_beta_min_max_01_20_random0_1000.npy"))
 for movingind in movingindex:
     missing_index = movingind[0]*16+movingind[1]
-    figname = "bivariate/model5/ref_image1/true_vs_generated_1000_marginal_density_ " + str(missing_index) + ".png"
+    figname = "bivariate/model6/ref_image1/true_vs_generated_1000_marginal_density_ " + str(missing_index) + ".png"
     produce_true_and_generated_bivariate_density(minX, maxX, minY, maxY, n, variance, lengthscale, df,
                                                 number_of_replicates, fixedindex,
                                                 movingind, unconditional_generated_samples,
-                                                figname)
+                                                figname)"""
