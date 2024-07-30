@@ -39,7 +39,7 @@ seed_value = 32034
 n = 32
 crop_size = 4
 device = "cuda:0"
-model_name = "largemodel5_lengthscale_1.6_variance_0.4_epochs_240_parameters.pth"
+model_name = "largemodel5_lengthscale_1.6_variance_0.4_epochs_20_parameters.pth"
 #diffusion images are first then true images
 evaluation_images = create_evaluation_images(number_of_replicates, seed_value, diffusion_pathname, n, crop_size)
 
