@@ -21,7 +21,7 @@ def load_images(path):
 
     evaluate_data_classifier_folder = (classifier_folder + "/evaluate_classifier/evaluation_data/data/diffusion/")
     images = th.from_numpy(np.load((evaluate_data_classifier_folder + path)))
-    images = images.reshape((images.shape[0], 1, images.shape[1], images.shape[2]))
+    #images = images.reshape((images.shape[0], 1, images.shape[1], images.shape[2]))
     return images
 
 def load_classifier(device, model_name):
