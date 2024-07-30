@@ -33,13 +33,13 @@ def plot_predicted_probabilitiy_per_class_label_histogram(number_of_replicates, 
         ax[1].legend(["Generated"])
         plt.savefig(figname)
 
-number_of_replicates = 3000
-diffusion_pathname = "model5_unconditional_lengthscale_1.6_variance_0.4_eval_3000.npy"
-seed_value = 32034
+number_of_replicates = 2000
+diffusion_pathname = "model5_unconditional_lengthscale_1.6_variance_0.4_eval_2000.npy"
+seed_value = 3203423
 n = 32
 crop_size = 4
 device = "cuda:0"
-model_name = "largemodel5_lengthscale_1.6_variance_0.4_epochs_20_parameters.pth"
+model_name = "largemodel5_lengthscale_1.6_variance_0.4_epochs_30_parameters.pth"
 #diffusion images are first then true images
 evaluation_images = create_evaluation_images(number_of_replicates, seed_value, diffusion_pathname, n, crop_size)
 
@@ -48,7 +48,7 @@ classifier = load_classifier(device, model_name)
 classifier_output = classifier(evaluation_images.float().to(device))
 #first column is probability of being in class 1
 diffusion_probabilities =(classifier_output[:,0]).detach().cpu().numpy()
-figname = "predicted_vs_true_probability_histograms/largemodel5_lengthscale_1.6_variance_0.4_epochs_240_predicted_vs_true_probability_histogram_6000.png"
+figname = "predicted_vs_true_probability_histograms/largemodel5_epochs_30_lengthscale_1.6_variance_0.4_epochs_240_predicted_vs_true_probability_histogram_4000.png"
 plot_predicted_vs_true_probability_histogram(number_of_replicates, diffusion_probabilities, figname)
-figname = "predicted_vs_true_probability_histograms/largemodel5_lengthscale_1.6_variance_0.4_epochs_240_predicted_probability_histogram_per_class_label_6000.png"
+figname = "predicted_vs_true_probability_histograms/largemodel5_epochs_30_lengthscale_1.6_variance_0.4_epochs_240_predicted_probability_histogram_per_class_label_4000.png"
 plot_predicted_probabilitiy_per_class_label_histogram(number_of_replicates, diffusion_probabilities, figname)
