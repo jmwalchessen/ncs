@@ -85,11 +85,11 @@ def train_nn(num_epochs, classifier, weight_decay, beta1, beta2, epsilon,
         
     return classifier, eval_losses, eval_train_losses
 
-num_epochs = 20
+num_epochs = 40
 weight_decay = 0.001
 beta1 = 0.9
 beta2 = 0.999
-initial_learning_rate = 2e-6
+initial_learning_rate = 4e-6
 device = "cuda:0"
 batch_size = 512
 
