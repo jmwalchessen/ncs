@@ -86,7 +86,7 @@ def train_nn(num_epochs, classifier, weight_decay, beta1, beta2, epsilon,
         
     return classifier, eval_losses, eval_train_losses
 
-num_epochs = 30
+num_epochs = 40
 weight_decay = 0.001
 beta1 = 0.9
 beta2 = 0.999
