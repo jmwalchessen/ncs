@@ -17,7 +17,7 @@ classifier_folder = append_directory(2)
 train_images_pathname = (classifier_folder + 
                             "/generate_data/data/diffusion/model5_unconditional_lengthscale_1.6_variance_0.4_100000.npy")
 eval_images_pathname = (classifier_folder +
-                        "/generate_data/data/diffusion/model5_unconditional_lengthscale_1.6_variance_0.4_eval_3000.npy.npy")
+                        "/generate_data/data/diffusion/model5_unconditional_lengthscale_1.6_variance_0.4_eval_3000.npy")
 num_samples = 100000
 batch_size = 64
 eval_batch_size = 6000
