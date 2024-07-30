@@ -43,7 +43,7 @@ model_name = "largemodel5_lengthscale_1.6_variance_0.4_epochs_240_parameters.pth
 #diffusion images are first then true images
 evaluation_images = create_evaluation_images(number_of_replicates, seed_value, diffusion_pathname, n, crop_size)
 
-classifier = load_smaller_classifier(device, model_name)
+classifier = load_classifier(device, model_name)
 #class one is diffusion and class 0 is true, second column is the probability of being in class 1
 classifier_output = classifier(evaluation_images.float().to(device))
 #first column is probability of being in class 1
