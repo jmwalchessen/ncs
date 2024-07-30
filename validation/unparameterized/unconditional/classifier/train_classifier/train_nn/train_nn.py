@@ -15,14 +15,14 @@ from dataloader_functions import *
 
 classifier_folder = append_directory(2)
 train_images_pathname = (classifier_folder + 
-                            "/generate_data/data/diffusion/train_unconditional_lengthscale_1.6_variance_0.4_10000.npy")
+                            "/generate_data/data/diffusion/model5_unconditional_lengthscale_1.6_variance_0.4_100000.npy")
 eval_images_pathname = (classifier_folder +
-                        "/generate_data/data/diffusion/eval_unconditional_lengthscale_1.6_variance_0.4_1000.npy")
-num_samples = 10000
+                        "/generate_data/data/diffusion/model5_unconditional_lengthscale_1.6_variance_0.4_eval_3000.npy.npy")
+num_samples = 100000
 batch_size = 64
-eval_batch_size = 2000
-eval_train_batch_size = 2000
-eval_num_samples = 1000
+eval_batch_size = 6000
+eval_train_batch_size = 6000
+eval_num_samples = 3000
 crop_size = 2
 
 
@@ -101,6 +101,6 @@ classifier, eval_losses, eval_train_losses = train_nn(num_epochs = num_epochs, c
                                                       train_loader = train_dataloader, eval_loader = eval_dataloader,
                                                       device = device, initial_learning_rate = initial_learning_rate)
 
-lossfig_name = "models/small_classifier/model3_lengthscale_1.6_variance_0.4_epochs_" + str(num_epochs) + "_losses.png"
+lossfig_name = "models/small_classifier/model5_lengthscale_1.6_variance_0.4_epochs_" + str(num_epochs) + "_losses.png"
 visualize_loss(num_epochs, eval_losses, eval_train_losses, lossfig_name)
-torch.save(classifier.state_dict(), ("models/small_classifier/model3_lengthscale_1.6_variance_0.4_epochs_" + str(num_epochs) + "_parameters.pth"))
+torch.save(classifier.state_dict(), ("models/small_classifier/model5_lengthscale_1.6_variance_0.4_epochs_" + str(num_epochs) + "_parameters.pth"))
