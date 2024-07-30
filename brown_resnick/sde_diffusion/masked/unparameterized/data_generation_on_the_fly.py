@@ -85,7 +85,9 @@ def generate_random_masks_on_the_fly(n, number_of_random_replicates, random_miss
     mask_matrices = np.zeros((0,1,n,n))
 
     for idx in range(0, len(random_missingness_percentages)):
+        print(idx)
         missingness_percentage = random_missingness_percentages[idx]
+        print(missingness_percentage)
         current_mask_matrices = np.random.binomial(n = 1, p = missingness_percentage,
                                                    size = (number_of_random_replicates, 1, n, n))
         mask_matrices = np.concatenate([mask_matrices, current_mask_matrices])
