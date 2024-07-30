@@ -23,7 +23,7 @@ batch_size = 64
 eval_batch_size = 6000
 eval_train_batch_size = 6000
 eval_num_samples = 3000
-crop_size = 2
+crop_size = 4
 
 
 train_dataloader = prepare_crop_and_create_dataloader(path = train_images_pathname, num_samples = num_samples,
@@ -85,7 +85,7 @@ def train_nn(num_epochs, classifier, weight_decay, beta1, beta2, epsilon,
         
     return classifier, eval_losses, eval_train_losses
 
-num_epochs = 240
+num_epochs = 60
 weight_decay = 0.001
 beta1 = 0.9
 beta2 = 0.999
@@ -93,7 +93,7 @@ initial_learning_rate = 2e-5
 device = "cuda:0"
 batch_size = 512
 
-classifier = (SmallCNNClassifier()).to(device)
+classifier = (CNNClassifier()).to(device)
 
 classifier, eval_losses, eval_train_losses = train_nn(num_epochs = num_epochs, classifier = classifier,
                                                       weight_decay = weight_decay, beta1 = beta1, beta2 = beta2,
@@ -101,6 +101,6 @@ classifier, eval_losses, eval_train_losses = train_nn(num_epochs = num_epochs, c
                                                       train_loader = train_dataloader, eval_loader = eval_dataloader,
                                                       device = device, initial_learning_rate = initial_learning_rate)
 
-lossfig_name = "models/small_classifier/model5_lengthscale_1.6_variance_0.4_epochs_" + str(num_epochs) + "_losses.png"
+lossfig_name = "models/largemodel5_lengthscale_1.6_variance_0.4_epochs_" + str(num_epochs) + "_losses.png"
 visualize_loss(num_epochs, eval_losses, eval_train_losses, lossfig_name)
-torch.save(classifier.state_dict(), ("models/small_classifier/model5_lengthscale_1.6_variance_0.4_epochs_" + str(num_epochs) + "_parameters.pth"))
+torch.save(classifier.state_dict(), ("models/largemodel5_lengthscale_1.6_variance_0.4_epochs_" + str(num_epochs) + "_parameters.pth"))
