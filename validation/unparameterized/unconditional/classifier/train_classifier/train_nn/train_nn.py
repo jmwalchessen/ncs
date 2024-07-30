@@ -17,12 +17,12 @@ classifier_folder = append_directory(2)
 train_images_pathname = (classifier_folder + 
                             "/generate_data/data/diffusion/model5_unconditional_lengthscale_1.6_variance_0.4_100000.npy")
 eval_images_pathname = (classifier_folder +
-                        "/generate_data/data/diffusion/model5_unconditional_lengthscale_1.6_variance_0.4_eval_3000.npy")
+                        "/generate_data/data/diffusion/model5_unconditional_lengthscale_1.6_variance_0.4_eval_1000.npy")
 num_samples = 100000
 batch_size = 64
-eval_batch_size = 6000
-eval_train_batch_size = 6000
-eval_num_samples = 3000
+eval_batch_size = 2000
+eval_train_batch_size = 2000
+eval_num_samples = 1000
 crop_size = 4
 
 
@@ -77,6 +77,7 @@ def train_nn(num_epochs, classifier, weight_decay, beta1, beta2, epsilon,
         eval_train_batch = next(eval_train_iterator)
         eval_train_loss = step_fn(state, eval_train_batch, device)
         eval_train_losses.append(float(eval_train_loss.detach().cpu().numpy()))
+        print("train")
         print(eval_train_loss)
 
         lr = learning_rate_schedule(initial_learning_rate, epoch)
@@ -85,11 +86,11 @@ def train_nn(num_epochs, classifier, weight_decay, beta1, beta2, epsilon,
         
     return classifier, eval_losses, eval_train_losses
 
-num_epochs = 40
+num_epochs = 30
 weight_decay = 0.001
 beta1 = 0.9
 beta2 = 0.999
-initial_learning_rate = 4e-6
+initial_learning_rate = 1e-6
 device = "cuda:0"
 batch_size = 512
 
