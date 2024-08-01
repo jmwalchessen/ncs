@@ -63,7 +63,7 @@ class CNNClassifier(nn.Module):
                   DenseLayer(in_features = 32, out_features = 16),
                   DenseLayer(in_features = 16, out_features = 8),
                   DenseLayer(in_features = 8, out_features = 2),
-                  nn.Softmax()
+                  nn.Sigmoid()
                   ]
         self.model = nn.Sequential(*layers)
 
@@ -82,7 +82,7 @@ class SmallCNNClassifier(nn.Module):
                   MaxPool2dlayer(kernel = (2,2), padding = (0,0)),
                   nn.Flatten(),
                   DenseLayer(in_features = 16, out_features = 2),
-                  nn.Softmax()
+                  nn.Sigmoid()
                   ]
         self.model = nn.Sequential(*layers)
 

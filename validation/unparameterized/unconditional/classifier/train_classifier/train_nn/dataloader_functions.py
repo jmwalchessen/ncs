@@ -44,7 +44,7 @@ def crop_images(images, n, crop_size):
 def prepare_classes(num_samples):
 
     classes = np.concatenate([np.ones((num_samples,1)), np.zeros((num_samples,1))], axis = 1)
-    classes = torch.from_numpy(np.concatenate((classes, 1-classes), axis = 0)).float()
+    classes = torch.from_numpy(classes).float()
     return classes
 
 def load_images(path):

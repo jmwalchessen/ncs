@@ -76,6 +76,18 @@ class MaxPool2dlayer(nn.Module):
     def forward(self, x):
         return self.MaxPoolLayer(x)
     
+class AvgPool2dlayer(nn.Module):
+
+    #kernel size is int i.e. assumed to be square (int, int) or tupe (int, int)
+    #padding is int or tuple of int
+    def __init__(self, kernel: tuple, padding: tuple):
+        super(AvgPool2dlayer, self).__init__()
+        self.AvgPoolLayer = nn.AvgPool2d(kernel_size = kernel,
+                                         stride = kernel, padding = padding)
+
+    def forward(self, x):
+        return self.AvgPoolLayer(x)
+    
 class MaskEmbedFC(nn.Module):
   "Embed mask to vector"
 
@@ -83,18 +95,18 @@ class MaskEmbedFC(nn.Module):
         super(MaskEmbedFC, self).__init__()
 
         layers = [ConvLayer(in_channels = 1, out_channels = 4, kernel = (3,3)),
-                  MaxPool2dlayer(kernel = (2,2), padding = (1,1)),
+                  AvgPool2dlayer(kernel = (2,2), padding = (1,1)),
                   ConvLayer(in_channels = 4, out_channels = 8, kernel = (3,3)),
-                  MaxPool2dlayer(kernel = (2,2), padding = (1,1)),
+                  AvgPool2dlayer(kernel = (2,2), padding = (1,1)),
                   ConvLayer(in_channels = 8, out_channels =8, kernel = (3,3)),
-                  MaxPool2dlayer(kernel = (2,2), padding = (1,1)),
+                  AvgPool2dlayer(kernel = (2,2), padding = (1,1)),
                   nn.Flatten()]
+        #layers = [AvgPool2dlayer(kernel = (2,2), padding = (0,0)), nn.Flatten()]
         self.layers = layers
         self.model = nn.Sequential(*layers)
 
   def forward(self, x: torch.Tensor) -> torch.Tensor:
     return self.model(x)
-
 
 
 class GaussianFourierProjection(nn.Module):
@@ -412,14 +424,13 @@ class CondResnetBlockBigGANpp(nn.Module):
     maskembed = maskembed.view((maskembed.shape[0],maskembed.shape[1],1,1))
     #(1,128,1,1)
     #this is a work around, might be good to address this in a less work around way
-    if(h.shape[1] == 256):
-      maskembed = maskembed.repeat(1,2,1,1)
-    maskembed = maskembed.expand(maskembed.shape[0], maskembed.shape[1],
-                                   h.shape[2], h.shape[3])
-    h = torch.mul(maskembed, h)
+    #maskembed = maskembed.expand(maskembed.shape[0], maskembed.shape[1],
+                                   #h.shape[2], h.shape[3])
     # Add bias to each feature map conditioned on the time embedding
     if temb is not None:
       h += self.Dense_0(self.act(temb))[:, :, None, None]
+    if mask is not None:
+      h += maskembed[:,:,None,None]
     h = self.act(self.GroupNorm_1(h))
     h = self.Dropout_0(h)
     h = self.Conv_1(h)
