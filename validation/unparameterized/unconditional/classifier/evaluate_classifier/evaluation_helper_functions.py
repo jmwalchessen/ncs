@@ -49,6 +49,7 @@ def create_evaluation_images(number_of_replicates, seed_value, path, n, crop_siz
 
     true_images = generate_true_images(number_of_replicates, seed_value)
     diffusion_images = load_images(path)
+    diffusion_images.reshape((number_of_replicates,1,n,n))
     images = th.cat([diffusion_images, true_images], dim = 0)
     images = crop_image(images, n, crop_size)
     return images
