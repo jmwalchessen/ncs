@@ -309,47 +309,26 @@ mask.to("cuda:0")
 train_per_mask(vpconfig, data_draws, epochs_per_drawn_data, number_of_replicates,
       evaluation_number_of_replicates, batch_size, eval_batch_size, seed_value,
           variance, lengthscale, mask, score_model_path, loss_path)
+"""
 
-data_draws = 10
+data_draws = 20
 epochs_per_data_draws = 20
-number_of_random_replicates = 50000
+number_of_random_replicates = 10000
 number_of_eval_random_replicates = 256
 #smaller p means less ones which means more observed values
-random_missingness_percentages = [0,.1,.2,.3,.4,.5]
+random_missingness_percentages = [.5]
 batch_size = 256
 eval_batch_size = 256
-seed_values = [int(np.random.randint(0, 100000)) for i in range(0, data_draws)]
-score_model_path = "trained_score_models/vpsde/model6_beta_min_max_01_25_random050_masks.pth"
-loss_path = "trained_score_models/vpsde/model6_beta_min_max_01_25_random050_masks_loss.png"
+seed_values = [(int(np.random.randint(0, 100000)), int(np.random.randint(0, 100000))) for i in range(0, data_draws)]
+score_model_path = "trained_score_models/vpsde/model10_beta_min_max_01_25_random50_expanded_masks.pth"
+loss_path = "trained_score_models/vpsde/model10_beta_min_max_01_25_random50_expanded_masks_loss.png"
+variance = .4
+lengthscale = 1.6
 torch.cuda.empty_cache()
-train_per_multiple_random_masks(vpconfig, data_draws, epochs_per_drawn_data,
+train_per_multiple_random_masks(vpconfig, data_draws, epochs_per_data_draws,
                              random_missingness_percentages,
                              number_of_random_replicates,
                              number_of_eval_random_replicates, seed_values,
                              variance, lengthscale, batch_size,
                              eval_batch_size, score_model_path, loss_path)
-                             """
-
-data_draws = 20
-epochs_per_data_draws = 20
-number_of_random_replicates_per_percentage = 5000
-number_of_block_replicates_per_mask = 500
-number_of_eval_random_replicates_per_percentage = 50
-number_of_eval_block_replicates_per_mask = 50
-number_of_eval_random_replicates_per_percentage = 50
-random_missingness_percentages = [.8,.9]
-weighted_upper_half_mask_percentages = [.1, .25]
-weighted_lower_half_mask_percentages = [.75,.9]
-batch_size = 512
-eval_batch_size = 16
-seed_values = [(int(np.random.randint(0, 100000)), int(np.random.randint(0, 100000))) for i in range(0, data_draws)]
-score_model_path = "trained_score_models/vpsde/model7_beta_min_max_01_25_250_random8090_block_masks.pth"
-loss_path = "trained_score_models/vpsde/model7_beta_min_max_01_25_250_random8090_block_masks_loss.png"
-variance = .4
-lengthscale = 1.6
-
-train_per_multiple_random_and_block_masks(vpconfig, data_draws, epochs_per_data_draws, random_missingness_percentages,
-                                          weighted_lower_half_mask_percentages, weighted_upper_half_mask_percentages,
-                                          number_of_random_replicates_per_percentage, number_of_block_replicates_per_mask,
-                                          number_of_eval_random_replicates_per_percentage, number_of_eval_block_replicates_per_mask,
-                                          seed_values, variance, lengthscale, batch_size, eval_batch_size, score_model_path, loss_path)
+                             

@@ -20,6 +20,19 @@ def construct_norm_matrix(minX, maxX, minY, maxY, n):
     norm_matrix = np.sqrt(np.add(longitude_squared, latitude_squared))
     return norm_matrix
 
+diff = .6451612900000008
+minX = -10-2*diff
+maxX = 10+2*diff
+n = 36
+x = np.linspace(minX, maxX, n)
+print(x)
+diff = .6451612900000008
+minX = -10
+maxX = 10
+n = 32
+x = np.linspace(minX, maxX, n)
+print(x)
+
 def construct_exp_kernel(minX, maxX, minY, maxY, n, variance, lengthscale):
 
     norm_matrix = construct_norm_matrix(minX, maxX, minY, maxY, n)
@@ -143,13 +156,17 @@ class CustomMaskDataset(Dataset):
 def get_training_and_evaluation_dataset_per_mask(number_of_replicates, number_of_evaluation_replicates,
                                                  batch_size, eval_batch_size, seed_values, variance,
                                                  lengthscale, mask):
-    minX = minY = -10
-    maxX = maxY = 10
-    n = 32
+    diff = .6451612900000008
+    minX = minY = -10-2*diff
+    maxX = maxY = 10+2*diff
+    n = 36
     train_images = generate_data_on_the_fly(minX, maxX, minY, maxY, n,
                                                               variance, lengthscale,
                                                               number_of_replicates,
                                                               seed_values[0])
+    
+    train_images = train_images[2:34,:,:,:]
+    eval_images = eval_images[2:34,:,:,:]
 
     train_dataset = CustomSpatialImageandSingleMaskDataset(train_images)
     train_dataloader = DataLoader(train_dataset, batch_size = batch_size, shuffle = True)
@@ -184,19 +201,22 @@ def get_training_and_evaluation_image_datasets_per_mask(number_of_replicates_per
                                                         variance, lengthscale, seed_values,
                                                         image_batch_size, eval_batch_size):
     
-    minX = minY = -10
-    maxX = maxY = 10
-    n = 32
+    diff = .6451612900000008
+    minX = minY = -10-2*diff
+    maxX = maxY = 10+2*diff
+    n = 36
     train_images = generate_data_on_the_fly(minX, maxX, minY, maxY, n,
                                                               variance, lengthscale,
                                                               total_masks*number_of_replicates_per_mask,
                                                               seed_values[0])
+    train_images = train_images[2:34,:,:,:]
     train_dataset = CustomSpatialImageDataset(train_images)
     train_dataloader = DataLoader(train_dataset, batch_size = image_batch_size, shuffle = True)
 
     eval_images = generate_data_on_the_fly(minX, maxX, minY, maxY, n, variance, lengthscale,
                                            total_masks*number_of_evaluation_replicates_per_mask,
                                            seed_values[1])
+    eval_images = eval_images[2:34,:,:,:]
     eval_dataset = CustomSpatialImageDataset(eval_images)
     eval_dataloader = DataLoader(eval_dataset, batch_size = eval_batch_size, shuffle = True)
     return train_dataloader, eval_dataloader
@@ -219,6 +239,10 @@ def get_training_and_evaluation_random_mask_and_image_datasets_per_mask(number_o
     train_image_and_mask_number = len(random_missingness_percentages)*number_of_random_replicates
     eval_image_and_mask_number = len(random_missingness_percentages)*number_of_evaluation_random_replicates
 
+    diff = .6451612900000008
+    minX = minY = -10-2*diff
+    maxX = maxY = 10+2*diff
+    n = 36
     train_images = generate_data_on_the_fly(minX, maxX, minY, maxY, n,
                                                               variance, lengthscale,
                                                               train_image_and_mask_number,
@@ -227,6 +251,8 @@ def get_training_and_evaluation_random_mask_and_image_datasets_per_mask(number_o
                                                               variance, lengthscale,
                                                               eval_image_and_mask_number,
                                                               seed_values[1])
+    train_images = train_images[2:34,:,:,:]
+    eval_images = eval_images[2:34,:,:,:]
     train_dataset = CustomSpatialImageandMaskDataset(train_images, train_masks)
     eval_dataset = CustomSpatialImageandMaskDataset(eval_images, eval_masks)
     train_dataloader = DataLoader(train_dataset, batch_size = batch_size, shuffle = True)
@@ -257,6 +283,10 @@ def get_training_and_evaluation_random_and_block_mask_and_image_datasets_per_mas
     train_image_and_mask_number = train_masks.shape[0]
     eval_image_and_mask_number = eval_masks.shape[0]
 
+    diff = .6451612900000008
+    minX = minY = -10-2*diff
+    maxX = maxY = 10+2*diff
+    n = 36
     train_images = generate_data_on_the_fly(minX, maxX, minY, maxY, n,
                                                               variance, lengthscale,
                                                               train_image_and_mask_number,
@@ -265,6 +295,8 @@ def get_training_and_evaluation_random_and_block_mask_and_image_datasets_per_mas
                                                               variance, lengthscale,
                                                               eval_image_and_mask_number,
                                                               seed_values[1])
+    train_images = train_images[2:34,:,:,:]
+    eval_images = eval_images[2:34,:,:,:]
     train_dataset = CustomSpatialImageandMaskDataset(train_images, train_masks)
     eval_dataset = CustomSpatialImageandMaskDataset(eval_images, eval_masks)
     train_dataloader = DataLoader(train_dataset, batch_size = batch_size, shuffle = True)
