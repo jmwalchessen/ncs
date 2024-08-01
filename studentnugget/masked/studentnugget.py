@@ -38,6 +38,47 @@ def marginal_density(minX, maxX, minY, maxY, n, variance, lengthscale, df, numbe
     sns.kdeplot(data = pdd, ax = ax, palette=['blue'])
     plt.show()
 
+def marginal_density_without_spatial_variation(n, df, number_of_replicates, index):
+
+    tsample, tmatrix = generate_student_nugget_without_spatial_variation(n, df, number_of_replicates, 43025)
+    marginal_density = tsample[:,index]
+    fig, ax = plt.subplots(1)
+    pdd = pd.DataFrame(marginal_density, columns = None)
+    sns.kdeplot(data = pdd, ax = ax, palette=['blue'])
+    plt.show()
+
+def bivariate_density_without_spatial_variatoin(n, df, number_of_replicates, index1,
+                                                index2):
+    
+    tsample, tmatrix = generate_student_nugget_without_spatial_variation(n, df, number_of_replicates, 43025)
+    bivariate_density = tsample[:,np.array([index1,index2])]
+    fig, ax = plt.subplots(1)
+    sns.kdeplot(x = bivariate_density[:,0], y = bivariate_density[:,1], ax = ax)
+    plt.show()
+
+
+def generate_student_nugget_without_spatial_variation(n, df, number_of_replicates, seed_value):
+
+    scale = np.identity(n**2)
+    studentgenerator = scipy.stats.multivariate_t(loc = np.zeros(n**2), shape = scale, df = df, seed = seed_value)
+    studentsamples = (studentgenerator.rvs(size = number_of_replicates))
+    student_matrix = np.zeros((number_of_replicates,1,n,n))
+    for i in range(0, number_of_replicates):
+        student_matrix[i,:,:,:] = studentsamples[i,:].reshape((1,n,n))
+    return studentsamples, student_matrix
+
+def generate_student_nugget(minX, maxX, minY, maxY, n, variance, lengthscale, df, number_of_replicates,
+                            seed_value):
+
+    kernel = construct_exp_kernel(minX, maxX, minY, maxY, n, variance, lengthscale)
+    studentgenerator = scipy.stats.multivariate_t(loc = np.zeros(n**2), shape = kernel, df = df, seed = seed_value)
+    #shape = (number_of_replicates, n**2)
+    studentsamples = (studentgenerator.rvs(size = number_of_replicates))
+    student_matrix = np.zeros((number_of_replicates,1,n,n))
+    for i in range(0, number_of_replicates):
+        student_matrix[i,:,:,:] = studentsamples[i,:].reshape((1,n,n))
+    return studentsamples, student_matrix
+
 
 
 def visualize(image):
@@ -52,11 +93,17 @@ minY = -10
 maxY = 10
 n = 32
 variance = .4
-lengthscale = 1.6
-exp_kernel = construct_exp_kernel(minX, maxX, minY, maxY, n, variance, lengthscale)
-a = scipy.stats.multivariate_t(loc = np.zeros(n**2), shape = exp_kernel, df = 1, seed = 23423)
-b = (a.rvs(size = 1))
-
-number_of_replicates = 1000
-index = 234
-marginal_density(minX, maxX, minY, maxY, n, variance, lengthscale, df, number_of_replicates, index)
+lengthscale = 10
+df = 500
+number_of_replicates = 10000
+seed_value = 29389
+tsample, tmatrix = generate_student_nugget(minX, maxX, minY, maxY, n, variance, lengthscale,
+                                           df, number_of_replicates, seed_value)
+visualize(tmatrix[0,:,:,:].reshape((n,n)))
+tsample, tmatrix = generate_student_nugget_without_spatial_variation(n,
+                                           df, number_of_replicates, seed_value)
+#marginal_density_without_spatial_variation(n, df, number_of_replicates, 500)
+index1 = 512
+index2 = 513
+#bivariate_density_without_spatial_variatoin(n, df, number_of_replicates, index1,
+                                                #index2)
