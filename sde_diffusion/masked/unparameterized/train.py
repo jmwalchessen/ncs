@@ -287,28 +287,29 @@ ve_ncsnpp_configuration = ve_ncsnpp_config.get_config()
 vpconfig = vp_ncsnpp_configuration
 veconfig = ve_ncsnpp_configuration
 
-"""
+
 epochs_per_drawn_data = 20
 data_draws = 10
 number_of_replicates = 10000
 evaluation_number_of_replicates = 1000
-batch_size = 4
+batch_size = 512
 eval_batch_size = 1000
 seed_value = 43234
 variance = .4
 lengthscale = 1.6
-score_model_path = "trained_score_models/vpsde/model1_beta_min_max_01_20_center_mask.pth"
-loss_path = "trained_score_models/vpsde/model1_beta_min_max_01_20_center_mask_loss.png"
-
-mask = torch.zeros((1,1,32,32))
+score_model_path = "trained_score_models/vpsde/model11_fixed_mask50_beta_min_max_01_20_mask.pth"
+loss_path = "trained_score_models/vpsde/model11_fixed_mask50_beta_min_max_01_20_mask_loss.png"
+p = .5
 n = 32
-mask[:, int(n/4):int(n/4*3), int(n/4):int(n/4*3)] = 1
+mask = torch.bernoulli(p*torch.ones((1,1,n,n)))
+np.save("trained_score_models/vpsde/model11_mask.npy", mask)
 mask.to("cuda:0")
 
 
 train_per_mask(vpconfig, data_draws, epochs_per_drawn_data, number_of_replicates,
       evaluation_number_of_replicates, batch_size, eval_batch_size, seed_value,
           variance, lengthscale, mask, score_model_path, loss_path)
+
 """
 
 data_draws = 20
@@ -330,5 +331,5 @@ train_per_multiple_random_masks(vpconfig, data_draws, epochs_per_data_draws,
                              number_of_random_replicates,
                              number_of_eval_random_replicates, seed_values,
                              variance, lengthscale, batch_size,
-                             eval_batch_size, score_model_path, loss_path)
+                             eval_batch_size, score_model_path, loss_path)"""
                              
