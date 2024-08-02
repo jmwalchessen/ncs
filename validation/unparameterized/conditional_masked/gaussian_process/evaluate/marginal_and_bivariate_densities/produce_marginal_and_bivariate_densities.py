@@ -119,6 +119,8 @@ def produce_true_and_generated_marginal_density(mask, minX, maxX, minY, maxY, n,
     conditional_vectors = sample_conditional_distribution(mask, minX, maxX, minY, maxY, n,
                                                      variance, lengthscale, observed_vector,
                                                      number_of_replicates)
+    print(conditional_vectors.shape)
+    print(m)
     #conditional_vectors is shape (number of replicates, m)
     marginal_density = (conditional_vectors[:,missing_index]).reshape((number_of_replicates,1))
     missing_true_index = missing_indices[missing_index]
@@ -232,8 +234,12 @@ folder_name = (data_generation_folder + "/data/gpmodel10/ref_image1/marginal_den
 m = missing_indices.shape[0]
 observed_vector = ref_image.reshape((n**2))
 observed_vector = np.delete(observed_vector, missing_indices)
+cond_sample = (conditional_samples[0,:,:]).reshape((n**2))
+observed_vector1 = np.delete(cond_sample, missing_indices)
+print(observed_vector)
+print(observed_vector1)
 
-
+"""
 for i in range(0,m):
     missing_index = i
     true_missing_index = missing_indices[missing_index]
@@ -243,7 +249,7 @@ for i in range(0,m):
     produce_true_and_generated_marginal_density((1-mask), minX, maxX, minY, maxY, n, variance, lengthscale,
                                                 number_of_replicates, missing_index,
                                                 missing_indices, folder_name, m, observed_vector,
-                                                conditional_samples, ref_image, figname)
+                                                conditional_samples, ref_image, figname)"""
 
 
 

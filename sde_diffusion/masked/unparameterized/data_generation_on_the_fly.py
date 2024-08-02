@@ -170,7 +170,7 @@ def get_training_and_evaluation_dataset_per_mask(number_of_replicates, number_of
     train_images = train_images[:,:,2:34,2:34]
     eval_images = eval_images[:,:,2:34,2:34]
 
-    train_dataset = CustomSpatialImageandSingleMaskDataset(train_images)
+    train_dataset = CustomSpatialImageandSingleMaskDataset(train_images, mask)
     train_dataloader = DataLoader(train_dataset, batch_size = batch_size, shuffle = True)
     eval_dataset = CustomSpatialImageandSingleMaskDataset(eval_images, mask)
     eval_dataloader = DataLoader(eval_dataset, batch_size = eval_batch_size, shuffle = True)
