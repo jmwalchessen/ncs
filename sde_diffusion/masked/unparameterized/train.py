@@ -86,7 +86,7 @@ def train_per_mask(config, data_draws, epochs_per_drawn_data, number_of_replicat
                     loss = train_step_fn(state, batch)
                     train_losses_per_epoch.append(loss)
                 except StopIteration:
-                    train_losses.append(float(np.mean(np.ndarray(train_losses_per_epoch))))
+                    train_losses.append(float(np.mean(np.ndarray([train_losses_per_epoch]))))
                     break
                 while True:
                     try:
