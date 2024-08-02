@@ -23,7 +23,7 @@ def visualize_loss(epochs_and_draws, train_losses, eval_losses, figname):
 
 
 def train_per_mask(config, data_draws, epochs_per_drawn_data, number_of_replicates,
-          evaluation_number_of_replicates, batch_size, eval_batch_size, seed_value,
+          evaluation_number_of_replicates, batch_size, eval_batch_size, seed_values,
           variance, lengthscale, mask, score_model_path, loss_path):
     """Runs the training pipeline.
 
@@ -71,7 +71,7 @@ def train_per_mask(config, data_draws, epochs_per_drawn_data, number_of_replicat
                                                                                          evaluation_number_of_replicates,
                                                                                          batch_size,
                                                                                          eval_batch_size,
-                                                                                         seed_value,
+                                                                                         seed_values[data_draw],
                                                                                          variance, lengthscale,
                                                                                          mask)
         
@@ -296,15 +296,15 @@ number_of_replicates = 10000
 evaluation_number_of_replicates = 1000
 batch_size = 512
 eval_batch_size = 1000
-seed_values = (43234, 9274)
-variance = .4
+seed_values = [(int(np.random.randint(0, 100000)), int(np.random.randint(0, 100000))) for i in range(0, data_draws)]
+variance = 4
 lengthscale = 7
-score_model_path = "trained_score_models/vpsde/model11_lengthscale_7_fixed_mask50_beta_min_max_01_20_mask.pth"
-loss_path = "trained_score_models/vpsde/model11_lengthscale_7_fixed_mask50_beta_min_max_01_20_mask_loss.png"
+score_model_path = "trained_score_models/vpsde/model12_variance_4_lengthscale_7_fixed_mask50_beta_min_max_01_20_mask.pth"
+loss_path = "trained_score_models/vpsde/model12_variance_4_lengthscale_7_fixed_mask50_beta_min_max_01_20_mask_loss.png"
 p = .5
 n = 32
 mask = torch.bernoulli(p*torch.ones((1,1,n,n)))
-np.save("trained_score_models/vpsde/model11_mask.npy", mask)
+np.save("trained_score_models/vpsde/model12_mask.npy", mask)
 mask.to("cuda:0")
 
 
