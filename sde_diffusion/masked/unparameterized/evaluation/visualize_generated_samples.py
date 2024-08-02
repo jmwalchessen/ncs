@@ -17,7 +17,7 @@ device = "cuda:0"
 config = ncsnpp_config.get_config()
 #if trained parallelized, need to be evaluated that way too
 score_model = (ncsnpp.NCSNpp(config)).to("cuda:0")
-score_model.load_state_dict(th.load((home_folder + "/trained_score_models/vpsde/model1_beta_min_max_01_20_center_mask_10000_per_20_epochs_1_draws.pth")))
+score_model.load_state_dict(th.load((home_folder + "/trained_score_models/vpsde/model11_lengthscale_7_fixed_mask50_beta_min_max_01_20_mask.pth.pth")))
 score_model.eval()
 
 def construct_norm_matrix(minX, maxX, minY, maxY, n):
@@ -132,20 +132,23 @@ maxX = 10
 minY = -10
 maxY = 10
 variance = .4
-lengthscale = 1.6
+lengthscale = 7
 number_of_replicates = 1
 seed_value = 2952
 unmasked_y = (th.from_numpy(generate_gaussian_process(minX, maxX, minY, maxY, n, variance,
                                                         lengthscale, number_of_replicates,
                                                         seed_value))).to(device)
 
+mask = np.load((home_folder + "/trained_score_models/vpsde/model11_mask.npy"))
+mask = (torch.from_numpy(mask)).to(device)
+
 
 for i in range(0,10):
     #p = .0025
     #mask = (th.bernoulli(p*th.ones(1,1,n,n))).to(device)
     #seed_value = int(np.random.randint(0, 100000))
-    mask = torch.ones((1,1,n,n)).to(device)
-    mask[:,:,int(n/4):int(3*n/4),int(n/4):int(3*n/4)] = 0
+    #mask = torch.ones((1,1,n,n)).to(device)
+    #mask[:,:,int(n/4):int(3*n/4),int(n/4):int(3*n/4)] = 0
     print(unmasked_y.min())
     y = ((torch.mul(mask, unmasked_y)).to(device)).float()
     num_samples = 2
@@ -153,7 +156,7 @@ for i in range(0,10):
                                                                     device, mask, y, n,
                                                                     num_samples)
 
-    figname = ("visualizations/models/model1/center_variance_.4_lengthscale_1.6_observed_and_generated_samples_" + str(i) + ".png")
+    figname = ("visualizations/models/model11/fixed50_variance_.4_lengthscale_7_observed_and_generated_samples_" + str(i) + ".png")
     visualize_observed_and_generated_samples(unmasked_y, mask, diffusion_samples[0,:,:,:],
                                             diffusion_samples[1,:,:,:], n, figname) 
                                                                               
