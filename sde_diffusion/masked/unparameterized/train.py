@@ -98,9 +98,9 @@ def train_per_mask(config, data_draws, epochs_per_drawn_data, number_of_replicat
                         eval_losses.append((sum(eval_losses_per_epoch)/len(eval_losses_per_epoch)))
                         break
 
+    torch.save(score_model.state_dict(), score_model_path)
     epochs_and_draws = [i for i in range(0, epochs_per_drawn_data*data_draws)]
     visualize_loss(epochs_and_draws, train_losses, eval_losses, loss_path)
-    torch.save(score_model.state_dict(), score_model_path)
 
 def train_per_multiple_random_masks(config, data_draws, epochs_per_drawn_data,
                              random_missingness_percentages,
@@ -309,7 +309,7 @@ mask.to("cuda:0")
 
 
 train_per_mask(vpconfig, data_draws, epochs_per_drawn_data, number_of_replicates,
-      evaluation_number_of_replicates, batch_size, eval_batch_size, seed_values,
+          evaluation_number_of_replicates, batch_size, eval_batch_size, seed_values,
           variance, lengthscale, mask, score_model_path, loss_path)
 
 """
