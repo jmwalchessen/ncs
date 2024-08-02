@@ -121,7 +121,7 @@ ref_img = generate_true_conditional_samples.generate_gaussian_process(minX, maxX
 ref_img = th.from_numpy(ref_img[1].reshape((1,n,n))).to(device)
 p = .5
 mask = (th.bernoulli(p*th.ones(1,1,n,n))).to(device)
-mask = np.load((sde_folder + "/trained_score_models/vpsde/trained_score_models/vpsde/model11_mask.npy"))
+mask = np.load((sde_folder + "/trained_score_models/vpsde/model11_mask.npy"))
 mask = (th.from_numpy(mask)).to(device)
 
 for i in range(0, 4):
