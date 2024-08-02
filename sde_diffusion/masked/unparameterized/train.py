@@ -307,7 +307,7 @@ mask.to("cuda:0")
 
 
 train_per_mask(vpconfig, data_draws, epochs_per_drawn_data, number_of_replicates,
-      evaluation_number_of_replicates, batch_size, eval_batch_size, seed_value,
+      evaluation_number_of_replicates, batch_size, eval_batch_size, seed_values,
           variance, lengthscale, mask, score_model_path, loss_path)
 
 """
