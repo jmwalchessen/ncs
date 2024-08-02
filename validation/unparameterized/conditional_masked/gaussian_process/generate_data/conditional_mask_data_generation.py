@@ -27,7 +27,7 @@ config = ncsnpp_config.get_config()
 config.model.num_scales = 1000
 config.model.beta_max = 20
 
-score_model = th.nn.DataParallel((ncsnpp.NCSNpp(config)).to("cuda:0"))
+score_model = (ncsnpp.NCSNpp(config)).to("cuda:0")
 score_model.load_state_dict(th.load((sde_folder + "/trained_score_models/vpsde/model11_lengthscale_7_fixed_mask50_beta_min_max_01_20_mask.pth")))
 score_model.eval()
 
