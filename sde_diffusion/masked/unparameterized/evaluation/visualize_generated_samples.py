@@ -17,7 +17,7 @@ device = "cuda:0"
 config = ncsnpp_config.get_config()
 #if trained parallelized, need to be evaluated that way too
 score_model = (ncsnpp.NCSNpp(config)).to("cuda:0")
-score_model.load_state_dict(th.load((home_folder + "/trained_score_models/vpsde/model11_lengthscale_7_fixed_mask50_beta_min_max_01_20_mask.pth.pth")))
+score_model.load_state_dict(th.load((home_folder + "/trained_score_models/vpsde/model11_lengthscale_7_fixed_mask50_beta_min_max_01_20_mask.pth")))
 score_model.eval()
 
 def construct_norm_matrix(minX, maxX, minY, maxY, n):
