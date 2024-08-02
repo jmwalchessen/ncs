@@ -80,20 +80,22 @@ def train_per_mask(config, data_draws, epochs_per_drawn_data, number_of_replicat
             train_iterator = iter(train_dataloader)
             eval_iterator = iter(eval_dataloader)
             train_losses_per_epoch = []
+            eval_losses_per_epoch = []
             while True:
                 try:
                     batch = get_next_batch(train_iterator, config)
                     loss = train_step_fn(state, batch)
                     train_losses_per_epoch.append(loss)
                 except StopIteration:
-                    train_losses.append(float(np.mean(np.ndarray([train_losses_per_epoch]))))
+                    train_losses.append((sum(train_losses_per_epoch)/len(train_losses_per_epoch)))
                     break
                 while True:
                     try:
                         eval_batch = get_next_batch(eval_iterator, config)
                         eval_loss = eval_step_fn(state, eval_batch)
-                        eval_losses.append(eval_loss)
+                        eval_losses_per_epoch.append(float(eval_loss))
                     except StopIteration:
+                        eval_losses.append((sum(eval_losses_per_epoch)/len(eval_losses_per_epoch)))
                         break
 
     epochs_and_draws = [i for i in range(0, epochs_per_drawn_data*data_draws)]
@@ -172,7 +174,7 @@ def train_per_multiple_random_masks(config, data_draws, epochs_per_drawn_data,
                 try:
                     batch = get_next_batch(eval_iterator, config)
                     eval_loss = eval_step_fn(state, batch)
-                    print(loss)
+                    print(eval_loss)
                     eval_losses_per_epoch.append(float(eval_loss))
                 except StopIteration:
                     eval_losses.append((sum(eval_losses_per_epoch)/len(eval_losses_per_epoch)))
