@@ -290,17 +290,17 @@ vpconfig = vp_ncsnpp_configuration
 veconfig = ve_ncsnpp_configuration
 
 
-epochs_per_drawn_data = 20
-data_draws = 10
+epochs_per_drawn_data = 1
+data_draws = 1
 number_of_replicates = 10000
 evaluation_number_of_replicates = 1000
 batch_size = 512
 eval_batch_size = 1000
 seed_values = (43234, 9274)
 variance = .4
-lengthscale = 1.6
-score_model_path = "trained_score_models/vpsde/model11_fixed_mask50_beta_min_max_01_20_mask.pth"
-loss_path = "trained_score_models/vpsde/model11_fixed_mask50_beta_min_max_01_20_mask_loss.png"
+lengthscale = 4
+score_model_path = "trained_score_models/vpsde/model11_lengthscale_4_fixed_mask50_beta_min_max_01_20_mask.pth"
+loss_path = "trained_score_models/vpsde/model11_lengthscale_4_fixed_mask50_beta_min_max_01_20_mask_loss.png"
 p = .5
 n = 32
 mask = torch.bernoulli(p*torch.ones((1,1,n,n)))
