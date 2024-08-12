@@ -290,8 +290,8 @@ vpconfig = vp_ncsnpp_configuration
 veconfig = ve_ncsnpp_configuration
 
 
-epochs_per_drawn_data = 2
-data_draws = 2
+epochs_per_drawn_data = 10
+data_draws = 10
 number_of_replicates = 10000
 evaluation_number_of_replicates = 1000
 batch_size = 512

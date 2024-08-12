@@ -321,7 +321,6 @@ class NCSNpp(nn.Module):
       # Residual blocks for this resolution
       for i_block in range(self.num_res_blocks):
         h = modules[m_idx](hs[-1], temb)
-        print(h.shape)
         m_idx += 1
         if h.shape[-1] in self.attn_resolutions:
           h = modules[m_idx](h)
@@ -431,11 +430,6 @@ class NCSNpp(nn.Module):
 
     return h
 
-ncsnppconfig = get_config()
-ncsnp = NCSNpp(ncsnppconfig)
-x = torch.ones((1,1,32,32))
-time_cond = torch.tensor([1])
-print(ncsnp.forward(x,time_cond))
 
 
 
