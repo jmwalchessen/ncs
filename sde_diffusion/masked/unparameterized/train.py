@@ -187,6 +187,94 @@ def train_per_multiple_random_masks(config, data_draws, epochs_per_drawn_data,
     visualize_loss(epochs_and_draws, train_losses, eval_losses, loss_path)
 
 
+def train_per_multiple_random_masks_per_image(config, data_draws, epochs_per_drawn_data,
+                             random_missingness_percentages,
+                             number_of_random_replicates,
+                             number_of_eval_random_replicates,
+                             number_of_masks_per_image,
+                             number_of_eval_masks_per_image, seed_values,
+                             variance, lengthscale, batch_size,
+                             eval_batch_size, score_model_path, loss_path):
+    
+    # Initialize model.
+    #score_model = mutils.create_model(config)
+    score_model = nn.DataParallel((NCSNpp(config)).to(config.device))
+    ema = ExponentialMovingAverage(score_model.parameters(), decay=config.model.ema_rate)
+    optimizer = losses.get_optimizer(config, score_model.parameters())
+    state = dict(optimizer=optimizer, model=score_model, ema=ema, step=0)
+    initial_step = int(state['step'])
+    eval_losses = []
+    train_losses = []
+    
+    # Setup SDEs
+    if config.training.sde.lower() == 'vpsde':
+        sde = sde_lib.VPSDE(beta_min=config.model.beta_min, beta_max=config.model.beta_max,
+                            N=config.model.num_scales)
+    #vesde 
+    else:
+        sde = sde_lib.VESDE(sigma_min=0.01, sigma_max=50, N = config.model.num_scales)
+        sampling_eps = 1e-3
+
+    # Build one-step training and evaluation functions
+    optimize_fn = losses.optimization_manager(config)
+    continuous = config.training.continuous
+    reduce_mean = config.training.reduce_mean
+    likelihood_weighting = config.training.likelihood_weighting
+    train_step_fn = losses.get_step_fn(sde, train=True, optimize_fn=optimize_fn,
+                                        reduce_mean=reduce_mean, continuous=continuous,
+                                        likelihood_weighting=likelihood_weighting,
+                                        masked = True)
+    eval_step_fn = losses.get_step_fn(sde, train=False, optimize_fn=optimize_fn,
+                                    reduce_mean=reduce_mean, continuous=continuous,
+                                    likelihood_weighting=likelihood_weighting,
+                                    masked = True)
+    
+    num_train_steps = config.training.n_iters
+    for data_draw in range(0, data_draws):
+        print(data_draw)
+
+        train_dataloader, eval_dataloader =get_training_and_evaluation_random_multiple_masks_per_image_and_image_datasets(number_of_random_replicates, 
+                                                                 random_missingness_percentages, 
+                                                                 number_of_eval_random_replicates,
+                                                                 number_of_masks_per_image,
+                                                                 number_of_eval_masks_per_image,
+                                                                 batch_size, eval_batch_size, variance,
+                                                                 lengthscale, seed_values[data_draw])        
+        
+        
+        for epoch in range(0, epochs_per_drawn_data):
+            print(epoch)
+            #want to iterate over the same masks and images for each epoch (taking epectation with respect to p(X,M)=p(X)p(M))
+            train_losses_per_epoch = []
+            eval_losses_per_epoch = []
+            train_iterator = iter(train_dataloader)
+            eval_iterator = iter(eval_dataloader)
+            #train for this epoch, then do eval
+            while True:
+                try:
+                    batch = get_next_batch(train_iterator, config)
+                    loss = train_step_fn(state, batch)
+                    train_losses_per_epoch.append(float(loss))
+                except StopIteration:
+                    train_losses.append((sum(train_losses_per_epoch)/len(train_losses_per_epoch)))
+                    break
+
+            while True:
+                try:
+                    batch = get_next_batch(eval_iterator, config)
+                    eval_loss = eval_step_fn(state, batch)
+                    print(eval_loss)
+                    eval_losses_per_epoch.append(float(eval_loss))
+                except StopIteration:
+                    eval_losses.append((sum(eval_losses_per_epoch)/len(eval_losses_per_epoch)))
+                    break
+
+
+
+    torch.save(score_model.state_dict(), score_model_path)
+    epochs_and_draws = [i for i in range(0, len(train_losses))]
+    visualize_loss(epochs_and_draws, train_losses, eval_losses, loss_path)
+
 def train_per_multiple_random_and_block_masks(config, data_draws, epochs_per_drawn_data,
                                               random_missingness_percentages,
                                               weighted_lower_half_percentages,
@@ -284,12 +372,13 @@ def train_per_multiple_random_and_block_masks(config, data_draws, epochs_per_dra
 
 
 
+
 vp_ncsnpp_configuration = vp_ncsnpp_config.get_config()
 ve_ncsnpp_configuration = ve_ncsnpp_config.get_config()
 vpconfig = vp_ncsnpp_configuration
 veconfig = ve_ncsnpp_configuration
 
-
+"""
 epochs_per_drawn_data = 10
 data_draws = 10
 number_of_replicates = 10000
@@ -314,24 +403,27 @@ train_per_mask(vpconfig, data_draws, epochs_per_drawn_data, number_of_replicates
 
 """
 
-data_draws = 20
-epochs_per_data_draws = 20
-number_of_random_replicates = 10000
+data_draws = 10
+epochs_per_data_draws = 10
+number_of_random_replicates = 1000
 number_of_eval_random_replicates = 256
+number_of_masks_per_image = 100
+number_of_eval_masks_per_image = 10
 #smaller p means less ones which means more observed values
 random_missingness_percentages = [.5]
-batch_size = 256
+batch_size = 1024
 eval_batch_size = 256
 seed_values = [(int(np.random.randint(0, 100000)), int(np.random.randint(0, 100000))) for i in range(0, data_draws)]
-score_model_path = "trained_score_models/vpsde/model10_beta_min_max_01_25_random50_expanded_masks.pth"
-loss_path = "trained_score_models/vpsde/model10_beta_min_max_01_25_random50_expanded_masks_loss.png"
+score_model_path = "trained_score_models/vpsde/model14_small_multiple_masks_per_image_beta_min_max_01_20_random50_masks.pth"
+loss_path = "trained_score_models/vpsde/model14_small_multiple_masks_per_image_beta_min_max_01_20_random50_masks_loss.png"
 variance = .4
 lengthscale = 1.6
 torch.cuda.empty_cache()
-train_per_multiple_random_masks(vpconfig, data_draws, epochs_per_data_draws,
+train_per_multiple_random_masks_per_image(vpconfig, data_draws, epochs_per_data_draws,
                              random_missingness_percentages,
                              number_of_random_replicates,
-                             number_of_eval_random_replicates, seed_values,
+                             number_of_eval_random_replicates,
+                             number_of_masks_per_image,
+                             number_of_eval_masks_per_image, seed_values,
                              variance, lengthscale, batch_size,
-                             eval_batch_size, score_model_path, loss_path)"""
-                             
+                             eval_batch_size, score_model_path, loss_path)
