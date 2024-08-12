@@ -354,7 +354,6 @@ class ResnetBlockBigGANpp(nn.Module):
       else:
         h = naive_downsample_2d(h, factor=2)
         x = naive_downsample_2d(x, factor=2)
-
     h = self.Conv_0(h)
     # Add bias to each feature map conditioned on the time embedding
     if temb is not None:

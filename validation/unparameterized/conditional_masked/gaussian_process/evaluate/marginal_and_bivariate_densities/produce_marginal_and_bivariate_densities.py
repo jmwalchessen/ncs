@@ -212,7 +212,7 @@ def produce_true_and_generated_bivariate_density(mask, minX, maxX, minY, maxY, n
 
 n = 32
 number_of_replicates = 1000 
-conditional_samples = np.load((data_generation_folder + "/data/gpmodel10/ref_image1/diffusion/model10_beta_min_max_01_25_random50_1000.npy"))
+conditional_samples = np.load((data_generation_folder + "/data/gpmodel11/ref_image1/diffusion/model11_beta_min_max_01_20_1000.npy"))
 conditional_samples = conditional_samples.reshape((number_of_replicates,n,n))
 #mask = np.load((data_generation_folder + "/data/ref_image1/mask.npy"), allow_pickle = True)
 n = 32
@@ -220,17 +220,17 @@ n = 32
 #mask[:, int(n/4):int(n/4*3), int(n/4):int(n/4*3)] = 1
 device = "cuda:0"
 p = .5
-mask = np.load((data_generation_folder + "/data/gpmodel10/ref_image1/mask.npy"))
-ref_image = (np.load((data_generation_folder + "/data/gpmodel10/ref_image1/ref_image1.npy")))
+mask = np.load((data_generation_folder + "/data/gpmodel11/ref_image1/mask.npy"))
+ref_image = (np.load((data_generation_folder + "/data/gpmodel11/ref_image1/ref_image1.npy")))
 minX = -10
 maxX = 10
 minY = -10
 maxY = 10
 variance = .4
-lengthscale = 1.6                                                                                        
+lengthscale = 7                                                                                       
 missing_indices = np.squeeze(np.argwhere((1-mask).reshape((n**2,))))
 mask_type = "random50"
-folder_name = (data_generation_folder + "/data/gpmodel10/ref_image1/marginal_density")
+folder_name = (data_generation_folder + "/data/gpmodel11/ref_image1/marginal_density")
 m = missing_indices.shape[0]
 observed_vector = ref_image.reshape((n**2))
 observed_vector = np.delete(observed_vector, missing_indices)

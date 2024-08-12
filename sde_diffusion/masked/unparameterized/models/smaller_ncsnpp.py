@@ -28,6 +28,8 @@ sde_folder = os.path.dirname(os.path.dirname(__file__))
 sys.path.append((sde_folder + "/configs/vp"))
 from smaller_ncsnpp_config import *
 
+configncsnpp = get_config()
+
 default_initializer = default_init
 
 #1/3 of the number of parameters of the larger original model, only 2 resnet per resolution and
@@ -76,6 +78,7 @@ class NCSNpp(nn.Module):
     self.skip_rescale = skip_rescale = config.model.skip_rescale
     #use biggan i.e. ResnetBlockBigGANpp from layerspp I think
     self.resblock_type = resblock_type = config.model.resblock_type.lower()
+    print(self.resblock_type)
     #none (not sure what this is for)
     self.progressive = progressive = config.model.progressive.lower()
     #residual
@@ -271,6 +274,7 @@ class NCSNpp(nn.Module):
   def forward(self, x, time_cond):
     # timestep/noise_level embedding; only for continuous training
     modules = self.all_modules
+    print(modules)
     m_idx = 0
     if self.embedding_type == 'fourier':
       # Gaussian Fourier features embeddings.
@@ -306,8 +310,13 @@ class NCSNpp(nn.Module):
 
     hs = [modules[m_idx](x)]
     m_idx += 1
+    print("num res")
+    print(self.num_resolutions)
+    print(self.num_res_blocks)
+    #num of resolutions = 3
     for i_level in range(self.num_resolutions):
       # Residual blocks for this resolution
+      #num of res blocks = 1
       for i_block in range(self.num_res_blocks):
         h = modules[m_idx](hs[-1], temb)
         m_idx += 1
@@ -321,6 +330,8 @@ class NCSNpp(nn.Module):
           h = modules[m_idx](hs[-1])
           m_idx += 1
         else:
+          print(m_idx)
+          print(type(modules[m_idx]))
           h = modules[m_idx](hs[-1], temb)
           m_idx += 1
 
@@ -420,3 +431,8 @@ class NCSNpp(nn.Module):
       h = h / used_sigmas
 
     return h
+  
+ncsn = NCSNpp(configncsnpp)
+x = torch.ones((1,1,32,32))
+t = torch.tensor([1])
+ncsn.forward(x = x, time_cond = t)
