@@ -154,7 +154,6 @@ def train_per_multiple_random_masks(config, data_draws, epochs_per_drawn_data,
         
         
         for epoch in range(0, epochs_per_drawn_data):
-            print(epoch)
             #want to iterate over the same masks and images for each epoch (taking epectation with respect to p(X,M)=p(X)p(M))
             train_losses_per_epoch = []
             eval_losses_per_epoch = []
@@ -192,7 +191,7 @@ vp_ncsnpp_configuration = vp_ncsnpp_config.get_config()
 vpconfig = vp_ncsnpp_configuration
 
 
-data_draws = 10
+data_draws = 40
 epochs_per_data_draws = 20
 number_of_random_replicates = 100
 number_of_evaluation_random_replicates = 10
