@@ -157,12 +157,12 @@ class CustomMaskDataset(Dataset):
 
 
 def get_training_and_evaluation_random_mask_and_image_datasets(number_of_random_replicates, 
-                                                                 random_missingness_percentages, 
-                                                                 number_of_evaluation_random_replicates,
-                                                                 number_of_masks_per_image,
-                                                                 number_of_evaluation_masks_per_image,
-                                                                 batch_size, eval_batch_size, variance,
-                                                                 lengthscale, seed_values):
+                                                               random_missingness_percentages, 
+                                                               number_of_evaluation_random_replicates,
+                                                               number_of_masks_per_image,
+                                                               number_of_evaluation_masks_per_image,
+                                                               batch_size, eval_batch_size, variance,
+                                                               lengthscale, seed_values):
     
     minX = -10
     maxX = 10
@@ -205,10 +205,9 @@ def get_training_and_evaluation_random_mask_and_image_datasets(number_of_random_
 
 def get_next_batch(image_and_mask_iterator, config):
 
-    images, masks = (next(image_and_mask_iterator))
-    images = images.to(config.device).float()
-    masks = masks.to(config.device).float()
-    return images, masks
+    images_and_masks = (next(image_and_mask_iterator))
+    images_and_masks = images_and_masks.to(config.device).float()
+    return images_and_masks
 
 def get_next_mask_batch(mask_iterator, config):
 
