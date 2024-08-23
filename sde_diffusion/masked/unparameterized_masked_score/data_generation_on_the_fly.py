@@ -200,8 +200,8 @@ def get_training_and_evaluation_random_mask_and_image_datasets(number_of_random_
     eval_dataloader = DataLoader(eval_dataset, batch_size = eval_batch_size, shuffle = True)
     return train_dataloader, eval_dataloader
 
-def get_next_batch(image_and_mask_iterator):
+def get_next_batch(image_and_mask_iterator, config):
 
     images_and_masks = (next(image_and_mask_iterator))
-    images_and_masks = images_and_masks.to("cuda:0").float()
+    images_and_masks = images_and_masks.to(config.device).float()
     return images_and_masks
