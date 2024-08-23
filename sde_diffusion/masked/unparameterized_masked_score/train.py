@@ -194,15 +194,15 @@ vpconfig = vp_ncsnpp_configuration
 
 data_draws = 10
 epochs_per_data_draws = 20
-number_of_random_replicates = 500
-number_of_evaluation_random_replicates = 500
+number_of_random_replicates = 100
+number_of_evaluation_random_replicates = 10
 number_of_masks_per_image = 100
 number_of_evaluation_masks_per_image = 10
 number_of_eval_random_replicates = 256
 #smaller p means less ones which means more observed values
 random_missingness_percentages = [.5]
-batch_size = 256
-eval_batch_size = 256
+batch_size = 32
+eval_batch_size = 32
 variance = .4
 lengthscale = 1.6
 seed_values = [(int(np.random.randint(0, 100000)), int(np.random.randint(0, 100000))) for i in range(0, data_draws)]
@@ -212,8 +212,9 @@ torch.cuda.empty_cache()
 train_per_multiple_random_masks(vpconfig, data_draws, epochs_per_data_draws,
                              random_missingness_percentages,
                              number_of_random_replicates,
-                             number_of_eval_random_replicates, seed_values,
-                             variance, lengthscale, batch_size,
+                             number_of_evaluation_random_replicates,
+                             number_of_masks_per_image, number_of_evaluation_masks_per_image,
+                             seed_values, variance, lengthscale, batch_size,
                              eval_batch_size, score_model_path, loss_path)
 
 """
