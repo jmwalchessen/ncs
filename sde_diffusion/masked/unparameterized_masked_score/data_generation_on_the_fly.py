@@ -139,6 +139,8 @@ class CustomSpatialImageMaskDataset(Dataset):
     def __getitem__(self, idx):
         image = self.images[idx,:,:,:]
         mask = self.masks[idx,:,:,:]
+        print(image.shape)
+        print(mask.shape)
         image_and_mask = torch.cat((image, mask), 0)
         return image_and_mask
     
@@ -194,7 +196,8 @@ def get_training_and_evaluation_random_mask_and_image_datasets(number_of_random_
     eval_images = np.repeat(eval_images, eval_mask_number, axis = 0)
     train_masks = np.tile(train_masks, (number_of_random_replicates, 1, 1, 1))
     eval_masks = np.tile(eval_masks, (number_of_evaluation_random_replicates, 1, 1, 1))
-
+    print(train_images.shape)
+    print(eval_images.shape)
     train_dataset = CustomSpatialImageMaskDataset(train_images, train_masks)
     eval_dataset = CustomSpatialImageMaskDataset(eval_images, eval_masks)
     train_dataloader = DataLoader(train_dataset, batch_size = batch_size, shuffle = True)
