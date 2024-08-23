@@ -110,7 +110,7 @@ def get_model_fn(model, train=False):
     A model function.
   """
 
-  def model_fn(x, parameter, labels):
+  def model_fn(x, labels):
     """Compute the output of the score-based model.
 
     Args:
@@ -123,10 +123,10 @@ def get_model_fn(model, train=False):
     """
     if not train:
       model.eval()
-      return model(x, parameter, labels)
+      return model(x, labels)
     else:
       model.train()
-      return model(x, parameter,labels)
+      return model(x, labels)
 
   return model_fn
 
@@ -144,8 +144,9 @@ def get_score_fn(sde, model, train=False, continuous=False):
     A score function.
   """
   model_fn = get_model_fn(model, train=train)
+
   if isinstance(sde, sde_lib.VPSDE) or isinstance(sde, sde_lib.subVPSDE):
-    def score_fn(x, parameter, t):
+    def score_fn(x, t):
       # Scale neural network output by standard deviation and flip sign
       if continuous or isinstance(sde, sde_lib.subVPSDE):
         # For VP-trained models, t=0 corresponds to the lowest noise level
@@ -153,19 +154,19 @@ def get_score_fn(sde, model, train=False, continuous=False):
         # continuously-trained models.
         #Assuming size is 1000
         labels = t * 999
-        score = model_fn(x, parameter, labels)
+        score = model_fn(x, labels)
         std = sde.marginal_prob(torch.zeros_like(x), t)[1]
       else:
         # For VP-trained models, t=0 corresponds to the lowest noise level
         labels = t * (sde.N - 1)
-        score = model_fn(x, parameter, labels)
+        score = model_fn(x, labels)
         std = sde.sqrt_1m_alphas_cumprod.to(labels.device)[labels.long()]
 
       score = -score / std[:, None, None, None]
       return score
 
   elif isinstance(sde, sde_lib.VESDE):
-    def score_fn(x, parameter, t):
+    def score_fn(x, t):
       if continuous:
         labels = sde.marginal_prob(torch.zeros_like(x), t)[1]
       else:
@@ -174,7 +175,7 @@ def get_score_fn(sde, model, train=False, continuous=False):
         labels *= sde.N - 1
         labels = torch.round(labels).long()
 
-      score = model_fn(x, parameter, labels)
+      score = model_fn(x, labels)
       return score
 
   else:

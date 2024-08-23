@@ -25,6 +25,11 @@ import torch.nn as nn
 import functools
 import torch
 import numpy as np
+sde_folder = os.path.dirname(os.path.dirname(__file__))
+sys.path.append((sde_folder + "/configs/vp"))
+from ncsnpp_config import *
+
+
 
 ResnetBlockDDPM = ResnetBlockDDPMpp
 ResnetBlockBigGAN = ResnetBlockBigGANpp
@@ -43,8 +48,6 @@ class NCSNpp(nn.Module):
   def __init__(self, config):
     super().__init__()
     self.config = config
-    #mask and parameter dim are both set in configs folder
-    self.mask_dim = config.model.mask_dim
     #get activation function which is SiLU in this case i.e. swish
     self.act = act = get_act(config)
     #I'm not sure if sigmas are necessary (I think only for SMLD models and VESDEs?)
@@ -172,8 +175,7 @@ class NCSNpp(nn.Module):
                                       fir_kernel=fir_kernel,
                                       init_scale=init_scale,
                                       skip_rescale=skip_rescale,
-                                      temb_dim=nf * 4,
-                                      mask_dim = self.mask_dim)
+                                      temb_dim=nf * 4)
 
     else:
       raise ValueError(f'resblock type {resblock_type} unrecognized.')
@@ -277,7 +279,7 @@ class NCSNpp(nn.Module):
       modules.append(conv3x3(in_ch, channels, init_scale=init_scale))
     self.all_modules = nn.ModuleList(modules)
 
-  def forward(self, x, mask, time_cond):
+  def forward(self, x, time_cond):
     # timestep/noise_level embedding; only for continuous training
     modules = self.all_modules
     m_idx = 0
@@ -363,7 +365,7 @@ class NCSNpp(nn.Module):
     # Upsampling block
     for i_level in reversed(range(self.num_resolutions)):
       for i_block in range(self.num_res_blocks + 1):
-        h = modules[m_idx](torch.cat([h, hs.pop()], dim=1), mask, temb)
+        h = modules[m_idx](torch.cat([h, hs.pop()], dim=1), temb)
         m_idx += 1
 
       if h.shape[-1] in self.attn_resolutions:
@@ -408,7 +410,7 @@ class NCSNpp(nn.Module):
           h = modules[m_idx](h)
           m_idx += 1
         else:
-          h = modules[m_idx](h, mask, temb)
+          h = modules[m_idx](h, temb)
           m_idx += 1
 
     assert not hs
@@ -429,3 +431,8 @@ class NCSNpp(nn.Module):
     return h
 
 
+
+
+
+
+  

@@ -65,8 +65,4 @@ def get_config():
   model.embedding_type = 'positional'
   model.conv_size = 3
 
-  #my addition
-  model.mask_dim = (1,1,32,32)
-  model.parameter_dim = 2
-
   return config
