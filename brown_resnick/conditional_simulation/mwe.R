@@ -43,5 +43,5 @@ df$zsim <- rep(0, nrow(df))
 df$zsim[idx_pred_locs] <- condsim
 df$zsim[-idx_pred_locs] <- df[-idx_pred_locs, "z"]
 #dim of condsim is number of missing locations
-results <- cbind(df$z,df$zsim)
+results <- cbind(df$z, df$zsim)
 np$save("data/mwe/conditional_simulations1.npy", results)
