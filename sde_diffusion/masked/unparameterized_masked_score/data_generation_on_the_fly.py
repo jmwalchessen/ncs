@@ -139,9 +139,7 @@ class CustomSpatialImageMaskDataset(Dataset):
     def __getitem__(self, idx):
         image = self.images[idx,:,:,:]
         mask = self.masks[idx,:,:,:]
-        print(image.shape)
-        print(mask.shape)
-        image_and_mask = torch.cat((image, mask), 0)
+        image_and_mask = np.concatenate([image, mask], axis = 0)
         return image_and_mask
     
 class CustomMaskDataset(Dataset):
@@ -196,47 +194,14 @@ def get_training_and_evaluation_random_mask_and_image_datasets(number_of_random_
     eval_images = np.repeat(eval_images, eval_mask_number, axis = 0)
     train_masks = np.tile(train_masks, (number_of_random_replicates, 1, 1, 1))
     eval_masks = np.tile(eval_masks, (number_of_evaluation_random_replicates, 1, 1, 1))
-    print(train_images.shape)
-    print(eval_images.shape)
     train_dataset = CustomSpatialImageMaskDataset(train_images, train_masks)
     eval_dataset = CustomSpatialImageMaskDataset(eval_images, eval_masks)
     train_dataloader = DataLoader(train_dataset, batch_size = batch_size, shuffle = True)
     eval_dataloader = DataLoader(eval_dataset, batch_size = eval_batch_size, shuffle = True)
     return train_dataloader, eval_dataloader
 
-number_of_random_replicates = 100
-random_missingness_percentages = [.5]
-number_of_evaluation_random_replicates = 100
-number_of_masks_per_image = 10
-number_of_evaluation_masks_per_image = 10
-batch_size = 32
-eval_batch_size = 32
-variance = .4
-lengthscale = 1.6
-seed_value = 23524
-
-get_training_and_evaluation_random_mask_and_image_datasets(number_of_random_replicates, 
-                                                               random_missingness_percentages, 
-                                                               number_of_evaluation_random_replicates,
-                                                               number_of_masks_per_image,
-                                                               number_of_evaluation_masks_per_image,
-                                                               batch_size, eval_batch_size, variance,
-                                                               lengthscale, seed_values)
-
-def get_next_batch(image_and_mask_iterator, config):
+def get_next_batch(image_and_mask_iterator):
 
     images_and_masks = (next(image_and_mask_iterator))
-    images_and_masks = images_and_masks.to(config.device).float()
+    images_and_masks = images_and_masks.to("cuda:0").float()
     return images_and_masks
-
-def get_next_mask_batch(mask_iterator, config):
-
-    masks = (next(mask_iterator))
-    masks = masks.to(config.device).float()
-    return masks
-
-def get_next_image_batch(image_iterator, config):
-
-    images = (next(image_iterator))
-    images = images.to(config.device).float()
-    return images
