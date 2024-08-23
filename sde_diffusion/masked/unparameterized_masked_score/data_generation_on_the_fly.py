@@ -204,7 +204,24 @@ def get_training_and_evaluation_random_mask_and_image_datasets(number_of_random_
     eval_dataloader = DataLoader(eval_dataset, batch_size = eval_batch_size, shuffle = True)
     return train_dataloader, eval_dataloader
 
+number_of_random_replicates = 100
+random_missingness_percentages = [.5]
+number_of_evaluation_random_replicates = 100
+number_of_masks_per_image = 10
+number_of_evaluation_masks_per_image = 10
+batch_size = 32
+eval_batch_size = 32
+variance = .4
+lengthscale = 1.6
+seed_value = 23524
 
+get_training_and_evaluation_random_mask_and_image_datasets(number_of_random_replicates, 
+                                                               random_missingness_percentages, 
+                                                               number_of_evaluation_random_replicates,
+                                                               number_of_masks_per_image,
+                                                               number_of_evaluation_masks_per_image,
+                                                               batch_size, eval_batch_size, variance,
+                                                               lengthscale, seed_values)
 
 def get_next_batch(image_and_mask_iterator, config):
 
