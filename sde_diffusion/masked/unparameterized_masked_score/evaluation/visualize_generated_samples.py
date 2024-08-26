@@ -71,7 +71,7 @@ def p_mean_and_variance_from_score_via_mask(vpsde, score_model, device, masked_x
         score_and_mask = score_model(masked_xt_and_mask, timestep)
     
     #first channel is score, second channel is mask
-    score = score[:,0,:,:]
+    score = score_and_mask[:,0,:,:]
     unmasked_p_mean = (1/th.sqrt(th.tensor(vpsde.alphas[t])))*(masked_xt + th.square(th.tensor(vpsde.sigmas[t]))*score)
     masked_p_mean = torch.mul((1-mask), unmasked_p_mean) + torch.mul(mask, y)
     unmasked_p_variance = (th.square(th.tensor(vpsde.sigmas[t])))*th.ones_like(masked_xt)
