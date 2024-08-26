@@ -190,17 +190,15 @@ def train_per_multiple_random_masks(config, data_draws, epochs_per_drawn_data,
 vp_ncsnpp_configuration = vp_ncsnpp_config.get_config()
 vpconfig = vp_ncsnpp_configuration
 
-
-data_draws = 40
-epochs_per_data_draws = 20
-number_of_random_replicates = 100
-number_of_evaluation_random_replicates = 10
+#see 5 million in total
+data_draws = 5
+epochs_per_data_draws = 10
+number_of_random_replicates = 10000
+number_of_evaluation_random_replicates = 32
 number_of_masks_per_image = 100
 number_of_evaluation_masks_per_image = 10
-number_of_eval_random_replicates = 32
 #smaller p means less ones which means more observed values
 random_missingness_percentages = [.5]
-batch_size = 256
 eval_batch_size = 32
 variance = .4
 lengthscale = 1.6
