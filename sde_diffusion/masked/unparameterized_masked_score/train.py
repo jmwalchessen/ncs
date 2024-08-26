@@ -190,22 +190,22 @@ def train_per_multiple_random_masks(config, data_draws, epochs_per_drawn_data,
 vp_ncsnpp_configuration = vp_ncsnpp_config.get_config()
 vpconfig = vp_ncsnpp_configuration
 
-#see 10 million in total
+#see 5 million in total
 data_draws = 5
 epochs_per_data_draws = 10
 number_of_random_replicates = 10000
 number_of_evaluation_random_replicates = 32
-number_of_masks_per_image = 20
+number_of_masks_per_image = 100
 number_of_evaluation_masks_per_image = 10
 #smaller p means less ones which means more observed values
-random_missingness_percentages = [.5]
+random_missingness_percentages = [0,.25,.5]
 batch_size = 512
 eval_batch_size = 32
 variance = .4
 lengthscale = 1.6
 seed_values = [(int(np.random.randint(0, 100000)), int(np.random.randint(0, 100000))) for i in range(0, data_draws)]
-score_model_path = "trained_score_models/vpsde/model2_different_mask_generation_beta_min_max_01_20_small_random50_channel_mask.pth"
-loss_path = "trained_score_models/vpsde/model2_different_mask_generation_beta_min_max_01_20_small_random50_parameterized_mask_loss.png"
+score_model_path = "trained_score_models/vpsde/model3_beta_min_max_01_20_random02550_channel_mask.pth"
+loss_path = "trained_score_models/vpsde/model3_beta_min_max_01_20_random02550_parameterized_mask_loss.png"
 torch.cuda.empty_cache()
 train_per_multiple_random_masks(vpconfig, data_draws, epochs_per_data_draws,
                              random_missingness_percentages,
