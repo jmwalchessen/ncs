@@ -61,8 +61,9 @@ def p_mean_and_variance_from_score_via_mask(vpsde, score_model, device, masked_x
 
     num_samples = masked_xt.shape[0]
     timestep = ((torch.tensor([t])).repeat(num_samples)).to(device)
-    print(mask.shape)
-    print(masked_xt.shape)
+    reps = masked_xt.shape[0]
+    #need mask to be same size as masked_xt
+    mask = mask.repeat((reps,1,1,1))
     masked_xt_and_mask = th.cat([masked_xt, mask], dim = 1)
     with th.no_grad():
         score = score_model(masked_xt_and_mask, timestep)
