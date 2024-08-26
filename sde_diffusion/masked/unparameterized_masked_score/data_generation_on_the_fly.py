@@ -171,8 +171,6 @@ def get_training_and_evaluation_random_mask_and_image_datasets(number_of_random_
     maxY = 10
     n = 32
     
-    train_masks = generate_random_masks_on_the_fly(n, number_of_masks_per_image, random_missingness_percentages)
-    eval_masks = generate_random_masks_on_the_fly(n, number_of_evaluation_masks_per_image, random_missingness_percentages)
     train_mask_number = len(random_missingness_percentages)*number_of_masks_per_image
     eval_mask_number = len(random_missingness_percentages)*number_of_evaluation_masks_per_image
 
@@ -192,8 +190,8 @@ def get_training_and_evaluation_random_mask_and_image_datasets(number_of_random_
     eval_images = eval_images[:,:,2:34,2:34]
     train_images = np.repeat(train_images, train_mask_number, axis = 0)
     eval_images = np.repeat(eval_images, eval_mask_number, axis = 0)
-    train_masks = np.tile(train_masks, (number_of_random_replicates, 1, 1, 1))
-    eval_masks = np.tile(eval_masks, (number_of_evaluation_random_replicates, 1, 1, 1))
+    train_masks = generate_random_masks_on_the_fly(n, train_images.shape[0], random_missingness_percentages)
+    eval_masks = generate_random_masks_on_the_fly(n, eval_images.shape[0], random_missingness_percentages)
     train_dataset = CustomSpatialImageMaskDataset(train_images, train_masks)
     eval_dataset = CustomSpatialImageMaskDataset(eval_images, eval_masks)
     train_dataloader = DataLoader(train_dataset, batch_size = batch_size, shuffle = True)
