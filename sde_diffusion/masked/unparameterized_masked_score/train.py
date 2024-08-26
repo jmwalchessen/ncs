@@ -199,6 +199,7 @@ number_of_masks_per_image = 100
 number_of_evaluation_masks_per_image = 10
 #smaller p means less ones which means more observed values
 random_missingness_percentages = [.5]
+batch_size = 512
 eval_batch_size = 32
 variance = .4
 lengthscale = 1.6
