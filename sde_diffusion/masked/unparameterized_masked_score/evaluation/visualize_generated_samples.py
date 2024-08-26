@@ -65,6 +65,7 @@ def p_mean_and_variance_from_score_via_mask(vpsde, score_model, device, masked_x
     #need mask to be same size as masked_xt
     mask = mask.repeat((reps,1,1,1))
     masked_xt_and_mask = th.cat([masked_xt, mask], dim = 1)
+    print(masked_xt_and_mask.shape)
     with th.no_grad():
         score = score_model(masked_xt_and_mask, timestep)
     unmasked_p_mean = (1/th.sqrt(th.tensor(vpsde.alphas[t])))*(masked_xt + th.square(th.tensor(vpsde.sigmas[t]))*score)
