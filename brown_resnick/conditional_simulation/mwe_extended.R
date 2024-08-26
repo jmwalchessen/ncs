@@ -6,7 +6,9 @@ working_directory <- (strsplit(getwd(), "/conditional_simulation")[[1]])[1]
 spatialextremes_directory <- paste(working_directory, "my-spatial-extremes", sep = "/")
 devtools::install(spatialextremes_directory)
 
-diff <- .6451613
+diff <- .645161285
+start_pt <- -10-16*diff
+end_pt <- 10+16*diff
 #m is the number of missing locations
 process_condrmaxstab <- function(condsim, m, nrep)
 {
@@ -19,10 +21,10 @@ process_condrmaxstab <- function(condsim, m, nrep)
 }
 
 set.seed(395234)
-n <- 64
+n <- 32
 s1 <- s2 <- seq(-10, 10, length.out = n)
 s <- cbind(s1, s2)
-nrep <- 25
+nrep <- 2
 df <- expand.grid(s1 = s1, 
                   s2 = s2) %>%
   mutate(z = c(SpatialExtremes::rmaxstab(1, coord = s, cov.mod = "brown", 
@@ -36,7 +38,8 @@ N <- 1L
 #X <-   rmaxstab(1, coord = s, cov.mod = "powexp", 
            #nugget = 0, range = 1,
            #smooth = 1.5, grid = TRUE)
-obsn <- 10
+obsn <- 50
+#make sure observed are in 32 by 32 part
 idx_pred_locs <- -sample((n**2), obsn, replace = FALSE)
 startTime <- Sys.time()
 #ask Andrew if there is a reason nugget is not zero in condrmaxstab but is in rmaxstab
@@ -64,5 +67,6 @@ dim(obsz) <- c((n**2),nrep)
 zsim[-idx_pred_locs,] <- obsz[-idx_pred_locs,]
 #results <- cbind(df$z, df$zsim)
 #print(dim(df$zsim))
+print(dim(obsz))
 np$save("data/mwe/conditional_simulations_brown_range_1.6_smooth_1.6.npy", condsim_array)
-np$save("data/mwe/observed_simulation_brown range_1.6_smooth_1.6.npy", df$z)
+np$save("data/mwe/observed_simulation_brown_range_1.6_smooth_1.6.npy", df$z)
