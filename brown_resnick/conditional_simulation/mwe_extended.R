@@ -21,7 +21,7 @@ process_condrmaxstab <- function(condsim, m, nrep)
 }
 
 set.seed(395234)
-n <- 32
+n <- 64
 s1 <- s2 <- seq(-10, 10, length.out = n)
 s <- cbind(s1, s2)
 nrep <- 2
