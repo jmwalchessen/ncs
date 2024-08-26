@@ -17,7 +17,7 @@ device = "cuda:0"
 config = ncsnpp_config.get_config()
 #if trained parallelized, need to be evaluated that way too
 score_model = torch.nn.DataParallel((ncsnpp.NCSNpp(config)).to("cuda:0"))
-score_model.load_state_dict(th.load((home_folder + "/trained_score_models/vpsde/model1_beta_min_max_01_25_random050_parameterized_mask.pth")))
+score_model.load_state_dict(th.load((home_folder + "/trained_score_models/vpsde/model2_different_mask_generation_beta_min_max_01_20_small_random50_channel_mask.pth")))
 score_model.eval()
 
 def construct_norm_matrix(minX, maxX, minY, maxY, n):
@@ -56,13 +56,14 @@ def generate_gaussian_process(minX, maxX, minY, maxY, n, variance, lengthscale, 
         gp_matrix[i,:,:,:] = y_matrix[:,i].reshape((1,n,n))
     return gp_matrix
 
-#y is observed part of field
+#y is observed part of field, modified to incorporate the mask as channel
 def p_mean_and_variance_from_score_via_mask(vpsde, score_model, device, masked_xt, mask, y, t):
 
     num_samples = masked_xt.shape[0]
     timestep = ((torch.tensor([t])).repeat(num_samples)).to(device)
+    masked_xt_and_mask = th.cat([masked_xt, mask], dim = 1)
     with th.no_grad():
-        score = score_model(masked_xt, mask, timestep)
+        score = score_model(masked_xt_and_mask, timestep)
     unmasked_p_mean = (1/th.sqrt(th.tensor(vpsde.alphas[t])))*(masked_xt + th.square(th.tensor(vpsde.sigmas[t]))*score)
     masked_p_mean = torch.mul((1-mask), unmasked_p_mean) + torch.mul(mask, y)
     unmasked_p_variance = (th.square(th.tensor(vpsde.sigmas[t])))*th.ones_like(masked_xt)
@@ -121,7 +122,7 @@ def visualize_observed_and_generated_samples(observed, mask, diffusion1, diffusi
     plt.savefig(figname)
 
 
-sdevp = VPSDE(beta_min=0.1, beta_max=25, N=250)
+sdevp = VPSDE(beta_min=0.1, beta_max=20, N=1000)
 n = 32
 #mask = torch.ones((1,1,n,n)).to(device)
 #mask[:,:,int(n/4):int(3*n/4),int(n/4):int(3*n/4)] = 0
@@ -149,6 +150,6 @@ for i in range(0,10):
                                                                     device, mask, y, n,
                                                                     num_samples)
 
-    figname = ("visualizations/models/model1/random50_variance_.4_lengthscale_1.6_observed_and_generated_samples_" + str(i) + ".png")
+    figname = ("visualizations/models/model2/random50_variance_.4_lengthscale_1.6_observed_and_generated_samples_" + str(i) + ".png")
     visualize_observed_and_generated_samples(unmasked_y, mask, diffusion_samples[0,:,:,:],
                                             diffusion_samples[1,:,:,:], n, figname)

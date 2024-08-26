@@ -10,18 +10,19 @@ diff <- .645161285
 start_pt <- -10-16*diff
 end_pt <- 10+16*diff
 #m is the number of missing locations
-process_condrmaxstab <- function(condsim, m, nrep)
+
+
+#1 if observed
+produce_mask <- function(observed_indices, n)
 {
-    processed_array <- array(0, dim = c(m,nrep))
-    for(irep in 1:nrep)
-    {
-        processed_array[,irep] <- condsim[(m*(irep-1)+1):(m*irep)]
-    }
-    return(processed_array)
+    mask <- array(0, dim = c((n**2)))
+    mask[observed_indices] <- rep(1, length(observed_indices))
+    return(mask)
 }
 
+seed_value <- 395234
 set.seed(395234)
-n <- 64
+n <- 32
 s1 <- s2 <- seq(-10, 10, length.out = n)
 s <- cbind(s1, s2)
 nrep <- 2
@@ -38,7 +39,7 @@ N <- 1L
 #X <-   rmaxstab(1, coord = s, cov.mod = "powexp", 
            #nugget = 0, range = 1,
            #smooth = 1.5, grid = TRUE)
-obsn <- 50
+obsn <- 5
 #make sure observed are in 32 by 32 part
 idx_pred_locs <- -sample((n**2), obsn, replace = FALSE)
 startTime <- Sys.time()
@@ -57,16 +58,8 @@ endTime <- Sys.time()
 print(endTime - startTime)
 condsim <- (output["sim"])[[1]]
 condsim_array <- as.array(condsim)
-m <- (n**2)-obsn
-condsim <- process_condrmaxstab(condsim, m, nrep)
-zsim <- array(0, dim = c((n**2),nrep))
-#dim of condsim is number of missing locations
-zsim[idx_pred_locs,] <- condsim
-obsz <- rep(df$z, times = nrep)
-dim(obsz) <- c((n**2),nrep)
-zsim[-idx_pred_locs,] <- obsz[-idx_pred_locs,]
-#results <- cbind(df$z, df$zsim)
-#print(dim(df$zsim))
-print(dim(obsz))
-np$save("data/mwe/conditional_simulations_brown_range_1.6_smooth_1.6.npy", condsim_array)
-np$save("data/mwe/observed_simulation_brown_range_1.6_smooth_1.6.npy", df$z)
+mask <- produce_mask(-idx_pred_locs,n)
+np$save("data/mwe/ref_image1/conditional_simulations_brown_range_1.6_smooth_1.6.npy", condsim_array)
+np$save("data/mwe/ref_image1/observed_simulation_brown_range_1.6_smooth_1.6.npy", df$z)
+np$save("data/mwe/ref_image1/mask.npy", mask)
+np$save("data/mwe/ref_image1/seed_value.npy", array(seed_value))
