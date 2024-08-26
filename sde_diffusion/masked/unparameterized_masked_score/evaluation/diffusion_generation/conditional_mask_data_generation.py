@@ -44,15 +44,22 @@ n = 32
 variance = .4
 lengthscale = 1.6
 
-#y is observed part of field, modify this to incoporate the mask as channel
+#y is observed part of field, modified to incorporate the mask as channel
 def p_mean_and_variance_from_score_via_mask(vpsde, score_model, device, masked_xt, mask, y, t):
 
     num_samples = masked_xt.shape[0]
     timestep = ((th.tensor([t])).repeat(num_samples)).to(device)
+    reps = masked_xt.shape[0]
+    #need mask to be same size as masked_xt
+    mask = mask.repeat((reps,1,1,1))
     masked_xt_and_mask = th.cat([masked_xt, mask], dim = 1)
     with th.no_grad():
         score_and_mask = score_model(masked_xt_and_mask, timestep)
-    score = score_and_mask[:,0,:,:,:]
+    
+    #first channel is score, second channel is mask
+    score = score_and_mask[:,0:1,:,:]
+    #reduce dimension of mask
+    mask = mask[0:1,:,:,:]
     unmasked_p_mean = (1/th.sqrt(th.tensor(vpsde.alphas[t])))*(masked_xt + th.square(th.tensor(vpsde.sigmas[t]))*score)
     masked_p_mean = th.mul((1-mask), unmasked_p_mean) + th.mul(mask, y)
     unmasked_p_variance = (th.square(th.tensor(vpsde.sigmas[t])))*th.ones_like(masked_xt)
@@ -110,8 +117,8 @@ def plot_masked_spatial_field(spatial_field, mask, vmin, vmax, figname):
     plt.savefig(figname)
 
 
-replicates_per_call = 2
-calls = 1
+replicates_per_call = 250
+calls = 4
 number_of_replicates = 1
 seed_value = 43423
 ref_img = generate_true_conditional_samples.generate_gaussian_process(minX, maxX,
