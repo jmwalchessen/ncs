@@ -71,7 +71,7 @@ def p_mean_and_variance_from_score_via_mask(vpsde, score_model, device, masked_x
         score_and_mask = score_model(masked_xt_and_mask, timestep)
     
     #first channel is score, second channel is mask
-    score = score_and_mask[:,0,:,:]
+    score = score_and_mask[:,0:1,:,:]
     #reduce dimension of mask
     mask = mask[0:1,:,:,:]
     print("score")
