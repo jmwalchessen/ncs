@@ -8,7 +8,9 @@ from append_directories import *
 
 home_folder = append_directory(2)
 sys.path.append(home_folder)
+print("a")
 from models import ncsnpp
+print("b")
 from sde_lib import *
 from configs.vp import ncsnpp_config
 from block_mask_generation import *
