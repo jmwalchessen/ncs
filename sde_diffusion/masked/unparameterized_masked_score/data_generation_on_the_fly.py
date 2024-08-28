@@ -153,7 +153,7 @@ class CustomMaskDataset(Dataset):
         mask = self.masks[idx,:,:,:]
         return mask
     
-#seeds values list is a list of tuples of length equal to number of missing percentages
+#seeds values list is a list of lists of tuples of length equal to number of missing percentages
 def get_training_and_evaluation_data_per_percentages(number_of_random_replicates, random_missingness_percentages,
                                                      number_of_evaluation_random_replicates, number_of_masks_per_image,
                                                      number_of_evaluation_masks_per_image, batch_size, eval_batch_size,
