@@ -152,6 +152,44 @@ class CustomMaskDataset(Dataset):
     def __getitem__(self, idx):
         mask = self.masks[idx,:,:,:]
         return mask
+    
+#seeds values list is a list of tuples of length equal to number of missing percentages
+def get_training_and_evaluation_data_per_percentages(number_of_random_replicates, random_missingness_percentages,
+                                                     number_of_evaluation_random_replicates, number_of_masks_per_image,
+                                                     number_of_evaluation_masks_per_image, batch_size, eval_batch_size,
+                                                     variance, lengthscale, seed_values_list):
+    
+    diff = .6451612900000008
+    minX = minY = -10-2*diff
+    maxX = maxY = 10+2*diff
+    n = 36
+    train_images = np.zeros((0,1,n,n))
+    eval_images = np.zeros((0,1,n,n))
+    for i, p in enumerate(random_missingness_percentages):
+        seed_values = seed_values_list[[i]]
+        if(p == 0):
+            train_images = np.concatenate([train_images, generate_data_on_the_fly(minX, maxX, minY, maxY, n,
+                                                              variance, lengthscale,
+                                                              number_of_random_replicates*number_of_masks_per_image,
+                                                              seed_values_l[0])])
+            eval_images = np.concatenate([eval_images, generate_data_on_the_fly(minX, maxX, minY, maxY, n,
+                                                              variance, lengthscale,
+                                                              number_of_evaluation_random_replicates*number_of_evaluation_masks_per_image,
+                                                              seed_values[1])])
+        else:
+            train_images = np.concatenate([train_images, generate_data_on_the_fly(minX, maxX, minY, maxY, n,
+                                                              variance, lengthscale,
+                                                              number_of_random_replicates,
+                                                              seed_values[0])])
+            eval_images = np.concatenate([eval_images, generate_data_on_the_fly(minX, maxX, minY, maxY, n,
+                                                              variance, lengthscale,
+                                                              number_of_random_replicates,
+                                                              seed_values[1])])
+    for p in random_missingness_percentages:
+        if(p == 0):
+            train_images = np.concatenate([train_images, generate_data_on_the_fly(minX, maxX, minY, maxY, n,
+
+
 
 
 
