@@ -166,7 +166,7 @@ def get_training_and_evaluation_data_per_percentages(number_of_random_replicates
     train_images = np.zeros((0,1,n,n))
     eval_images = np.zeros((0,1,n,n))
     for i, p in enumerate(random_missingness_percentages):
-        seed_values = seed_values_list[[i]]
+        seed_values = seed_values_list[i]
         if(p == 0):
             train_images = np.concatenate([train_images, generate_data_on_the_fly(minX, maxX, minY, maxY, n,
                                                               variance, lengthscale,
