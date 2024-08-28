@@ -128,7 +128,7 @@ ref_img = generate_true_conditional_samples.generate_gaussian_process(minX, maxX
                                                                       number_of_replicates,
                                                                       seed_value)
 ref_img = th.from_numpy(ref_img[1].reshape((1,n,n))).to(device)
-p = .5
+p = 0
 mask = (th.bernoulli(p*th.ones(1,1,n,n))).to(device)
 
 for i in range(0, 4):
@@ -140,7 +140,7 @@ for i in range(0, 4):
 
     partially_observed = (mask*ref_img).detach().cpu().numpy().reshape((n,n))
     np.save("data/model2/ref_image1/ref_image1.npy", ref_img.detach().cpu().numpy().reshape((n,n)))
-    np.save("data/model2/ref_image1/diffusion/model1_beta_min_max_01_20_random50_250_" + str(i) + ".npy", conditional_samples)
+    np.save("data/model2/ref_image1/diffusion/model2_beta_min_max_01_20_random0_250_" + str(i) + ".npy", conditional_samples)
     np.save("data/model2/ref_image1/partially_observed_field.npy", partially_observed.reshape((n,n)))
     np.save("data/model2/ref_image1/mask.npy", mask.int().detach().cpu().numpy().reshape((n,n)))
     np.save("data/model2/ref_image1/seed_value.npy", np.array([int(seed_value)]))
