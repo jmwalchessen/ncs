@@ -171,7 +171,7 @@ def get_training_and_evaluation_data_per_percentages(number_of_random_replicates
             train_images = np.concatenate([train_images, generate_data_on_the_fly(minX, maxX, minY, maxY, n,
                                                               variance, lengthscale,
                                                               number_of_random_replicates*number_of_masks_per_image,
-                                                              seed_values_l[0])])
+                                                              seed_values[0])])
             eval_images = np.concatenate([eval_images, generate_data_on_the_fly(minX, maxX, minY, maxY, n,
                                                               variance, lengthscale,
                                                               number_of_evaluation_random_replicates*number_of_evaluation_masks_per_image,
