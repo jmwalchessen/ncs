@@ -300,9 +300,9 @@ train_per_multiple_random_masks(vpconfig, data_draws, epochs_per_data_draws,
                              seed_values, variance, lengthscale, batch_size,
                              eval_batch_size, score_model_path, loss_path)"""
 
-data_draws = 5
+data_draws = 20
 epochs_per_data_draws = 10
-number_of_random_replicates = 10000
+number_of_random_replicates = 1000
 number_of_evaluation_random_replicates = 32
 number_of_masks_per_image = 100
 number_of_evaluation_masks_per_image = 10
