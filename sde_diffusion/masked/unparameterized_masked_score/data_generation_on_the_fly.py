@@ -193,8 +193,8 @@ def get_training_and_evaluation_data_per_percentages(number_of_random_replicates
     eval_masks = generate_random_masks_on_the_fly(n, eval_images.shape[0], random_missingness_percentages)
     train_images = train_images[:,:,2:34,2:34]
     eval_images = eval_images[:,:,2:34,2:34]
-    train_dataset = CustomSpatialImageandMaskDataset(train_images, train_masks)
-    eval_dataset = CustomSpatialImageandMaskDataset(eval_images, eval_masks)
+    train_dataset = CustomSpatialImageMaskDataset(train_images, train_masks)
+    eval_dataset = CustomSpatialImageMaskDataset(eval_images, eval_masks)
     train_dataloader = DataLoader(train_dataset, batch_size = batch_size, shuffle = True)
     eval_dataloader = DataLoader(eval_dataset, batch_size = eval_batch_size, shuffle = True)
     return train_dataloader, eval_dataloader

@@ -317,10 +317,10 @@ score_model_path = "trained_score_models/vpsde/model4_beta_min_max_01_20_random4
 loss_path = "trained_score_models/vpsde/model4_beta_min_max_01_20_random4060_parameterized_mask_loss.png"
 torch.cuda.empty_cache()
 train_per_multiple_random_masks_revised_data_generation(vpconfig, data_draws, epochs_per_data_draws,
-                                                        random_missingness_percentages,
-                                                        number_of_random_replicates,
-                                                        number_of_evaluation_random_replicates,
-                                                        number_of_masks_per_image, number_of_evaluation_masks_per_image,
-                                                        seed_values_list, variance, lengthscale, batch_size,
-                                                        eval_batch_size, score_model_path, loss_path)
+                             random_missingness_percentages,
+                             number_of_random_replicates,
+                             number_of_evaluation_random_replicates,
+                             number_of_masks_per_image, number_of_evaluation_masks_per_image,
+                             seed_values_list, variance, lengthscale, batch_size,
+                             eval_batch_size, score_model_path, loss_path)
 

@@ -23,16 +23,6 @@ def generate_brown_resnick_process(range_value, smooth_value, seed_value, number
     return images
 
 
-#first column of parameter_matrix is variance
-def generate_data_on_the_fly(minX, maxX, minY, maxY, n, variance, lengthscale, number_of_replicates_per_mask,
-                             seed_value):
-    
-
-    train_images = generate_gaussian_process(minX, maxX, minY, maxY, n,
-                                             variance, lengthscale,
-                                             number_of_replicates_per_mask, seed_value)
-    return train_images
-
 
 
 def generate_random_masks_on_the_fly(n, number_of_random_replicates, random_missingness_percentages):
