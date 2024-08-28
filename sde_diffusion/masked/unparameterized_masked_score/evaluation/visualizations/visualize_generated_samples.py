@@ -123,7 +123,7 @@ def visualize_observed_and_generated_samples(observed, mask, diffusion1, diffusi
     plt.savefig(figname)
 
 
-sdevp = VPSDE(beta_min=0.1, beta_max=25, N=250)
+sdevp = VPSDE(beta_min=0.1, beta_max=20, N=1000)
 n = 32
 #mask = torch.ones((1,1,n,n)).to(device)
 #mask[:,:,int(n/4):int(3*n/4),int(n/4):int(3*n/4)] = 0
