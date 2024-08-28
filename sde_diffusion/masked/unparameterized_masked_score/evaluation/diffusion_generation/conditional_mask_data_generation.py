@@ -120,7 +120,7 @@ def plot_masked_spatial_field(spatial_field, mask, vmin, vmax, figname):
 replicates_per_call = 250
 calls = 4
 number_of_replicates = 1
-seed_value = 43423
+seed_value = 433293
 ref_img = generate_true_conditional_samples.generate_gaussian_process(minX, maxX,
                                                                       minY, maxY,
                                                                       n, variance,
@@ -139,15 +139,15 @@ for i in range(0, 4):
                                           replicates_per_call, calls)
 
     partially_observed = (mask*ref_img).detach().cpu().numpy().reshape((n,n))
-    np.save("data/model2/ref_image1/ref_image1.npy", ref_img.detach().cpu().numpy().reshape((n,n)))
-    np.save("data/model2/ref_image1/diffusion/model2_beta_min_max_01_20_random0_250_" + str(i) + ".npy", conditional_samples)
-    np.save("data/model2/ref_image1/partially_observed_field.npy", partially_observed.reshape((n,n)))
-    np.save("data/model2/ref_image1/mask.npy", mask.int().detach().cpu().numpy().reshape((n,n)))
-    np.save("data/model2/ref_image1/seed_value.npy", np.array([int(seed_value)]))
+    np.save("data/model3/ref_image1/ref_image1.npy", ref_img.detach().cpu().numpy().reshape((n,n)))
+    np.save("data/model3/ref_image1/diffusion/model3_beta_min_max_01_20_random0_250_" + str(i) + ".npy", conditional_samples)
+    np.save("data/model3/ref_image1/partially_observed_field.npy", partially_observed.reshape((n,n)))
+    np.save("data/model3/ref_image1/mask.npy", mask.int().detach().cpu().numpy().reshape((n,n)))
+    np.save("data/model3/ref_image1/seed_value.npy", np.array([int(seed_value)]))
 
-    plot_spatial_field(ref_img.detach().cpu().numpy().reshape((n,n)), -3, 3, "data/model2/ref_image1/ref_image.png")
-    plot_spatial_field((conditional_samples[0,:,:,:]).numpy().reshape((n,n)), -3, 3, "data/model2/ref_image1/diffusion/visualizations/conditional_sample_0.png")
+    plot_spatial_field(ref_img.detach().cpu().numpy().reshape((n,n)), -3, 3, "data/model3/ref_image1/ref_image.png")
+    plot_spatial_field((conditional_samples[0,:,:,:]).numpy().reshape((n,n)), -3, 3, "data/model3/ref_image1/diffusion/visualizations/conditional_sample_0.png")
     plot_masked_spatial_field(spatial_field = ref_img.detach().cpu().numpy().reshape((n,n)),
-                   vmin = -2, vmax = 2, mask = mask.int().float().detach().cpu().numpy().reshape((n,n)), figname = "data/model2/ref_image1/partially_observed_field.png")
+                   vmin = -2, vmax = 2, mask = mask.int().float().detach().cpu().numpy().reshape((n,n)), figname = "data/model3/ref_image1/partially_observed_field.png")
 
 
