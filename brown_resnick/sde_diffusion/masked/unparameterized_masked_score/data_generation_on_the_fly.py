@@ -157,15 +157,25 @@ def get_training_and_evaluation_data_per_percentages(number_of_random_replicates
         seed_values = seed_values_list[i]
         if(p == 0):
             train_images = np.concatenate([train_images, generate_brown_resnick_process(range_value, smooth_value, seed_values[0],
-                                                                                        number_of_random_replicates, n)])
+                                                                                        number_of_random_replicates*number_of_masks_per_image, n)])
             eval_images = np.concatenate([eval_images, generate_brown_resnick_process(range_value, smooth_value, seed_values[1],
-                                                                                        number_of_random_replicates, n)])
+                                                                                        number_of_evaluation_random_replicates*number_of_evaluation_masks_per_image, n)])
         else:
             timages = generate_brown_resnick_process(range_value, smooth_value, seed_values[0],
                                                      number_of_random_replicates, n)
-            eimages = generate_data_on_the_fly(minX, maxX, minY, maxY, n,
-                                                              variance, lengthscale,
-                                                              number_of_random_replicates,
-                                                              seed_values[1])
+            eimages = generate_brown_resnick_process(range_value, smooth_value, seed_values[1],
+                                                     number_of_evaluation_random_replicates, n)
             train_images = np.concatenate([train_images, np.repeat(timages, number_of_masks_per_image, axis = 0)])
             eval_images = np.concatenate([eval_images, np.repeat(eimages, number_of_evaluation_masks_per_image, axis = 0)])
+
+    train_images = np.log(train_images)
+    eval_images = np.log(eval_images)
+    train_masks = generate_random_masks_on_the_fly(n, train_images.shape[0], random_missingness_percentages)
+    eval_masks = generate_random_masks_on_the_fly(n, eval_images.shape[0], random_missingness_percentages)
+    train_dataset = CustomSpatialImageMaskDataset(train_images, train_masks)
+    eval_dataset = CustomSpatialImageMaskDataset(eval_images, eval_masks)
+    train_dataloader = DataLoader(train_dataset, batch_size = batch_size, shuffle = True)
+    eval_dataloader = DataLoader(eval_dataset, batch_size = eval_batch_size, shuffle = True)
+    return train_dataloader, eval_dataloader
+
+        
