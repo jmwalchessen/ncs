@@ -460,7 +460,7 @@ seed_values = [(int(np.random.randint(0, 100000)),int(np.random.randint(0, 10000
                 for i in range(0, data_draws)]
 range_value = 1.6
 smooth_value = 1.6
-batch_size = 512
+batch_size = 1024
 eval_batch_size = 50
 number_of_random_replicates = 5000
 number_of_eval_random_replicates = 50
