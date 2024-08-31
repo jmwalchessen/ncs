@@ -109,11 +109,13 @@ range_value = 1.6
 smooth_value = 1.6
 number_of_replicates = 1
 
+
 for i in range(0,10):
     p = .5
     mask = (th.bernoulli(p*th.ones(1,1,n,n))).to(device)
     seed_value = int(np.random.randint(0, 100000))
-    unmasked_y = (th.from_numpy(generate_brown_resnick_process(range_value, smooth_value, seed_value, number_of_replicates, n))).to(device)
+    brsamples = (generate_brown_resnick_process(range_value, smooth_value, seed_value, number_of_replicates, n)).reshape((1,1,n,n))
+    unmasked_y = (th.from_numpy(brsamples)).to(device)
     print(unmasked_y.min())
     y = ((torch.mul(mask, unmasked_y)).to(device)).float()
     num_samples = 2
