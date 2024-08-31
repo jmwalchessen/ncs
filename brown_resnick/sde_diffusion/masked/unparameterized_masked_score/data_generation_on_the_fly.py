@@ -20,6 +20,7 @@ def generate_brown_resnick_process(range_value, smooth_value, seed_value, number
                     check = True, capture_output = True, text = False)
     images = np.load("temporary_brown_resnick_samples.npy")
     os.remove("temporary_brown_resnick_samples.npy")
+    images = images.reshape((number_of_replicates,1,n,n))
     return images
 
 

@@ -111,9 +111,9 @@ vpconfig = vp_ncsnpp_configuration
 data_draws = 5
 epochs_per_data_draws = 10
 number_of_random_replicates = 5000
-number_of_evaluation_random_replicates = 32
+number_of_evaluation_random_replicates = 50
 number_of_masks_per_image = 100
-number_of_evaluation_masks_per_image = 10
+number_of_evaluation_masks_per_image = 5
 #smaller p means less ones which means more observed values
 random_missingness_percentages = [.5]
 batch_size = 1024
