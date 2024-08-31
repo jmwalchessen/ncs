@@ -3,7 +3,7 @@ import numpy as np
 n = 32
 samples = np.zeros((0,1,n,n))
 for i in range(0,4):
-    current_samples = np.load("data/model5/ref_image2/diffusion/model5_beta_min_max_01_20_random025_250_" + str(i) + ".npy")
+    current_samples = np.load("data/model6/ref_image2/diffusion/model6_beta_min_max_01_20_random0_250_" + str(i) + ".npy")
     samples = np.concatenate([samples, current_samples], axis = 0)
 
-np.save("data/model5/ref_image2/diffusion/model5_random025_beta_min_max_01_20_1000.npy", samples)
+np.save("data/model6/ref_image2/diffusion/model6_random0_beta_min_max_01_20_1000.npy", samples)

@@ -141,21 +141,22 @@ variance = .4
 lengthscale = 1.6
 number_of_replicates = 4000
 matrix_index = (15,15)
-unconditional_generated_samples = np.load(diffusion_generation_folder + "/data/model5/ref_image1/diffusion/model5_random0_beta_min_max_01_20_1000.npy")
+unconditional_generated_samples = np.load(diffusion_generation_folder + "/data/model6/ref_image2/diffusion/model6_random0_beta_min_max_01_20_1000.npy")
+
 """
 for i in range(0, n, 4):
     for j in range(0, n, 4):
 
         matrix_index = (i,j)
         seed_value = np.random.randint(0, 100000, 1)[0]
-        figname = (diffusion_generation_folder + "/data/model5/ref_image1/marginal_density/model5_marginal_density_" + str(i) + "_" + str(j) + ".png")
+        figname = (diffusion_generation_folder + "/data/model6/ref_image2/marginal_density/model6_marginal_density_" + str(i) + "_" + str(j) + ".png")
         produce_true_and_generated_marginal_density(minX, maxX, minY, maxY, n, variance, lengthscale,
                                                     number_of_replicates, matrix_index, seed_value, unconditional_generated_samples,
                                                     figname)"""
 
 
 
-indices1 = [(15+i,13) for i in range(-4,4)]
+indices1 = [(15+i,18) for i in range(-4,4)]
 indices2 = [(15,15)]
 
 
@@ -163,8 +164,8 @@ for i in indices1:
     for j in indices2:
         iindex = matrix_index_to_index(i, n)
         jindex = matrix_index_to_index(j, n)
-        folder_name = (diffusion_generation_folder + "/data/model5/ref_image1/bivariate_density/")
-        figname = (folder_name + "/bivariate_density_model5_" + str(iindex) + "_" + str(jindex) + ".png")
+        folder_name = (diffusion_generation_folder + "/data/model6/ref_image2/bivariate_density/")
+        figname = (folder_name + "/bivariate_density_model6_" + str(iindex) + "_" + str(jindex) + ".png")
         seed_value = np.random.randint(0, 100000, 1)[0]
         produce_true_and_generated_bivariate_density(minX, maxX, minY, maxY, n, variance, lengthscale,
                                                  number_of_replicates, i, j, seed_value,
