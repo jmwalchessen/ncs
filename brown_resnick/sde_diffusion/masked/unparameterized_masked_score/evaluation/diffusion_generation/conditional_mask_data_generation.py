@@ -2,7 +2,7 @@ import torch as th
 import numpy as np
 from append_directories import *
 from functools import partial
-import generate_true_conditional_samples
+from brown_resnick_data_generation import *
 import matplotlib.pyplot as plt
 
 home_folder = append_directory(6)
@@ -28,7 +28,7 @@ config.model.num_scales = 1000
 config.model.beta_max = 20
 
 score_model = th.nn.DataParallel((ncsnpp.NCSNpp(config)).to("cuda:0"))
-score_model.load_state_dict(th.load((sde_folder + "/trained_score_models/vpsde/model6_beta_min_max_01_20_random02510_channel_mask.pth")))
+score_model.load_state_dict(th.load((sde_folder + "/trained_score_models/vpsde/model1_beta_min_max_01_20_random50_log_channel_mask.pth")))
 score_model.eval()
 
 sdevp = sde_lib.VPSDE(beta_min=0.1, beta_max=20, N=1000)
@@ -36,13 +36,9 @@ sdevp = sde_lib.VPSDE(beta_min=0.1, beta_max=20, N=1000)
 #mask is a True/False (1,32,32) vector with .5 randomly missing pixels
 #function gen_mask is in image_utils.py, 50 at end of random50 denotes
 #50 percent missing
-minX = -10
-maxX = 10
-minY = -10
-maxY = 10
 n = 32
-variance = .4
-lengthscale = 1.6
+range_value = 1.6
+smooth_value = 1.6
 
 #y is observed part of field, modified to incorporate the mask as channel
 def p_mean_and_variance_from_score_via_mask(vpsde, score_model, device, masked_xt, mask, y, t):
@@ -121,14 +117,9 @@ replicates_per_call = 250
 calls = 4
 number_of_replicates = 1
 seed_value = 433293
-ref_img = generate_true_conditional_samples.generate_gaussian_process(minX, maxX,
-                                                                      minY, maxY,
-                                                                      n, variance,
-                                                                      lengthscale,
-                                                                      number_of_replicates,
-                                                                      seed_value)
+ref_img = np.log(generate_brown_resnick_process(range_value, smooth_value, seed_value, number_of_replicates, n))
 ref_img = th.from_numpy(ref_img[1].reshape((1,n,n))).to(device)
-p = .1
+p = .5
 mask = (th.bernoulli(p*th.ones(1,1,n,n))).to(device)
 
 for i in range(0, 4):
@@ -139,15 +130,15 @@ for i in range(0, 4):
                                           replicates_per_call, calls)
 
     partially_observed = (mask*ref_img).detach().cpu().numpy().reshape((n,n))
-    np.save("data/model6/ref_image3/ref_image.npy", ref_img.detach().cpu().numpy().reshape((n,n)))
-    np.save("data/model6/ref_image3/diffusion/model6_beta_min_max_01_20_random10_250_" + str(i) + ".npy", conditional_samples)
-    np.save("data/model6/ref_image3/partially_observed_field.npy", partially_observed.reshape((n,n)))
-    np.save("data/model6/ref_image3/mask.npy", mask.int().detach().cpu().numpy().reshape((n,n)))
-    np.save("data/model6/ref_image3/seed_value.npy", np.array([int(seed_value)]))
+    np.save("data/model1/ref_image1/ref_image.npy", ref_img.detach().cpu().numpy().reshape((n,n)))
+    np.save("data/model1/ref_image1/diffusion/model1_beta_min_max_01_20_random50_250_" + str(i) + ".npy", conditional_samples)
+    np.save("data/model1/ref_image1/partially_observed_field.npy", partially_observed.reshape((n,n)))
+    np.save("data/model1/ref_image1/mask.npy", mask.int().detach().cpu().numpy().reshape((n,n)))
+    np.save("data/model1/ref_image1/seed_value.npy", np.array([int(seed_value)]))
 
-    plot_spatial_field(ref_img.detach().cpu().numpy().reshape((n,n)), -3, 3, "data/model6/ref_image3/ref_image.png")
-    plot_spatial_field((conditional_samples[0,:,:,:]).numpy().reshape((n,n)), -3, 3, "data/model6/ref_image3/diffusion/visualizations/conditional_sample_0.png")
+    plot_spatial_field(ref_img.detach().cpu().numpy().reshape((n,n)), -2, 6, "data/model1/ref_image1/ref_image.png")
+    plot_spatial_field((conditional_samples[0,:,:,:]).numpy().reshape((n,n)), -2, 6, "data/model1/ref_image1/diffusion/visualizations/conditional_sample_0.png")
     plot_masked_spatial_field(spatial_field = ref_img.detach().cpu().numpy().reshape((n,n)),
-                   vmin = -2, vmax = 2, mask = mask.int().float().detach().cpu().numpy().reshape((n,n)), figname = "data/model6/ref_image3/partially_observed_field.png")
+                   vmin = -2, vmax = 6, mask = mask.int().float().detach().cpu().numpy().reshape((n,n)), figname = "data/model1/ref_image1/partially_observed_field.png")
 
 
