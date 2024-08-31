@@ -25,10 +25,10 @@ set.seed(395234)
 n <- 32
 s1 <- s2 <- seq(-10, 10, length.out = n)
 s <- cbind(s1, s2)
-nrep <- 2
+nrep <- 50
 df <- expand.grid(s1 = s1, 
                   s2 = s2) %>%
-  mutate(z = c(SpatialExtremes::rmaxstab(1, coord = s, cov.mod = "brown", 
+  mutate(z = c(SpatialExtremes::rmaxstab(1, coord = s, cov.mod = "powexp", 
                         nugget = 0, range = 1.6,
                         smooth = 1.6, grid = TRUE)))
 
@@ -42,12 +42,13 @@ N <- 1L
 obsn <- 5
 #make sure observed are in 32 by 32 part
 idx_pred_locs <- -sample((n**2), obsn, replace = FALSE)
+#idx_pred_locs <- -(1:obsn)
 startTime <- Sys.time()
 #ask Andrew if there is a reason nugget is not zero in condrmaxstab but is in rmaxstab
 output <- SpatialExtremes::condrmaxstab(nrep, coord = df[idx_pred_locs, 1:2] %>% as.matrix(),
              cond.coord = df[-idx_pred_locs ,1:2] %>% as.matrix(),
              cond.data = df[-idx_pred_locs, "z"],
-             cov.mod = "brown", 
+             cov.mod = "powexp", 
              nugget = 0, 
              range = 1.6,
              smooth = 1.6)
@@ -58,8 +59,8 @@ endTime <- Sys.time()
 print(endTime - startTime)
 condsim <- (output["sim"])[[1]]
 condsim_array <- as.array(condsim)
-mask <- produce_mask(-idx_pred_locs,n)
-np$save("data/mwe/ref_image1/conditional_simulations_brown_range_1.6_smooth_1.6.npy", condsim_array)
-np$save("data/mwe/ref_image1/observed_simulation_brown_range_1.6_smooth_1.6.npy", df$z)
+mask <- produce_mask(-idx_pred_locs, n)
+np$save("data/mwe/ref_image1/preprocessed_conditional_simulations_brown_range_1.6_smooth_.4.npy", condsim_array)
+np$save("data/mwe/ref_image1/observed_simulation_powexp_brown_1.6_smooth_.4.npy", df$z)
 np$save("data/mwe/ref_image1/mask.npy", mask)
-np$save("data/mwe/ref_image1/seed_value.npy", array(seed_value))
+np$save("data/mwe/ref_image1/seed_value.npy", array(seed_vplt.imshow(condpexpobsalue)))
