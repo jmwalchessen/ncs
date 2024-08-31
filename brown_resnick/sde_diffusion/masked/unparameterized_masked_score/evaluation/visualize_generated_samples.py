@@ -82,14 +82,14 @@ def visualize_observed_and_generated_samples(observed, mask, diffusion1, diffusi
                  cbar_mode="single"
                  )
     
-    im = grid[0].imshow(observed.detach().cpu().numpy().reshape((n,n)), vmin=-2, vmax=2)
+    im = grid[0].imshow(observed.detach().cpu().numpy().reshape((n,n)), vmin=-2, vmax=6)
     grid[0].set_title("Observed")
-    grid[1].imshow(observed.detach().cpu().numpy().reshape((n,n)), vmin=-2, vmax=2,
+    grid[1].imshow(observed.detach().cpu().numpy().reshape((n,n)), vmin=-2, vmax=6,
                    alpha = mask.detach().cpu().numpy().reshape((n,n)))
     grid[1].set_title("Partially Observed")
-    grid[2].imshow(diffusion1.detach().cpu().numpy().reshape((n,n)), vmin=-2, vmax=2)
+    grid[2].imshow(diffusion1.detach().cpu().numpy().reshape((n,n)), vmin=-2, vmax=6)
     grid[2].set_title("Generated")
-    grid[3].imshow(diffusion2.detach().cpu().numpy().reshape((n,n)), vmin=-2, vmax=2)
+    grid[3].imshow(diffusion2.detach().cpu().numpy().reshape((n,n)), vmin=-2, vmax=6)
     grid[3].set_title("Generated")
     grid[0].cax.colorbar(im)
     plt.savefig(figname)
