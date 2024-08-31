@@ -118,7 +118,7 @@ calls = 4
 number_of_replicates = 1
 seed_value = 433293
 ref_img = np.log(generate_brown_resnick_process(range_value, smooth_value, seed_value, number_of_replicates, n))
-ref_img = th.from_numpy(ref_img[1].reshape((1,n,n))).to(device)
+ref_img = th.from_numpy(ref_img.reshape((1,n,n))).to(device)
 p = .5
 mask = (th.bernoulli(p*th.ones(1,1,n,n))).to(device)
 
