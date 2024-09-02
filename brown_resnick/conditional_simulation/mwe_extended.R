@@ -50,7 +50,7 @@ output <- SpatialExtremes::condrmaxstab(nrep, coord = df[idx_pred_locs, 1:2] %>%
              cond.data = df[-idx_pred_locs, "z"],
              cov.mod = "powexp", 
              nugget = 0, 
-             range = 1.6,
+             range = 3,
              smooth = 1.6)
 
 np <- import("numpy")
@@ -60,7 +60,7 @@ print(endTime - startTime)
 condsim <- (output["sim"])[[1]]
 condsim_array <- as.array(condsim)
 mask <- produce_mask(-idx_pred_locs, n)
-np$save("data/mwe/ref_image1/preprocessed_conditional_simulations_brown_range_1.6_smooth_.4.npy", condsim_array)
-np$save("data/mwe/ref_image1/observed_simulation_powexp_brown_1.6_smooth_.4.npy", df$z)
+np$save("data/mwe/ref_image1/preprocessed_conditional_simulations_brown_range_3_smooth_.4.npy", condsim_array)
+np$save("data/mwe/ref_image1/observed_simulation_powexp_brown_3_smooth_.4.npy", df$z)
 np$save("data/mwe/ref_image1/mask.npy", mask)
 np$save("data/mwe/ref_image1/seed_value.npy", array(seed_vplt.imshow(condpexpobsalue)))
