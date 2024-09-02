@@ -115,14 +115,14 @@ number_of_evaluation_random_replicates = 50
 number_of_masks_per_image = 100
 number_of_evaluation_masks_per_image = 5
 #smaller p means less ones which means more observed values
-random_missingness_percentages = [.5]
+random_missingness_percentages = [.025, .05, 7.5, 10, 12.5]
 batch_size = 1024
 eval_batch_size = 32
 range_value = 1.6
 smooth_value = 1.6
 seed_values_list = [[(int(np.random.randint(0, 100000)), int(np.random.randint(0, 100000))) for j in range(0, len(random_missingness_percentages))] for i in range(0, data_draws)]
-score_model_path = "trained_score_models/vpsde/model1_beta_min_max_01_20_random50_log_channel_mask.pth"
-loss_path = "trained_score_models/vpsde/model1_beta_min_max_01_20_random50_log_parameterized_mask_loss.png"
+score_model_path = "trained_score_models/vpsde/model2_beta_min_max_01_20_random025125_log_channel_mask.pth"
+loss_path = "trained_score_models/vpsde/model2_beta_min_max_01_20_random025125_log_parameterized_mask_loss.png"
 torch.cuda.empty_cache()
 train_per_multiple_random_masks_revised_data_generation(vpconfig, data_draws, epochs_per_data_draws,
                              random_missingness_percentages,
