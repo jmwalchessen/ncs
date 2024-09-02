@@ -110,7 +110,7 @@ def get_model_fn(model, train=False):
     A model function.
   """
 
-  def model_fn(x, labels):
+  def model_fn(x, parameters, labels):
     """Compute the output of the score-based model.
 
     Args:
@@ -123,10 +123,10 @@ def get_model_fn(model, train=False):
     """
     if not train:
       model.eval()
-      return model(x, labels)
+      return model(x, parameters, labels)
     else:
       model.train()
-      return model(x, labels)
+      return model(x, parameters, labels)
 
   return model_fn
 

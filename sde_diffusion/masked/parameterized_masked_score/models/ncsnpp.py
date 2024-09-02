@@ -431,14 +431,6 @@ class NCSNpp(nn.Module):
       h = h / used_sigmas
 
     return h
-  
-from append_directories import *
-
-home_folder = append_directory(2)
-print(home_folder)
-#sys.path.append(home_folder)
-#ncsnpp_config = get_config()
-
 
 
 

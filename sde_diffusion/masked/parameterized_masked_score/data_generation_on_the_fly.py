@@ -46,18 +46,6 @@ def generate_gaussian_process(minX, maxX, minY, maxY, n, variance, lengthscale, 
     return gp_matrix
 
 
-#first column of parameter_matrix is variance
-def generate_data_on_the_fly(minX, maxX, minY, maxY, n, variance, lengthscale, number_of_replicates_per_mask,
-                             seed_value):
-    
-
-    train_images = generate_gaussian_process(minX, maxX, minY, maxY, n,
-                                             variance, lengthscale,
-                                             number_of_replicates_per_mask, seed_value)
-    return train_images
-
-
-
 def generate_random_masks_on_the_fly(n, number_of_random_replicates, random_missingness_percentages):
 
     mask_matrices = np.zeros((0,1,n,n))
@@ -83,6 +71,23 @@ def generate_random_and_block_masks_on_the_fly(n, number_of_random_replicates_pe
     random_masks = generate_random_masks_on_the_fly(n, number_of_random_replicates_per_percentage, random_missingness_percentages)
     block_masks = generate_block_masks_on_the_fly(n, number_of_block_replicates_per_mask, weighted_lower_half_percentages, weighted_upper_half_percentages)
     return np.concatenate([random_masks, block_masks], axis = 0)
+
+def generate_data_on_the_fly(minX, maxX, minY, maxY, n, parameter_matrix, number_of_replicates,
+                             seed_values):
+    
+    x_train_images = np.empty((0, 1, n, n))
+    x_train_parameters = np.empty((0, parameter_matrix.shape[1]))
+    for i in range(0, parameter_matrix.shape[0]):
+        current_images = generate_gaussian_process(minX, maxX, minY, maxY, n,
+                                                   parameter_matrix[i,0],
+                                                   parameter_matrix[i,1],
+                                                   number_of_replicates, seed_values[i])
+        x_train_images = np.concatenate([x_train_images, current_images], axis = 0)
+        x_train_parameters = np.concatenate([x_train_parameters,
+                                             np.repeat((parameter_matrix[i,:]).reshape((1,2)),
+                                             repeats = number_of_replicates, axis = 0)], axis = 0)
+
+    return x_train_images, x_train_parameters
 
 
 
@@ -141,6 +146,28 @@ class CustomSpatialImageMaskDataset(Dataset):
         mask = self.masks[idx,:,:,:]
         image_and_mask = np.concatenate([image, mask], axis = 0)
         return image_and_mask
+
+
+
+
+class CustomSpatialImageMaskandParameterDataset(Dataset):
+
+    def __init__(self, images, masks, parameters):
+        self.images = images
+        self.masks = masks
+        self.parameters = parameters
+
+    def __len__(self):
+        return ((self.images).shape[0])
+    
+    def __getitem__(self, idx):
+        image = self.images[idx,:,:,:]
+        mask = self.masks[idx,:,:,:]
+        parameter = self.parameters[idx,:]
+        image_and_mask = np.concatenate([image, mask], axis = 0)
+        return image_and_mask, parameter
+
+
     
 class CustomMaskDataset(Dataset):
     def __init__(self, masks):
@@ -157,7 +184,7 @@ class CustomMaskDataset(Dataset):
 def get_training_and_evaluation_data_per_percentages(number_of_random_replicates, random_missingness_percentages,
                                                      number_of_evaluation_random_replicates, number_of_masks_per_image,
                                                      number_of_evaluation_masks_per_image, batch_size, eval_batch_size,
-                                                     variance, lengthscale, seed_values_list):
+                                                     parameter_matrix, eval_parameter_matrix):
     
     diff = .6451612900000008
     minX = minY = -10-2*diff
@@ -165,42 +192,51 @@ def get_training_and_evaluation_data_per_percentages(number_of_random_replicates
     n = 36
     train_images = np.zeros((0,1,n,n))
     eval_images = np.zeros((0,1,n,n))
+    train_parameters = np.zeros((0,2))
+    eval_parameters = np.zeros((0,2))
+
     for i, p in enumerate(random_missingness_percentages):
-        seed_values = seed_values_list[i]
         if(p == 0):
-            train_images = np.concatenate([train_images, generate_data_on_the_fly(minX, maxX, minY, maxY, n,
-                                                              variance, lengthscale,
-                                                              number_of_random_replicates*number_of_masks_per_image,
-                                                              seed_values[0])])
-            eval_images = np.concatenate([eval_images, generate_data_on_the_fly(minX, maxX, minY, maxY, n,
-                                                              variance, lengthscale,
-                                                              number_of_evaluation_random_replicates*number_of_evaluation_masks_per_image,
-                                                              seed_values[1])])
+            seed_values = np.random.randint(low = 0, high = 1000000, size = parameter_matrix.shape[0])
+            timages, tparams = generate_data_on_the_fly(minX, maxX, minY, maxY, n, parameter_matrix,
+                                                                                  number_of_random_replicates, seed_values)
+            train_images = np.concatenate([train_images, timages], axis = 0)
+            train_parameters = np.concatenate([train_parameters, tparams], axis = 0)
+
+            eval_seed_values = np.random.randint(low = 0, high = 1000000, size = eval_parameter_matrix.shape[0])
+            eimages, eparams = generate_data_on_the_fly(minX, maxX, minY, maxY, n,
+                                                              eval_parameter_matrix,
+                                                              number_of_evaluation_random_replicates,
+                                                              eval_seed_values)
+            eval_images = np.concatenate([eval_images, eimages], axis = 0)
+            eval_parameters = np.concatenate([eval_parameters, eparams], axis = 0)
+
         else:
-            timages = generate_data_on_the_fly(minX, maxX, minY, maxY, n,
-                                                              variance, lengthscale,
+            seed_values = np.random.randint(low = 0, high = 1000000, size = parameter_matrix.shape[0])
+            eval_seed_values = np.random.randint(low = 0, high = 1000000, size = eval_parameter_matrix.shape[0])
+            timages, tparams = generate_data_on_the_fly(minX, maxX, minY, maxY, n,
+                                                              parameter_matrix,
                                                               number_of_random_replicates,
-                                                              seed_values[0])
-            eimages = generate_data_on_the_fly(minX, maxX, minY, maxY, n,
-                                                              variance, lengthscale,
-                                                              number_of_random_replicates,
-                                                              seed_values[1])
+                                                              seed_values)
+            eimages, eparams = generate_data_on_the_fly(minX, maxX, minY, maxY, n,
+                                                              parameter_matrix,
+                                                              number_of_evaluation_random_replicates,
+                                                              eval_seed_values)
             train_images = np.concatenate([train_images, np.repeat(timages, number_of_masks_per_image, axis = 0)])
+            train_parameters = np.concatenate([train_parameters, np.repeat(tparams, number_of_masks_per_image, axis = 0)], axis =0)
             eval_images = np.concatenate([eval_images, np.repeat(eimages, number_of_evaluation_masks_per_image, axis = 0)])
+            eval_parameters = np.concatenate([eval_parameters, np.repeat(eparams, number_of_evaluation_masks_per_image, axis = 0)], axis =0)
 
     n = 32
     train_masks = generate_random_masks_on_the_fly(n, train_images.shape[0], random_missingness_percentages)
     eval_masks = generate_random_masks_on_the_fly(n, eval_images.shape[0], random_missingness_percentages)
     train_images = train_images[:,:,2:34,2:34]
     eval_images = eval_images[:,:,2:34,2:34]
-    train_dataset = CustomSpatialImageMaskDataset(train_images, train_masks)
-    eval_dataset = CustomSpatialImageMaskDataset(eval_images, eval_masks)
+    train_dataset = CustomSpatialImageMaskandParameterDataset(train_images, train_masks, train_parameters)
+    eval_dataset = CustomSpatialImageMaskandParameterDataset(eval_images, eval_masks, eval_parameters)
     train_dataloader = DataLoader(train_dataset, batch_size = batch_size, shuffle = True)
     eval_dataloader = DataLoader(eval_dataset, batch_size = eval_batch_size, shuffle = True)
     return train_dataloader, eval_dataloader
-
-
-
 
 
 
@@ -247,8 +283,10 @@ def get_training_and_evaluation_random_mask_and_image_datasets(number_of_random_
     eval_dataloader = DataLoader(eval_dataset, batch_size = eval_batch_size, shuffle = True)
     return train_dataloader, eval_dataloader
 
-def get_next_batch(image_and_mask_iterator, config):
+def get_next_batch(image_mask_and_parameter_iterator, config):
 
-    images_and_masks = (next(image_and_mask_iterator))
-    images_and_masks = images_and_masks.to(config.device).float()
-    return images_and_masks
+    images_and_masks, parameters = (next(image_mask_and_parameter_iterator))
+    images_and_masks= images_and_masks.to(config.device).float()
+    parameters = parameters.to(config.device).float()
+    return images_and_masks, parameters
+

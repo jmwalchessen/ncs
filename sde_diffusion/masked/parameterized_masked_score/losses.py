@@ -213,6 +213,49 @@ def get_masked_score_ddpm_loss_fn(vpsde, train, reduce_mean = True):
   
   return loss_fn
 
+def get_parameterized_masked_score_ddpm_loss_fn(vpsde, train, reduce_mean = True):
+  """DDPM loss modified to incorporate a mask (fixed or not)"""
+  assert isinstance(vpsde, VPSDE), "DDPM training only works for VPSDEs."
+
+  reduce_op = torch.mean if reduce_mean else lambda *args, **kwargs: 0.5 * torch.sum(*args, **kwargs)
+
+  #batch is one element (1,2,32,32) 1rst channel is image, 2nd channel is mask
+  def loss_fn(model, batch):
+
+    model_fn = mutils.get_model_fn(model, train=train)
+    batch_images_and_masks = batch[0]
+    batch_parameters = batch[1]
+    labels = torch.randint(0, vpsde.N, (batch_images_and_masks.shape[0],), device=batch_images_and_masks.device)
+    sqrt_alphas_cumprod = vpsde.sqrt_alphas_cumprod.to(batch_images_and_masks.device)
+    #this is sigma_t i.e. std
+    sqrt_1m_alphas_cumprod = vpsde.sqrt_1m_alphas_cumprod.to(batch_images_and_masks.device)
+    batch_images = batch_images_and_masks[:,0:1,:,:]
+    batch_masks = batch_images_and_masks[:,1:2,:,:]
+    noise = torch.randn_like(batch_images)
+    perturbed_image = sqrt_alphas_cumprod[labels, None, None, None] * batch_images + \
+                     sqrt_1m_alphas_cumprod[labels, None, None, None] * noise
+    #this is based on equation 3 in paper All in One Simulation Based Inference
+    masked_perturbed_image = (torch.mul((1-batch_masks), perturbed_image) + torch.mul(batch_masks, batch_images))
+    #not necessarily needed to add mask as input to score model
+    masked_perturbed_batch = torch.cat((masked_perturbed_image, batch_masks), dim=1)
+    score = model_fn(masked_perturbed_batch, batch_parameters, labels)
+    image_score = score[:,0:1,:,:]
+    mask_score = score[:,1:2,:,:]
+    stds = sqrt_1m_alphas_cumprod[labels]
+    #stds_inverse = sqrt_1m_alphas_cumprod[labels].pow(-1)
+    #weighted losses
+    stds = stds.view((batch_images.shape[0],1,1,1))
+    image_losses = torch.square(torch.mul(stds, (torch.mul(stds, image_score) + noise)))
+    masked_image_losses = torch.mul((1-batch_masks), image_losses)
+    masked_image_losses = reduce_op(masked_image_losses.reshape(masked_image_losses.shape[0], -1), dim=-1)
+    ml = torch.mean(torch.square(torch.subtract(batch_masks,mask_score)))
+    mask_loss = torch.mean(masked_image_losses)+torch.mean(torch.square(torch.subtract(batch_masks,mask_score)))
+    return mask_loss
+  
+  return loss_fn
+
+
+
 
 def get_step_fn(sde, train, optimize_fn=None,
                 reduce_mean=False, continuous=True,
@@ -237,7 +280,7 @@ def get_step_fn(sde, train, optimize_fn=None,
     assert not likelihood_weighting, "Likelihood weighting is not supported for original SMLD/DDPM training."
     if (isinstance(sde, VPSDE)):
       if masked:
-        loss_fn = get_masked_score_ddpm_loss_fn(sde, train, reduce_mean=reduce_mean) 
+        loss_fn = get_parameterized_masked_score_ddpm_loss_fn(sde, train, reduce_mean=reduce_mean) 
       else:
         loss_fn = get_ddpm_loss_fn(sde, train, reduce_mean=reduce_mean)
 
