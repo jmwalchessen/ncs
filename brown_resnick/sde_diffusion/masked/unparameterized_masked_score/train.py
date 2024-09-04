@@ -115,7 +115,7 @@ number_of_evaluation_random_replicates = 50
 number_of_masks_per_image = 100
 number_of_evaluation_masks_per_image = 5
 #smaller p means less ones which means more observed values
-random_missingness_percentages = [.025, .05, 7.5, 10, 12.5]
+random_missingness_percentages = [.025, .05, .075, .1, .125]
 batch_size = 1024
 eval_batch_size = 32
 range_value = 1.6

@@ -111,7 +111,7 @@ number_of_replicates = 1
 
 
 for i in range(0,10):
-    p = .5
+    p = .1
     mask = (th.bernoulli(p*th.ones(1,1,n,n))).to(device)
     seed_value = int(np.random.randint(0, 100000))
     brsamples = np.log((generate_brown_resnick_process(range_value, smooth_value, seed_value, number_of_replicates, n)).reshape((1,1,n,n)))
@@ -123,6 +123,6 @@ for i in range(0,10):
                                                                     device, mask, y, n,
                                                                     num_samples)
 
-    figname = ("visualizations/models/model1/random50_range_1.6_smooth_1.6_observed_and_generated_samples_" + str(i) + ".png")
+    figname = ("visualizations/models/model2/random10_range_1.6_smooth_1.6_observed_and_generated_samples_" + str(i) + ".png")
     visualize_observed_and_generated_samples(unmasked_y, mask, diffusion_samples[0,:,:,:],
                                             diffusion_samples[1,:,:,:], n, figname)
