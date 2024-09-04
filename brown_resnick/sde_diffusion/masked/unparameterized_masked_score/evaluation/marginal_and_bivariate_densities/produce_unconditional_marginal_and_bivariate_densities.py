@@ -43,10 +43,10 @@ def visualize_spatial_field(observation, min_value, max_value, figname):
 
 def produce_true_and_generated_marginal_density(n, range_value, smooth_value, number_of_replicates,
                                                 matrix_index, seed_value, unconditional_generated_samples,
+                                                unconditional_true_samples,
                                                 figname):
 
-    unconditional_vectors = generate_brown_resnick_process(range_value, smooth_value, seed_value, number_of_replicates)
-    unconditional_matrices = unconditional_vectors.reshape((number_of_replicates,1,n,n))
+    unconditional_matrices = np.log(unconditional_true_samples).reshape((number_of_replicates,1,n,n))
     #conditional_vectors is shape (number of replicates, m)
     marginal_density = (unconditional_matrices[:,0,matrix_index[0],matrix_index[1]]).reshape((number_of_replicates,1))
     generated_marginal_density = unconditional_generated_samples[:,0,int(matrix_index[0]),int(matrix_index[1])]
@@ -67,6 +67,8 @@ def produce_true_and_generated_marginal_density(n, range_value, smooth_value, nu
     sns.kdeplot(data = pdd, ax = axs[1], palette=['blue'])
     sns.kdeplot(data = generated_pdd, palette = ["orange"], ax = axs[1])
     axs[1].set_title("Marginal")
+    axs[1].set_xlim(-4,8)
+    axs[1].set_ylim(0,.5)
     index = matrix_index_to_index(matrix_index, n)
     #location = index_to_spatial_location(minX, maxX, minY, maxY, n, index)
     #rlocation = (round(location[0],2), round(location[1],2))
@@ -80,13 +82,10 @@ def produce_true_and_generated_marginal_density(n, range_value, smooth_value, nu
 
 def produce_true_and_generated_bivariate_density(n, range_value, smooth_value,
                                                  number_of_replicates, matrixindex1, matrixindex2, seed_value,
-                                                 unconditional_generated_samples,
+                                                 unconditional_generated_samples, unconditional_true_samples,
                                                  figname):
     
-    
-    unconditional_vectors = generate_brown_resnick_process(range_value, smooth_value,
-                                                           seed_value, number_of_replicates)
-    unconditional_matrices = unconditional_vectors.reshape((number_of_replicates,1,n,n))
+    unconditional_matrices = np.log(unconditional_true_samples).reshape((number_of_replicates, 1, n, n))
     bivariate_density = np.concatenate([(unconditional_matrices[:,0,int(matrixindex1[0]),int(matrixindex1[1])]).reshape((number_of_replicates,1)),
                                         (unconditional_matrices[:,0,int(matrixindex2[0]),int(matrixindex2[1])]).reshape((number_of_replicates,1))], axis = 1).reshape((number_of_replicates,2))
     number_of_replicates = unconditional_matrices.shape[0]
@@ -104,7 +103,7 @@ def produce_true_and_generated_bivariate_density(n, range_value, smooth_value,
                                     columns = ['x', 'y', 'class'])
     pdd = pdd.astype({'x': 'float64', 'y': 'float64'})
     #partially_observed_field = np.multiply(mask.astype(bool), observed_vector.reshape((n,n)))
-    axs[0].imshow(unconditional_matrices[0,:,:].reshape((n,n)), vmin = -2, vmax = 2)
+    axs[0].imshow(unconditional_matrices[0,:,:].reshape((n,n)), vmin = -2, vmax = 6)
     axs[0].plot(matrixindex1[1], matrixindex1[0], "r+")
     axs[0].plot(matrixindex2[1], matrixindex2[0], "r+")
     kde1 = sns.kdeplot(data = pdd, x = 'x', y = 'y',
@@ -113,9 +112,9 @@ def produce_true_and_generated_bivariate_density(n, range_value, smooth_value,
                 #ax = axs[1], color = 'orange', levels = 5, label = "generated")
     blue_patch = mpatches.Patch(color='blue')
     orange_patch = mpatches.Patch(color='orange')
-    plt.xlim(-2,2)
-    plt.ylim(-2,2)
-    axs[1].set_title("Marginal")
+    plt.xlim(-4,8)
+    plt.ylim(-4,8)
+    axs[1].set_title("Bivariate")
     index1 = matrix_index_to_index(matrixindex1, n)
     index2 = matrix_index_to_index(matrixindex2, n)
     #location1 = index_to_spatial_location(minX, maxX, minY, maxY, n, index1)
@@ -135,22 +134,23 @@ range_value = 1.6
 smooth_value = 1.6
 number_of_replicates = 4000
 matrix_index = (15,15)
+seed_value = 293571
+unconditional_true_samples = np.load("brown_resnick_samples_range_1.6_smooth_1.6_4000.npy")
 unconditional_generated_samples = np.load(diffusion_generation_folder + "/data/model2/ref_image1/diffusion/model2_random0_beta_min_max_01_20_1000.npy")
-print("a")
-
+"""
 for i in range(0, n, 4):
     for j in range(0, n, 4):
 
         matrix_index = (i,j)
         seed_value = np.random.randint(0, 100000, 1)[0]
-        print("b")
         figname = (diffusion_generation_folder + "/data/model2/ref_image1/marginal_density/model2_marginal_density_" + str(i) + "_" + str(j) + ".png")
         produce_true_and_generated_marginal_density(n, range_value, smooth_value, number_of_replicates,
                                                     matrix_index, seed_value, unconditional_generated_samples,
-                                                    figname)
+                                                    unconditional_true_samples, figname)
 
 
 """
+
 indices1 = [(15+i,18) for i in range(-4,4)]
 indices2 = [(15,15)]
 
@@ -159,10 +159,10 @@ for i in indices1:
     for j in indices2:
         iindex = matrix_index_to_index(i, n)
         jindex = matrix_index_to_index(j, n)
-        folder_name = (diffusion_generation_folder + "/data/model6/ref_image2/bivariate_density/")
-        figname = (folder_name + "/bivariate_density_model6_" + str(iindex) + "_" + str(jindex) + ".png")
+        folder_name = (diffusion_generation_folder + "/data/model2/ref_image1/bivariate_density/")
+        figname = (folder_name + "/bivariate_density_model2_" + str(iindex) + "_" + str(jindex) + ".png")
         seed_value = np.random.randint(0, 100000, 1)[0]
-        produce_true_and_generated_bivariate_density(n, variance, lengthscale,
+        produce_true_and_generated_bivariate_density(n, range_value, smooth_value,
                                                  number_of_replicates, i, j, seed_value,
-                                                 unconditional_generated_samples,
-                                                 figname)"""
+                                                 unconditional_generated_samples, unconditional_true_samples,
+                                                 figname)

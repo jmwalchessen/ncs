@@ -60,7 +60,8 @@ def produce_generated_marginal_density(mask, minX, maxX, minY, maxY, n, missing_
     plt.axvline(ref_image[int(matrix_missing_index[0]),int(matrix_missing_index[1])], 
                 color='red', linestyle = 'dashed')
     axs[1].set_title("Marginal")
-    axs[1].set_xlim(-2,6)
+    axs[1].set_xlim(-4,8)
+    axs[1].set_ylim(0,.8)
     location = index_to_spatial_location(minX, maxX, minY, maxY, n, missing_true_index)
     rlocation = (round(location[0],2), round(location[1],2))
     axs[1].set_xlabel("location: " + str(rlocation))
@@ -98,8 +99,8 @@ def produce_generated_bivariate_density(mask, minX, maxX, minY, maxY, n, range_v
     #orange_patch = mpatches.Patch(color='orange')
     plt.axvline(ref_image[int(matrix_index1[0]),int(matrix_index1[1])], color='red', linestyle = 'dashed')
     plt.axhline(ref_image[int(matrix_index2[0]),int(matrix_index2[1])], color='red', linestyle = 'dashed')
-    plt.xlim(-2,6)
-    plt.ylim(-2,6)
+    plt.xlim(-4,8)
+    plt.ylim(-4,8)
     axs[1].set_title("Bivariate")
     location1 = index_to_spatial_location(minX, maxX, minY, maxY, n, missing_true_index1)
     rlocation1 = (round(location1[0],2), round(location1[1],2))
@@ -115,21 +116,21 @@ def produce_generated_bivariate_density(mask, minX, maxX, minY, maxY, n, range_v
 
 n = 32
 number_of_replicates = 4000 
-conditional_samples = np.load((data_generation_folder + "/data/model1/ref_image1/diffusion/model1_random50_beta_min_max_01_20_1000.npy"))
+conditional_samples = np.load((data_generation_folder + "/data/model2/ref_image3/diffusion/model2_random10_beta_min_max_01_20_1000.npy"))
 conditional_samples = conditional_samples.reshape((number_of_replicates,n,n))
 #mask = np.load((data_generation_folder + "/data/ref_image1/mask.npy"), allow_pickle = True)
 n = 32
 #mask = th.zeros((1,n,n))
 #mask[:, int(n/4):int(n/4*3), int(n/4):int(n/4*3)] = 1
 device = "cuda:0"
-p = .5
-mask = np.load((data_generation_folder + "/data/model1/ref_image1/mask.npy"))
-ref_image = (np.load((data_generation_folder + "/data/model1/ref_image1/ref_image.npy")))
+p = .025
+mask = np.load((data_generation_folder + "/data/model2/ref_image3/mask.npy"))
+ref_image = (np.load((data_generation_folder + "/data/model2/ref_image3/ref_image.npy")))
 range_value = 1.6
 smooth_value = 1.6                                                                                        
 missing_indices = np.squeeze(np.argwhere((1-mask).reshape((n**2,))))
 mask_type = "random50"
-folder_name = (data_generation_folder + "/data/model1/ref_image1/marginal_density")
+folder_name = (data_generation_folder + "/data/model2/ref_image3/marginal_density")
 m = missing_indices.shape[0]
 observed_vector = ref_image.reshape((n**2))
 observed_vector = np.delete(observed_vector, missing_indices)
@@ -143,7 +144,7 @@ for i in range(0, m, 10):
     missing_index = i
     true_missing_index = missing_indices[missing_index]
     true_missing_matrix_index = index_to_matrix_index(true_missing_index, n)
-    figname = (folder_name + "/marginal_density_model1_" + str(int(true_missing_matrix_index[0]))
+    figname = (folder_name + "/marginal_density_model2_" + str(int(true_missing_matrix_index[0]))
                + "_" + str(int(true_missing_matrix_index[1])) + ".png")
     produce_generated_marginal_density((1-mask), minX, minY, maxX, maxY, n, missing_index, missing_indices,
                                        conditional_samples, ref_image,
@@ -151,20 +152,20 @@ for i in range(0, m, 10):
 
 
 
-                   
-indices1 = [212]
-indices2 = [195,211,213,214,215,225,226,227,228,229,230]
+          
+indices1 = [585]
+indices2 = [580,581,582,583,584,586,587,589,590,603,604,605,606,607,608,609,610,611,612,555,554,553,556,567,568]
 
 for i in indices1:
     for j in indices2:
         missing_index1 = i
         missing_index2 = j
-        folder_name = (data_generation_folder + "/data/model1/ref_image1/bivariate_density")
+        folder_name = (data_generation_folder + "/data/model2/ref_image3/bivariate_density")
         true_missing_index1 = i
         true_missing_matrix_index1 = index_to_matrix_index(true_missing_index1, n)
         true_missing_index2 = j
         true_missing_matrix_index2 = index_to_matrix_index(true_missing_index2, n)
-        figname = (folder_name + "/bivariate_density_model6_" + str(int(true_missing_matrix_index1[0]))
+        figname = (folder_name + "/bivariate_density_model2_" + str(int(true_missing_matrix_index1[0]))
                 + "_" + str(int(true_missing_matrix_index1[1])) + "_" +
                 str(int(true_missing_matrix_index2[0])) + "_" + str(int(true_missing_matrix_index2[1]))
                     + ".png")
