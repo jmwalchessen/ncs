@@ -18,7 +18,7 @@ device = "cuda:0"
 config = ncsnpp_config.get_config()
 #if trained parallelized, need to be evaluated that way too
 score_model = torch.nn.DataParallel((ncsnpp.NCSNpp(config)).to("cuda:0"))
-score_model.load_state_dict(th.load((home_folder + "/trained_score_models/vpsde/model1_beta_min_max_01_20_random50_log_channel_mask.pth")))
+score_model.load_state_dict(th.load((home_folder + "/trained_score_models/vpsde/model2_beta_min_max_01_20_random025125_log_channel_mask.pth")))
 score_model.eval()
 
 #y is observed part of field, modified to incorporate the mask as channel
@@ -108,11 +108,11 @@ maxY = 10
 range_value = 1.6
 smooth_value = 1.6
 number_of_replicates = 1
-
+p = .1
+mask = (th.bernoulli(p*th.ones(1,1,n,n))).to(device)
 
 for i in range(0,10):
-    p = .1
-    mask = (th.bernoulli(p*th.ones(1,1,n,n))).to(device)
+
     seed_value = int(np.random.randint(0, 100000))
     brsamples = np.log((generate_brown_resnick_process(range_value, smooth_value, seed_value, number_of_replicates, n)).reshape((1,1,n,n)))
     unmasked_y = (th.from_numpy(brsamples)).to(device)
