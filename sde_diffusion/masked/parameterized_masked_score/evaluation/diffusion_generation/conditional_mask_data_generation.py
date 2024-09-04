@@ -87,7 +87,7 @@ def posterior_sample_with_p_mean_variance_via_mask(vpsde, score_model, device, m
     masked_xt = masked_xT
     for t in range((vpsde.N-1), 0, -1):
         masked_xt = sample_with_p_mean_variance_via_mask(vpsde, score_model, device, masked_xt,
-                                                         mask, y, t, num_samples, variance, lengthscale)
+                                                         mask, y, t, variance, lengthscale)
 
     return masked_xt
 
