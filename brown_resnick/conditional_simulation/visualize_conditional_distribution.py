@@ -1,0 +1,60 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import torch
+from mpl_toolkits.axes_grid1 import ImageGrid
+import os
+import sys
+from rtopython_helper_functions import *
+
+def plot_conditional_true_and_difussion_samples(mask, conditional_simulations, ref_image, n, figname):
+
+    fig = plt.figure(figsize=(10, 7.2))
+
+    grid = ImageGrid(fig, 111,          # as in plt.subplot(111)
+                    nrows_ncols=(2,2),
+                    axes_pad=0.35,
+                    share_all=False,
+                    cbar_location="right",
+                    cbar_mode="single",
+                    cbar_size="7%",
+                    cbar_pad=0.15,
+                    label_mode = "L"
+                    )
+    
+    n = 32
+    mask = mask.reshape((n,n))
+    ref_image = ref_image.reshape((n,n))
+
+    for i, ax in enumerate(grid):
+        if(i == 0):
+            im = ax.imshow(np.log(ref_image).reshape((n,n)),
+                           alpha = mask, vmin = -2, vmax = 3)
+            ax.set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
+            ax.set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
+            ax.set_title("Partial Obs.")
+        elif(i==1):
+            im = ax.imshow(np.log(ref_image).reshape((n,n)), vmin = -2, vmax = 3)
+            ax.set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
+            ax.set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
+            ax.set_title("True")
+        else:
+            im = ax.imshow(np.log(conditional_simulations[(i-2),:,:]), vmin = -2, vmax = 3)
+            ax.set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
+            ax.set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
+            ax.set_title("MCMC Approx")
+
+    cbar = grid.cbar_axes[0].colorbar(im)
+    cbar.set_ticks([-2,-1,0,1,2])
+    fig.text(0.5, 0.975, 'Schlather range = 3, smooth = 1.6', ha='center', va='center', fontsize = 12)
+    #fig.text(0.1, 0.5, 'range', ha='center', va='center', rotation = 'vertical', fontsize = 40)
+    plt.tight_layout()
+    plt.savefig(figname)
+
+
+mask, ref_image, preconditional_simulations = load_files("ref_image1")
+n = 32
+nrep = 50
+condsims = process_rproducts(mask, ref_image, preconditional_simulations, nrep, n)
+for i in range(0, nrep, 2):
+    figname = "data/powexp/random5_range_3_smooth_1.6_" + str(i) + ".png"
+    plot_conditional_true_and_difussion_samples(mask, condsims[i:(i+2),:,:], ref_image, n, figname)
