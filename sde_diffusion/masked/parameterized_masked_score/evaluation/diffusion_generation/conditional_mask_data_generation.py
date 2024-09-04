@@ -6,7 +6,7 @@ import generate_true_conditional_samples
 import matplotlib.pyplot as plt
 
 home_folder = append_directory(6)
-sde_folder = home_folder + "/sde_diffusion/masked/unparameterized_masked_score"
+sde_folder = home_folder + "/sde_diffusion/masked/parameterized_masked_score"
 #sde configs folder
 sde_configs_vp_folder = sde_folder + "/configs/vp"
 sys.path.append(sde_configs_vp_folder)
@@ -28,7 +28,7 @@ config.model.num_scales = 1000
 config.model.beta_max = 20
 
 score_model = th.nn.DataParallel((ncsnpp.NCSNpp(config)).to("cuda:0"))
-score_model.load_state_dict(th.load((sde_folder + "/trained_score_models/vpsde/model6_beta_min_max_01_20_random02510_channel_mask.pth")))
+score_model.load_state_dict(th.load((sde_folder + "/trained_score_models/vpsde/model1_beta_min_max_01_20_random50_channel_mask.pth")))
 score_model.eval()
 
 sdevp = sde_lib.VPSDE(beta_min=0.1, beta_max=20, N=1000)
@@ -45,7 +45,7 @@ variance = .4
 lengthscale = 1.6
 
 #y is observed part of field, modified to incorporate the mask as channel
-def p_mean_and_variance_from_score_via_mask(vpsde, score_model, device, masked_xt, mask, y, t):
+def p_mean_and_variance_from_score_via_mask(vpsde, score_model, device, masked_xt, mask, y, t, variance, lengthscale):
 
     num_samples = masked_xt.shape[0]
     timestep = ((th.tensor([t])).repeat(num_samples)).to(device)
@@ -54,7 +54,8 @@ def p_mean_and_variance_from_score_via_mask(vpsde, score_model, device, masked_x
     mask = mask.repeat((reps,1,1,1))
     masked_xt_and_mask = th.cat([masked_xt, mask], dim = 1)
     with th.no_grad():
-        score_and_mask = score_model(masked_xt_and_mask, timestep)
+        parameter = th.tensor([variance, lengthscale]).to(device)
+        score_and_mask = score_model(masked_xt_and_mask, parameter, timestep)
     
     #first channel is score, second channel is mask
     score = score_and_mask[:,0:1,:,:]
@@ -66,9 +67,10 @@ def p_mean_and_variance_from_score_via_mask(vpsde, score_model, device, masked_x
     masked_p_variance = th.mul((1-mask), unmasked_p_variance)
     return masked_p_mean, masked_p_variance
 
-def sample_with_p_mean_variance_via_mask(vpsde, score_model, device, masked_xt, mask, y, t, num_samples):
+def sample_with_p_mean_variance_via_mask(vpsde, score_model, device, masked_xt, mask, y, t, variance, lengthscale):
 
-    p_mean, p_variance = p_mean_and_variance_from_score_via_mask(vpsde, score_model, device, masked_xt, mask, y, t)
+    p_mean, p_variance = p_mean_and_variance_from_score_via_mask(vpsde, score_model, device, masked_xt, mask, y, t,
+                                                                 variance, lengthscale)
     std = th.exp(0.5 * th.log(p_variance))
     noise = th.randn_like(masked_xt)
     #just to make sure that the masked values aren't perturbed by the noise, the variance should already be masked though
@@ -78,25 +80,25 @@ def sample_with_p_mean_variance_via_mask(vpsde, score_model, device, masked_xt, 
 
 
 def posterior_sample_with_p_mean_variance_via_mask(vpsde, score_model, device, mask,
-                                                   y, n, num_samples):
+                                                   y, n, num_samples, variance, lengthscale):
 
     unmasked_xT = th.randn((num_samples, 1, n, n)).to(device)
     masked_xT = th.mul((1-mask), unmasked_xT) + th.mul(mask, y)
     masked_xt = masked_xT
     for t in range((vpsde.N-1), 0, -1):
         masked_xt = sample_with_p_mean_variance_via_mask(vpsde, score_model, device, masked_xt,
-                                                         mask, y, t, num_samples)
+                                                         mask, y, t, variance, lengthscale)
 
     return masked_xt
 
 def sample_unconditionally_multiple_calls(vpsde, score_model, device, mask, y, n,
-                                          num_samples_per_call, calls):
+                                          num_samples_per_call, calls, variance, lengthscale):
     
     diffusion_samples = th.zeros((0, 1, n, n))
     for call in range(0, calls):
         current_diffusion_samples = posterior_sample_with_p_mean_variance_via_mask(vpsde, score_model,
                                                                                    device, mask, y, n,
-                                                                                   num_samples_per_call)
+                                                                                   num_samples_per_call, variance, lengthscale)
         diffusion_samples = th.cat([current_diffusion_samples.detach().cpu(),
                                     diffusion_samples],
                                     dim = 0)
@@ -121,6 +123,8 @@ replicates_per_call = 250
 calls = 4
 number_of_replicates = 1
 seed_value = 433293
+variance = 1.6
+lengthscale = .4
 ref_img = generate_true_conditional_samples.generate_gaussian_process(minX, maxX,
                                                                       minY, maxY,
                                                                       n, variance,
@@ -128,7 +132,7 @@ ref_img = generate_true_conditional_samples.generate_gaussian_process(minX, maxX
                                                                       number_of_replicates,
                                                                       seed_value)
 ref_img = th.from_numpy(ref_img[1].reshape((1,n,n))).to(device)
-p = .1
+p = .5
 mask = (th.bernoulli(p*th.ones(1,1,n,n))).to(device)
 
 for i in range(0, 4):
@@ -136,18 +140,18 @@ for i in range(0, 4):
 #mask[:, int(n/4):int(n/4*3), int(n/4):int(n/4*3)] = 0
     y = ((th.mul(mask, ref_img)).to(device)).float()
     conditional_samples = sample_unconditionally_multiple_calls(sdevp, score_model, device, mask, y, n,
-                                          replicates_per_call, calls)
+                                          replicates_per_call, calls, variance, lengthscale)
 
     partially_observed = (mask*ref_img).detach().cpu().numpy().reshape((n,n))
-    np.save("data/model6/ref_image3/ref_image.npy", ref_img.detach().cpu().numpy().reshape((n,n)))
-    np.save("data/model6/ref_image3/diffusion/model6_beta_min_max_01_20_random10_250_" + str(i) + ".npy", conditional_samples)
-    np.save("data/model6/ref_image3/partially_observed_field.npy", partially_observed.reshape((n,n)))
-    np.save("data/model6/ref_image3/mask.npy", mask.int().detach().cpu().numpy().reshape((n,n)))
-    np.save("data/model6/ref_image3/seed_value.npy", np.array([int(seed_value)]))
+    np.save("data/model1/ref_image2/ref_image.npy", ref_img.detach().cpu().numpy().reshape((n,n)))
+    np.save("data/model1/ref_image2/diffusion/model1_beta_min_max_01_20_random50_variance_1.6_lengthscale_.4_250_" + str(i) + ".npy", conditional_samples)
+    np.save("data/model1/ref_image2/partially_observed_field.npy", partially_observed.reshape((n,n)))
+    np.save("data/model1/ref_image2/mask.npy", mask.int().detach().cpu().numpy().reshape((n,n)))
+    np.save("data/model1/ref_image2/seed_value.npy", np.array([int(seed_value)]))
 
-    plot_spatial_field(ref_img.detach().cpu().numpy().reshape((n,n)), -3, 3, "data/model6/ref_image3/ref_image.png")
-    plot_spatial_field((conditional_samples[0,:,:,:]).numpy().reshape((n,n)), -3, 3, "data/model6/ref_image3/diffusion/visualizations/conditional_sample_0.png")
+    plot_spatial_field(ref_img.detach().cpu().numpy().reshape((n,n)), -3, 3, "data/model1/ref_image2/ref_image.png")
+    plot_spatial_field((conditional_samples[0,:,:,:]).numpy().reshape((n,n)), -3, 3, "data/model1/ref_image2/diffusion/visualizations/conditional_sample_0.png")
     plot_masked_spatial_field(spatial_field = ref_img.detach().cpu().numpy().reshape((n,n)),
-                   vmin = -2, vmax = 2, mask = mask.int().float().detach().cpu().numpy().reshape((n,n)), figname = "data/model6/ref_image3/partially_observed_field.png")
+                   vmin = -2, vmax = 2, mask = mask.int().float().detach().cpu().numpy().reshape((n,n)), figname = "data/model1/ref_image2/partially_observed_field.png")
 
 
