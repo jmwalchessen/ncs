@@ -7,7 +7,7 @@ import pandas as pd
 import os
 import sys
 from append_directories import *
-data_generation_folder = (append_directory(2) + "/evaluation/diffusion_generation")
+data_generation_folder = (append_directory(2) + "/diffusion_generation")
 print(data_generation_folder)
 sys.path.append(data_generation_folder)
 
