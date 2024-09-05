@@ -111,13 +111,14 @@ number_of_replicates = 1
 p = .5
 mask = (th.bernoulli(p*th.ones(1,1,n,n))).to(device)
 
+
 for i in range(0,10):
 
     seed_value = int(np.random.randint(0, 100000))
     #brsamples = np.log((generate_brown_resnick_process(range_value, smooth_value, seed_value, number_of_replicates, n)).reshape((1,1,n,n)))
-    ssamples = np.log((generate_schlather_process(range_value, smooth_value, seed_value, number_of_replicates, n)).reshape((1,1,n,n)))
+    ssamples = (np.log(np.load("temporary_schlather_samples.npy"))).reshape((1,1,n,n))
     #unmasked_y = (th.from_numpy(brsamples)).to(device)
-    unmaksed_y = (th.from_numpy(ssamples)).to(device)
+    unmasked_y = (th.from_numpy(ssamples)).to(device)
     print(unmasked_y.min())
     y = ((torch.mul(mask, unmasked_y)).to(device)).float()
     num_samples = 2
