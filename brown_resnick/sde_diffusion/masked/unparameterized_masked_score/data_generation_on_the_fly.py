@@ -233,6 +233,9 @@ def get_schlather_training_and_evaluation_data_per_percentages(number_of_random_
 
     train_images = np.log(train_images)
     eval_images = np.log(eval_images)
+    fig, ax = plt.subplots(1)
+    plt.imshow(train_images[0,:,:,:].reshape((n,n)))
+    plt.savefig("schlather_sample.png")
     train_masks = generate_random_masks_on_the_fly(n, train_images.shape[0], random_missingness_percentages)
     eval_masks = generate_random_masks_on_the_fly(n, eval_images.shape[0], random_missingness_percentages)
     train_dataset = CustomSpatialImageMaskDataset(train_images, train_masks)
