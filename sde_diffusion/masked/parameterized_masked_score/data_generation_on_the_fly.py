@@ -219,7 +219,7 @@ def get_training_and_evaluation_data_per_percentages(number_of_random_replicates
                                                               number_of_random_replicates,
                                                               seed_values)
             eimages, eparams = generate_data_on_the_fly(minX, maxX, minY, maxY, n,
-                                                              parameter_matrix,
+                                                              eval_parameter_matrix,
                                                               number_of_evaluation_random_replicates,
                                                               eval_seed_values)
             train_images = np.concatenate([train_images, np.repeat(timages, number_of_masks_per_image, axis = 0)])
