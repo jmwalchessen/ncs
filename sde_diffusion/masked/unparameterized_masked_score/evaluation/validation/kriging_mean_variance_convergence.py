@@ -54,6 +54,38 @@ def visualize_kriging_mean_and_diffusion_mean(mask, minX, maxX, minY, maxY, n, v
     plt.tight_layout()
     plt.savefig(figname)
 
+def unconditional_covariance_map_per_pixel(images, pixel_location, n, nrep, figname):
+
+    empirical_covariance =np.cov(images.reshape((nrep, (n**2))), rowvar = False)
+    fig, ax = plt.subplots()
+    pixel_cov = empirical_covariance[:,pixel_location]
+    ax.imshow(pixel_cov.reshape((n,n)), vmin = -.5, vmax = .5)
+    plt.savefig(figname)
+
+def conditional_covariance_map_per_pixel(images, mask, missing_index, n, nrep, figname):
+
+    flatten_images = images.reshape((nrep,n**2))
+    flatten_masks = mask.reshape(((n**2)))
+    unobserved_images = flatten_images[:,flatten_masks == 0]
+    m = unobserved_images.shape[1]
+    empirical_covariance = np.cov(unobserved_images, rowvar = False)
+    pixel_cov = empirical_covariance[:,missing_index]
+    flattened_pixel_cov = pixel_cov.reshape((m**2))
+    missing_indices = np.squeeze(np.argwhere((1-mask).reshape((n**2,))))
+    pixel_cov = np.zeros((n**2))
+    pixel_cov[missing_indices] = flattened_pixel_cov
+
+    fig, ax = plt.subplots()
+    ax.imshow(pixel_cov.reshape((n,n)), vmin = -.5, vmax = .5)
+    plt.show()
+
+"""
+def generated_and_true_covariance_per_pixel(diffusion_images, pixel_location, n, nrep, figname):
+
+    true_empirical_covariance = np.cov()"""
+
+
+
 minX = -10
 maxX = 10
 minY = -10
@@ -69,6 +101,13 @@ m = observations.shape[0]
 observations = observations.reshape(m,1)
 diffusion_samples = np.load((eval_folder + "/diffusion_generation/data/model6/ref_image1/diffusion/model6_random025_beta_min_max_01_20_1000.npy"))
 convergence_numbers = [1000, 2000, 4000]
+print(diffusion_samples.shape)
 figname = "kriging_mean_and_diffusion_mean.png"
+"""
 visualize_kriging_mean_and_diffusion_mean((1-mask), minX, maxX, minY, maxY, n, variance, lengthscale, observations,
-                                              diffusion_samples, convergence_numbers, figname)
+                                              diffusion_samples, convergence_numbers, figname)"""
+
+nrep = 4000
+missing_index = 345
+figname = ("empirical_covariance_map_" + str(missing_index) + ".png")
+conditional_covariance_map_per_pixel(diffusion_samples, mask, missing_index, n, nrep, figname)

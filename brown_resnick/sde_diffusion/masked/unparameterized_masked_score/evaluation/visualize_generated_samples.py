@@ -18,7 +18,7 @@ device = "cuda:0"
 config = ncsnpp_config.get_config()
 #if trained parallelized, need to be evaluated that way too
 score_model = torch.nn.DataParallel((ncsnpp.NCSNpp(config)).to("cuda:0"))
-score_model.load_state_dict(th.load((home_folder + "/trained_score_models/vpsde/model2_beta_min_max_01_20_random025125_log_channel_mask.pth")))
+score_model.load_state_dict(th.load((home_folder + "/trained_score_models/vpsde/schlather/model1_beta_min_max_01_20_range_3_smooth_1.6_random50_log_parameterized_mask.pth")))
 score_model.eval()
 
 #y is observed part of field, modified to incorporate the mask as channel
@@ -108,14 +108,16 @@ maxY = 10
 range_value = 1.6
 smooth_value = 1.6
 number_of_replicates = 1
-p = .1
+p = .5
 mask = (th.bernoulli(p*th.ones(1,1,n,n))).to(device)
 
 for i in range(0,10):
 
     seed_value = int(np.random.randint(0, 100000))
-    brsamples = np.log((generate_brown_resnick_process(range_value, smooth_value, seed_value, number_of_replicates, n)).reshape((1,1,n,n)))
-    unmasked_y = (th.from_numpy(brsamples)).to(device)
+    #brsamples = np.log((generate_brown_resnick_process(range_value, smooth_value, seed_value, number_of_replicates, n)).reshape((1,1,n,n)))
+    ssamples = np.log((generate_schlather_process(range_value, smooth_value, seed_value, number_of_replicates, n)).reshape((1,1,n,n)))
+    #unmasked_y = (th.from_numpy(brsamples)).to(device)
+    unmaksed_y = (th.from_numpy(ssamples)).to(device)
     print(unmasked_y.min())
     y = ((torch.mul(mask, unmasked_y)).to(device)).float()
     num_samples = 2
@@ -123,6 +125,6 @@ for i in range(0,10):
                                                                     device, mask, y, n,
                                                                     num_samples)
 
-    figname = ("visualizations/models/model2/random10_range_1.6_smooth_1.6_observed_and_generated_samples_" + str(i) + ".png")
+    figname = ("visualizations/schlather/models/model1/random50_range_1.6_smooth_1.6_observed_and_generated_samples_" + str(i) + ".png")
     visualize_observed_and_generated_samples(unmasked_y, mask, diffusion_samples[0,:,:,:],
                                             diffusion_samples[1,:,:,:], n, figname)
