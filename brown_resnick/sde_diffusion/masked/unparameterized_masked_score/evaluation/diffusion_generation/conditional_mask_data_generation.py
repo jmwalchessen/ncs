@@ -36,9 +36,7 @@ sdevp = sde_lib.VPSDE(beta_min=0.1, beta_max=20, N=1000)
 #mask is a True/False (1,32,32) vector with .5 randomly missing pixels
 #function gen_mask is in image_utils.py, 50 at end of random50 denotes
 #50 percent missing
-n = 32
-range_value = 1.6
-smooth_value = 1.6
+
 
 #y is observed part of field, modified to incorporate the mask as channel
 def p_mean_and_variance_from_score_via_mask(vpsde, score_model, device, masked_xt, mask, y, t):
@@ -114,6 +112,9 @@ def plot_masked_spatial_field(spatial_field, mask, vmin, vmax, figname):
 
 
 """
+n = 32
+range_value = 1.6
+smooth_value = 1.6
 replicates_per_call = 250
 calls = 4
 number_of_replicates = 1
@@ -144,7 +145,9 @@ for i in range(0, 4):
 
 
 
-
+n = 32
+range_value = 3.
+smooth_value = 1.6
 replicates_per_call = 250
 calls = 4
 number_of_replicates = 1
