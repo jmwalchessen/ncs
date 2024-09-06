@@ -102,7 +102,7 @@ for i in range(0, 10):
     num_samples_per_call = 1000
     calls = 10
     device = "cuda:0"
-    ref_image = np.load((sde_folder + "/evaluation/diffusion_generation/data/models/model6/ref_image3/ref_image.npy"))
+    ref_image = np.load((sde_folder + "/evaluation/diffusion_generation/data/model6/ref_image3/ref_image.npy"))
     p = 0
     mask = (th.bernoulli(p*th.ones((1,1,n,n)))).numpy()
     missing_indices = np.squeeze(np.argwhere((1-mask).reshape((n**2,))))
