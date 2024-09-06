@@ -9,7 +9,6 @@ sde_folder = home_folder + "/sde_diffusion/masked/unparameterized_masked_score"
 #sde configs folder
 sde_configs_vp_folder = sde_folder + "/configs/vp"
 sys.path.append(sde_configs_vp_folder)
-print(sde_configs_vp_folder)
 import ncsnpp_config
 sys.path.append(sde_folder)
 from models import ncsnpp
@@ -117,6 +116,9 @@ mask = np.load((diffusion_data_folder + "/mask.npy"))
 ref_image = np.load((diffusion_data_folder + "/ref_image.npy"))
 samples_list = [1,5,10,20,25,50,100,200,250,500,1000]
 observations = ref_image.flatten()[mask.flatten() == 1]
+mask = th.from_numpy(mask).to(device)
+ref_image = th.from_numpy(ref_image).to(device)
+observations = th.from_numpy(observations).to(device)
 recorded_times_file = "models/model6/recorded_times/ref_image1_025_recorded_times.npy"
 figname = "models/model6/visualizations/ref_image1_025_1_1000_visualizaton.png"
 record_and_visualize_diffusion_sample_timing(sdevp, score_model, device, mask, observations, n, samples_list,
