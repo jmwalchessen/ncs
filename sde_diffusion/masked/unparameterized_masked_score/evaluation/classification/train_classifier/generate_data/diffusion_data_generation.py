@@ -108,7 +108,7 @@ for i in range(0, 10):
     ref_image = th.from_numpy(ref_image).to(device)
     #missing_indices = np.squeeze(np.argwhere((1-mask).reshape((n**2,))))
     #m = missing_indices.shape[0]
-    y = ((th.mul(mask, ref_image)).to(device))
+    y = (((th.mul(mask, ref_image)).to(device))).float()
     diffusion_samples = sample_unconditionally_multiple_calls(sdevp, score_model, device, mask,
                                                             y, n, num_samples_per_call, calls)
     np.save((sde_folder + "/evaluation/classification/train_classifier/generate_data/data/model6/unconditional/unconditional_images_variance_.4_lengthscale_1.6_10000_" + str(i) + ".npy"), diffusion_samples)
