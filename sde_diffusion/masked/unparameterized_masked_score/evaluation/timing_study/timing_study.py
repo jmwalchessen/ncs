@@ -74,8 +74,11 @@ def posterior_sample_with_p_mean_variance_via_mask(vpsde, score_model, device, m
                                                    y, n, num_samples):
 
     unmasked_xT = th.randn((num_samples, 1, n, n)).to(device)
+    print(mask.shape)
+    print(y.shape)
     masked_xT = th.mul((1-mask), unmasked_xT) + th.mul(mask, y)
     masked_xt = masked_xT
+
     for t in range((vpsde.N-1), 0, -1):
         masked_xt = sample_with_p_mean_variance_via_mask(vpsde, score_model, device, masked_xt,
                                                          mask, y, t, num_samples)
