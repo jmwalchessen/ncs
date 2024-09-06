@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import time
 
 home_folder = append_directory(6)
-sde_folder = home_folder + "/sde_diffusion/masked/unparameterized_masked_score"
+sde_folder = home_folder + "/unparameterized_masked_score"
 #sde configs folder
 sde_configs_vp_folder = sde_folder + "/configs/vp"
 sys.path.append(sde_configs_vp_folder)
