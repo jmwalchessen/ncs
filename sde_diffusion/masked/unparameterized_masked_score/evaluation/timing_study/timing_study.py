@@ -108,8 +108,8 @@ def record_and_visualize_diffusion_sample_timing(vpsde, score_model, device, mas
     np.save(recorded_times_file, np.array(recorded_times))
     fig, ax = plt.subplots(1)
     ax.plot(samples_list, recorded_times)
-    ax.set_xtitle("Sample Size")
-    ax.set_ytitle("Seconds")
+    ax.set_xlabel("Sample Size")
+    ax.set_ylabel("Seconds")
     plt.savefig(figname)
 
 
