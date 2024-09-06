@@ -143,7 +143,7 @@ maxX = 10
 minY = -10
 maxY = 10
 variance = 1.6
-lengthscale = .4
+lengthscale = 1
 number_of_replicates = 1
 
 for i in range(0,5):
@@ -160,6 +160,6 @@ for i in range(0,5):
                                                                     device, mask, y, n,
                                                                     num_samples, variance, lengthscale)
 
-    figname = ("visualizations/models/model1/random50_variance_1.6_lengthscale_.4_observed_and_generated_samples_" + str(i) + ".png")
+    figname = ("visualizations/models/model2/random50_variance_.4_lengthscale_1_observed_and_generated_samples_" + str(i) + ".png")
     visualize_observed_and_generated_samples(unmasked_y, mask, diffusion_samples[0,:,:,:],
                                             diffusion_samples[1,:,:,:], n, figname)
