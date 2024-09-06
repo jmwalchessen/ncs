@@ -14,10 +14,11 @@ from dataloader_functions import *
 
 
 classifier_folder = append_directory(2)
+print(classifier_folder)
 train_images_pathname = (classifier_folder + 
-                            "/generate_data/data/diffusion/model5_unconditional_lengthscale_1.6_variance_0.4_100000.npy")
+                            "/generate_data/data/model6/unconditional/unconditional_images_variance_.4_lengthscale_1.6_100000.npy")
 eval_images_pathname = (classifier_folder +
-                        "/generate_data/data/diffusion/model5_unconditional_lengthscale_1.6_variance_0.4_eval_1000.npy")
+                        "/generate_data/data/model6/unconditional/unconditional_images_variance_.4_lengthscale_1.6_100000.npy")
 num_samples = 100000
 batch_size = 64
 eval_batch_size = 2000
@@ -42,6 +43,8 @@ evaluation_train_dataloader = prepare_crop_and_create_dataloader(path = train_im
                                                                  variance = 0.4, lengthscale = 1.6, seed_value = 43234,
                                                                  batch_size = eval_train_batch_size,
                                                                  crop_size = crop_size)
+
+"""
 
 def train_nn(num_epochs, classifier, weight_decay, beta1, beta2, epsilon,
              loss_function, train_loader, eval_loader, device, 
@@ -104,4 +107,4 @@ classifier, eval_losses, eval_train_losses = train_nn(num_epochs = num_epochs, c
 
 lossfig_name = "models/largemodel5_lengthscale_1.6_variance_0.4_epochs_" + str(num_epochs) + "_losses.png"
 visualize_loss(num_epochs, eval_losses, eval_train_losses, lossfig_name)
-torch.save(classifier.state_dict(), ("models/largemodel5_lengthscale_1.6_variance_0.4_epochs_" + str(num_epochs) + "_parameters.pth"))
+torch.save(classifier.state_dict(), ("models/largemodel5_lengthscale_1.6_variance_0.4_epochs_" + str(num_epochs) + "_parameters.pth"))"""
