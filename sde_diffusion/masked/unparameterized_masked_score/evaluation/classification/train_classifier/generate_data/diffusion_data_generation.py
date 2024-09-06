@@ -106,8 +106,8 @@ for i in range(0, 10):
     p = 0
     mask = (th.bernoulli(p*th.ones((1,1,n,n)))).to(device)
     ref_image = th.from_numpy(ref_image).to(device)
-    missing_indices = np.squeeze(np.argwhere((1-mask).reshape((n**2,))))
-    m = missing_indices.shape[0]
+    #missing_indices = np.squeeze(np.argwhere((1-mask).reshape((n**2,))))
+    #m = missing_indices.shape[0]
     y = ((th.mul(mask, ref_image)).to(device))
     mask = th.from_numpy(mask).to(device)
     diffusion_samples = sample_unconditionally_multiple_calls(sdevp, score_model, device, mask,
