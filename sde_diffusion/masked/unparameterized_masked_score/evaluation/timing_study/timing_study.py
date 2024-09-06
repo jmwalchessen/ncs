@@ -105,7 +105,7 @@ def record_and_visualize_diffusion_sample_timing(vpsde, score_model, device, mas
         recorded_times.append(time_posterior_sample_with_p_mean_variance_via_mask(vpsde, score_model, device, mask,
                                                    y, n, num_samples))
 
-    np.save(recorded_times, np.array(recorded_times_file))
+    np.save(recorded_times_file, np.array(recorded_times))
     fig, ax = plt.subplots(1)
     ax.plot(samples_list, recorded_times)
     ax.set_xtitle("Sample Size")
