@@ -104,7 +104,8 @@ for i in range(0, 10):
     device = "cuda:0"
     ref_image = np.load((sde_folder + "/evaluation/diffusion_generation/data/model6/ref_image3/ref_image.npy"))
     p = 0
-    mask = (th.bernoulli(p*th.ones((1,1,n,n)))).numpy()
+    mask = (th.bernoulli(p*th.ones((1,1,n,n)))).to(device)
+    ref_image = th.from_numpy(ref_image).to(device)
     missing_indices = np.squeeze(np.argwhere((1-mask).reshape((n**2,))))
     m = missing_indices.shape[0]
     y = ((th.mul(mask, ref_image)).to(device))
