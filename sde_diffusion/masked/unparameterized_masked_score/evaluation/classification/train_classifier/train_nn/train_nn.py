@@ -4,22 +4,16 @@ import numpy as np
 from nn_architecture import *
 from losses import *
 from append_directories import *
-unconditional_folder = append_directory(4)
-data_generation_folder = (unconditional_folder + "/generate_data")
-import os
-import sys
-sys.path.append(data_generation_folder)
-from true_unconditional_data_generation import *
 from dataloader_functions import *
-
-
 classifier_folder = append_directory(2)
-print(classifier_folder)
+sys.path.append((classifier_folder + "/generate_data"))
+from true_unconditional_data_generation import *
+
 train_images_pathname = (classifier_folder + 
                             "/generate_data/data/model6/unconditional/unconditional_images_variance_.4_lengthscale_1.6_100000.npy")
 eval_images_pathname = (classifier_folder +
                         "/generate_data/data/model6/unconditional/unconditional_images_variance_.4_lengthscale_1.6_100000.npy")
-num_samples = 100000
+num_samples = 40000
 batch_size = 64
 eval_batch_size = 2000
 eval_train_batch_size = 2000
@@ -31,6 +25,8 @@ train_dataloader = prepare_crop_and_create_dataloader(path = train_images_pathna
                                                  minX = -10, maxX = 10, minY = -10, maxY = 10, n = 32,
                                                  variance = 0.4, lengthscale = 1.6, seed_value = 43234,
                                                  batch_size = batch_size, crop_size = crop_size)
+
+"""
 
 eval_dataloader = prepare_crop_and_create_dataloader(path = eval_images_pathname, num_samples = eval_num_samples,
                                                 minX = -10, maxX = 10, minY = -10, maxY = 10, n = 32,
@@ -44,7 +40,6 @@ evaluation_train_dataloader = prepare_crop_and_create_dataloader(path = train_im
                                                                  batch_size = eval_train_batch_size,
                                                                  crop_size = crop_size)
 
-"""
 
 def train_nn(num_epochs, classifier, weight_decay, beta1, beta2, epsilon,
              loss_function, train_loader, eval_loader, device, 
@@ -105,6 +100,6 @@ classifier, eval_losses, eval_train_losses = train_nn(num_epochs = num_epochs, c
                                                       train_loader = train_dataloader, eval_loader = eval_dataloader,
                                                       device = device, initial_learning_rate = initial_learning_rate)
 
-lossfig_name = "models/largemodel5_lengthscale_1.6_variance_0.4_epochs_" + str(num_epochs) + "_losses.png"
+lossfig_name = "classifiers/classifier1/classifier1_model6_lengthscale_1.6_variance_0.4_epochs_" + str(num_epochs) + "_losses.png"
 visualize_loss(num_epochs, eval_losses, eval_train_losses, lossfig_name)
-torch.save(classifier.state_dict(), ("models/largemodel5_lengthscale_1.6_variance_0.4_epochs_" + str(num_epochs) + "_parameters.pth"))"""
+torch.save(classifier.state_dict(), ("classifier/classifier1/model6_lengthscale_1.6_variance_0.4_epochs_" + str(num_epochs) + "_parameters.pth"))"""

@@ -2,8 +2,8 @@ import torch
 import numpy as np
 from torch.utils.data import Dataset, DataLoader
 from append_directories import *
-unconditional_folder = append_directory(4)
-data_generation_folder = (unconditional_folder + "/generate_data")
+classifier_folder = append_directory(2)
+data_generation_folder = (classifier_folder + "/generate_data")
 import os
 import sys
 sys.path.append(data_generation_folder)
