@@ -13,15 +13,15 @@ n.size <- 1024
 nn <- sqrt(n.size)
 x <- y <- seq(-10, 10, length = nn)
 s <- cbind(x, y)
-coord <- expand.grid(x, y)
+coord <- as.matrix(expand.grid(x, y))
 number_of_replicates_per_call <- 50
 calls <- as.integer(number_of_replicates/number_of_replicates_per_call)
 repnumberslist <- rep(number_of_replicates_per_call, calls)
 
 simulate_data_per_core <- function(number_of_replicates, nn, coord, range, smooth)
 {
-    y <- SpatialExtremes::rmaxstab(n = number_of_replicates, coord = s, cov.mod = "powexp",
-                                   range = range, smooth = smooth, nugget = 0, grid = TRUE)
+    y <- SpatialExtremes::rmaxstab(n = number_of_replicates, coord = coord, cov.mod = "powexp",
+                                   range = range, smooth = smooth, nugget = 0)
     return(y)
 }
 
