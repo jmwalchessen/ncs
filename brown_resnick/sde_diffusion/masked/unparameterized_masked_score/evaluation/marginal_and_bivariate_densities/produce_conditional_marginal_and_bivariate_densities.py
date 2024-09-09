@@ -7,9 +7,12 @@ import pandas as pd
 import os
 import sys
 from append_directories import *
-data_generation_folder = (append_directory(2) + "/diffusion_generation")
-print(data_generation_folder)
+evaluation_folder = append_directory(2)
+data_generation_folder = (evaluation_folder + "/diffusion_generation")
 sys.path.append(data_generation_folder)
+sys.path.append(evaluation_folder)
+from mcmc_interpolation_helper_functions import *
+from mpl_toolkits.axes_grid1 import ImageGrid
 
 #index is assumed to be in i*n+j form where (i,j) is index of matrix
 def index_to_spatial_location(minX, maxX, minY, maxY, n, index):
@@ -54,18 +57,59 @@ def produce_generated_marginal_density(mask, minX, maxX, minY, maxY, n, missing_
 
     #partially_observed_field = np.multiply(mask.astype(bool), observed_vector.reshape((n,n)))
     mask = mask.astype(float).reshape((n,n))
-    axs[0].imshow(ref_image.reshape((n,n)), alpha = (1-mask), vmin = -2, vmax = 6)
+    axs[0].imshow(ref_image.reshape((n,n)), alpha = (1-mask), vmin = -2, vmax = 4)
     axs[0].plot(matrix_missing_index[1], matrix_missing_index[0], "r+")
     sns.kdeplot(data = generated_pdd, palette = ["orange"], ax = axs[1])
     plt.axvline(ref_image[int(matrix_missing_index[0]),int(matrix_missing_index[1])], 
                 color='red', linestyle = 'dashed')
     axs[1].set_title("Marginal")
-    axs[1].set_xlim(-4,8)
-    axs[1].set_ylim(0,.8)
-    location = index_to_spatial_location(minX, maxX, minY, maxY, n, missing_true_index)
-    rlocation = (round(location[0],2), round(location[1],2))
-    axs[1].set_xlabel("location: " + str(rlocation))
-    axs[1].legend(labels = ['true', 'generated'])
+    axs[1].set_xlim(-2,4)
+    axs[1].set_ylim(0,2)
+    #location = index_to_spatial_location(minX, maxX, minY, maxY, n, missing_true_index)
+    #rlocation = (round(location[0],2), round(location[1],2))
+    #axs[1].set_xlabel("location: " + str(rlocation))
+    axs[1].legend(labels = ['generated'])
+    plt.savefig(figname)
+    plt.clf()
+
+def produce_generated_and_mcmc_interpolation_marginal_density(mask, minX, maxX, minY, maxY, n,
+                                                              missing_index, missing_indices,
+                                                              conditional_generated_samples,
+                                                              conditional_mcmc_samples, ref_image,
+                                                              figname):
+
+
+    missing_true_index = missing_indices[missing_index]
+    matrix_missing_index = index_to_matrix_index(missing_true_index, n)
+    generated_marginal_density = conditional_generated_samples[:,int(matrix_missing_index[0]),int(matrix_missing_index[1])]
+    mcmc_marginal_density = conditional_mcmc_samples[:,int(matrix_missing_index[0]),int(matrix_missing_index[1])]
+
+
+    #fig, ax = plt.subplots(1)
+    #ax.hist(marginal_disalsotribution, density = True, histtype = 'step', bins = 100)
+    fig, axs = plt.subplots(ncols = 2, figsize = (10,5))
+    generated_pdd = pd.DataFrame(generated_marginal_density,
+                                    columns = None)
+    mcmc_pdd = pd.DataFrame(mcmc_marginal_density,
+                                    columns = None)
+
+    #partially_observed_field = np.multiply(mask.astype(bool), observed_vector.reshape((n,n)))
+    mask = mask.astype(float).reshape((n,n))
+    axs[0].imshow(ref_image.reshape((n,n)), alpha = (1-mask), vmin = -2, vmax = 2)
+    axs[0].plot(matrix_missing_index[1], matrix_missing_index[0], "r+")
+    sns.kdeplot(data = generated_pdd, palette = ["orange"], ax = axs[1])
+    sns.kdeplot(data = mcmc_pdd, palette = ["purple"], ax = axs[1])
+    plt.axvline(ref_image[int(matrix_missing_index[0]),int(matrix_missing_index[1])], 
+                color='red', linestyle = 'dashed')
+    axs[1].set_title("Marginal")
+    axs[1].set_xlim(-2,2)
+    axs[1].set_ylim(0,2)
+    #location = index_to_spatial_location(minX, maxX, minY, maxY, n, missing_true_index)
+    #rlocation = (round(location[0],2), round(location[1],2))
+    #axs[1].set_xlabel("location: " + str(rlocation))
+    purple_patch = mpatches.Patch(color='purple')
+    orange_patch = mpatches.Patch(color='orange')
+    axs[1].legend(handles = [purple_patch, orange_patch], labels = ['mcmc', 'generated'])
     plt.savefig(figname)
     plt.clf()
 
@@ -99,8 +143,8 @@ def produce_generated_bivariate_density(mask, minX, maxX, minY, maxY, n, range_v
     #orange_patch = mpatches.Patch(color='orange')
     plt.axvline(ref_image[int(matrix_index1[0]),int(matrix_index1[1])], color='red', linestyle = 'dashed')
     plt.axhline(ref_image[int(matrix_index2[0]),int(matrix_index2[1])], color='red', linestyle = 'dashed')
-    plt.xlim(-4,8)
-    plt.ylim(-4,8)
+    plt.xlim(-1,2)
+    plt.ylim(-1,2)
     axs[1].set_title("Bivariate")
     location1 = index_to_spatial_location(minX, maxX, minY, maxY, n, missing_true_index1)
     rlocation1 = (round(location1[0],2), round(location1[1],2))
@@ -112,25 +156,245 @@ def produce_generated_bivariate_density(mask, minX, maxX, minY, maxY, n, range_v
     plt.savefig(figname)
     plt.clf()
 
+def produce_generated_bivariate_density(mask, minX, maxX, minY, maxY, n, range_value, smooth_value,
+                                                 number_of_replicates, missing_two_indices,
+                                                 missing_indices, observed_vector,
+                                                 conditional_generated_samples, ref_image, figname):
+    
+    missing_true_index1 = missing_indices[missing_two_indices[0]]
+    missing_true_index2 = missing_indices[missing_two_indices[1]]
+    matrix_index1 = index_to_matrix_index(missing_true_index1, n)
+    matrix_index2 = index_to_matrix_index(missing_true_index2, n)
+    number_of_replicates = conditional_generated_samples.shape[0]
+    generated_bivariate_density = np.concatenate([(conditional_generated_samples[:,int(matrix_index1[0]),int(matrix_index1[1])]).reshape((number_of_replicates,1)),
+                                                   (conditional_generated_samples[:,int(matrix_index2[0]),int(matrix_index2[1])]).reshape((number_of_replicates,1))],
+                                                   axis = 1)
+    fig, axs = plt.subplots(ncols = 2, figsize = (10,5))
+    #emp_mean = round(np.mean(marg), 2)
+    #emp_var = round(np.std(marginal_density)**2, 2)
+
+    #partially_observed_field = np.multiply(mask.astype(bool), observed_vector.reshape((n,n)))
+    mask_reshaped = (mask.reshape((n,n))).astype(float)
+    axs[0].imshow(ref_image.reshape((n,n)), alpha = (1-mask_reshaped), vmin = -2, vmax = 6)
+    axs[0].plot(matrix_index1[1], matrix_index1[0], "r+")
+    axs[0].plot(matrix_index2[1], matrix_index2[0], "r+")
+    sns.kdeplot(x = generated_bivariate_density[:,0], y = generated_bivariate_density[:,1],
+                ax = axs[1])
+    #kde2 = sns.kdeplot(x = generated_bivariate_density[:,0], y = generated_bivariate_density[:,1],
+                #ax = axs[1], color = 'orange', levels = 5, label = "generated")
+    #blue_patch = mpatches.Patch(color='blue')
+    #orange_patch = mpatches.Patch(color='orange')
+    plt.axvline(ref_image[int(matrix_index1[0]),int(matrix_index1[1])], color='red', linestyle = 'dashed')
+    plt.axhline(ref_image[int(matrix_index2[0]),int(matrix_index2[1])], color='red', linestyle = 'dashed')
+    plt.xlim(-2,4)
+    plt.ylim(-2,4)
+    axs[1].set_title("Bivariate")
+    location1 = index_to_spatial_location(minX, maxX, minY, maxY, n, missing_true_index1)
+    rlocation1 = (round(location1[0],2), round(location1[1],2))
+    location2 = index_to_spatial_location(minX, maxX, minY, maxY, n, missing_true_index2)
+    rlocation2 = (round(location2[0],2), round(location2[1],2))
+    axs[1].set_xlabel("location: " + str(rlocation1))
+    axs[1].set_ylabel("location: " + str(rlocation2))
+    #axs[1].legend(handles = [blue_patch, orange_patch],labels = ['true', 'generated'])
+    plt.savefig(figname)
+    plt.clf()
+
+#really doesn't make sense because mcmc interpolation is independent for each pixel
+def produce_generated_and_mcmc_interpolation_bivariate_density(mask, minX, maxX, minY, maxY, n,
+                                                               range_value, smooth_value,
+                                                               number_of_replicates, missing_two_indices,
+                                                               missing_indices, observed_vector,
+                                                               conditional_generated_samples,
+                                                               conditional_mcmc_samples, ref_image, figname):
+    
+    missing_true_index1 = missing_indices[missing_two_indices[0]]
+    missing_true_index2 = missing_indices[missing_two_indices[1]]
+    matrix_index1 = index_to_matrix_index(missing_true_index1, n)
+    matrix_index2 = index_to_matrix_index(missing_true_index2, n)
+    number_of_replicates = conditional_generated_samples.shape[0]
+    generated_bivariate_density = np.concatenate([(conditional_generated_samples[:,int(matrix_index1[0]),int(matrix_index1[1])]).reshape((number_of_replicates,1)),
+                                                   (conditional_generated_samples[:,int(matrix_index2[0]),int(matrix_index2[1])]).reshape((number_of_replicates,1))],
+                                                   axis = 1)
+    mcmc_bivariate_density = np.concatenate([(conditional_mcmc_samples[:,int(matrix_index1[0]),int(matrix_index1[1])]).reshape((number_of_replicates,1)),
+                                                   (conditional_mcmc_samples[:,int(matrix_index2[0]),int(matrix_index2[1])]).reshape((number_of_replicates,1))],
+                                                   axis = 1)
+    fig, axs = plt.subplots(ncols = 2, figsize = (10,5))
+    #emp_mean = round(np.mean(marg), 2)
+    #emp_var = round(np.std(marginal_density)**2, 2)
+
+    #partially_observed_field = np.multiply(mask.astype(bool), observed_vector.reshape((n,n)))
+    mask_reshaped = (mask.reshape((n,n))).astype(float)
+    axs[0].imshow(ref_image.reshape((n,n)), alpha = (1-mask_reshaped), vmin = -2, vmax = 2)
+    axs[0].plot(matrix_index1[1], matrix_index1[0], "r+")
+    axs[0].plot(matrix_index2[1], matrix_index2[0], "r+")
+    sns.kdeplot(x = generated_bivariate_density[:,0], y = generated_bivariate_density[:,1],
+                ax = axs[1], levels = 10, color = 'orange')
+    sns.kdeplot(x = mcmc_bivariate_density[:,0], y = mcmc_bivariate_density[:,1],
+                ax = axs[1], color = 'purple', levels = 10, label = "mcmc")
+    purple_patch = mpatches.Patch(color='purple')
+    orange_patch = mpatches.Patch(color='orange')
+    plt.axvline(ref_image[int(matrix_index1[0]),int(matrix_index1[1])], color='red', linestyle = 'dashed')
+    plt.axhline(ref_image[int(matrix_index2[0]),int(matrix_index2[1])], color='red', linestyle = 'dashed')
+    plt.xlim(-2,2)
+    plt.ylim(-2,2)
+    axs[1].set_title("Bivariate")
+    location1 = index_to_spatial_location(minX, maxX, minY, maxY, n, missing_true_index1)
+    rlocation1 = (round(location1[0],2), round(location1[1],2))
+    location2 = index_to_spatial_location(minX, maxX, minY, maxY, n, missing_true_index2)
+    rlocation2 = (round(location2[0],2), round(location2[1],2))
+    axs[1].set_xlabel("location: " + str(rlocation1))
+    axs[1].set_ylabel("location: " + str(rlocation2))
+    axs[1].legend(handles = [purple_patch, orange_patch],labels = ['mcmc', 'generated'])
+    plt.savefig(figname)
+    plt.clf()
+
+def produce_mcmc_interpolation_visualization(mcmc_images, irep, figname):
+
+    fig, ax = plt.subplots(1)
+    ax.imshow(mcmc_images[irep,:,:].reshape((n,n)), vmin = -2, vmax = 2)
+    plt.savefig(figname)
+
+def produce_mcmc_interpolation_visualizations(mcmc_images, mask, ref_image, irep, n, figname):
+
+    fig = plt.figure(figsize=(10, 10))
+
+    grid = ImageGrid(fig, 111,          # as in plt.subplot(111)
+                    nrows_ncols=(2,2),
+                    axes_pad=0.35,
+                    share_all=False,
+                    cbar_location="right",
+                    cbar_mode="single",
+                    cbar_size="7%",
+                    cbar_pad=0.15,
+                    label_mode = "L"
+                    )
+    
+    for i, ax in enumerate(grid):
+
+        if(i == 0):
+            im = ax.imshow(ref_image, vmin = -2, vmax = 2)
+        
+        if(i == 1):
+            ax.imshow(ref_image, alpha = mask.astype(float), vmin = -2, vmax = 2)
+        
+        if(i == 2):
+            ax.imshow((mcmc_images[irep,:,:]).reshape((n,n)), vmin = -2, vmax = 2)
+        if(i == 3):
+            ax.imshow((mcmc_images[(irep+1),:,:]).reshape((n,n)), vmin = -2, vmax = 2,
+                      alpha = (1-mask).astype(float))
+            
+    cbar = grid.cbar_axes[0].colorbar(im)
+    #cbar.set_ticks([])
+    cbar.set_ticks([-2,1,0,1,2])
+    #fig.text(0.5, 0.9, 'Unconditional Diffusion', ha='center', va='center', fontsize = 25)
+    #fig.text(0.1, 0.5, 'range', ha='center', va='center', rotation = 'vertical', fontsize = 40)
+    plt.tight_layout()
+    plt.savefig(figname)
+
+def produce_diffusion_and_mcmc_interpolation_visualizations(diffusion_images, mcmc_images, mask,
+                                                            ref_image, irep, n, figname):
+
+    fig = plt.figure(figsize=(10, 10))
+
+    grid = ImageGrid(fig, 111,          # as in plt.subplot(111)
+                    nrows_ncols=(2,2),
+                    axes_pad=0.35,
+                    share_all=False,
+                    cbar_location="right",
+                    cbar_mode="single",
+                    cbar_size="7%",
+                    cbar_pad=0.15,
+                    label_mode = "L"
+                    )
+    
+    for i, ax in enumerate(grid):
+
+        if(i == 0):
+            im = ax.imshow(ref_image, vmin = -2, vmax = 2)
+        
+        if(i == 1):
+            ax.imshow(ref_image, alpha = mask.astype(float), vmin = -2, vmax = 2)
+        
+        if(i == 2):
+            ax.imshow((mcmc_images[irep,:,:]).reshape((n,n)), vmin = -2, vmax = 2)
+            ax.set_title("MCMC")
+        if(i == 3):
+            ax.imshow((diffusion_images[irep,:,:]).reshape((n,n)), vmin = -2, vmax = 2)
+            ax.set_title("Diffusion")
+            
+    cbar = grid.cbar_axes[0].colorbar(im)
+    #cbar.set_ticks([])
+    cbar.set_ticks([-2,1,0,1,2])
+    #fig.text(0.5, 0.9, 'Unconditional Diffusion', ha='center', va='center', fontsize = 25)
+    #fig.text(0.1, 0.5, 'range', ha='center', va='center', rotation = 'vertical', fontsize = 40)
+    plt.tight_layout()
+    plt.savefig(figname)
+
+def visualize_diffusion_and_mcmc_interpolation_conditional_mean(diffusion_images, mcmc_images, mask,
+                                                                ref_image, n, figname):
+    
+    fig = plt.figure(figsize=(10, 10))
+
+    grid = ImageGrid(fig, 111,          # as in plt.subplot(111)
+                    nrows_ncols=(2,2),
+                    axes_pad=0.35,
+                    share_all=False,
+                    cbar_location="right",
+                    cbar_mode="single",
+                    cbar_size="7%",
+                    cbar_pad=0.15,
+                    label_mode = "L"
+                    )
+    
+    for i, ax in enumerate(grid):
+
+        if(i == 0):
+
+            im = ax.imshow(ref_image, vmin = -2, vmax = 2)
+
+        if(i == 1):
+            ax.imshow(ref_image, alpha = mask.astype(float), vmin = -2, vmax = 2)
+        
+        if(i == 2):
+            mcmc_mean = np.mean(mcmc_images, axis = 0)
+            ax.imshow(mcmc_mean, vmin = -2, vmax = 2)
+            ax.set_title("MCMC")
+        if(i == 3):
+            diffusion_mean = np.mean(diffusion_images, axis = 0)
+            ax.imshow(diffusion_mean.reshape((n,n)), vmin = -2, vmax = 2)
+            ax.set_title("Diffusion")
+
+    cbar = grid.cbar_axes[0].colorbar(im)
+    #cbar.set_ticks([])
+    cbar.set_ticks([-2,1,0,1,2])
+    #fig.text(0.5, 0.9, 'Unconditional Diffusion', ha='center', va='center', fontsize = 25)
+    #fig.text(0.1, 0.5, 'range', ha='center', va='center', rotation = 'vertical', fontsize = 40)
+    plt.tight_layout()
+    plt.savefig(figname)
+    
 
 
+
+
+
+"""
 n = 32
 number_of_replicates = 4000 
-conditional_samples = np.load((data_generation_folder + "/data/model2/ref_image3/diffusion/model2_random10_beta_min_max_01_20_1000.npy"))
+conditional_samples = np.load((data_generation_folder + "/data/schlather/model1/ref_image1/diffusion/model1_random50_beta_min_max_01_20_1000.npy"))
 conditional_samples = conditional_samples.reshape((number_of_replicates,n,n))
 #mask = np.load((data_generation_folder + "/data/ref_image1/mask.npy"), allow_pickle = True)
 n = 32
 #mask = th.zeros((1,n,n))
 #mask[:, int(n/4):int(n/4*3), int(n/4):int(n/4*3)] = 1
 device = "cuda:0"
-p = .025
-mask = np.load((data_generation_folder + "/data/model2/ref_image3/mask.npy"))
-ref_image = (np.load((data_generation_folder + "/data/model2/ref_image3/ref_image.npy")))
-range_value = 1.6
+p = .5
+mask = np.load((data_generation_folder + "/data/schlather/model1/ref_image1/mask.npy"))
+ref_image = (np.load((data_generation_folder + "/data/schlather/model1/ref_image1/ref_image.npy")))
+range_value = 3.
 smooth_value = 1.6                                                                                        
 missing_indices = np.squeeze(np.argwhere((1-mask).reshape((n**2,))))
 mask_type = "random50"
-folder_name = (data_generation_folder + "/data/model2/ref_image3/marginal_density")
+folder_name = (data_generation_folder + "/data/schlather/model1/ref_image1/marginal_density")
 m = missing_indices.shape[0]
 observed_vector = ref_image.reshape((n**2))
 observed_vector = np.delete(observed_vector, missing_indices)
@@ -139,28 +403,28 @@ maxX = 10
 minY = -10
 maxY = 10
 
-"""
+
 for i in range(0, m, 10):
     missing_index = i
     true_missing_index = missing_indices[missing_index]
     true_missing_matrix_index = index_to_matrix_index(true_missing_index, n)
-    figname = (folder_name + "/marginal_density_model2_" + str(int(true_missing_matrix_index[0]))
+    figname = (folder_name + "/marginal_density_model1_" + str(int(true_missing_matrix_index[0]))
                + "_" + str(int(true_missing_matrix_index[1])) + ".png")
     produce_generated_marginal_density((1-mask), minX, minY, maxX, maxY, n, missing_index, missing_indices,
                                        conditional_samples, ref_image,
-                                       figname)"""
+                                       figname)
 
 
 
-          
-indices1 = [585]
-indices2 = [580,581,582,583,584,586,587,589,590,603,604,605,606,607,608,609,610,611,612,555,554,553,556,567,568]
+
+indices1 = [300]
+indices2 = [282,285,288,289,290,291,292,299,300,301,302,303,315,317,318,319,320]
 
 for i in indices1:
     for j in indices2:
         missing_index1 = i
         missing_index2 = j
-        folder_name = (data_generation_folder + "/data/model2/ref_image3/bivariate_density")
+        folder_name = (data_generation_folder + "/data/schlather/model1/ref_image1/bivariate_density")
         true_missing_index1 = i
         true_missing_matrix_index1 = index_to_matrix_index(true_missing_index1, n)
         true_missing_index2 = j
@@ -173,4 +437,75 @@ for i in indices1:
         produce_generated_bivariate_density((1-mask), minX, maxX, minY, maxY, n, range_value, smooth_value,
                                                  number_of_replicates, missing_two_indices,
                                                  missing_indices, observed_vector,
-                                                 conditional_samples, ref_image, figname)
+                                                 conditional_samples, ref_image, figname)"""
+
+
+n = 32
+number_of_replicates = 4000 
+folder_name = (evaluation_folder + "/diffusion_generation/data/schlather/model1/ref_image1")
+mcmc_file_name = "mcmc_interpolation/mcmc_interpolation_simulations_range_3_smooth_1.6_4000.npy"
+conditional_mcmc_images = load_mcmc_interpolation_images(folder_name, mcmc_file_name, number_of_replicates, n)
+diffusion_images = np.load((data_generation_folder + "/data/schlather/model1/ref_image1/diffusion/model1_random50_beta_min_max_01_20_1000.npy"))
+diffusion_images = diffusion_images.reshape((number_of_replicates,n,n))
+#mask = np.load((data_generation_folder + "/data/ref_image1/mask.npy"), allow_pickle = True)
+n = 32
+#mask = th.zeros((1,n,n))
+#mask[:, int(n/4):int(n/4*3), int(n/4):int(n/4*3)] = 1
+device = "cuda:0"
+p = .5
+mask = np.load((data_generation_folder + "/data/schlather/model1/ref_image1/mask.npy"))
+ref_image = (np.load((data_generation_folder + "/data/schlather/model1/ref_image1/ref_image.npy")))
+range_value = 3.
+smooth_value = 1.6                                                                                        
+missing_indices = np.squeeze(np.argwhere((1-mask).reshape((n**2,))))
+mask_type = "random50"
+folder_name = (data_generation_folder + "/data/schlather/model1/ref_image1/mcmc_interpolation/marginal_density")
+m = missing_indices.shape[0]
+observed_vector = ref_image.reshape((n**2))
+observed_vector = np.delete(observed_vector, missing_indices)
+minX = -10
+maxX = 10
+minY = -10
+maxY = 10
+"""
+for i in range(0, m, 1):
+    missing_index = i
+    true_missing_index = missing_indices[missing_index]
+    true_missing_matrix_index = index_to_matrix_index(true_missing_index, n)
+    figname = (folder_name + "/marginal_density_mcmc_and_diffusion_model1_" + str(int(true_missing_matrix_index[0]))
+               + "_" + str(int(true_missing_matrix_index[1])) + ".png")
+    produce_generated_and_mcmc_interpolation_marginal_density((1-mask), minX, minY, maxX, maxY, n, missing_index, missing_indices,
+                                       diffusion_images, conditional_mcmc_images, ref_image, figname)
+
+indices1 = [300]
+indices2 = [282,285,288,289,290,291,292,299,300,301,302,303,315,317,318,319,320]
+
+for i in indices1:
+    for j in indices2:
+        missing_index1 = i
+        missing_index2 = j
+        folder_name = (data_generation_folder + "/data/schlather/model1/ref_image1/mcmc_interpolation/bivariate_density")
+        true_missing_index1 = i
+        true_missing_matrix_index1 = index_to_matrix_index(true_missing_index1, n)
+        true_missing_index2 = j
+        true_missing_matrix_index2 = index_to_matrix_index(true_missing_index2, n)
+        figname = (folder_name + "/bivariate_density_mcmc_and_diffusion_model1_" + str(int(true_missing_matrix_index1[0]))
+                + "_" + str(int(true_missing_matrix_index1[1])) + "_" +
+                str(int(true_missing_matrix_index2[0])) + "_" + str(int(true_missing_matrix_index2[1]))
+                    + ".png")
+        missing_two_indices = [i,j]
+        produce_generated_and_mcmc_interpolation_bivariate_density((1-mask), minX, maxX, minY, maxY, n, range_value, smooth_value,
+                                                 number_of_replicates, missing_two_indices,
+                                                 missing_indices, observed_vector,
+                                                 diffusion_images, conditional_mcmc_images, ref_image, figname)"""
+
+"""
+for irep in range(0, number_of_replicates, 100):
+    figname = (folder_name + "/visualization_mcmc_and_diffusion_model1_" + str(irep) + ".png")
+    folder_name = (data_generation_folder + "/data/schlather/model1/ref_image1/mcmc_interpolation/visualizations")
+    produce_diffusion_and_mcmc_interpolation_visualizations(diffusion_images, conditional_mcmc_images,
+                                                            mask, ref_image, irep, n, figname)"""
+
+figname = (data_generation_folder + "/data/schlather/model1/ref_image1/mcmc_interpolation/conditional_mean/diffusion_and_mcmc_interpolation_conditional_mean.png")
+visualize_diffusion_and_mcmc_interpolation_conditional_mean(diffusion_images, conditional_mcmc_images,
+                                                            mask, ref_image, n, figname)
