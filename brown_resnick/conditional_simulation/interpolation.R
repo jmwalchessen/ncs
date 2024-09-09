@@ -77,8 +77,9 @@ smooth <- 1.6
 nugget <- 0
 cov_mod <- "powexp"
 k <- 5
-observations <- SpatialExtremes::rmaxstab(1, coord = s, cov.mod = "powexp",  nugget = nugget, range = range,
-smooth = smooth, grid = TRUE)
+observations <- SpatialExtremes::rmaxstab(1, coord = s, cov.mod = "powexp", 
+                                          nugget = nugget, range = range,
+                                          smooth = smooth, grid = TRUE)
 dim(observations) <- c(n**2)
 observed_indices <- sort(sample((n**2), obsn, replace = FALSE))
 unobserved_indices <- (1:n**2)[-observed_indices]
