@@ -151,7 +151,7 @@ smooth_value = 1.6
 replicates_per_call = 250
 calls = 4
 number_of_replicates = 1
-seed_value = 7592
+seed_value = 48924
 ref_img = np.log(generate_schlather_process(range_value, smooth_value, seed_value, number_of_replicates, n))
 ref_img = th.from_numpy(ref_img.reshape((1,n,n))).to(device)
 p = .05
@@ -166,7 +166,7 @@ for i in range(0, 4):
 
     partially_observed = (mask*ref_img).detach().cpu().numpy().reshape((n,n))
     np.save("data/schlather/model2/ref_image3/ref_image.npy", ref_img.detach().cpu().numpy().reshape((n,n)))
-    np.save("data/schlather/model2/ref_image3/diffusion/model2_beta_min_max_01_20_random025_250_" + str(i) + ".npy", conditional_samples)
+    np.save("data/schlather/model2/ref_image3/diffusion/model2_beta_min_max_01_20_random05_250_" + str(i) + ".npy", conditional_samples)
     np.save("data/schlather/model2/ref_image3/partially_observed_field.npy", partially_observed.reshape((n,n)))
     np.save("data/schlather/model2/ref_image3/mask.npy", mask.int().detach().cpu().numpy().reshape((n,n)))
     np.save("data/schlather/model2/ref_image3/seed_value.npy", np.array([int(seed_value)]))
@@ -175,3 +175,102 @@ for i in range(0, 4):
     plot_spatial_field((conditional_samples[0,:,:,:]).numpy().reshape((n,n)), -2, 6, "data/schlather/model2/ref_image3/diffusion/visualizations/conditional_sample_0.png")
     plot_masked_spatial_field(spatial_field = ref_img.detach().cpu().numpy().reshape((n,n)),
                    vmin = -2, vmax = 6, mask = mask.int().float().detach().cpu().numpy().reshape((n,n)), figname = "data/schlather/model2/ref_image3/partially_observed_field.png")
+
+
+
+n = 32
+range_value = 3.
+smooth_value = 1.6
+replicates_per_call = 250
+calls = 4
+number_of_replicates = 1
+seed_value = 7520345
+ref_img = np.log(generate_schlather_process(range_value, smooth_value, seed_value, number_of_replicates, n))
+ref_img = th.from_numpy(ref_img.reshape((1,n,n))).to(device)
+p = .075
+mask = (th.bernoulli(p*th.ones(1,1,n,n))).to(device)
+
+for i in range(0, 4):
+#mask = th.ones((1,n,n)).to(device)
+#mask[:, int(n/4):int(n/4*3), int(n/4):int(n/4*3)] = 0
+    y = ((th.mul(mask, ref_img)).to(device)).float()
+    conditional_samples = sample_unconditionally_multiple_calls(sdevp, score_model, device, mask, y, n,
+                                          replicates_per_call, calls)
+
+    partially_observed = (mask*ref_img).detach().cpu().numpy().reshape((n,n))
+    np.save("data/schlather/model2/ref_image4/ref_image.npy", ref_img.detach().cpu().numpy().reshape((n,n)))
+    np.save("data/schlather/model2/ref_image4/diffusion/model2_beta_min_max_01_20_random075_250_" + str(i) + ".npy", conditional_samples)
+    np.save("data/schlather/model2/ref_image4/partially_observed_field.npy", partially_observed.reshape((n,n)))
+    np.save("data/schlather/model2/ref_image4/mask.npy", mask.int().detach().cpu().numpy().reshape((n,n)))
+    np.save("data/schlather/model2/ref_image4/seed_value.npy", np.array([int(seed_value)]))
+
+    plot_spatial_field(ref_img.detach().cpu().numpy().reshape((n,n)), -2, 6, "data/schlather/model2/ref_image4/ref_image.png")
+    plot_spatial_field((conditional_samples[0,:,:,:]).numpy().reshape((n,n)), -2, 6, "data/schlather/model2/ref_image4/diffusion/visualizations/conditional_sample_0.png")
+    plot_masked_spatial_field(spatial_field = ref_img.detach().cpu().numpy().reshape((n,n)),
+                   vmin = -2, vmax = 6, mask = mask.int().float().detach().cpu().numpy().reshape((n,n)), figname = "data/schlather/model2/ref_image4/partially_observed_field.png")
+
+
+
+
+n = 32
+range_value = 3.
+smooth_value = 1.6
+replicates_per_call = 250
+calls = 4
+number_of_replicates = 1
+seed_value = 392528
+ref_img = np.log(generate_schlather_process(range_value, smooth_value, seed_value, number_of_replicates, n))
+ref_img = th.from_numpy(ref_img.reshape((1,n,n))).to(device)
+p = .1
+mask = (th.bernoulli(p*th.ones(1,1,n,n))).to(device)
+
+for i in range(0, 4):
+#mask = th.ones((1,n,n)).to(device)
+#mask[:, int(n/4):int(n/4*3), int(n/4):int(n/4*3)] = 0
+    y = ((th.mul(mask, ref_img)).to(device)).float()
+    conditional_samples = sample_unconditionally_multiple_calls(sdevp, score_model, device, mask, y, n,
+                                          replicates_per_call, calls)
+
+    partially_observed = (mask*ref_img).detach().cpu().numpy().reshape((n,n))
+    np.save("data/schlather/model2/ref_image5/ref_image.npy", ref_img.detach().cpu().numpy().reshape((n,n)))
+    np.save("data/schlather/model2/ref_image5/diffusion/model2_beta_min_max_01_20_random10_250_" + str(i) + ".npy", conditional_samples)
+    np.save("data/schlather/model2/ref_image5/partially_observed_field.npy", partially_observed.reshape((n,n)))
+    np.save("data/schlather/model2/ref_image5/mask.npy", mask.int().detach().cpu().numpy().reshape((n,n)))
+    np.save("data/schlather/model2/ref_image5/seed_value.npy", np.array([int(seed_value)]))
+
+    plot_spatial_field(ref_img.detach().cpu().numpy().reshape((n,n)), -2, 6, "data/schlather/model2/ref_image5/ref_image.png")
+    plot_spatial_field((conditional_samples[0,:,:,:]).numpy().reshape((n,n)), -2, 6, "data/schlather/model2/ref_image5/diffusion/visualizations/conditional_sample_0.png")
+    plot_masked_spatial_field(spatial_field = ref_img.detach().cpu().numpy().reshape((n,n)),
+                   vmin = -2, vmax = 6, mask = mask.int().float().detach().cpu().numpy().reshape((n,n)), figname = "data/schlather/model2/ref_image5/partially_observed_field.png")
+
+
+n = 32
+range_value = 3.
+smooth_value = 1.6
+replicates_per_call = 250
+calls = 4
+number_of_replicates = 1
+seed_value = 49171
+ref_img = np.log(generate_schlather_process(range_value, smooth_value, seed_value, number_of_replicates, n))
+ref_img = th.from_numpy(ref_img.reshape((1,n,n))).to(device)
+p = .125
+mask = (th.bernoulli(p*th.ones(1,1,n,n))).to(device)
+
+for i in range(0, 4):
+#mask = th.ones((1,n,n)).to(device)
+#mask[:, int(n/4):int(n/4*3), int(n/4):int(n/4*3)] = 0
+    y = ((th.mul(mask, ref_img)).to(device)).float()
+    conditional_samples = sample_unconditionally_multiple_calls(sdevp, score_model, device, mask, y, n,
+                                          replicates_per_call, calls)
+
+    partially_observed = (mask*ref_img).detach().cpu().numpy().reshape((n,n))
+    np.save("data/schlather/model2/ref_image6/ref_image.npy", ref_img.detach().cpu().numpy().reshape((n,n)))
+    np.save("data/schlather/model2/ref_image6/diffusion/model2_beta_min_max_01_20_random125_250_" + str(i) + ".npy", conditional_samples)
+    np.save("data/schlather/model2/ref_image6/partially_observed_field.npy", partially_observed.reshape((n,n)))
+    np.save("data/schlather/model2/ref_image6/mask.npy", mask.int().detach().cpu().numpy().reshape((n,n)))
+    np.save("data/schlather/model2/ref_image6/seed_value.npy", np.array([int(seed_value)]))
+
+    plot_spatial_field(ref_img.detach().cpu().numpy().reshape((n,n)), -2, 6, "data/schlather/model2/ref_image6/ref_image.png")
+    plot_spatial_field((conditional_samples[0,:,:,:]).numpy().reshape((n,n)), -2, 6, "data/schlather/model2/ref_image6/diffusion/visualizations/conditional_sample_0.png")
+    plot_masked_spatial_field(spatial_field = ref_img.detach().cpu().numpy().reshape((n,n)),
+                   vmin = -2, vmax = 6, mask = mask.int().float().detach().cpu().numpy().reshape((n,n)), figname = "data/schlather/model2/ref_image6/partially_observed_field.png")
