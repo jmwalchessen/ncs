@@ -377,24 +377,23 @@ def visualize_diffusion_and_mcmc_interpolation_conditional_mean(diffusion_images
 
 
 
-"""
 n = 32
 number_of_replicates = 4000 
-conditional_samples = np.load((data_generation_folder + "/data/schlather/model1/ref_image1/diffusion/model1_random50_beta_min_max_01_20_1000.npy"))
+conditional_samples = np.load((data_generation_folder + "/data/schlather/model2/ref_image2/diffusion/model2_random025_range_3_smooth_1.6_beta_min_max_01_20_1000.npy"))
 conditional_samples = conditional_samples.reshape((number_of_replicates,n,n))
 #mask = np.load((data_generation_folder + "/data/ref_image1/mask.npy"), allow_pickle = True)
 n = 32
 #mask = th.zeros((1,n,n))
 #mask[:, int(n/4):int(n/4*3), int(n/4):int(n/4*3)] = 1
 device = "cuda:0"
-p = .5
-mask = np.load((data_generation_folder + "/data/schlather/model1/ref_image1/mask.npy"))
-ref_image = (np.load((data_generation_folder + "/data/schlather/model1/ref_image1/ref_image.npy")))
+p = .025
+mask = np.load((data_generation_folder + "/data/schlather/model2/ref_image2/mask.npy"))
+ref_image = (np.load((data_generation_folder + "/data/schlather/model2/ref_image2/ref_image.npy")))
 range_value = 3.
 smooth_value = 1.6                                                                                        
 missing_indices = np.squeeze(np.argwhere((1-mask).reshape((n**2,))))
 mask_type = "random50"
-folder_name = (data_generation_folder + "/data/schlather/model1/ref_image1/marginal_density")
+folder_name = (data_generation_folder + "/data/schlather/model2/ref_image2/marginal_density")
 m = missing_indices.shape[0]
 observed_vector = ref_image.reshape((n**2))
 observed_vector = np.delete(observed_vector, missing_indices)
@@ -408,14 +407,14 @@ for i in range(0, m, 10):
     missing_index = i
     true_missing_index = missing_indices[missing_index]
     true_missing_matrix_index = index_to_matrix_index(true_missing_index, n)
-    figname = (folder_name + "/marginal_density_model1_" + str(int(true_missing_matrix_index[0]))
+    figname = (folder_name + "/marginal_density_model2_" + str(int(true_missing_matrix_index[0]))
                + "_" + str(int(true_missing_matrix_index[1])) + ".png")
     produce_generated_marginal_density((1-mask), minX, minY, maxX, maxY, n, missing_index, missing_indices,
                                        conditional_samples, ref_image,
                                        figname)
 
 
-
+"""
 
 indices1 = [300]
 indices2 = [282,285,288,289,290,291,292,299,300,301,302,303,315,317,318,319,320]
@@ -442,10 +441,10 @@ for i in indices1:
 
 n = 32
 number_of_replicates = 4000 
-folder_name = (evaluation_folder + "/diffusion_generation/data/schlather/model1/ref_image1")
+folder_name = (evaluation_folder + "/diffusion_generation/data/schlather/model2/ref_image3")
 mcmc_file_name = "mcmc_interpolation/mcmc_interpolation_simulations_range_3_smooth_1.6_4000.npy"
 conditional_mcmc_images = load_mcmc_interpolation_images(folder_name, mcmc_file_name, number_of_replicates, n)
-diffusion_images = np.load((data_generation_folder + "/data/schlather/model1/ref_image1/diffusion/model1_random50_beta_min_max_01_20_1000.npy"))
+diffusion_images = np.load((data_generation_folder + "/data/schlather/model2/ref_image1/diffusion/model2_random025_range_3_smooth_1.6_beta_min_max_01_20_1000.npy"))
 diffusion_images = diffusion_images.reshape((number_of_replicates,n,n))
 #mask = np.load((data_generation_folder + "/data/ref_image1/mask.npy"), allow_pickle = True)
 n = 32
@@ -453,13 +452,13 @@ n = 32
 #mask[:, int(n/4):int(n/4*3), int(n/4):int(n/4*3)] = 1
 device = "cuda:0"
 p = .5
-mask = np.load((data_generation_folder + "/data/schlather/model1/ref_image1/mask.npy"))
-ref_image = (np.load((data_generation_folder + "/data/schlather/model1/ref_image1/ref_image.npy")))
+mask = np.load((data_generation_folder + "/data/schlather/model2/ref_image1/mask.npy"))
+ref_image = (np.load((data_generation_folder + "/data/schlather/model2/ref_image1/ref_image.npy")))
 range_value = 3.
 smooth_value = 1.6                                                                                        
 missing_indices = np.squeeze(np.argwhere((1-mask).reshape((n**2,))))
 mask_type = "random50"
-folder_name = (data_generation_folder + "/data/schlather/model1/ref_image1/mcmc_interpolation/marginal_density")
+folder_name = (data_generation_folder + "/data/schlather/model2/ref_image1/mcmc_interpolation/marginal_density")
 m = missing_indices.shape[0]
 observed_vector = ref_image.reshape((n**2))
 observed_vector = np.delete(observed_vector, missing_indices)
@@ -505,7 +504,7 @@ for irep in range(0, number_of_replicates, 100):
     folder_name = (data_generation_folder + "/data/schlather/model1/ref_image1/mcmc_interpolation/visualizations")
     produce_diffusion_and_mcmc_interpolation_visualizations(diffusion_images, conditional_mcmc_images,
                                                             mask, ref_image, irep, n, figname)"""
-
+"""
 figname = (data_generation_folder + "/data/schlather/model1/ref_image1/mcmc_interpolation/conditional_mean/diffusion_and_mcmc_interpolation_conditional_mean.png")
 visualize_diffusion_and_mcmc_interpolation_conditional_mean(diffusion_images, conditional_mcmc_images,
-                                                            mask, ref_image, n, figname)
+                                                            mask, ref_image, n, figname)"""
