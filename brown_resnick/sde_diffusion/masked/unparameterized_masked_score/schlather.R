@@ -1,36 +1,15 @@
----
-title: "Untitled"
-output: html_document
-date: "2024-09-05"
----
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
-
-## R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
 library(SpatialExtremes)
-```
 
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-number_of_replicates <- 10
-n.size <- 1024
-nn <- sqrt(n.size)
+range <- 2.2
+smooth <- 1.9
+nn <- 32
 x <- y <- seq(-10, 10, length = nn)
-coord <- expand.grid(x, y)
-range <- 1
-smooth <- 1
-a <- rmaxstab(n = number_of_replicates, coord = coord, cov.mod = "powexp", range = range, smooth = smooth)
-```
+s <- cbind(x, y)
+coord <- as.matrix(expand.grid(x, y))
+number_of_replicates <- 100
+y <- rmaxstab(n = number_of_replicates, coord = s, cov.mod = "powexp",
+                                   range = range, smooth = smooth, nugget = 0, grid = TRUE)
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+library(reticulate)
+np <- import("numpy")
+np$save("refimage.npy", y)

@@ -4,66 +4,8 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import ImageGrid
 import os
 import sys
-from append_directories import *
-from brown_resnick_data_generation import *
+from helper_functions import *
 
-home_folder = append_directory(2)
-sys.path.append(home_folder)
-from models import ncsnpp
-from sde_lib import *
-from configs.vp import ncsnpp_config
-from block_mask_generation import *
-
-device = "cuda:0"
-config = ncsnpp_config.get_config()
-#if trained parallelized, need to be evaluated that way too
-score_model = torch.nn.DataParallel((ncsnpp.NCSNpp(config)).to("cuda:0"))
-score_model.load_state_dict(th.load((home_folder + "/trained_score_models/vpsde/schlather/model2_beta_min_max_01_20_range_3_smooth_1.6_random025125_log_parameterized_mask.pth")))
-score_model.eval()
-
-#y is observed part of field, modified to incorporate the mask as channel
-def p_mean_and_variance_from_score_via_mask(vpsde, score_model, device, masked_xt, mask, y, t):
-
-    num_samples = masked_xt.shape[0]
-    timestep = ((th.tensor([t])).repeat(num_samples)).to(device)
-    reps = masked_xt.shape[0]
-    #need mask to be same size as masked_xt
-    mask = mask.repeat((reps,1,1,1))
-    masked_xt_and_mask = th.cat([masked_xt, mask], dim = 1)
-    with th.no_grad():
-        score_and_mask = score_model(masked_xt_and_mask, timestep)
-    
-    #first channel is score, second channel is mask
-    score = score_and_mask[:,0:1,:,:]
-    #reduce dimension of mask
-    mask = mask[0:1,:,:,:]
-    unmasked_p_mean = (1/th.sqrt(th.tensor(vpsde.alphas[t])))*(masked_xt + th.square(th.tensor(vpsde.sigmas[t]))*score)
-    masked_p_mean = th.mul((1-mask), unmasked_p_mean) + torch.mul(mask, y)
-    unmasked_p_variance = (th.square(th.tensor(vpsde.sigmas[t])))*th.ones_like(masked_xt)
-    masked_p_variance = torch.mul((1-mask), unmasked_p_variance)
-    return masked_p_mean, masked_p_variance
-
-def sample_with_p_mean_variance_via_mask(vpsde, score_model, device, masked_xt, mask, y, t, num_samples):
-
-    p_mean, p_variance = p_mean_and_variance_from_score_via_mask(vpsde, score_model, device, masked_xt, mask, y, t)
-    std = th.exp(0.5 * th.log(p_variance))
-    noise = th.randn_like(masked_xt)
-    #just to make sure that the masked values aren't perturbed by the noise, the variance should already be masked though
-    masked_noise = torch.mul((1-mask), noise)
-    sample = p_mean + std*masked_noise
-    return sample
-
-
-def posterior_sample_with_p_mean_variance_via_mask(vpsde, score_model, device, mask, y, n, num_samples):
-
-    unmasked_xT = th.randn((num_samples, 1, n, n)).to(device)
-    masked_xT = th.mul((1-mask), unmasked_xT) + torch.mul(mask, y)
-    masked_xt = masked_xT
-    for t in range((vpsde.N-1), 0, -1):
-        masked_xt = sample_with_p_mean_variance_via_mask(vpsde, score_model, device, masked_xt,
-                                                         mask, y, t, num_samples)
-
-    return masked_xt
 
 
 
@@ -82,50 +24,86 @@ def visualize_observed_and_generated_samples(observed, mask, diffusion1, diffusi
                  cbar_mode="single"
                  )
     
-    im = grid[0].imshow(observed.detach().cpu().numpy().reshape((n,n)), vmin=-2, vmax=6)
+    im = grid[0].imshow(observed.detach().cpu().numpy().reshape((n,n)), vmin=-2, vmax=3)
     grid[0].set_title("Observed")
-    grid[1].imshow(observed.detach().cpu().numpy().reshape((n,n)), vmin=-2, vmax=6,
+    grid[1].imshow(observed.detach().cpu().numpy().reshape((n,n)), vmin=-2, vmax=3,
                    alpha = mask.detach().cpu().numpy().reshape((n,n)))
     grid[1].set_title("Partially Observed")
-    grid[2].imshow(diffusion1.detach().cpu().numpy().reshape((n,n)), vmin=-2, vmax=6)
+    grid[2].imshow(diffusion1.detach().cpu().numpy().reshape((n,n)), vmin=-2, vmax=3)
     grid[2].set_title("Generated")
-    grid[3].imshow(diffusion2.detach().cpu().numpy().reshape((n,n)), vmin=-2, vmax=6)
+    grid[3].imshow(diffusion2.detach().cpu().numpy().reshape((n,n)), vmin=-2, vmax=3)
     grid[3].set_title("Generated")
     grid[0].cax.colorbar(im)
     plt.savefig(figname)
 
+def visualize_observed_samples(range_value, smooth_value, process_type, figname, vmin, vmax):
 
-sdevp = VPSDE(beta_min=0.1, beta_max=20, N=1000)
-n = 32
-#mask = torch.ones((1,1,n,n)).to(device)
-#mask[:,:,int(n/4):int(3*n/4),int(n/4):int(3*n/4)] = 0
-#mask = (th.from_numpy(((produce_checkered_mask(n))[0,:,:]).reshape((1,1,n,n))).to(device)).float()
-num_samples = 1
-minX = -10
-maxX = 10
-minY = -10
-maxY = 10
-range_value = 3.
-smooth_value = 1.6
-number_of_replicates = 1
-p = .1
-mask = (th.bernoulli(p*th.ones(1,1,n,n))).to(device)
-
-
-for i in range(0,10):
 
     seed_value = int(np.random.randint(0, 100000))
-    #brsamples = np.log((generate_brown_resnick_process(range_value, smooth_value, seed_value, number_of_replicates, n)).reshape((1,1,n,n)))
-    ssamples = (np.log(np.load("temporary_schlather_samples.npy"))).reshape((1000,1,n,n))
-    #unmasked_y = (th.from_numpy(brsamples)).to(device)
-    unmasked_y = (th.from_numpy(ssamples[(i+10):(i+11),:,:,:])).to(device)
-    print(unmasked_y.min())
-    y = ((torch.mul(mask, unmasked_y)).to(device)).float()
-    num_samples = 2
-    diffusion_samples = posterior_sample_with_p_mean_variance_via_mask(sdevp, score_model,
+    fig = plt.figure(figsize=(10,10))
+    grid = ImageGrid(fig, 111,  # similar to subplot(111)
+                 nrows_ncols=(2, 4),  # creates 2x2 grid of Axes
+                 axes_pad=0.1,  # pad between Axes in inch.
+                 cbar_mode="single"
+                 )
+    number_of_replicates = 8
+    n = 32
+    if(process_type == "schlather"):
+
+        ref_img = np.log(generate_schlather_process(range_value, smooth_value, seed_value, number_of_replicates, n))
+    else:
+        ref_img = np.log(generate_brown_resnick_process(range_value, smooth_value, seed_value, number_of_replicates, n))
+
+   
+    for i, ax in enumerate(grid):
+
+        im = ax.imshow(ref_img[i,:,:,:].reshape((n,n)), vmin = vmin, vmax = vmax)
+
+    cbar = grid.cbar_axes[0].colorbar(im)
+    plt.tight_layout()
+    plt.savefig(figname)
+
+def generate_visualization(process_type, range_value, smooth_value, p, model_name, i):
+
+        seed_value = int(np.random.randint(0, 100000))
+        number_of_replicates = 1
+        n = 32
+
+        if(process_type == "schlather"):
+            ref_img = np.log(generate_schlather_process(range_value, smooth_value, seed_value, number_of_replicates, n))
+        else:
+            ref_img = np.log(generate_brown_resnick_process(range_value, smooth_value, seed_value, number_of_replicates, n))
+
+        unmasked_y = (th.from_numpy(ref_img)).to(device)
+        y = ((torch.mul(mask, unmasked_y)).to(device)).float()
+        num_samples = 2
+        mask = (torch.bernoulli(p*torch.ones((1,1,n,n)))).to(device)
+        diffusion_samples = posterior_sample_with_p_mean_variance_via_mask(sdevp, score_model,
                                                                     device, mask, y, n,
                                                                     num_samples)
 
-    figname = ("visualizations/schlather/models/model2/random10_range_3_smooth_1.6_observed_and_generated_samples_" + str(i) + ".png")
-    visualize_observed_and_generated_samples(unmasked_y, mask, diffusion_samples[0,:,:,:],
+        figname = ("visualizations/" + process_type + "/models/" + model_name + "/random" + str(p) + "_range_" + str(range_value) + 
+        "_smooth_" + str(smooth_value) + "_observed_and_generated_samples_" + str(i) + ".png")
+        visualize_observed_and_generated_samples(unmasked_y, mask, diffusion_samples[0,:,:,:],
                                             diffusion_samples[1,:,:,:], n, figname)
+
+def generate_multiple_visualizations(process_type, range_value, smooth_value, p, model_name, multiples):
+
+    for i in range(0, multiples):
+        generate_visualization(process_type, range_value, smooth_value, p, model_name, i)
+
+
+process_type = "schlather"
+model_name = "model4_beta_min_max_01_20_range_2.2_smooth_1.9_random025_log_parameterized_mask.pth"
+mode = "eval"
+score_model = load_score_model(process_type, model_name, mode)
+beta_min = .1
+beta_max = 20
+N = 1000
+sdevp = load_sde(beta_min = beta_min, beta_max = beta_max, N)
+range_value = 2.2
+smooth_value = 1.9
+p = .025
+model_name = "model4"
+multiples = 10
+generate_multiple_visualizations(process_type, range_value, smooth_value, p, model_name, multiples)

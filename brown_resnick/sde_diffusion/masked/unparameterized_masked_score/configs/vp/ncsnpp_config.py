@@ -46,10 +46,10 @@ def get_config():
   model.ema_rate = 0.9999
   model.normalization = 'GroupNorm'
   model.nonlinearity = 'swish'
-  model.nf = 64
+  model.nf = 128
   #this is a channel multiplier per number of residual blocks
   model.ch_mult = (1, 2, 2, 2)
-  model.num_res_blocks = 2
+  model.num_res_blocks = 3
   model.attn_resolutions = (4,)
   model.resamp_with_conv = True
   model.conditional = True
