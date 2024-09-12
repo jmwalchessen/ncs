@@ -2,47 +2,11 @@ import torch as th
 import numpy as np
 from append_directories import *
 from functools import partial
-import generate_true_conditional_samples
+from generate_true_conditional_samples import *
 import matplotlib.pyplot as plt
 
-home_folder = append_directory(6)
-sde_folder = home_folder + "/sde_diffusion/masked/unparameterized_masked_score"
-#sde configs folder
-sde_configs_vp_folder = sde_folder + "/configs/vp"
-sys.path.append(sde_configs_vp_folder)
-print(sde_configs_vp_folder)
-import ncsnpp_config
-sys.path.append(sde_folder)
-from models import ncsnpp
-import sde_lib
-
-n = 32
-T = 1000
-device = "cuda:0"
 
 
-
-#get trained score model
-config = ncsnpp_config.get_config()
-config.model.num_scales = 1000
-config.model.beta_max = 20
-
-score_model = th.nn.DataParallel((ncsnpp.NCSNpp(config)).to("cuda:0"))
-score_model.load_state_dict(th.load((sde_folder + "/trained_score_models/vpsde/model6_beta_min_max_01_20_random02510_channel_mask.pth")))
-score_model.eval()
-
-sdevp = sde_lib.VPSDE(beta_min=0.1, beta_max=20, N=1000)
-
-#mask is a True/False (1,32,32) vector with .5 randomly missing pixels
-#function gen_mask is in image_utils.py, 50 at end of random50 denotes
-#50 percent missing
-minX = -10
-maxX = 10
-minY = -10
-maxY = 10
-n = 32
-variance = .4
-lengthscale = 1.6
 
 #y is observed part of field, modified to incorporate the mask as channel
 def p_mean_and_variance_from_score_via_mask(vpsde, score_model, device, masked_xt, mask, y, t):
@@ -116,38 +80,56 @@ def plot_masked_spatial_field(spatial_field, mask, vmin, vmax, figname):
     ax.imshow(spatial_field, vmin = vmin, vmax = vmax, alpha = mask)
     plt.savefig(figname)
 
+def generate_validation_data(folder_name, n, variance, lengthscale, replicates_per_call, calls, p, validation_data_name):
 
-replicates_per_call = 250
-calls = 4
-number_of_replicates = 1
-seed_value = 433293
-ref_img = generate_true_conditional_samples.generate_gaussian_process(minX, maxX,
-                                                                      minY, maxY,
-                                                                      n, variance,
-                                                                      lengthscale,
-                                                                      number_of_replicates,
-                                                                      seed_value)
-ref_img = th.from_numpy(ref_img[1].reshape((1,n,n))).to(device)
-p = .1
-mask = (th.bernoulli(p*th.ones(1,1,n,n))).to(device)
 
-for i in range(0, 4):
-#mask = th.ones((1,n,n)).to(device)
-#mask[:, int(n/4):int(n/4*3), int(n/4):int(n/4*3)] = 0
-    y = ((th.mul(mask, ref_img)).to(device)).float()
-    conditional_samples = sample_unconditionally_multiple_calls(sdevp, score_model, device, mask, y, n,
-                                          replicates_per_call, calls)
+    if(os.path.exists(os.path.join(os.getcwd(), folder_name)) == False):
+        os.mkdir(os.path.join(os.getcwd(), folder_name))
+
+    if(os.path.exists(os.path.join(os.getcwd(), folder_name, "diffusion")) == False):
+        os.mkdir(os.path.join(os.getcwd(), folder_name, diffusion))
+
+    minX = -10
+    maxX = 10
+    minY = -10
+    maxY = 10
+    n = 32
+    number_of_replicates = 1
+    seed_value = int(np.random.randint(0, 1000000))
+    ref_vec, ref_img = generate_gaussian_process(minX, maxX, minY, maxY, n, variance, lengthscale,
+                                                 number_of_replicates, seed_value):
 
     partially_observed = (mask*ref_img).detach().cpu().numpy().reshape((n,n))
-    np.save("data/model6/ref_image3/ref_image.npy", ref_img.detach().cpu().numpy().reshape((n,n)))
-    np.save("data/model6/ref_image3/diffusion/model6_beta_min_max_01_20_random10_250_" + str(i) + ".npy", conditional_samples)
-    np.save("data/model6/ref_image3/partially_observed_field.npy", partially_observed.reshape((n,n)))
-    np.save("data/model6/ref_image3/mask.npy", mask.int().detach().cpu().numpy().reshape((n,n)))
-    np.save("data/model6/ref_image3/seed_value.npy", np.array([int(seed_value)]))
+    np.save((folder_name + "/ref_image.npy"), ref_img.detach().cpu().numpy().reshape((n,n)))
 
-    plot_spatial_field(ref_img.detach().cpu().numpy().reshape((n,n)), -3, 3, "data/model6/ref_image3/ref_image.png")
-    plot_spatial_field((conditional_samples[0,:,:,:]).numpy().reshape((n,n)), -3, 3, "data/model6/ref_image3/diffusion/visualizations/conditional_sample_0.png")
+    conditional_samples = np.zeros((0,1,n,n))
+    np.save((folder_name + "/partially_observed_field.npy"), partially_observed.reshape((n,n)))
+    np.save((folder_name + "/mask.npy"), mask.int().detach().cpu().numpy().reshape((n,n)))
+    np.save((folder_name + "seed_value.npy"), np.array([int(seed_value)]))
+
+    for i in range(0, calls):
+        y = ((th.mul(mask, ref_img)).to(device)).float()
+        conditional_samples = np.concatenate([conditional_samples, sample_unconditionally_multiple_calls(sdevp, score_model, device, mask, y, n,
+                                          replicates_per_call, calls)], axis = 0)
+
+    np.save((folder_name + "/diffusion/" + validation_data_name), conditional_samples)
+
+    plot_spatial_field(ref_img.detach().cpu().numpy().reshape((n,n)), -2, 2, (folder_name + "/ref_image.png"))
+    plot_spatial_field((conditional_samples[0,:,:,:]).numpy().reshape((n,n)), -2, 2, (folder_name + "/diffusion_sample.png"))
     plot_masked_spatial_field(spatial_field = ref_img.detach().cpu().numpy().reshape((n,n)),
-                   vmin = -2, vmax = 2, mask = mask.int().float().detach().cpu().numpy().reshape((n,n)), figname = "data/model6/ref_image3/partially_observed_field.png")
+                   vmin = -2, vmax = 2, mask = mask.int().float().detach().cpu().numpy().reshape((n,n)), figname = (folder_name + "/partially_observed_field.png"))
+    
 
 
+minX = -10
+maxX = 10
+minY = -10
+maxY = 10
+n = 32
+variance = .4
+lengthscale = 1.6
+folder_name = "data/model6/ref_image11"
+replicates_per_call = 250
+calls = 4
+p = .125
+generate_validation_data(folder_name, n, variance, lengthscale, replicates_per_call, calls, p, validation_data_name)

@@ -14,14 +14,14 @@ nn <- sqrt(n.size)
 x <- y <- seq(-10, 10, length = nn)
 s <- cbind(x, y)
 coord <- as.matrix(expand.grid(x, y))
-number_of_replicates_per_call <- 50
+number_of_replicates_per_call <- 1
 calls <- as.integer(number_of_replicates/number_of_replicates_per_call)
 repnumberslist <- rep(number_of_replicates_per_call, calls)
 
 simulate_data_per_core <- function(number_of_replicates, nn, coord, range, smooth)
 {
-    y <- SpatialExtremes::rmaxstab(n = number_of_replicates, coord = coord, cov.mod = "powexp",
-                                   range = range, smooth = smooth, nugget = 0)
+    y <- SpatialExtremes::rmaxstab(n = number_of_replicates, coord = s, cov.mod = "powexp",
+                                   range = range, smooth = smooth, nugget = 0, grid = TRUE)
     return(y)
 }
 
@@ -41,4 +41,4 @@ y <- mclapply(repnumberslist, function(repsnumber)
 simulate_data_per_core(repsnumber, nn, coord, range, smooth), mc.cores = cores)
 y <- collect_data(y, nn, number_of_replicates_per_call)
 np <- import("numpy")
-np$save("schlather_samples_range_3_smooth_1.6_4000.npy", y)
+np$save("temporary_schlather_samples.npy", y)

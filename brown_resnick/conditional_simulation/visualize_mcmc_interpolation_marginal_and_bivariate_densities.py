@@ -4,7 +4,7 @@ import pandas as pd
 import seaborn as sns
 from matplotlib import patches as mpatches
 from append_directories import *
-
+#see sde evaluation folder for this
 
 #index is assumed to be in i*n+j form where (i,j) is index of matrix
 def index_to_spatial_location(minX, maxX, minY, maxY, n, index):
@@ -89,12 +89,12 @@ def produce_diffusion_and_mcmc_marginal_density(mask, minX, maxX, minY, maxY, n,
                 color='red', linestyle = 'dashed')
     axs[1].set_title("Marginal")
     axs[1].set_xlim(-2,4)
-    location = index_to_spatial_location(minX, maxX, minY, maxY, n, missing_true_index)
-    rlocation = (round(location[0],2), round(location[1],2))
-    axs[1].set_xlabel("location: " + str(rlocation))
+    #location = index_to_spatial_location(minX, maxX, minY, maxY, n, missing_true_index)
+    #rlocation = (round(location[0],2), round(location[1],2))
+    #axs[1].set_xlabel("location: " + str(rlocation))
     blue_patch = mpatches.Patch(color='blue')
     orange_patch = mpatches.Patch(color='orange')
-    axs[1].legend(handles = [blue_patch, orange_patch],labels = ['true', 'generated'])
+    axs[1].legend(handles = [blue_patch, orange_patch], labels = ['mcmc', 'diffusion'])
     plt.savefig(figname)
     plt.clf()
 
@@ -160,9 +160,9 @@ def produce_diffusion_and_mcmc_bivariate_density(mask, minX, maxX, minY, maxY, n
     axs[0].plot(matrix_index1[1], matrix_index1[0], "r+")
     axs[0].plot(matrix_index2[1], matrix_index2[0], "r+")
     sns.kdeplot(x = generated_bivariate_density[:,0], y = generated_bivariate_density[:,1],
-                ax = axs[1])
-    #kde2 = sns.kdeplot(x = generated_bivariate_density[:,0], y = generated_bivariate_density[:,1],
-                #ax = axs[1], color = 'orange', levels = 5, label = "generated")
+                ax = axs[1], color = "orange", levels = 5)
+    sns.kdeplot(x = mcmc_bivariate_density[:,0], y = mcmc_bivariate_density[:,1],
+                ax = axs[1], color = 'blue', levels = 5)
     blue_patch = mpatches.Patch(color='blue')
     orange_patch = mpatches.Patch(color='orange')
     ref_image = ref_image.reshape((n,n))
@@ -171,28 +171,26 @@ def produce_diffusion_and_mcmc_bivariate_density(mask, minX, maxX, minY, maxY, n
     plt.xlim(-2,4)
     plt.ylim(-2,4)
     axs[1].set_title("Bivariate")
-    location1 = index_to_spatial_location(minX, maxX, minY, maxY, n, missing_true_index1)
-    rlocation1 = (round(location1[0],2), round(location1[1],2))
-    location2 = index_to_spatial_location(minX, maxX, minY, maxY, n, missing_true_index2)
-    rlocation2 = (round(location2[0],2), round(location2[1],2))
-    axs[1].set_xlabel("location: " + str(rlocation1))
-    axs[1].set_ylabel("location: " + str(rlocation2))
-    axs[1].legend(handles = [blue_patch, orange_patch],labels = ['true', 'generated'])
+    #location1 = index_to_spatial_location(minX, maxX, minY, maxY, n, missing_true_index1)
+    #rlocation1 = (round(location1[0],2), round(location1[1],2))
+    #location2 = index_to_spatial_location(minX, maxX, minY, maxY, n, missing_true_index2)
+    #rlocation2 = (round(location2[0],2), round(location2[1],2))
+    #axs[1].set_xlabel("location: " + str(rlocation1))
+    #axs[1].set_ylabel("location: " + str(rlocation2))
+    axs[1].legend(handles = [blue_patch, orange_patch], labels = ['mcmc', 'diffusion'])
     plt.savefig(figname)
     plt.clf()
 
-minX = -10
-maxX = 10
-minY = -10
-maxY = 10
-n = 32
-mask = np.load("data/powexp/MCMC_interpolation/ref_image1/mask.npy")
-missing_index = 124
-missing_indices =  np.squeeze(np.argwhere(mask.reshape((n**2,))))
-mcmc_samples = np.load("data/powexp/MCMC_interpolation/ref_image1/conditional_simulations_neighbors5_powexp_range_3_smooth_1.6_4000.npy")
-ref_image = np.load("data/powexp/MCMC_interpolation/ref_image1/observed_simulation_powexp_range_3_smooth_1.6.npy")
-figname = ("data/powexp/MCMC_interpolation/ref_image1/marginal_density/marginal_density_missing_index_" + str(missing_index) + ".png")
+
+
 brfolder = append_directory(2)
-diffusion_samples = np.load(brfolder + "/sde_diffusion/masked/unparameterized_masked_score/evaluation/diffusion_generation/data/model1/ref_image1/diffusion/model1_random50_beta_min_max_01_20_1000.npy")
-produce_diffusion_and_mcmc_marginal_density(mask, minX, maxX, minY, maxY, n, missing_index, missing_indices,
-                                            mcmc_samples, diffusion_samples, ref_image, figname)
+missing_indices =  np.squeeze(np.argwhere(mask.reshape((n**2,))))
+mcmc_samples = np.load((brfolder + "/sde_diffusion/masked/unparameterized_masked_score/evaluation/diffusion_generation/data/model1/ref_image1/
+ref_image = np.load("data/powexp/MCMC_interpolation/ref_image1/observed_simulation_powexp_range_3_smooth_1.6.npy")
+
+for i in range(0, 512, 4):
+    missing_index = i
+    figname = ("data/powexp/MCMC_interpolation/model1/ref_image1/marginal_density/marginal_density_missing_index_" + str(missing_index) + ".png")
+    diffusion_samples = np.load(brfolder + "/sde_diffusion/masked/unparameterized_masked_score/evaluation/diffusion_generation/data/model1/ref_image1/diffusion/model1_random50_beta_min_max_01_20_1000.npy")
+    produce_diffusion_and_mcmc_marginal_density(mask, minX, maxX, minY, maxY, n, missing_index, missing_indices,
+                                                mcmc_samples, diffusion_samples, ref_image, figname)

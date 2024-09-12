@@ -51,7 +51,8 @@ def visualize_observed_samples(range_value, smooth_value, process_type, figname,
     if(process_type == "schlather"):
 
         ref_img = np.log(generate_schlather_process(range_value, smooth_value, seed_value, number_of_replicates, n))
-    else:
+
+    elif(process_type == "brown"):
         ref_img = np.log(generate_brown_resnick_process(range_value, smooth_value, seed_value, number_of_replicates, n))
 
    
@@ -68,6 +69,7 @@ def generate_visualization(process_type, range_value, smooth_value, p, model_nam
         seed_value = int(np.random.randint(0, 100000))
         number_of_replicates = 1
         n = 32
+        device = "cuda:0"
 
         if(process_type == "schlather"):
             ref_img = np.log(generate_schlather_process(range_value, smooth_value, seed_value, number_of_replicates, n))
@@ -75,9 +77,9 @@ def generate_visualization(process_type, range_value, smooth_value, p, model_nam
             ref_img = np.log(generate_brown_resnick_process(range_value, smooth_value, seed_value, number_of_replicates, n))
 
         unmasked_y = (th.from_numpy(ref_img)).to(device)
-        y = ((torch.mul(mask, unmasked_y)).to(device)).float()
+        mask = (th.bernoulli(p*th.ones((1,1,n,n)))).to(device)
+        y = ((th.mul(mask, unmasked_y)).to(device)).float()
         num_samples = 2
-        mask = (torch.bernoulli(p*torch.ones((1,1,n,n)))).to(device)
         diffusion_samples = posterior_sample_with_p_mean_variance_via_mask(sdevp, score_model,
                                                                     device, mask, y, n,
                                                                     num_samples)
@@ -87,12 +89,13 @@ def generate_visualization(process_type, range_value, smooth_value, p, model_nam
         visualize_observed_and_generated_samples(unmasked_y, mask, diffusion_samples[0,:,:,:],
                                             diffusion_samples[1,:,:,:], n, figname)
 
-def generate_multiple_visualizations(process_type, range_value, smooth_value, p, model_name, multiples):
+def generate_multiple_visualizations(process_type, range_value, smooth_value, p, model_name, multiples_beginning, multiples_end):
 
-    for i in range(0, multiples):
+    for i in range(multiples_beginning, multiples_end):
         generate_visualization(process_type, range_value, smooth_value, p, model_name, i)
 
 
+"""
 process_type = "schlather"
 model_name = "model4_beta_min_max_01_20_range_2.2_smooth_1.9_random025_log_parameterized_mask.pth"
 mode = "eval"
@@ -100,10 +103,20 @@ score_model = load_score_model(process_type, model_name, mode)
 beta_min = .1
 beta_max = 20
 N = 1000
-sdevp = load_sde(beta_min = beta_min, beta_max = beta_max, N)
+sdevp = load_sde(beta_min = beta_min, beta_max = beta_max, N = N)
 range_value = 2.2
 smooth_value = 1.9
-p = .025
+p = 0
 model_name = "model4"
-multiples = 10
-generate_multiple_visualizations(process_type, range_value, smooth_value, p, model_name, multiples)
+multiples_beginning = 0
+multiples_end = 50
+generate_multiple_visualizations(process_type, range_value, smooth_value, p, model_name, multiples_beginning, multiples_end)"""
+
+
+range_value = .4
+smooth_value = 1.6
+process_type = "smith"
+vmax = 6
+vmin = -2
+figname = "visualizations/smith/true/true_range_" + str(range_value) + "_smooth_" + str(smooth_value) + ".png" 
+visualize_observed_samples(range_value, smooth_value, process_type, figname, vmin, vmax)

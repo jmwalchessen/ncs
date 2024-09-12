@@ -2,12 +2,16 @@ import torch as th
 import numpy as np
 import subprocess
 import os
+from append_directories import *
 
 #get trained score model
 def load_score_model(process_type, model_name, mode):
 
-    home_folder = append_directory(6)
-    sde_folder = home_folder + "/sde_diffusion/masked/unparameterized_masked_score"
+    home_folder = append_directory(5)
+    if "sde_diffusion" in home_folder:
+        sde_folder = home_folder + "/masked/unparameterized_masked_score"
+    else:
+        sde_folder = home_folder + "/sde_diffusion/masked/unparameterized_masked_score"
     sde_configs_vp_folder = sde_folder + "/configs/vp"
     sys.path.append(sde_configs_vp_folder)
     import ncsnpp_config
@@ -27,7 +31,7 @@ def load_sde(beta_min, beta_max, N):
 
     import sde_lib
     sdevp = sde_lib.VPSDE(beta_min=beta_min, beta_max=beta_max, N=N)
-    return sdepvp
+    return sdevp
 
 def p_mean_and_variance_from_score_via_mask(vpsde, score_model, device, masked_xt, mask, y, t):
 
@@ -72,6 +76,19 @@ def posterior_sample_with_p_mean_variance_via_mask(vpsde, score_model, device, m
                                                          mask, y, t, num_samples)
 
     return masked_xt
+
+def sample_unconditionally_multiple_calls(vpsde, score_model, device, mask, y, n,
+                                          num_samples_per_call, calls):
+    
+    diffusion_samples = th.zeros((0, 1, n, n))
+    for call in range(0, calls):
+        current_diffusion_samples = posterior_sample_with_p_mean_variance_via_mask(vpsde, score_model,
+                                                                                   device, mask, y, n,
+                                                                                   num_samples_per_call)
+        diffusion_samples = th.cat([current_diffusion_samples.detach().cpu(),
+                                    diffusion_samples],
+                                    dim = 0)
+    return diffusion_samples
 
 def generate_brown_resnick_process(range_value, smooth_value, seed_value, number_of_replicates, n):
 

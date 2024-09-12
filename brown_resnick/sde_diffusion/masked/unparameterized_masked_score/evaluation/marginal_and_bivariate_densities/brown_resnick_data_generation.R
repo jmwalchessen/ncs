@@ -15,6 +15,7 @@ n.size <- 1024
 nn <- sqrt(n.size)
 x <- y <- seq(-10, 10, length = nn)
 coord <- expand.grid(x, y)
+s <- cbind(x, y)
 number_of_replicates_per_call <- 50
 calls <- as.integer(number_of_replicates/number_of_replicates_per_call)
 repnumberslist <- rep(number_of_replicates_per_call, calls)
@@ -22,7 +23,6 @@ print(repnumberslist)
 
 simulate_data_per_core <- function(number_of_replicates, nn, coord, range, smooth)
 {
-    print(number_of_replicates)
     y <- SpatialExtremes::rmaxstab(n = number_of_replicates, coord = coord, cov.mod = "brown", range = range, smooth = smooth)
     return(y)
 }
@@ -43,5 +43,5 @@ y <- mclapply(repnumberslist, function(repsnumber)
 simulate_data_per_core(repsnumber, nn, coord, range, smooth), mc.cores = cores)
 y <- collect_data(y, nn, number_of_replicates_per_call)
 np <- import("numpy")
-np$save("brown_resnick_samples_range_1.6_smooth_1.6_4000.npy", y)
+np$save("temporary_brown_resnick_samples.npy", y)
 rm(list = ls())

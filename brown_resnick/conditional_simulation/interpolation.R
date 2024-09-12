@@ -2,9 +2,11 @@ library(dbscan)
 library("parallel")
 library("reticulate")
 library("devtools")
-working_directory <- (strsplit(getwd(), "/conditional_simulation")[[1]])[1]
-spatialextremes_directory <- paste(working_directory, "my-spatial-extremes", sep = "/")
-devtools::install(spatialextremes_directory)
+#working_directory <- (strsplit(getwd(), "/conditional_simulation")[[1]])[1]
+#spatialextremes_directory <- paste(working_directory, "my-spatial-extremes", sep = "/")
+#devtools::install(spatialextremes_directory)
+library(SpatialExtremes)
+library(R.utils)
 
 n <- 32
 s1 <- s2 <- seq(-10, 10, length.out = n)
@@ -46,46 +48,148 @@ MCMC_interpolation_per_pixel <- function(observed_spatial_grid, observations, k,
     condsim <- output$sim
 }
 
+
+#observed_spatial_grid, observations, k, key_location, cov_mod, nugget, range, smooth, nrep
+MCMC_interpolation_per_pixel_interrupted <- function(argsList)
+{
+    observed_spatial_grid <- argsList$observed_spatial_grid
+    observations <- argsList$observations
+    k <- argsList$k
+    key_location <- argsList$key_location
+    cov_mod <- argsList$cov_mod
+    nugget <- argsList$nugget
+    range <- argsList$range
+    smooth <- argsList$smooth
+    nrep <- argsList$nrep
+
+
+    id_matrix <- located_neighboring_pixels(observed_spatial_grid, k, key_location)
+    cond_data <- observations[id_matrix]
+    cond_coord <- observed_spatial_grid[id_matrix,]
+    output <- SpatialExtremes::condrmaxstab(nrep, coord = key_location,
+              cond.coord = cond_coord,
+              cond.data = cond_data,
+              cov.mod = cov_mod, 
+              nugget = nugget, 
+              range = range,
+              smooth = smooth)
+    condsim <- output$sim
+}
+
+
 MCMC_interpolation <- function(n, unobserved_indices, observations, k, cov_mod, nugget, range, smooth, nrep)
 {
     unobserved_spatial_grid <- spatial_grid[unobserved_indices,]
     observed_indices <- (1:n**2)[-unobserved_indices]
     observed_spatial_grid <- spatial_grid[observed_indices,]
     m <- dim(unobserved_spatial_grid)[1]
-    condsim <- array(0, dim = c(m, nrep))
+    condsim <- array(NA, dim = c(m, nrep))
     for (i in 1:m)
     {
+        print(i)
         key_location <- unobserved_spatial_grid[i,]
-        condsim[i,] <- MCMC_interpolation_per_pixel(observed_spatial_grid, observations, k, key_location, cov_mod, nugget, range, smooth, nrep)
+        x <- MCMC_interpolation_per_pixel(observed_spatial_grid, observations, k, key_location, cov_mod, nugget, range, smooth, nrep)
+        condsim[i,] <- x
     }
     return(condsim)
 }
 
 
+
+try_with_time_limit <- function(observed_spatial_grid, observations, k, key_location, cov_mod, nugget, range, smooth, nrep, cpu = Inf, elapsed = Inf)
+{
+
+  y <- try({setTimeLimit(cpu, elapsed);
+  MCMC_interpolation_per_pixel(observed_spatial_grid, observations, k, key_location, cov_mod, nugget, range, smooth, nrep)}, silent = TRUE) 
+  if(inherits(y, "try-error")) NA else y 
+}
+
+
+interruptor <- function(FUN,args, time.limit, ALTFUN){
+
+  results <- 
+    tryCatch({
+      withTimeout({FUN(args)}, timeout=time.limit)
+    }, error = function(e){
+      if(grepl("reached elapsed time limit",e$message))
+        ALTFUN(args) else
+          paste(e$message,"EXTRACTERROR")
+      })
+
+  #if(grepl("EXTRACTERROR",results)){
+    #print(gsub("EXTRACTERROR","",results))
+    #results <- array(1,args$nrep)
+  #} 
+
+  return(results)
+} 
+
+alternative_MCMC_interpolation_per_pixel <- function(observed_spatial_grid, observations, k, key_location, cov_mod, nugget, range, smooth, nrep)
+{
+    return(array(NA, dim = c(1, nrep)))
+}
+
+afunc <- function(x,y)
+{
+    return(x+y)
+}
+
+func <- function(l)
+{
+    return(l$x-l$y)
+}
+
+funcinterupt <- function(l)
+{
+    interruptor(func, l, 5, afunc)
+}
+
+
+MCMC_interpolation_interupted <- function(n, unobserved_indices, observations, k, cov_mod, nugget, range, smooth, nrep)
+{
+    unobserved_spatial_grid <- spatial_grid[unobserved_indices,]
+    observed_indices <- (1:n**2)[-unobserved_indices]
+    observed_spatial_grid <- spatial_grid[observed_indices,]
+    m <- dim(unobserved_spatial_grid)[1]
+    condsim <- array(NA, dim = c(m, nrep))
+    for (i in 1:m)
+    {
+        print(i)
+        key_location <- unobserved_spatial_grid[i,]
+        x <- interruptor(FUN = MCMC_interpolation_per_pixel_interrupted, list(observed_spatial_grid = observed_spatial_grid, observations = observations,k = k,
+                         key_location = key_location, cov_mod = cov_mod, nugget = nugget, range = range, smooth = smooth, nrep = nrep), time.limit = 60, ALTFUN = alternative_MCMC_interpolation_per_pixel)
+        print(x)
+        condsim[i,] <- x
+    }
+}
+
 np <- import("numpy")
 
-obsn <- 512
+obsn <- 300
 seed_value <- 34234
 set.seed(seed_value)
-n <- 32
+n <- 25
 s1 <- s2 <- seq(-10, 10, length.out = n)
 s <- cbind(s1, s2)
 spatial_grid <- expand.grid(s1 = s1, 
                   s2 = s2)
-range <- 3
+range <- 1.6
 smooth <- 1.6
 nugget <- 0
-cov_mod <- "powexp"
+cov_mod <- "brown"
 k <- 5
-observations <- SpatialExtremes::rmaxstab(1, coord = s, cov.mod = "powexp", 
+observations <- SpatialExtremes::rmaxstab(1, coord = s, cov.mod =  cov_mod, 
                                           nugget = nugget, range = range,
                                           smooth = smooth, grid = TRUE)
 dim(observations) <- c(n**2)
 observed_indices <- sort(sample((n**2), obsn, replace = FALSE))
 unobserved_indices <- (1:n**2)[-observed_indices]
 mask <- produce_mask(observed_indices, n)
-nrep <- 4000
-imcmc <- MCMC_interpolation(n, unobserved_indices, observations, k, cov_mod, nugget, range, smooth, nrep)
-np$save("data/powexp/MCMC_interpolation/ref_image1/conditional_simulations_neighbors5_powexp_range_3_smooth_1.6_4000.npy", imcmc)
-np$save("data/powexp/MCMC_interpolation/ref_image1/observed_simulation_powexp_range_3_smooth_1.6.npy", observations)
-np$save("data/powexp/MCMC_interpolation/ref_image1/mask.npy", mask)
+nrep <- 5
+
+imcmc <- MCMC_interpolation_interupted(n, unobserved_indices, observations, k, cov_mod, nugget, range, smooth, nrep)
+
+
+np$save("data/brown/MCMC_interpolation/ref_image1/conditional_simulations_neighbors5_brown_range_1.6_smooth_1.6_4000_25_by_25.npy", imcmc)
+np$save("data/brown/MCMC_interpolation/ref_image1/observed_simulation_brown_range_1.6_smooth_1.6_25_by_25.npy", observations)
+np$save("data/brown/MCMC_interpolation/ref_image1/mask.npy", mask)

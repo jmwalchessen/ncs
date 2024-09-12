@@ -189,13 +189,13 @@ number_of_evaluation_masks_per_image = 5
 random_missingness_percentages = [.025]
 batch_size = 256
 eval_batch_size = 32
-range_value = 2.2
-smooth_value = 1.9
+range_value = .4
+smooth_value = 1.6
 seed_values_list = [[(int(np.random.randint(0, 100000)), int(np.random.randint(0, 100000))) for j in range(0, len(random_missingness_percentages))] for i in range(0, data_draws)]
-score_model_path = "trained_score_models/vpsde/schlather/model4_beta_min_max_01_20_range_2.2_smooth_1.9_random025_log_parameterized_mask.pth"
-loss_path = "trained_score_models/vpsde/schlather/model4_beta_min_max_01_20_range_2.2_smooth_1.9_random025_log_parameterized_mask_loss.png"
+score_model_path = "trained_score_models/vpsde/model5_beta_min_max_01_20_range_.4_smooth_1.6_random025_log_parameterized_mask.pth"
+loss_path = "trained_score_models/vpsde/schlather/model5_beta_min_max_01_20_range_.4_smooth_1.6_random025_log_parameterized_mask_loss.png"
 torch.cuda.empty_cache()
-spatial_process_type = "schlather"
+spatial_process_type = "brown"
 train_per_multiple_random_masks(vpconfig, data_draws, epochs_per_data_draws,
                              random_missingness_percentages,
                              number_of_random_replicates,

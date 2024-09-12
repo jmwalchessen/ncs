@@ -5,6 +5,7 @@ from mpl_toolkits.axes_grid1 import ImageGrid
 import os
 import sys
 from rtopython_helper_functions import *
+from matplotlib.patches import Rectangle
 
 def plot_conditional_true_and_difussion_samples(mask, conditional_simulations, ref_image, n, figname):
 
@@ -38,6 +39,11 @@ def plot_conditional_true_and_difussion_samples(mask, conditional_simulations, r
             ax.set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
             ax.set_title("True")
         else:
+
+            observed_indices = np.argwhere(mask)
+            for j in range(0, observed_indices.shape[0]):
+                rect = Rectangle((observed_indices[j,1], observed_indices[j,0]), width=1.5, height=1.5, facecolor='none', edgecolor='r')
+                ax.add_patch(rect)
             im = ax.imshow(np.log(conditional_simulations[(i-2),:,:]), vmin = -2, vmax = 3)
             ax.set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
             ax.set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
@@ -56,5 +62,5 @@ n = 32
 nrep = 50
 condsims = process_rproducts(mask, ref_image, preconditional_simulations, nrep, n)
 for i in range(0, nrep, 2):
-    figname = "data/powexp/random5_range_3_smooth_1.6_" + str(i) + ".png"
+    figname = "data/powexp/visualizations/random5_range_3_smooth_1.6_" + str(i) + ".png"
     plot_conditional_true_and_difussion_samples(mask, condsims[i:(i+2),:,:], ref_image, n, figname)
