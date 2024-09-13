@@ -22,8 +22,10 @@ produce_mask <- function(observed_indices, n)
 {
     mask <- array(0, dim = c((n**2)))
     mask[observed_indices] <- rep(1, length(observed_indices))
+    dim(mask) <- c(n,n)
     return(mask)
 }
+
 
 located_neighboring_pixels <- function(observed_spatial_grid, k, key_location)
 {
@@ -145,51 +147,83 @@ funcinterupt <- function(l)
 }
 
 
-MCMC_interpolation_interupted <- function(n, unobserved_indices, observations, k, cov_mod, nugget, range, smooth, nrep)
+MCMC_interpolation_interupted_partial <- function(n, unobserved_indices, observations, k, cov_mod, nugget, range, smooth, nrep, unobserved_start, unobserved_end)
+{
+    unobserved_spatial_grid <- spatial_grid[unobserved_indices,]
+    observed_indices <- (1:n**2)[-unobserved_indices]
+    observed_spatial_grid <- spatial_grid[observed_indices,]
+    condsim <- array(NA, dim = c((unobserved_end - unobserved_start+1), nrep))
+    print(dim(condsim))
+    for (i in unobserved_start:unobserved_end)
+    {
+        print(i)
+        key_location <- unobserved_spatial_grid[i,]
+        x <- interruptor(FUN = MCMC_interpolation_per_pixel_interrupted, args = list(observed_spatial_grid = observed_spatial_grid, observations = observations,k = k,
+                         key_location = key_location, cov_mod = cov_mod, nugget = nugget, range = range, smooth = smooth, nrep = nrep), time.limit = 5, ALTFUN = alternative_MCMC_interpolation_per_pixel)
+        print(x)
+        condsim[(i-unobserved_start+1),] <- x
+    }
+    return(condsim)
+}
+
+
+MCMC_interpolation_interupted_full <- function(n, unobserved_indices, observations, k, cov_mod, nugget, range, smooth, nrep,
+                                               gap)
 {
     unobserved_spatial_grid <- spatial_grid[unobserved_indices,]
     observed_indices <- (1:n**2)[-unobserved_indices]
     observed_spatial_grid <- spatial_grid[observed_indices,]
     m <- dim(unobserved_spatial_grid)[1]
     condsim <- array(NA, dim = c(m, nrep))
-    for (i in 1:m)
+    partial <- as.integer(m/gap)
+    staggering <- seq(1,m,gap)
+    for (i in 1:partial)
     {
-        print(i)
-        key_location <- unobserved_spatial_grid[i,]
-        x <- interruptor(FUN = MCMC_interpolation_per_pixel_interrupted, list(observed_spatial_grid = observed_spatial_grid, observations = observations,k = k,
-                         key_location = key_location, cov_mod = cov_mod, nugget = nugget, range = range, smooth = smooth, nrep = nrep), time.limit = 60, ALTFUN = alternative_MCMC_interpolation_per_pixel)
-        print(x)
-        condsim[i,] <- x
+        unobserved_start <- staggering[i]
+        unobserved_end <- staggering[i+1]
+        print(unobserved_start)
+        print(unobserved_end)
+        condsim[unobserved_start:unobserved_end,] <- MCMC_interpolation_interupted_partial(n, unobserved_indices, observations, k, cov_mod, nugget,
+                                                                         range, smooth, nrep, unobserved_start, unobserved_end)
     }
+    return(condsim)
 }
 
+
+#np <- import("numpy")
+
+#obsn <- 300
+#seed_value <- 34234
+#set.seed(seed_value)
+#n <- 25
+#s1 <- s2 <- seq(-10, 10, length.out = n)
+#s <- cbind(s1, s2)
+#spatial_grid <- expand.grid(s1 = s1, 
+#                  s2 = s2)
+#range <- 1.6
+#smooth <- 1.6
+#nugget <- 0
+#cov_mod <- "brown"
+#k <- 5
+#observations <- SpatialExtremes::rmaxstab(1, coord = s, cov.mod =  cov_mod, 
+#                                          nugget = nugget, range = range,
+#                                          smooth = smooth, grid = TRUE)
+#dim(observations) <- c(n**2)
+#observed_indices <- sort(sample((n**2), obsn, replace = FALSE))
+#unobserved_indices <- (1:n**2)[-observed_indices]
+#mask <- produce_mask(observed_indices, n)
+#nrep <- 5
+#gap <- 20
+#imcmc <- MCMC_interpolation_interupted_full(n, unobserved_indices, observations, k, cov_mod, nugget, range, smooth, nrep, gap)
+
+
+#np$save("data/brown/MCMC_interpolation/ref_image1/conditional_simulations_neighbors5_brown_range_1.6_smooth_1.6_4000_25_by_25.npy", imcmc)
+#np$save("data/brown/MCMC_interpolation/ref_image1/observed_simulation_brown_range_1.6_smooth_1.6_25_by_25.npy", observations)
+#np$save("data/brown/MCMC_interpolation/ref_image1/mask.npy", mask)
+
 np <- import("numpy")
-
-obsn <- 300
-seed_value <- 34234
-set.seed(seed_value)
 n <- 25
-s1 <- s2 <- seq(-10, 10, length.out = n)
-s <- cbind(s1, s2)
-spatial_grid <- expand.grid(s1 = s1, 
-                  s2 = s2)
-range <- 1.6
-smooth <- 1.6
-nugget <- 0
-cov_mod <- "brown"
-k <- 5
-observations <- SpatialExtremes::rmaxstab(1, coord = s, cov.mod =  cov_mod, 
-                                          nugget = nugget, range = range,
-                                          smooth = smooth, grid = TRUE)
-dim(observations) <- c(n**2)
+obsn <- 624
 observed_indices <- sort(sample((n**2), obsn, replace = FALSE))
-unobserved_indices <- (1:n**2)[-observed_indices]
 mask <- produce_mask(observed_indices, n)
-nrep <- 5
-
-imcmc <- MCMC_interpolation_interupted(n, unobserved_indices, observations, k, cov_mod, nugget, range, smooth, nrep)
-
-
-np$save("data/brown/MCMC_interpolation/ref_image1/conditional_simulations_neighbors5_brown_range_1.6_smooth_1.6_4000_25_by_25.npy", imcmc)
-np$save("data/brown/MCMC_interpolation/ref_image1/observed_simulation_brown_range_1.6_smooth_1.6_25_by_25.npy", observations)
-np$save("data/brown/MCMC_interpolation/ref_image1/mask.npy", mask)
+np$save("brown_resnick/data/25_by_25/mask.npy", mask)
