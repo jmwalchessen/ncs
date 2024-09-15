@@ -5,6 +5,7 @@ from mpl_toolkits.axes_grid1 import ImageGrid
 import os
 import sys
 from helper_functions import *
+from matplotlib.patches import Rectangle
 
 
 
@@ -34,6 +35,158 @@ def visualize_observed_and_generated_samples(observed, mask, diffusion1, diffusi
     grid[3].imshow(diffusion2.detach().cpu().numpy().reshape((n,n)), vmin=-2, vmax=3)
     grid[3].set_title("Generated")
     grid[0].cax.colorbar(im)
+    plt.savefig(figname)
+
+
+def visualize_mcmc_approx_and_mean(ref_image_name, mask_name, mcmc_folder, missing_index, n, figname):
+
+    mask = np.load(mask_name)
+    missing_indices = np.squeeze(np.argwhere((1-mask).reshape((n**2,))))
+    matrix_missing_index = (int(missing_indices[(missing_index-1)] % n), int(missing_indices[(missing_index-1)] / n))
+    ref_image = np.load(ref_image_name)
+    mcmc_samples = np.load((mcmc_folder + "_" + str(missing_index) + ".npy"))
+    mcmc_samples = np.log(mcmc_samples)
+    #print(ref_image[:,missing_indices[missing_index]])
+
+    fig = plt.figure(figsize=(10, 7.2))
+
+    grid = ImageGrid(fig, 111,          # as in plt.subplot(111)
+                    nrows_ncols=(2,2),
+                    axes_pad=0.35,
+                    share_all=False,
+                    cbar_location="right",
+                    cbar_mode="single",
+                    cbar_size="7%",
+                    cbar_pad=0.15,
+                    label_mode = "L"
+                    )
+    
+    for i, ax in enumerate(grid):
+        if(i == 0):
+            mask[matrix_missing_index[1],matrix_missing_index[0]] = 1
+            im = ax.imshow(ref_image.reshape((n,n)), alpha = (mask.astype(float)).reshape((n,n)),
+                 vmin = -2, vmax = 4)
+            rect = Rectangle(((matrix_missing_index[0]-.35), (matrix_missing_index[1]-.35)), width=1, height=1,
+                             facecolor='none', edgecolor='r')
+            ax.add_patch(rect)
+            ax.set_title("True")
+        
+        elif(i == 1):
+            mcmc_image = ref_image.reshape((n**2))
+            mcmc_image[missing_indices[(missing_index-1)]] = mcmc_samples[0]
+            mask = mask.reshape((n,n))
+            mask[matrix_missing_index[1],matrix_missing_index[0]] = 1
+            ax.imshow(mcmc_image.reshape((n,n)), alpha = (mask.astype(float)).reshape((n,n)), vmin = -2, vmax = 4)
+            rect = Rectangle(((matrix_missing_index[0]-.35), (matrix_missing_index[1]-.35)), width=1, height=1,
+                             facecolor='none', edgecolor='r')
+            ax.add_patch(rect)
+            ax.set_title("MCMC Approx")
+        elif(i == 2):
+            mcmc_image = ref_image.reshape((n**2))
+            mcmc_image[missing_indices[(missing_index-1)]] = mcmc_samples[1]
+            mask = mask.reshape((n,n))
+            mask[matrix_missing_index[1],matrix_missing_index[0]] = 1
+            ax.imshow(mcmc_image.reshape((n,n)), alpha = (mask.astype(float)).reshape((n,n)), vmin = -2, vmax = 4)
+            rect = Rectangle(((matrix_missing_index[0]-.35), (matrix_missing_index[1]-.35)), width=1, height=1,
+                             facecolor='none', edgecolor='r')
+            ax.add_patch(rect)
+            ax.set_title("MCMC Approx")
+
+        elif(i == 3):
+            mcmc_image = ref_image.reshape((n**2))
+            mcmc_mean = np.mean(mcmc_samples)
+            mcmc_image[missing_indices[(missing_index-1)]] = mcmc_mean
+            ax.imshow(mcmc_image.reshape((n,n)), alpha = (mask.astype(float)).reshape((n,n)), vmin = -2, vmax = 4)
+            rect = Rectangle(((matrix_missing_index[0]-.35), (matrix_missing_index[1]-.35)), width=1, height=1,
+                             facecolor='none', edgecolor='r')
+            ax.add_patch(rect)
+            ax.set_title("MCMC Conditional Mean")
+    
+    cbar = grid.cbar_axes[0].colorbar(im)
+    plt.tight_layout()
+    plt.savefig(figname)
+
+def produce_mask_missing_indices(mask, n):
+
+    missing_indices = np.squeeze(np.argwhere((1-mask).reshape((n**2,))))
+    m = missing_indices.shape[0]
+    matrix_missing_indices = np.zeros((m,2))
+
+    for missing_index in range(0, m):
+        matrix_missing_indices[missing_index,:] = (int(missing_indices[missing_index] % n), int(missing_indices[missing_index] / n))
+
+    return missing_indices, matrix_missing_indices
+
+
+
+def visualize_mcmc_approx_and_mean_pixels(ref_image_name, mask_name, mcmc_file_name, n, figname):
+
+    mask = np.load(mask_name)
+    missing_indices, matrix_missing_indices = produce_mask_missing_indices(mask, n)
+    m = missing_indices.shape[0]
+    ref_image = np.load(ref_image_name)
+    mcmc_samples = np.load(mcmc_file_name)
+    mcmc_samples = np.log(mcmc_samples)
+    #print(ref_image[:,missing_indices[missing_index]])
+
+    fig = plt.figure(figsize=(10, 7.2))
+
+    grid = ImageGrid(fig, 111,          # as in plt.subplot(111)
+                    nrows_ncols=(2,2),
+                    axes_pad=0.35,
+                    share_all=False,
+                    cbar_location="right",
+                    cbar_mode="single",
+                    cbar_size="7%",
+                    cbar_pad=0.15,
+                    label_mode = "L"
+                    )
+    
+    for i, ax in enumerate(grid):
+        if(i == 0):
+            im = ax.imshow(ref_image.reshape((n,n)),
+                 vmin = -2, vmax = 4)
+            for i in range(0, m):
+                rect = Rectangle(((matrix_missing_indices[i,0]-.35), (matrix_missing_indices[i,1]-.35)), width=1, height=1,
+                             facecolor='none', edgecolor='r')
+                ax.add_patch(rect)
+            ax.set_title("True")
+        
+        elif(i == 1):
+            mcmc_image = ref_image.reshape((n**2))
+            mcmc_image[missing_indices] = mcmc_samples[0,:]
+            ax.imshow(mcmc_image.reshape((n,n)), vmin = -2, vmax = 4)
+            for i in range(0, m):
+                rect = Rectangle(((matrix_missing_indices[i,0]-.35), (matrix_missing_indices[i,1]-.35)), width=1, height=1,
+                             facecolor='none', edgecolor='r')
+                ax.add_patch(rect)
+            ax.add_patch(rect)
+            ax.set_title("MCMC Approx")
+        elif(i == 2):
+            mcmc_image = ref_image.reshape((n**2))
+            mcmc_image[missing_indices] = mcmc_samples[1,:]
+            mask = mask.reshape((n,n))
+            ax.imshow(mcmc_image.reshape((n,n)), vmin = -2, vmax = 4)
+            for i in range(0, m):
+                rect = Rectangle(((matrix_missing_indices[i,0]-.35), (matrix_missing_indices[i,1]-.35)), width=1, height=1,
+                             facecolor='none', edgecolor='r')
+                ax.add_patch(rect)
+            ax.add_patch(rect)
+            ax.set_title("MCMC Approx")
+
+        elif(i == 3):
+            mcmc_image = ref_image.reshape((n**2))
+            mcmc_mean = np.mean(mcmc_samples, axis = 1)
+            mcmc_image[missing_indices] = mcmc_mean
+            ax.imshow(mcmc_image.reshape((n,n)), vmin = -2, vmax = 4)
+            for i in range(0, m):
+                rect = Rectangle(((matrix_missing_indices[i,0]-.35), (matrix_missing_indices[i,1]-.35)), width=1, height=1,
+                             facecolor='none', edgecolor='r')
+                ax.add_patch(rect)
+            ax.set_title("MCMC Conditional Mean")
+    
+    cbar = grid.cbar_axes[0].colorbar(im)
+    plt.tight_layout()
     plt.savefig(figname)
 
 def visualize_observed_samples(range_value, smooth_value, process_type, figname, vmin, vmax):
@@ -112,11 +265,20 @@ multiples_beginning = 0
 multiples_end = 50
 generate_multiple_visualizations(process_type, range_value, smooth_value, p, model_name, multiples_beginning, multiples_end)"""
 
-
+"""
 range_value = .4
 smooth_value = 1.6
 process_type = "smith"
 vmax = 6
 vmin = -2
 figname = "visualizations/smith/true/true_range_" + str(range_value) + "_smooth_" + str(smooth_value) + ".png" 
-visualize_observed_samples(range_value, smooth_value, process_type, figname, vmin, vmax)
+visualize_observed_samples(range_value, smooth_value, process_type, figname, vmin, vmax)"""
+
+for missing_index in range(0,120, 4):
+    ref_image_name = "diffusion_generation/data/model1/ref_image1/ref_image.npy"
+    mask_name = "diffusion_generation/data/model1/ref_image1/mask.npy"
+    mcmc_folder = "diffusion_generation/data/model1/ref_image1/mcmc_interpolation/mcmc_interpolation_missing_index"
+    n = 32
+    figname = ("visualizations/models/model1/ref_image1/mcmc_interpolation_missing_index_" +
+           str(missing_index) + ".png")
+    visualize_mcmc_approx_and_mean(ref_image_name, mask_name, mcmc_folder, missing_index, n, figname)

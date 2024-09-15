@@ -2,6 +2,14 @@ import subprocess
 import numpy as np
 import os
 
+def produce_mask(n, obsn):
+
+    observed_indices = np.random.choice((n**2), size = obsn, replace = False)
+    mask = np.zeros((n**2))
+    mask[observed_indices] = 1
+    mask = mask.reshape((n,n))
+    return mask
+
 
 def produce_mcmc_interpolation_per_pixel(n, range_value, smooth_value, nugget, cov_mod, ref_file_name, mask_file_name,
                                         condsim_file_name, neighbors, nrep, missing_index):
@@ -17,10 +25,10 @@ def produce_mcmc_interpolation_per_pixel(n, range_value, smooth_value, nugget, c
     #return condsim
 
 def produce_mcmc_interpolation(n, range_value, smooth_value, nugget, cov_mod,
-                               ref_file_name, mask_file_name, neighbors, nrep, start, end):
+                               ref_file_name, mask_file_name, condsim_file_name,
+                               neighbors, nrep, start, end):
 
     condsim = np.zeros(((end - start), nrep))
-    condsim_file_name = ("data/25_by_25/condsim_range_1.6_smooth_1.6_missing_index_")
     for missing_index in range(start,end):
         print(missing_index)
         current_condsim_file_name = (condsim_file_name + str(missing_index) + ".npy")
@@ -28,17 +36,21 @@ def produce_mcmc_interpolation(n, range_value, smooth_value, nugget, cov_mod,
                                         current_condsim_file_name, neighbors, nrep, missing_index)
     
 
-
+obsn = 310
 n = 25
 range_value = 1.6
 smooth_value = 1.6
 nugget = 0
 cov_mod = "brown"
-mask_file_name = "data/25_by_25/mask.npy"
-ref_file_name = "data/25_by_25/ref_image.npy"
+mask_file_name = "data/25_by_25/ref_image1/mask9/mask.npy"
+mask = produce_mask(n, obsn)
+print(mask)
+np.save(mask_file_name, mask)
+ref_file_name = "data/25_by_25/ref_image1/ref_image.npy"
 neighbors = 7
-nrep = 100
+nrep = 1000
 start = 1
-end = 2
+end = 1024
+condsim_file_name = "data/25_by_25/ref_image1/mask9/condsim_range_1.6_smooth_1.6_1000_missing_index_"
 produce_mcmc_interpolation(n, range_value, smooth_value, nugget, cov_mod, ref_file_name,
-                                     mask_file_name, neighbors, nrep, start, end)
+                           mask_file_name, condsim_file_name, neighbors, nrep, start, end)
