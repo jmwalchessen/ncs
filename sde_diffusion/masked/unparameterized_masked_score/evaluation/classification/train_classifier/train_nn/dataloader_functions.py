@@ -64,16 +64,26 @@ def prepare_and_create_dataloader(path, num_samples, minX, maxX, minY, maxY, n,
     dataloader = create_dataloader(images, classes, batch_size)
     return dataloader
 
-def prepare_crop_and_create_dataloader(path, num_samples, minX, maxX, minY, maxY, n,
-                                       variance, lengthscale, seed_value, batch_size, crop_size):
+def prepare_crop_and_create_dataloaders(path, split, num_samples, minX, maxX, minY, maxY, n,
+                                       variance, lengthscale, seed_value, batch_size,
+                                       eval_batch_size, crop_size):
 
     diffusion_images = load_images(path)
     true_images = generate_gaussian_process(minX, maxX, minY, maxY, n, variance,
                                             lengthscale, num_samples, seed_value)[1]
     diffusion_images = diffusion_images.reshape((num_samples,1,n,n))
-    images = prepare_images(diffusion_images, true_images)
-    images = crop_images(images, n, crop_size)
-    classes = prepare_classes(num_samples)
-    dataloader = create_dataloader(images, classes, batch_size)
-    return dataloader
+    true_train_images = true_images[0:split,:,:,:]
+    diffusion_train_images = diffusion_images[0:split,:,:,:]
+    true_eval_images = true_images[split:,:,:,:]
+    diffusion_eval_images = diffusion_images[split:,:,:,:]
+    train_images = prepare_images(diffusion_train_images, true_train_images)
+    train_images = crop_images(train_images, n, crop_size)
+    eval_images = prepare_images(diffusion_eval_images, true_eval_images)
+    eval_images = crop_images(eval_images, n, crop_size)
+    train_classes = prepare_classes(2*split)
+    eval_classes = prepare_classes(2*(num_samples - split))
+    train_dataloader = create_dataloader(train_images, train_classes, batch_size)
+    eval_dataloader = create_dataloader(eval_images, eval_classes, eval_batch_size)
+    eval_train_dataloader = create_dataloader(train_images, train_classes, eval_batch_size)
+    return train_dataloader, eval_dataloader, eval_train_dataloader
 
