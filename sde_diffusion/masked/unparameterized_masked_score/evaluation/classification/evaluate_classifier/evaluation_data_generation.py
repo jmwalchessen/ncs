@@ -72,7 +72,8 @@ def sample_unconditionally_multiple_calls(vpsde, score_model, device, mask, y, n
                                     dim = 0)
     return diffusion_samples
 
-def generate_validation_data(folder_name, n, variance, lengthscale, replicates_per_call, calls, validation_data_name):
+def generate_validation_data(folder_name, n, variance, lengthscale, replicates_per_call, calls,
+                             validation_data_name, sdevp, score_model):
 
 
     if(os.path.exists(os.path.join(os.getcwd(), folder_name)) == False):
@@ -110,5 +111,9 @@ variance = .4
 lengthscale = 1.6
 n = 32
 validation_data_name = "evaluation_data_model6_variance_.4_lengthscale_1.6_4000.npy"
-score_model = load_score_model()
-generate_validation_data(folder_name, n, variance, lengthscale, replicates_per_call, calls, validation_data_name)
+model_name = "model6_beta_min_max_01_20_random02510_channel_mask.pth"
+mode = "eval"
+score_model = load_score_model(model_name, mode)
+sdevp = load_sde(.1,20,1000)
+generate_validation_data(folder_name, n, variance, lengthscale, replicates_per_call, calls,
+                         validation_data_name, sdevp, score_model)

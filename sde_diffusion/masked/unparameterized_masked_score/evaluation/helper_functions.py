@@ -5,9 +5,9 @@ import os
 from append_directories import *
 
 #get trained score model
-def load_score_model(process_type, model_name, mode):
+def load_score_model(model_name, mode):
 
-    home_folder = append_directory(5)
+    home_folder = append_directory(7)
     if "sde_diffusion" in home_folder:
         sde_folder = home_folder + "/masked/unparameterized_masked_score"
     else:
@@ -20,7 +20,7 @@ def load_score_model(process_type, model_name, mode):
     config = ncsnpp_config.get_config()
 
     score_model = th.nn.DataParallel((ncsnpp.NCSNpp(config)).to("cuda:0"))
-    score_model.load_state_dict(th.load((sde_folder + "/trained_score_models/vpsde/" + process_type + "/" + model_name)))
+    score_model.load_state_dict(th.load((sde_folder + "/trained_score_models/vpsde/" + model_name)))
     if(mode == "train"):
         score_model.train()
     else:
