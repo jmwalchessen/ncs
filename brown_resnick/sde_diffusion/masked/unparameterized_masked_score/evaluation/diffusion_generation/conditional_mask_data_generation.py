@@ -12,7 +12,6 @@ from helper_functions import *
 score_model = load_score_model("schlather", "model4_beta_min_max_01_20_range_2.2_smooth_1.9_random025_log_parameterized_mask.pth", "eval")
 
 sdevp = load_sde(beta_min = .1, beta_max = 20, N = 1000)
-
 #mask is a True/False (1,32,32) vector with .5 randomly missing pixels
 #function gen_mask is in image_utils.py, 50 at end of random50 denotes
 #50 percent missing

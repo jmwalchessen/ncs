@@ -57,10 +57,3 @@ def plot_conditional_true_and_difussion_samples(mask, conditional_simulations, r
     plt.savefig(figname)
 
 
-mask, ref_image, preconditional_simulations = load_files("ref_image1")
-n = 32
-nrep = 50
-condsims = process_rproducts(mask, ref_image, preconditional_simulations, nrep, n)
-for i in range(0, nrep, 2):
-    figname = "data/powexp/visualizations/random5_range_3_smooth_1.6_" + str(i) + ".png"
-    plot_conditional_true_and_difussion_samples(mask, condsims[i:(i+2),:,:], ref_image, n, figname)

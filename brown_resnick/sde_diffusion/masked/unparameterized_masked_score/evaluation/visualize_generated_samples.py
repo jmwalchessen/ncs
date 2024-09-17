@@ -272,7 +272,7 @@ process_type = "smith"
 vmax = 6
 vmin = -2
 figname = "visualizations/smith/true/true_range_" + str(range_value) + "_smooth_" + str(smooth_value) + ".png" 
-visualize_observed_samples(range_value, smooth_value, process_type, figname, vmin, vmax)"""
+visualize_observed_samples(range_value, smooth_value, process_type, figname, vmin, vmax)
 
 for missing_index in range(0,120, 4):
     ref_image_name = "diffusion_generation/data/model1/ref_image1/ref_image.npy"
@@ -281,4 +281,4 @@ for missing_index in range(0,120, 4):
     n = 32
     figname = ("visualizations/models/model1/ref_image1/mcmc_interpolation_missing_index_" +
            str(missing_index) + ".png")
-    visualize_mcmc_approx_and_mean(ref_image_name, mask_name, mcmc_folder, missing_index, n, figname)
+    visualize_mcmc_approx_and_mean(ref_image_name, mask_name, mcmc_folder, missing_index, n, figname)"""

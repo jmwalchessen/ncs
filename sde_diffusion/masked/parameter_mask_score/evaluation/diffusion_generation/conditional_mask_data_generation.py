@@ -6,7 +6,7 @@ from generate_true_conditional_samples import *
 import matplotlib.pyplot as plt
 
 home_folder = append_directory(6)
-sde_folder = home_folder + "/sde_diffusion/masked/parameterized_masked_score"
+sde_folder = home_folder + "/sde_diffusion/masked/parameter_mask_score"
 #sde configs folder
 sde_configs_vp_folder = sde_folder + "/configs/vp"
 sys.path.append(sde_configs_vp_folder)
@@ -52,10 +52,11 @@ def p_mean_and_variance_from_score_via_mask(vpsde, score_model, device, masked_x
     reps = masked_xt.shape[0]
     #need mask to be same size as masked_xt
     mask = mask.repeat((reps,1,1,1))
+    mask = lengthscale*mask
     masked_xt_and_mask = th.cat([masked_xt, mask], dim = 1)
     with th.no_grad():
         parameter = th.tensor([variance, lengthscale]).to(device)
-        score_and_mask = score_model(masked_xt_and_mask, parameter, timestep)
+        score_and_mask = score_model(masked_xt_and_mask, timestep)
     
     #first channel is score, second channel is mask
     score = score_and_mask[:,0:1,:,:]
@@ -171,7 +172,7 @@ p = .5
 lengthscales = [round((1. + .1*i),1) for i in range(0,10)]
 for i, lengthscale in enumerate(lengthscales):
 
-    folder_name = "data/model3/ref_image" + str(i+1)
-    validation_data_name = "model3_beta_min_max_01_20_random50_variance_.8_lengthscale_" + str(lengthscale) + "_4000.npy"
+    folder_name = "data/model1/ref_image" + str(i+1)
+    validation_data_name = "model1_beta_min_max_01_20_random50_variance_.8_lengthscale_" + str(lengthscale) + "_4000.npy"
     generate_validation_data(folder_name, n, variance, lengthscale, replicates_per_call, calls,
                          p, validation_data_name)

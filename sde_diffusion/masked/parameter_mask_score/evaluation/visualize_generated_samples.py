@@ -5,19 +5,20 @@ from mpl_toolkits.axes_grid1 import ImageGrid
 import os
 import sys
 from append_directories import *
-
 home_folder = append_directory(2)
 sys.path.append(home_folder)
+print("a")
 from models import ncsnpp
 from sde_lib import *
 from configs.vp import ncsnpp_config
 from block_mask_generation import *
+print("b")
 
 device = "cuda:0"
 config = ncsnpp_config.get_config()
 #if trained parallelized, need to be evaluated that way too
 score_model = torch.nn.DataParallel((ncsnpp.NCSNpp(config)).to("cuda:0"))
-score_model.load_state_dict(th.load((home_folder + "/trained_score_models/vpsde/model3_variance_.8_lengthscale_1_2_beta_min_max_01_20_random50_channel_mask.pth")))
+score_model.load_state_dict(th.load((home_folder + "/trained_score_models/vpsde/model1_variance_.8_lengthscale_1_2_beta_min_max_01_20_random50_channel_mask.pth")))
 score_model.eval()
 
 def construct_norm_matrix(minX, maxX, minY, maxY, n):
@@ -64,10 +65,11 @@ def p_mean_and_variance_from_score_via_mask(vpsde, score_model, device, masked_x
     reps = masked_xt.shape[0]
     #need mask to be same size as masked_xt
     mask = mask.repeat((reps,1,1,1))
+    mask = lengthscale*mask
     masked_xt_and_mask = th.cat([masked_xt, mask], dim = 1)
     with th.no_grad():
         parameter = (torch.tensor([[variance, lengthscale]])).to(device)
-        score_and_mask = score_model(masked_xt_and_mask, parameter, timestep)
+        score_and_mask = score_model(masked_xt_and_mask, timestep)
     
     #first channel is score, second channel is mask
     score = score_and_mask[:,0:1,:,:]
@@ -143,7 +145,7 @@ maxX = 10
 minY = -10
 maxY = 10
 variance = .8
-lengthscale = 1.8
+lengthscale = 1
 number_of_replicates = 1
 
 for i in range(0,5):
@@ -160,6 +162,6 @@ for i in range(0,5):
                                                                     device, mask, y, n,
                                                                     num_samples, variance, lengthscale)
 
-    figname = ("visualizations/models/model3/random50_variance_.8_lengthscale_1.8_observed_and_generated_samples_" + str(i) + ".png")
+    figname = ("visualizations/models/model1/random50_variance_.8_lengthscale_1_observed_and_generated_samples_" + str(i) + ".png")
     visualize_observed_and_generated_samples(unmasked_y, mask, diffusion_samples[0,:,:,:],
                                             diffusion_samples[1,:,:,:], n, figname)
