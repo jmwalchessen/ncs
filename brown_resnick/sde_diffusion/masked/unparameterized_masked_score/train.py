@@ -169,7 +169,8 @@ def train_per_multiple_random_masks(config, data_draws, epochs_per_drawn_data,
 
             figname = ("diffusion_images_data_draw_" + str(data_draw) + "_epoch_" + str(epoch) + ".png")
             for p in random_missingness_percentages:
-                evaluate_diffusion(score_model, sde, spatial_process_type, range_value, smooth_value, p, folder_name, vmin, vmax, figname)
+                evaluate_diffusion(score_model, sde, spatial_process_type, range_value, smooth_value, p,
+                                   folder_name, vmin, vmax, figname)
 
             
 
