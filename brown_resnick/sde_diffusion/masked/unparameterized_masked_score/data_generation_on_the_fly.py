@@ -212,7 +212,7 @@ def get_training_and_evaluation_data_per_percentages(number_of_random_replicates
                 eimages = generate_schlather_process(range_value, smooth_value, seed_values[1],
                                                      number_of_evaluation_random_replicates, n)
 
-            elif(spatial_process_type == "brown resnick"):
+            elif(spatial_process_type == "brown"):
                 timages = generate_brown_resnick_process(range_value, smooth_value, seed_values[0],
                                                      number_of_random_replicates, n)
                 eimages = generate_brown_resnick_process(range_value, smooth_value, seed_values[1],
@@ -225,7 +225,7 @@ def get_training_and_evaluation_data_per_percentages(number_of_random_replicates
     eval_images = np.log(eval_images)
     fig, ax = plt.subplots(1)
     plt.imshow(train_images[0,:,:,:].reshape((n,n)))
-    plt.savefig("schlather_sample1.png")
+    plt.savefig("brown_sample1.png")
     train_masks = generate_random_masks_on_the_fly(n, train_images.shape[0], random_missingness_percentages)
     eval_masks = generate_random_masks_on_the_fly(n, eval_images.shape[0], random_missingness_percentages)
     train_dataset = CustomSpatialImageMaskDataset(train_images, train_masks)
