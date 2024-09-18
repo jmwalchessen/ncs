@@ -18,10 +18,8 @@ import sys
 import os
 sys.path.append(os.path.dirname(__file__))
 from model_utils import *
-print("a")
 from layers import *
 from layerspp import *
-print("b")
 from normalization import *
 import torch.nn as nn
 import functools
