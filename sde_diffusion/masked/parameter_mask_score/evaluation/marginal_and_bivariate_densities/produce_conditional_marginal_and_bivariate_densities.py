@@ -144,7 +144,7 @@ def produce_true_and_generated_marginal_density(mask, minX, maxX, minY, maxY, n,
     sns.kdeplot(data = generated_pdd, palette = ["orange"], ax = axs[1])
     plt.axvline(ref_image[int(matrix_missing_index[0]),int(matrix_missing_index[1])], color='red', linestyle = 'dashed')
     axs[1].set_title("Marginal")
-    axs[1].set_xlim(-2.5,2.5)
+    axs[1].set_xlim(-4,4)
     location = index_to_spatial_location(minX, maxX, minY, maxY, n, missing_true_index)
     rlocation = (round(location[0],2), round(location[1],2))
     axs[1].set_xlabel("location: " + str(rlocation))
@@ -187,7 +187,7 @@ def produce_true_and_generated_bivariate_density(mask, minX, maxX, minY, maxY, n
     axs[0].plot(matrix_index1[1], matrix_index1[0], "r+")
     axs[0].plot(matrix_index2[1], matrix_index2[0], "r+")
     kde1 = sns.kdeplot(data = pdd, x = 'x', y = 'y',
-                ax = axs[1], hue = 'class', shade = True, levels = 5, alpha = .5)
+                ax = axs[1], hue = 'class', shade = False, levels = 10, alpha = .5)
     #kde2 = sns.kdeplot(x = generated_bivariate_density[:,0], y = generated_bivariate_density[:,1],
                 #ax = axs[1], color = 'orange', levels = 5, label = "generated")
     blue_patch = mpatches.Patch(color='blue')
@@ -210,7 +210,7 @@ def produce_true_and_generated_bivariate_density(mask, minX, maxX, minY, maxY, n
 def produce_multiple_true_and_generated_marginal_density(variance, lengthscale,
                                                          folder_name,
                                                          conditional_generated_samples,
-                                                         gap):
+                                                         gap, start, end):
     
     
     n = 32
@@ -227,38 +227,73 @@ def produce_multiple_true_and_generated_marginal_density(variance, lengthscale,
     m = missing_indices.shape[0]
 
     
-    for i in range(0, m, gap):
+    for i in range(start, end, gap):
         missing_index = i
         true_missing_index = missing_indices[missing_index]
         true_missing_matrix_index = index_to_matrix_index(true_missing_index, n)
-        figname = (folder_name + "/marginal_density_" + str(int(true_missing_matrix_index[0]))
+        figname = (folder_name + "/marginal_density/marginal_density_" + str(int(true_missing_matrix_index[0]))
                    + "_" + str(int(true_missing_matrix_index[1])) + ".png")
         produce_true_and_generated_marginal_density((1-mask), minX, maxX, minY, maxY, n, variance, lengthscale,
                                                 number_of_replicates, missing_index,
                                                 missing_indices, folder_name, m, observed_vector,
-                                                conditional_samples, ref_image, figname)
+                                                conditional_generated_samples, ref_image, figname)
+        
+
+def produce_multiple_true_and_generated_bivariate_density(variance, lengthscale,
+                                                         folder_name,
+                                                         conditional_generated_samples,
+                                                         indices1, indices2):
+    
+    
+    n = 32
+    minX = -10
+    maxX = 10
+    minY = -10
+    maxY = 10
+    number_of_replicates = 4000
+    mask = np.load((folder_name + "/mask.npy"))
+    ref_image = (np.load((folder_name + "/ref_image.npy")))
+    observed_vector = ref_image.reshape((n**2))
+    missing_indices = np.squeeze(np.argwhere((1-mask).reshape((n**2,))))
+    observed_vector = np.delete(observed_vector, missing_indices)
+    m = missing_indices.shape[0]
+
+    
+    for missing_index1 in indices1:
+        for missing_index2 in indices2:
+    
+            missing_two_indices = [missing_index1, missing_index2]
+            true_missing_index1 = missing_indices[missing_index1]
+            true_missing_index2 = missing_indices[missing_index2]
+            figname = (folder_name + "/bivariate_density/bivariate_density_" + str(int(true_missing_index1))
+                       + "_" + str(int(true_missing_index2)) + ".png")
+            produce_true_and_generated_bivariate_density((1-mask), minX, maxX, minY, maxY, n, variance, lengthscale,
+                                                 number_of_replicates, missing_two_indices,
+                                                 missing_indices, observed_vector,
+                                                 conditional_generated_samples, ref_image, figname)
 
                                 
                                             
 
-lengthscales = [round((1. + .1*i),1) for i in range(3,4)]
+lengthscales = [round((1. + .2*i),1) for i in range(0,6)]
 number_of_replicates = 4000
+variance = .8 
 n = 32
-gap = 15
+gap = 10
+indices1 = [306]
+indices2 = [304,305,307,308,326,327,328,329,330,331]
 for i, lengthscale in enumerate(lengthscales):
-    conditional_samples = np.load((data_generation_folder + "/data/model2/ref_image"
-                                    + str(i+4) +
-                                    "/diffusion/model2_random50_beta_min_max_01_20_variance_.4_lengthscale_" + 
-                                    str(lengthscale) + "_1000.npy"))
-    conditional_samples = conditional_samples.reshape((number_of_replicates,n,n))
-    variance = .4                                                                           
-    folder_name = (data_generation_folder + "/data/model2/ref_image"
-                   + str(i+4))
-
-    produce_multiple_true_and_generated_marginal_density(variance, lengthscale,
+    conditional_samples = np.load((data_generation_folder + "/data/model1/ref_image"
+                                    + str(i+1) +
+                                    "/diffusion/model1_beta_min_max_01_20_random50_variance_.8_lengthscale_" + 
+                                    str(lengthscale) + "_4000.npy"))
+    conditional_samples = conditional_samples.reshape((number_of_replicates,n,n))                                                                         
+    folder_name = (data_generation_folder + "/data/model1/ref_image"
+                   + str(i+1))
+    produce_multiple_true_and_generated_bivariate_density(variance, lengthscale,
                                                          folder_name,
                                                          conditional_samples,
-                                                         gap)
+                                                         indices1, indices2)
 
 
 
