@@ -20,7 +20,10 @@ def load_score_model(process_type, model_name, mode):
     config = ncsnpp_config.get_config()
 
     score_model = th.nn.DataParallel((ncsnpp.NCSNpp(config)).to("cuda:0"))
-    score_model.load_state_dict(th.load((sde_folder + "/trained_score_models/vpsde/" + process_type + "/" + model_name)))
+    if(process_type == "schlather"):
+        score_model.load_state_dict(th.load((sde_folder + "/trained_score_models/vpsde/" + process_type + "/" + model_name)))
+    else:
+        score_model.load_state_dict(th.load((sde_folder + "/trained_score_models/vpsde/" + model_name)))
     if(mode == "train"):
         score_model.train()
     else:
