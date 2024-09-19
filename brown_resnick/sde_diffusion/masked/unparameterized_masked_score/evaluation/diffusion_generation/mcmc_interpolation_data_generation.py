@@ -6,9 +6,9 @@ import os
 range_value = 1.6
 smooth_value = 1.6
 nugget = 0
-ref_file_name = "data/model2/ref_image1/ref_image.npy"
-mask_file_name = "data/model2/ref_image1/mask.npy"
-condsim_file_name = "data/model2/ref_image1/mcmc_interpolation/mcmc_interpolation_missing_index"
+ref_file_name = "data/model1/ref_image1/ref_image.npy"
+mask_file_name = "data/model1/ref_image1/mask.npy"
+condsim_file_name = "data/model1/ref_image1/mcmc_kriging/mcmc_kriging_neighbors_7_4000_missing_index"
 cov_mod = "brown"
 neighbors = 7
 n = 32
@@ -36,7 +36,7 @@ def extract_integer(filename):
 
 def concatenate_mcmc_interpolation_files(ref_image_folder, file_name, nrep):
 
-    mcmc_folder = (ref_image_folder + "/mcmc_interpolation")
+    mcmc_folder = (ref_image_folder + "/mcmc_kriging")
     ref_image = np.load((ref_image_folder + "/ref_image.npy"))
     mask = np.load((ref_image_folder + "/mask.npy"))
     missing_indices =  np.squeeze(np.argwhere((1-mask).reshape((n**2,))))
@@ -47,7 +47,7 @@ def concatenate_mcmc_interpolation_files(ref_image_folder, file_name, nrep):
 
     for i,f in enumerate(filenames):
 
-        missing_index = missing_indices[int(extract_integer(f))]
+        missing_index = missing_indices[(int(extract_integer(f))-1)]
         current_mcmc_samples = np.load((mcmc_folder + "/" + f))
         if(current_mcmc_samples.size == nrep):
             current_mcmc_samples = np.log(current_mcmc_samples)
@@ -64,9 +64,9 @@ def concatenate_mcmc_interpolation_files(ref_image_folder, file_name, nrep):
     return mcmc_images, mcmc_mask
         
 
-folder_name = "data/model2/ref_image2"
-mcmc_folder_name = "data/model2/ref_image2/mcmc_interpolation"
-file_name = "mcmc_interpolation_missing_index"
+folder_name = "data/model1/ref_image1"
+mcmc_folder_name = "data/model1/ref_image1/mcmc_kriging"
+file_name = "mcmc_interpolation_neighbors_7_4000_missing_index"
 nrep = 4000
 mcmc_images, mcmc_mask = concatenate_mcmc_interpolation_files(folder_name, file_name, nrep)
 np.save((mcmc_folder_name + "/" + file_name + ".npy"), mcmc_images)

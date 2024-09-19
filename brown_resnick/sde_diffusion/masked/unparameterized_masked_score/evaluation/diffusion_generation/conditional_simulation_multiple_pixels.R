@@ -25,6 +25,17 @@ produce_mask <- function(observed_indices, n)
     return(mask)
 }
 
+flatten_matrix <- function(twodmatrix, n)
+{
+  onedarray <- c()
+  for(i in 1:n)
+  {
+    print(twodmatrix[,i])
+    onedarray <- c(onedarray, twodmatrix[,i])
+  }
+  return(onedarray)
+}
+
 located_neighboring_pixels <- function(observed_spatial_grid, k, key_location)
 {
     knn <- kNN(observed_spatial_grid, k = k, query = key_location)
@@ -35,11 +46,13 @@ located_neighboring_pixels <- function(observed_spatial_grid, k, key_location)
 MCMC_interpolation_per_pixel <- function(observed_spatial_grid, observations, k, key_location,
                                             cov_mod, nugget, range, smooth, nrep)
 {
+    print("key location")
     print(key_location)
     id_matrix <- located_neighboring_pixels(observed_spatial_grid, k, key_location)
     cond_data <- observations[id_matrix]
     cond_coord <- observed_spatial_grid[id_matrix,]
-    print(cond_data)
+    print("neighbor obs")
+    print(log(cond_data))
     output <- SpatialExtremes::condrmaxstab(nrep, coord = key_location,
               cond.coord = cond_coord,
               cond.data = cond_data,
@@ -48,7 +61,6 @@ MCMC_interpolation_per_pixel <- function(observed_spatial_grid, observations, k,
               range = range,
               smooth = smooth)
     condsim <- output$sim
-    print(condsim)
 }
 
 interruptor <- function(FUN,args, time.limit, ALTFUN){
@@ -98,11 +110,15 @@ produce_mcmc_interpolation_per_pixel_via_mask <- function(argsList)
     observations <- exp(np$load(ref_image_name))
     dim(observations) <- c(n**2)
     dim(mask) <- c(n**2)
+    flatten_mask <- flatten_matrix(mask, n)
+    print(mask)
     observed_indices <- (1:n**2)[mask == 1]
     observed_spatial_grid <- spatial_grid[observed_indices,]
     observations <- observations[observed_indices]
     unobserved_indices <- (1:n**2)[-observed_indices]
     unobserved_observations <- observations[unobserved_indices]
+    print("key obs")
+    print(log(unobserved_observations[missing_index]))
     unobserved_spatial_grid <- spatial_grid[unobserved_indices,]
     key_location <- unobserved_spatial_grid[missing_index,]
     condsim <- MCMC_interpolation_per_pixel(observed_spatial_grid, observations, neighbors, key_location,
@@ -129,6 +145,7 @@ produce_mcmc_interpolation_per_pixel_via_mask_interrupted <- function(n, range, 
 
 for(missing_index in missing_index_start:missing_index_end)
 {
+    print(missing_index)
     y <- produce_mcmc_interpolation_per_pixel_via_mask_interrupted(n, range, smooth, nugget, cov_mod, mask_file_name,
                                                                    ref_image_name, neighbors, nrep, missing_index)
     current_condsim_file <- paste(paste(condsim_file_name, as.character(missing_index), sep = "_"), "npy", sep = ".")
