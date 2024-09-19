@@ -42,10 +42,6 @@ MCMC_interpolation_per_bipixel <- function(observed_spatial_grid, observations, 
     cond_coord <- observed_spatial_grid[id_matrix,]
     key_location <- list(s1 = c(as.numeric(key_location1$s1), as.numeric(key_location2$s1)),
                          s2 = c(as.numeric(key_location1$s2), as.numeric(key_location2$s2)))
-    print(nrep)
-    print(key_location)
-    print(cond_coord)
-    print(cond_data)
     output <- SpatialExtremes::condrmaxstab(nrep, coord = key_location,
               cond.coord = cond_coord,
               cond.data = cond_data,
@@ -79,14 +75,14 @@ produce_mcmc_interpolation_per_bipixel_via_mask <- function(argsList)
                   s2 = s2)
 
     mask <- np$load(mask_file_name)
-    observations <- exp(np$load(ref_image_name))
-    dim(observations) <- c(n**2)
+    ref_image <- exp(np$load(ref_image_name))
+    dim(ref_image) <- c(n**2)
     dim(mask) <- c(n**2)
     observed_indices <- (1:n**2)[mask == 1]
     observed_spatial_grid <- spatial_grid[observed_indices,]
-    observations <- observations[observed_indices]
+    observations <- ref_image[observed_indices]
     unobserved_indices <- (1:n**2)[-observed_indices]
-    unobserved_observations <- observations[unobserved_indices]
+    unobserved_observations <- ref_image[unobserved_indices]
     unobserved_spatial_grid <- spatial_grid[unobserved_indices,]
     key_location1 <- unobserved_spatial_grid[missing_index1,]
     key_location2 <- unobserved_spatial_grid[missing_index2,]

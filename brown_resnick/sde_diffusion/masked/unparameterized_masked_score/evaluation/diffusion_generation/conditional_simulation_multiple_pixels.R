@@ -30,8 +30,7 @@ flatten_matrix <- function(twodmatrix, n)
   onedarray <- c()
   for(i in 1:n)
   {
-    print(twodmatrix[,i])
-    onedarray <- c(onedarray, twodmatrix[,i])
+    onedarray <- c(onedarray, twodmatrix[i,])
   }
   return(onedarray)
 }
@@ -107,16 +106,16 @@ produce_mcmc_interpolation_per_pixel_via_mask <- function(argsList)
                   s2 = s2)
 
     mask <- np$load(mask_file_name)
-    observations <- exp(np$load(ref_image_name))
-    dim(observations) <- c(n**2)
-    dim(mask) <- c(n**2)
-    flatten_mask <- flatten_matrix(mask, n)
-    print(mask)
+    ref_image <- exp(np$load(ref_image_name))
+    ref_image <- flatten_matrix(ref_image, n)
+    print(ref_image[1:32])
+    mask <- flatten_matrix(mask, n)
+    print(mask[1:32])
     observed_indices <- (1:n**2)[mask == 1]
     observed_spatial_grid <- spatial_grid[observed_indices,]
-    observations <- observations[observed_indices]
+    observations <- ref_image[observed_indices]
     unobserved_indices <- (1:n**2)[-observed_indices]
-    unobserved_observations <- observations[unobserved_indices]
+    unobserved_observations <- ref_image[unobserved_indices]
     print("key obs")
     print(log(unobserved_observations[missing_index]))
     unobserved_spatial_grid <- spatial_grid[unobserved_indices,]
