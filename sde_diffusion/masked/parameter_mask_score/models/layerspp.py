@@ -17,9 +17,7 @@
 """Layers for defining NCSN++.
 """
 from layers import *
-print("a")
 from up_or_down_sampling import *
-print("b")
 import torch.nn as nn
 import torch
 import torch.nn.functional as F

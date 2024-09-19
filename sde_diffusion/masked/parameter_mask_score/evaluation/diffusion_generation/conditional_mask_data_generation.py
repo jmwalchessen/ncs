@@ -10,7 +10,6 @@ sde_folder = home_folder + "/sde_diffusion/masked/parameter_mask_score"
 #sde configs folder
 sde_configs_vp_folder = sde_folder + "/configs/vp"
 sys.path.append(sde_configs_vp_folder)
-print(sde_configs_vp_folder)
 import ncsnpp_config
 sys.path.append(sde_folder)
 from models import ncsnpp
@@ -28,7 +27,7 @@ config.model.num_scales = 1000
 config.model.beta_max = 20
 
 score_model = th.nn.DataParallel((ncsnpp.NCSNpp(config)).to("cuda:0"))
-score_model.load_state_dict(th.load((sde_folder + "/trained_score_models/vpsde/model3_variance_.8_lengthscale_1_2_beta_min_max_01_20_random50_channel_mask.pth")))
+score_model.load_state_dict(th.load((sde_folder + "/trained_score_models/vpsde/model1_variance_.8_lengthscale_1_2_beta_min_max_01_20_random50_channel_mask.pth")))
 score_model.eval()
 
 sdevp = sde_lib.VPSDE(beta_min=0.1, beta_max=20, N=1000)
@@ -52,8 +51,8 @@ def p_mean_and_variance_from_score_via_mask(vpsde, score_model, device, masked_x
     reps = masked_xt.shape[0]
     #need mask to be same size as masked_xt
     mask = mask.repeat((reps,1,1,1))
-    mask = lengthscale*mask
-    masked_xt_and_mask = th.cat([masked_xt, mask], dim = 1)
+    parameter_mask = lengthscale*mask
+    masked_xt_and_mask = th.cat([masked_xt, parameter_mask], dim = 1)
     with th.no_grad():
         parameter = th.tensor([variance, lengthscale]).to(device)
         score_and_mask = score_model(masked_xt_and_mask, timestep)
@@ -157,19 +156,19 @@ def generate_validation_data(folder_name, n, variance, lengthscale, replicates_p
     np.save((folder_name + "/ref_image.npy"), ref_img.detach().cpu().numpy().reshape((n,n)))
     np.save((folder_name + "/partially_observed_field.npy"), partially_observed.reshape((n,n)))
     np.save((folder_name + "/mask.npy"), mask.int().detach().cpu().numpy().reshape((n,n)))
-    np.save((folder_name + "seed_value.npy"), np.array([int(seed_value)]))
+    np.save((folder_name + "/seed_value.npy"), np.array([int(seed_value)]))
 
-    plot_spatial_field(ref_img.detach().cpu().numpy().reshape((n,n)), -3, 3, (folder_name + "/ref_image.png"))
-    plot_spatial_field((conditional_samples[0,:,:,:]).reshape((n,n)), -3, 3, (folder_name + "/diffusion_sample.png"))
-    plot_masked_spatial_field(spatial_field = ref_img,
-                   vmin = -3, vmax = 3, mask = mask.int().float().detach().cpu().numpy().reshape((n,n)), figname = (folder_name + "/partially_observed_field.png"))
+    #plot_spatial_field(ref_img.detach().cpu().numpy().reshape((n,n)), -3, 3, (folder_name + "/ref_image.png"))
+    #plot_spatial_field((conditional_samples[0,:,:,:]).reshape((n,n)), -3, 3, (folder_name + "/diffusion_sample.png"))
+    #plot_masked_spatial_field(spatial_field = ref_img.detach().cpu().numpy().reshape((n,n)),
+                   #vmin = -3, vmax = 3, mask = mask.int().float().detach().cpu().numpy().reshape((n,n)), figname = (folder_name + "/partially_observed_field.png"))
 
 
 replicates_per_call = 250
 calls = 4
 variance = .8
 p = .5
-lengthscales = [round((1. + .1*i),1) for i in range(0,10)]
+lengthscales = [round((1. + .2*i),1) for i in range(0,6)]
 for i, lengthscale in enumerate(lengthscales):
 
     folder_name = "data/model1/ref_image" + str(i+1)

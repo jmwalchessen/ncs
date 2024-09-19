@@ -20,8 +20,7 @@ def visualize_loss(epochs_and_draws, train_losses, eval_losses, figname):
     ax.set_ylabel('Loss')
     ax.legend()
     plt.savefig(figname)
-
-def plot_original_and_diffusion_images(ref_image, mask, diffusion_images, vmin, vmax, n, figname):
+def plot_original_and_diffusion_images(ref_image, mask, diffusion_images, vmin, vmax, figname, n):
 
     fig = plt.figure(figsize=(10, 10))
 
@@ -39,9 +38,9 @@ def plot_original_and_diffusion_images(ref_image, mask, diffusion_images, vmin, 
     for i,ax in enumerate(grid):
 
         if(i == 0):
-            im = ax.imshow(ref_image.detach().cpu().numpy().reshape((n,n)), vmin = vmin, vmax = vmax)
+            im = ax.imshow(ref_image.reshape((n,n)), vmin = vmin, vmax = vmax)
         if(i == 1):
-            ax.imshow(ref_image.detach().cpu().numpy().reshape((n,n)), alpha = mask.float().detach().cpu().numpy().reshape((n,n)),
+            ax.imshow(ref_image.reshape((n,n)), alpha = mask.float().detach().cpu().numpy().reshape((n,n)),
              vmin = vmin, vmax = vmax)
         else:
             ax.imshow(diffusion_images[(i-2),:,:,:].detach().cpu().numpy().reshape((n,n)), vmin = vmin, vmax = vmax)
@@ -52,7 +51,8 @@ def plot_original_and_diffusion_images(ref_image, mask, diffusion_images, vmin, 
 
     
 
-def evaluate_diffusion(score_model, sde, process_type, range_value, smooth_value, p, folder_name, vmin, vmax, figname):
+def evaluate_diffusion(score_model, sde, process_type, range_value, smooth_value, p, folder_name,
+                       vmin, vmax, figname):
 
     n = 32
     num_samples = 2
@@ -65,22 +65,20 @@ def evaluate_diffusion(score_model, sde, process_type, range_value, smooth_value
         ref_img = np.log(generate_schlather_process(range_value, smooth_value, seed_value, number_of_replicates, n))
     else:
         number_of_replicates = 50
+        seed_value = int(np.random.randint(0, 1000000))
         ref_img = np.log(generate_brown_resnick_process(range_value, smooth_value, seed_value, number_of_replicates, n))
         ref_img = ref_img[0:1,:,:,:]
     
     score_model.eval()
-    y = ((th.mul(mask, ref_img)).to(device)).float()
+    y = ((torch.mul(mask, (torch.from_numpy(ref_img)).to(device))).to(device)).float()
     diffusion_images = posterior_sample_with_p_mean_variance_via_mask(sde, score_model, device, mask,
-                                                   y, n, num_samples)
+                                                   y, n, num_samples, range_value, smooth_value)
 
     if(os.path.exists(os.path.join(os.getcwd(), folder_name)) == False):
         os.mkdir(os.path.join(os.getcwd(), folder_name))
 
     figname = folder_name + "/" + figname
-    plot_original_and_diffusion_images(ref_img, diffusion_images, vmin, vmax, figname)
-    
-
-    
+    plot_original_and_diffusion_images(ref_img, mask, diffusion_images, vmin, vmax, figname, n)
 
 
 
@@ -90,7 +88,7 @@ def train(config, data_draws, epochs_per_drawn_data,
           number_of_evaluation_random_replicates, number_of_masks_per_image,
           number_of_evaluation_masks_per_image, seed_values_list, eval_seed_values_list,
           train_parameter_matrix, eval_parameter_matrix, batch_size, eval_batch_size,
-          score_model_path, loss_path, spatial_process_type,):
+          score_model_path, loss_path, spatial_process_type, folder_name, vmin, vmax):
     
     # Initialize model.
     #score_model = mutils.create_model(config)
@@ -101,6 +99,9 @@ def train(config, data_draws, epochs_per_drawn_data,
     initial_step = int(state['step'])
     eval_losses = []
     train_losses = []
+
+    if(os.path.exists(os.path.join(os.getcwd(), folder_name)) == False):
+        os.mkdir(os.path.join(os.getcwd(), folder_name))
     
     # Setup SDEs
     if config.training.sde.lower() == 'vpsde':
@@ -165,10 +166,9 @@ def train(config, data_draws, epochs_per_drawn_data,
 
             figname = ("diffusion_images_data_draw_" + str(data_draw) + "_epoch_" + str(epoch) + ".png")
             for p in random_missingness_percentages:
-                vmin = -2
-                vmax = 4
-                folder_name = "trained_score_models/vpsde/"
-                evaluate_diffusion(score_model, sde, spatial_process_type, range_value, smooth_value, p, folder_name, vmin, vmax, n, figname)
+                n = 32
+                evaluate_diffusion(score_model, sde, spatial_process_type, range_value, smooth_value, p, folder_name,
+                                   vmin, vmax, n, figname)
 
             
 
@@ -189,20 +189,26 @@ number_of_evaluation_random_replicates = 50
 number_of_masks_per_image = 100
 number_of_evaluation_masks_per_image = 5
 #smaller p means less ones which means more observed values
-random_missingness_percentages = [.025]
-batch_size = 256
+random_missingness_percentages = [.5]
+batch_size = 512
 eval_batch_size = 32
-range_value = .4
-smooth_value = 1.6
-seed_values_list = [[(int(np.random.randint(0, 100000)), int(np.random.randint(0, 100000))) for j in range(0, len(random_missingness_percentages))] for i in range(0, data_draws)]
+seed_values_list = [[int(np.random.randint(0, 100000)) for j in range(0, len(random_missingness_percentages))] for i in range(0, data_draws)]
+eval_seed_values_list = [[int(np.random.randint(0, 100000)) for j in range(0, len(random_missingness_percentages))] for i in range(0, data_draws)]
 score_model_path = "trained_score_models/vpsde/model1_beta_min_max_01_20_range_10_20_smooth_1_random50_log_parameterized_mask.pth"
 loss_path = "trained_score_models/vpsde/model1_beta_min_max_01_20_range_10_20_smooth_1_random50_log_parameterized_mask_loss.png"
 torch.cuda.empty_cache()
 spatial_process_type = "brown"
+folder_name = "trained_score_models/vpsde/model1"
+vmin = -2
+vmax = 6
+train_parameter_matrix = np.matrix([[10,1],[11,1],[12,1],[13,1],[14,1],[15,1],[16,1],[17,1],[18,1],[19,1],[20,1]])
+eval_parameter_matrix = np.matrix([[12,1],[18,1]])
+eval_seed_values_list = [[(int(np.random.randint(0, 100000)), int(np.random.randint(0, 100000))) for j in range(0, len(random_missingness_percentages))] for i in range(0, data_draws)]
+
+
 train(vpconfig, data_draws, epochs_per_data_draws,
-                             random_missingness_percentages,
-                             number_of_random_replicates,
-                             number_of_evaluation_random_replicates,
-                             number_of_masks_per_image, number_of_evaluation_masks_per_image,
-                             seed_values_list, range_value, smooth_value, batch_size,
-                             eval_batch_size, score_model_path, loss_path, spatial_process_type)
+      random_missingness_percentages, number_of_random_replicates,
+      number_of_evaluation_random_replicates, number_of_masks_per_image,
+      number_of_evaluation_masks_per_image, seed_values_list, eval_seed_values_list,
+      train_parameter_matrix, eval_parameter_matrix, batch_size, eval_batch_size,
+      score_model_path, loss_path, spatial_process_type, folder_name, vmin, vmax)
