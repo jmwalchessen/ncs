@@ -39,7 +39,7 @@ MCMC_interpolation_per_pixel <- function(observed_spatial_grid, observations, k,
     id_matrix <- located_neighboring_pixels(observed_spatial_grid, k, key_location)
     cond_data <- observations[id_matrix]
     cond_coord <- observed_spatial_grid[id_matrix,]
-    print(cond_coord)
+    print(cond_data)
     output <- SpatialExtremes::condrmaxstab(nrep, coord = key_location,
               cond.coord = cond_coord,
               cond.data = cond_data,
@@ -48,6 +48,7 @@ MCMC_interpolation_per_pixel <- function(observed_spatial_grid, observations, k,
               range = range,
               smooth = smooth)
     condsim <- output$sim
+    print(condsim)
 }
 
 interruptor <- function(FUN,args, time.limit, ALTFUN){
