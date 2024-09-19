@@ -285,7 +285,7 @@ def get_step_fn(sde, train, optimize_fn=None,
     assert not likelihood_weighting, "Likelihood weighting is not supported for original SMLD/DDPM training."
     if (isinstance(sde, VPSDE)):
       if masked:
-        loss_fn = get_masked_score_ddpm_loss_fn(sde, train, reduce_mean=reduce_mean) 
+        loss_fn = get_parameterized_masked_score_ddpm_loss_fn(sde, train, reduce_mean=reduce_mean) 
       else:
         loss_fn = get_ddpm_loss_fn(sde, train, reduce_mean=reduce_mean)
 

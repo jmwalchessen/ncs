@@ -88,7 +88,8 @@ def train(config, data_draws, epochs_per_drawn_data,
           number_of_evaluation_random_replicates, number_of_masks_per_image,
           number_of_evaluation_masks_per_image, seed_values_list, eval_seed_values_list,
           train_parameter_matrix, eval_parameter_matrix, batch_size, eval_batch_size,
-          score_model_path, loss_path, spatial_process_type, folder_name, vmin, vmax):
+          score_model_path, loss_path, spatial_process_type, folder_name, vmin, vmax,
+          eval_range_value, smooth_eval_value):
     
     # Initialize model.
     #score_model = mutils.create_model(config)
@@ -133,8 +134,8 @@ def train(config, data_draws, epochs_per_drawn_data,
         train_dataloader, eval_dataloader = get_training_and_evaluation_data_per_percentages(number_of_random_replicates, random_missingness_percentages,
                                                      number_of_evaluation_random_replicates, number_of_masks_per_image,
                                                      number_of_evaluation_masks_per_image, batch_size, eval_batch_size,
-                                                     train_parameter_matrix, eval_parameter_matrix, seed_values_list,
-                                                     eval_seed_values_list, spatial_process_type)   
+                                                     train_parameter_matrix, eval_parameter_matrix, seed_values_list[data_draw],
+                                                     eval_seed_values_list[data_draw], spatial_process_type)   
         
         
         for epoch in range(0, epochs_per_drawn_data):
@@ -167,8 +168,8 @@ def train(config, data_draws, epochs_per_drawn_data,
             figname = ("diffusion_images_data_draw_" + str(data_draw) + "_epoch_" + str(epoch) + ".png")
             for p in random_missingness_percentages:
                 n = 32
-                evaluate_diffusion(score_model, sde, spatial_process_type, range_value, smooth_value, p, folder_name,
-                                   vmin, vmax, n, figname)
+                evaluate_diffusion(score_model, sde, spatial_process_type, eval_range_value, eval_smooth_value, p, folder_name,
+                                   vmin, vmax, figname)
 
             
 
@@ -192,17 +193,21 @@ number_of_evaluation_masks_per_image = 5
 random_missingness_percentages = [.5]
 batch_size = 512
 eval_batch_size = 32
-seed_values_list = [[int(np.random.randint(0, 100000)) for j in range(0, len(random_missingness_percentages))] for i in range(0, data_draws)]
-eval_seed_values_list = [[int(np.random.randint(0, 100000)) for j in range(0, len(random_missingness_percentages))] for i in range(0, data_draws)]
-score_model_path = "trained_score_models/vpsde/model1_beta_min_max_01_20_range_10_20_smooth_1_random50_log_parameterized_mask.pth"
-loss_path = "trained_score_models/vpsde/model1_beta_min_max_01_20_range_10_20_smooth_1_random50_log_parameterized_mask_loss.png"
+train_parameter_matrix = np.matrix([[10,1],[11,1],[12,1],[13,1],[14,1],[15,1],[16,1],[17,1],[18,1],[19,1],[20,1]])
+eval_parameter_matrix = np.matrix([[12,1],[18,1]])
+tnparam = train_parameter_matrix.shape[0]
+enparam = eval_parameter_matrix.shape[0]
+eval_smooth_value = 1
+eval_range_value = 15
+seed_values_list = [[[int(np.random.randint(0, 100000)) for k in range(0, tnparam)] for j in range(0, len(random_missingness_percentages))] for i in range(0, data_draws)]
+eval_seed_values_list = [[[int(np.random.randint(0, 100000)) for k in range(0, enparam)] for j in range(0, len(random_missingness_percentages))] for i in range(0, data_draws)]
+score_model_path = "trained_score_models/vpsde/model1/model1_beta_min_max_01_20_range_10_20_smooth_1_random50_log_parameterized_mask.pth"
+loss_path = "trained_score_models/vpsde/model1/model1_beta_min_max_01_20_range_10_20_smooth_1_random50_log_parameterized_mask_loss.png"
 torch.cuda.empty_cache()
 spatial_process_type = "brown"
 folder_name = "trained_score_models/vpsde/model1"
 vmin = -2
 vmax = 6
-train_parameter_matrix = np.matrix([[10,1],[11,1],[12,1],[13,1],[14,1],[15,1],[16,1],[17,1],[18,1],[19,1],[20,1]])
-eval_parameter_matrix = np.matrix([[12,1],[18,1]])
 eval_seed_values_list = [[(int(np.random.randint(0, 100000)), int(np.random.randint(0, 100000))) for j in range(0, len(random_missingness_percentages))] for i in range(0, data_draws)]
 
 
@@ -211,4 +216,5 @@ train(vpconfig, data_draws, epochs_per_data_draws,
       number_of_evaluation_random_replicates, number_of_masks_per_image,
       number_of_evaluation_masks_per_image, seed_values_list, eval_seed_values_list,
       train_parameter_matrix, eval_parameter_matrix, batch_size, eval_batch_size,
-      score_model_path, loss_path, spatial_process_type, folder_name, vmin, vmax)
+      score_model_path, loss_path, spatial_process_type, folder_name, vmin, vmax,
+      eval_range_value, eval_smooth_value)
