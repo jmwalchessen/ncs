@@ -282,3 +282,5 @@ for missing_index in range(0,120, 4):
     figname = ("visualizations/models/model1/ref_image1/mcmc_interpolation_missing_index_" +
            str(missing_index) + ".png")
     visualize_mcmc_approx_and_mean(ref_image_name, mask_name, mcmc_folder, missing_index, n, figname)"""
+
+
