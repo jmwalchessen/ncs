@@ -4,22 +4,6 @@ library(reticulate)
 library(SpatialExtremes)
 library(R.utils)
 
-args = commandArgs(trailingOnly=TRUE)
-range <- as.numeric(args[1])
-smooth <- as.numeric(args[2])
-nugget <- as.numeric(args[3])
-ref_image_name <- as.character(args[4])
-mask_file_name <- as.character(args[5])
-condsim_file_name <- as.character(args[6])
-cov_mod <- as.character(args[7])
-neighbors <- as.numeric(args[8])
-n <- as.numeric(args[9])
-nrep <- as.numeric(args[10])
-missing_index_start1 <- as.numeric(args[11])
-missing_index_end1 <- as.numeric(args[12])
-missing_index_start2 <- as.numeric(args[13])
-missing_index_end2 <- as.numeric(args[14])
-
 produce_mask <- function(observed_indices, n)
 {
     mask <- array(0, dim = c((n**2)))
@@ -54,6 +38,7 @@ MCMC_interpolation_per_bipixel <- function(observed_spatial_grid, observations, 
     cond_coord <- observed_spatial_grid[id_matrix,]
     key_location <- data.frame(s1 = c(as.numeric(key_location1$s1), as.numeric(key_location1$s2)),
                                s2 = c(as.numeric(key_location1$s1), as.numeric(key_location1$s2)))
+
     output <- SpatialExtremes::condrmaxstab(nrep, coord = key_location,
               cond.coord = cond_coord,
               cond.data = cond_data,
@@ -127,6 +112,11 @@ produce_mcmc_interpolation_per_bipixel_via_mask <- function(argsList)
     return(condsim)
 }
 
+arglist <- list(n = 32, range = 1.6, smooth = 1.6, nugget = .001, cov_mod = "brown", mask_file_name = "data/model1/ref_image1/mask.npy",
+                ref_image_name = "data/model1/ref_image1/ref_image.npy", neighbors = 3, nrep = 4000, missing_index1 = 4,
+                missing_index2 = 5)
+condsim <- produce_mcmc_interpolation_per_bipixel_via_mask(arglist)
+print(condsim[1:100,])
 
 produce_mcmc_interpolation_per_bipixel_via_mask_interrupted <- function(n, range, smooth, nugget, cov_mod, mask_file_name, ref_image_name,
                                                           neighbors, nrep, missing_index1, missing_index2)
@@ -141,18 +131,3 @@ produce_mcmc_interpolation_per_bipixel_via_mask_interrupted <- function(n, range
                                                                                       time.limit = 60, ALTFUN = alternative_MCMC_interpolation_per_bipixel_via_mask)
     return(x)
 }
-
-for(missing_index1 in missing_index_start1:missing_index_end1)
-{
-    for(missing_index2 in missing_index_start2:missing_index_end2)
-    {
-        y <- produce_mcmc_interpolation_per_bipixel_via_mask_interrupted(n, range, smooth, nugget, cov_mod, mask_file_name,
-                                                                         ref_image_name, neighbors, nrep, missing_index1,
-                                                                         missing_index2)
-        current_condsim_file <- paste(paste(paste(condsim_file_name, as.character(missing_index1), sep = "_"), as.character(missing_index2),
-                                                    sep = "_"), "npy", sep = ".")
-        np <- import("numpy")
-        np$save(current_condsim_file, y)
-    }
-}
-rm(list = ls())
