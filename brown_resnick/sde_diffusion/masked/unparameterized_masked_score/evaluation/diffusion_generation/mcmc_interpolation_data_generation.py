@@ -66,8 +66,9 @@ def concatenate_mcmc_interpolation_files(ref_image_folder, file_name, nrep):
 
 folder_name = "data/model1/ref_image1"
 mcmc_folder_name = "data/model1/ref_image1/mcmc_kriging"
-file_name = "mcmc_interpolation_neighbors_7_4000_missing_index"
+file_name = "mcmc_kriging_neighbors_7_4000_missing_index"
+mcmc_file_name = "mcmc_kriging_neighbors_7_4000"
 nrep = 4000
 mcmc_images, mcmc_mask = concatenate_mcmc_interpolation_files(folder_name, file_name, nrep)
-np.save((mcmc_folder_name + "/" + file_name + ".npy"), mcmc_images)
-np.save((mcmc_folder_name + "/" + file_name + "_mask.npy"), mcmc_mask)
+np.save((mcmc_folder_name + "/" + mcmc_file_name + ".npy"), mcmc_images)
+np.save((mcmc_folder_name + "/" + mcmc_file_name + "_mask.npy"), mcmc_mask)

@@ -410,7 +410,7 @@ def visualize_diffusion_and_mcmc_kriging_conditional_mean(diffusion_images, mcmc
         
         if(i == 2):
             mcmc_mean = np.mean(mcmc_images, axis = 0)
-            ax.imshow(mcmc_mean, vmin = -2, vmax = 4, alpha = (1-mask).astype(float))
+            ax.imshow(mcmc_mean, vmin = -2, vmax = 4)
             ax.set_title("MCMC Mean")
         if(i == 3):
             diffusion_mean = np.mean(diffusion_images, axis = 0)
@@ -574,8 +574,7 @@ m = missing_indices.shape[0]
 number_of_replicates = 4000
 
 """
-
-for missing_index in range(450,500):
+for missing_index in range(500,511):
 
     figname = (data_generation_folder + "/data/model1/ref_image1/mcmc_kriging/marginal_density/mcmc_kriging_vs_diffusion_missing_index_" + str(missing_index) + ".png")
     produce_generated_and_mcmc_interpolation_marginal_density(mask, n,
@@ -606,7 +605,7 @@ for irep in range(0, 20, 2):
     produce_diffusion_and_mcmc_interpolation_visualizations(diffusion_images, mcmc_images, mask,
                                                             ref_image, irep, n, figname)
     
-figname = (data_generation_folder + "/data/model1/ref_image1/mcmc_kriging/visualizations/mcmc_kriging_vs_diffusion_conditional_mean_"
+figname = (data_generation_folder + "/data/model1/ref_image1/mcmc_kriging/visualizations/mcmc_kriging_vs_diffusion_conditional_mean"
                + ".png")    
 visualize_diffusion_and_mcmc_kriging_conditional_mean(diffusion_images, mcmc_images, mask,
                                                                 ref_image, mcmc_mask, n, figname)
