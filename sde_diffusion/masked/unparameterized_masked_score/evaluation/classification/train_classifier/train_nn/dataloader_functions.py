@@ -43,7 +43,7 @@ def crop_images(images, n, crop_size):
 
 def prepare_classes(num_samples):
 
-    classes = np.concatenate([np.ones((num_samples,1)), np.zeros((num_samples,1))], axis = 1)
+    classes = np.concatenate([np.ones((num_samples,1)), np.zeros((num_samples,1))], axis = 0)
     classes = torch.from_numpy(classes).float()
     return classes
 
@@ -80,8 +80,8 @@ def prepare_crop_and_create_dataloaders(path, split, num_samples, minX, maxX, mi
     train_images = crop_images(train_images, n, crop_size)
     eval_images = prepare_images(diffusion_eval_images, true_eval_images)
     eval_images = crop_images(eval_images, n, crop_size)
-    train_classes = prepare_classes(2*split)
-    eval_classes = prepare_classes(2*(num_samples - split))
+    train_classes = prepare_classes(split)
+    eval_classes = prepare_classes((num_samples - split))
     train_dataloader = create_dataloader(train_images, train_classes, batch_size)
     eval_dataloader = create_dataloader(eval_images, eval_classes, eval_batch_size)
     eval_train_dataloader = create_dataloader(train_images, train_classes, eval_batch_size)

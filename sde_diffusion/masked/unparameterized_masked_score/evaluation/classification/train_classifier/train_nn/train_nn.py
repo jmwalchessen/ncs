@@ -16,7 +16,7 @@ split = 38000
 batch_size = 64
 eval_batch_size = 200
 eval_train_batch_size = 200
-crop_size = 4
+crop_size = 2
 
 
 train_dataloader, eval_dataloader, eval_train_dataloader = prepare_crop_and_create_dataloaders(path = images_pathname, split = split,
@@ -57,6 +57,7 @@ def train_nn(num_epochs, classifier, weight_decay, beta1, beta2, epsilon,
                 eval_epoch_losses.append(float(eval_loss.detach().cpu().numpy()))
             except StopIteration:
                 eval_losses.append(sum(eval_epoch_losses)/len(eval_epoch_losses))
+                print(eval_losses)
                 break
 
         eval_train_iterator = iter(eval_train_loader)
@@ -76,19 +77,20 @@ def train_nn(num_epochs, classifier, weight_decay, beta1, beta2, epsilon,
         
     return classifier, eval_losses, eval_train_losses
 
-num_epochs = 80
+num_epochs = 1
 weight_decay = 0.001
 beta1 = 0.9
 beta2 = 0.999
-initial_learning_rate = 2e-5
+initial_learning_rate = 5e-6
 device = "cuda:0"
-batch_size = 512
+batch_size = 64
 
 classifier = (CNNClassifier()).to(device)
 
+
 classifier, eval_losses, eval_train_losses = train_nn(num_epochs = num_epochs, classifier = classifier,
                                                       weight_decay = weight_decay, beta1 = beta1, beta2 = beta2,
-                                                      epsilon = 1e-8, loss_function = torch.nn.CrossEntropyLoss(),
+                                                      epsilon = 1e-8, loss_function = torch.nn.BCELoss(),
                                                       train_loader = train_dataloader, eval_loader = eval_dataloader,
                                                       eval_train_loader = eval_train_dataloader,
                                                       device = device, initial_learning_rate = initial_learning_rate)

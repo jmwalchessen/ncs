@@ -80,7 +80,7 @@ def generate_validation_data(folder_name, n, variance, lengthscale, replicates_p
         os.mkdir(os.path.join(os.getcwd(), folder_name))
 
     if(os.path.exists(os.path.join(os.getcwd(), folder_name, "diffusion")) == False):
-        os.mkdir(os.path.join(os.getcwd(), folder_name, diffusion))
+        os.mkdir(os.path.join(os.getcwd(), folder_name, "diffusion"))
 
     minX = -10
     maxX = 10
@@ -95,9 +95,10 @@ def generate_validation_data(folder_name, n, variance, lengthscale, replicates_p
     mask = th.zeros((1,1,n,n))
     ref_img = th.from_numpy(ref_img)
     conditional_samples = np.zeros((0,1,n,n))
+    y = ((th.mul(mask, ref_img)).to(device)).float()
+    mask = mask.float().to(device)
 
     for i in range(0, calls):
-        y = ((th.mul(mask, ref_img)).to(device)).float()
         conditional_samples = np.concatenate([conditional_samples, sample_unconditionally_multiple_calls(sdevp, score_model, device, mask, y, n,
                                           replicates_per_call, calls)], axis = 0)
 

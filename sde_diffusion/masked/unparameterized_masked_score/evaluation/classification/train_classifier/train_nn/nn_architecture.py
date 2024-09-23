@@ -62,7 +62,7 @@ class CNNClassifier(nn.Module):
                   DenseLayer(in_features = 64, out_features = 32),
                   DenseLayer(in_features = 32, out_features = 16),
                   DenseLayer(in_features = 16, out_features = 8),
-                  DenseLayer(in_features = 8, out_features = 2),
+                  DenseLayer(in_features = 8, out_features = 1),
                   nn.Sigmoid()
                   ]
         self.model = nn.Sequential(*layers)
