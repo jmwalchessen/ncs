@@ -314,13 +314,13 @@ eval_batch_size = 32
 #lhs_samples = scipy.stats.qmc.LatinHypercube(d = 2, seed = np.random.randint(0, 100000))
 #variance is first slot and lengthscale is second slot
 variance = .8
-parameter_matrix = np.matrix([[variance, .2], [variance, .4], [variance, .6], [variance, .8],
+parameter_matrix = np.matrix([[variance, .05], [variance, .2], [variance, .4], [variance, .6], [variance, .8],
                             [variance,1.],[variance,1.2], [variance,1.4], 
-                            [variance, 1.6], [variance, 1.8], [variance, 2.]])
+                            [variance, 1.6], [variance, 1.8], [variance, 2.], [variance, 2.2]])
 eval_parameter_matrix = np.matrix([[variance, .4],[variance, 1.6]])
 seed_values_list = [[(int(np.random.randint(0, 100000)), int(np.random.randint(0, 100000))) for j in range(0, len(random_missingness_percentages))] for i in range(0, data_draws)]
-score_model_path = "trained_score_models/vpsde/model2_variance_.8_lengthscale_0_2_beta_min_max_01_20_random50_channel_mask.pth"
-loss_path = "trained_score_models/vpsde/model2_variance_.8_lengthscale_0_2_beta_min_max_01_20_random50_parameterized_mask_loss.png"
+score_model_path = "trained_score_models/vpsde/model3_variance_.8_lengthscale_0_2_beta_min_max_01_20_random50_channel_mask.pth"
+loss_path = "trained_score_models/vpsde/model3_variance_.8_lengthscale_0_2_beta_min_max_01_20_random50_parameterized_mask_loss.png"
 torch.cuda.empty_cache()
 train_per_multiple_random_masks_revised_data_generation(vpconfig, data_draws, epochs_per_data_draws,
                              random_missingness_percentages,
