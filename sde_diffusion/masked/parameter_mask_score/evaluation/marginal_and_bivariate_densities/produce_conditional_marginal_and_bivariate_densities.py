@@ -275,48 +275,28 @@ def produce_multiple_true_and_generated_bivariate_density(variance, lengthscale,
                                 
                                             
 
-lengthscales = [round((1. + .2*i),1) for i in range(0,6)]
+lengthscales = [round((.2*i),1) for i in range(1,11)]
 number_of_replicates = 4000
 variance = .8 
 n = 32
 gap = 10
+start = 0
+end = 480
 indices1 = [306]
 indices2 = [304,305,307,308,326,327,328,329,330,331]
 for i, lengthscale in enumerate(lengthscales):
-    conditional_samples = np.load((data_generation_folder + "/data/model1/ref_image"
+    print(i)
+    conditional_samples = np.load((data_generation_folder + "/data/model2/ref_image"
                                     + str(i+1) +
-                                    "/diffusion/model1_beta_min_max_01_20_random50_variance_.8_lengthscale_" + 
-                                    str(lengthscale) + "_4000.npy"))
+                                    "/diffusion/model2_variance_.8_lengthscale_0_2_beta_min_max_01_20_random50_channel_masks.npy"))
     conditional_samples = conditional_samples.reshape((number_of_replicates,n,n))                                                                         
-    folder_name = (data_generation_folder + "/data/model1/ref_image"
+    folder_name = (data_generation_folder + "/data/model2/ref_image"
                    + str(i+1))
-    produce_multiple_true_and_generated_bivariate_density(variance, lengthscale,
+    """produce_multiple_true_and_generated_bivariate_density(variance, lengthscale,
                                                          folder_name,
                                                          conditional_samples,
-                                                         indices1, indices2)
-
-
-
-
-"""
-indices1 = [307]
-indices2 = [326,327,328,329,330,331]
-
-for i in indices1:
-    for j in indices2:
-        missing_index1 = i
-        missing_index2 = j
-        folder_name = (data_generation_folder + "/data/model1/ref_image2/bivariate_density")
-        true_missing_index1 = i
-        true_missing_matrix_index1 = index_to_matrix_index(true_missing_index1, n)
-        true_missing_index2 = j
-        true_missing_matrix_index2 = index_to_matrix_index(true_missing_index2, n)
-        figname = (folder_name + "/bivariate_density_model1_" + str(int(true_missing_matrix_index1[0]))
-                + "_" + str(int(true_missing_matrix_index1[1])) + "_" +
-                str(int(true_missing_matrix_index2[0])) + "_" + str(int(true_missing_matrix_index2[1]))
-                    + ".png")
-        missing_two_indices = [i,j]
-        produce_true_and_generated_bivariate_density((1-mask), minX, maxX, minY, maxY, n, variance, lengthscale,
-                                                 number_of_replicates, missing_two_indices,
-                                                 missing_indices, observed_vector,
-                                                 conditional_samples, ref_image, figname)"""
+                                                         indices1, indices2)"""
+    produce_multiple_true_and_generated_marginal_density(variance, lengthscale,
+                                                         folder_name,
+                                                         conditional_samples,
+                                                         gap, start, end)

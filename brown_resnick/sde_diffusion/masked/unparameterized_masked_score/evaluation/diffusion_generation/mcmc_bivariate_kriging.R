@@ -153,8 +153,7 @@ for(missing_index1 in missing_index_start1:missing_index_end1)
         y <- produce_mcmc_interpolation_per_bipixel_via_mask_interrupted(n, range, smooth, nugget, cov_mod, mask_file_name,
                                                                          ref_image_name, neighbors, nrep, missing_index1,
                                                                          missing_index2)
-        print(y)
-        print(log(y))
+
         current_condsim_file <- paste(paste(paste(condsim_file_name, as.character(missing_index1), sep = "_"), as.character(missing_index2),
                                                     sep = "_"), "npy", sep = ".")
         np <- import("numpy")
