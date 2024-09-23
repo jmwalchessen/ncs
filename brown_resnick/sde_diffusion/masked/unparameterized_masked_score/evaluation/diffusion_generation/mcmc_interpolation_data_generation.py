@@ -3,18 +3,7 @@ import torch as th
 import subprocess
 import os
 
-range_value = 1.6
-smooth_value = 1.6
-nugget = 0
-ref_file_name = "data/model1/ref_image1/ref_image.npy"
-mask_file_name = "data/model1/ref_image1/mask.npy"
-condsim_file_name = "data/model1/ref_image1/mcmc_kriging/mcmc_kriging_neighbors_7_4000_missing_index"
-cov_mod = "brown"
-neighbors = 7
-n = 32
-nrep = 4000
-missing_index_start = 1
-missing_index_end = 1024
+
 
 def produce_mcmc_interpolation_multiple_pixels(n, range_value, smooth_value, nugget, cov_mod,
                                                ref_file_name, mask_file_name, condsim_file_name,
@@ -31,12 +20,11 @@ def produce_mcmc_interpolation_multiple_pixels(n, range_value, smooth_value, nug
 
 def extract_integer(filename):
 
-
+    print(filename.split('.')[0].split('_')[-1])
     return int(filename.split('.')[0].split('_')[-1])
 
-def concatenate_mcmc_interpolation_files(ref_image_folder, file_name, nrep):
+def concatenate_mcmc_kriging_files(ref_image_folder, mcmc_folder, n, nrep):
 
-    mcmc_folder = (ref_image_folder + "/mcmc_kriging")
     ref_image = np.load((ref_image_folder + "/ref_image.npy"))
     mask = np.load((ref_image_folder + "/mask.npy"))
     missing_indices =  np.squeeze(np.argwhere((1-mask).reshape((n**2,))))
@@ -62,13 +50,18 @@ def concatenate_mcmc_interpolation_files(ref_image_folder, file_name, nrep):
     mcmc_images = mcmc_images.reshape((nrep,n,n))
     mcmc_mask = mcmc_mask.reshape((n,n))
     return mcmc_images, mcmc_mask
+
+
+
         
 
 folder_name = "data/model1/ref_image1"
-mcmc_folder_name = "data/model1/ref_image1/mcmc_kriging"
-file_name = "mcmc_kriging_neighbors_7_4000_missing_index"
+mcmc_folder = "data/model1/ref_image1/mcmc_kriging"
+n = 32
 mcmc_file_name = "mcmc_kriging_neighbors_7_4000"
 nrep = 4000
-mcmc_images, mcmc_mask = concatenate_mcmc_interpolation_files(folder_name, file_name, nrep)
-np.save((mcmc_folder_name + "/" + mcmc_file_name + ".npy"), mcmc_images)
-np.save((mcmc_folder_name + "/" + mcmc_file_name + "_mask.npy"), mcmc_mask)
+start = 240
+end = 260
+mcmc_images, mcmc_mask = concatenate_mcmc_kriging_files(folder_name, mcmc_folder, n, nrep)
+np.save((mcmc_folder + "/" + mcmc_file_name + ".npy"), mcmc_images)
+np.save((mcmc_folder + "/" + mcmc_file_name + "_mask.npy"), mcmc_mask)

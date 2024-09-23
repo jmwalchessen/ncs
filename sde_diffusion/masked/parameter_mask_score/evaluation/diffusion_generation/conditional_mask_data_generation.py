@@ -168,10 +168,10 @@ replicates_per_call = 250
 calls = 4
 variance = .8
 p = .5
-lengthscales = [round((1. + .2*i),1) for i in range(0,6)]
+lengthscales = [round((.2*i),1) for i in range(1,11)]
 for i, lengthscale in enumerate(lengthscales):
 
-    folder_name = "data/model1/ref_image" + str(i+1)
-    validation_data_name = "model1_beta_min_max_01_20_random50_variance_.8_lengthscale_" + str(lengthscale) + "_4000.npy"
+    folder_name = "data/model2/ref_image" + str(i+1)
+    validation_data_name = "model2_variance_.8_lengthscale_0_2_beta_min_max_01_20_random50_channel_masks.npy"
     generate_validation_data(folder_name, n, variance, lengthscale, replicates_per_call, calls,
                          p, validation_data_name)

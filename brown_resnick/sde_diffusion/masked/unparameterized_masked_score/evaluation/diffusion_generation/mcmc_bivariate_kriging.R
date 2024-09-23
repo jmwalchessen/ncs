@@ -49,11 +49,15 @@ MCMC_interpolation_per_bipixel <- function(observed_spatial_grid, observations, 
 {
     id_matrix1 <- located_neighboring_pixels(observed_spatial_grid, k, key_location1)
     id_matrix2 <- located_neighboring_pixels(observed_spatial_grid, k, key_location2)
+    print(id_matrix1)
+    print(id_matrix2)
     id_matrix <- cbind(id_matrix1, id_matrix2)
+    print(id_matrix)
     cond_data <- observations[id_matrix]
+    print(log(cond_data))
     cond_coord <- observed_spatial_grid[id_matrix,]
-    key_location <- data.frame(s1 = c(as.numeric(key_location1$s1), as.numeric(key_location1$s2)),
-                               s2 = c(as.numeric(key_location1$s1), as.numeric(key_location1$s2)))
+    key_location <- data.frame(s1 = c(as.numeric(key_location1$s1), as.numeric(key_location2$s1)),
+                               s2 = c(as.numeric(key_location1$s2), as.numeric(key_location2$s2)))
     output <- SpatialExtremes::condrmaxstab(nrep, coord = key_location,
               cond.coord = cond_coord,
               cond.data = cond_data,
@@ -149,6 +153,8 @@ for(missing_index1 in missing_index_start1:missing_index_end1)
         y <- produce_mcmc_interpolation_per_bipixel_via_mask_interrupted(n, range, smooth, nugget, cov_mod, mask_file_name,
                                                                          ref_image_name, neighbors, nrep, missing_index1,
                                                                          missing_index2)
+        print(y)
+        print(log(y))
         current_condsim_file <- paste(paste(paste(condsim_file_name, as.character(missing_index1), sep = "_"), as.character(missing_index2),
                                                     sep = "_"), "npy", sep = ".")
         np <- import("numpy")
