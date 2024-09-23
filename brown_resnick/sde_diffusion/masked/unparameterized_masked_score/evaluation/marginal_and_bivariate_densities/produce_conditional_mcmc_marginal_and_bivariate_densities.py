@@ -189,9 +189,9 @@ folder_name = (data_generation_folder + "/data/model1/ref_image1")
 mask = np.load((folder_name + "/mask.npy"))
 missing_indices = np.squeeze(np.argwhere((1-mask).reshape((n**2,))))
 m = missing_indices.shape[0]
-mcmc_file_name = "bivariate_mcmc_kriging_missing_indices"
+mcmc_file_name = "bivariate_mcmc_kriging_neighbors_3_4000"
 start = 240
-end = 260
+end = 250
 for missing_index1 in range(start, end):
     for missing_index2 in range(start, end):
 

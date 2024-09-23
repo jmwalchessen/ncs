@@ -481,7 +481,6 @@ def visualize_mcmc_marginal_density(ref_image_name, mask_name, mcmc_file_name, m
 
     fig, ax = plt.subplots(nrows = 1, ncols = 2,figsize = (10,4))
 
-    mask[matrix_missing_index[1],matrix_missing_index[0]] = 1
     print(ref_image[matrix_missing_index[1],matrix_missing_index[0]])
     im = ax[0].imshow(ref_image.reshape((n,n)), alpha = mask.reshape((n,n)).astype(float),
                  vmin = -2, vmax = 4)
@@ -497,50 +496,56 @@ def visualize_mcmc_marginal_density(ref_image_name, mask_name, mcmc_file_name, m
     plt.clf()
 
 
-def visualize_mcmc_bivariate_density(ref_image_name, mask_name, mcmc_file_name, missing_index1,
-                                     missing_index2, n, figname):
+def visualize_mcmc_kriging_vs_diffusion_bivariate_density(ref_image_folder, mcmc_file_name, missing_index1,
+                                     missing_index2, n, figname, diffusion_images):
     
+    mask_name = (ref_image_folder + "/mask.npy")
     mask = np.load(mask_name)
     missing_indices = np.squeeze(np.argwhere((1-mask).reshape((n**2,))))
+    ref_image_name = (ref_image_folder + "/ref_image.npy")
     ref_image = np.load(ref_image_name)
-    mcmc_samples1 = np.load((mcmc_file_name + "_" + str(missing_index1) + ".npy"))
-    mcmc_samples2 = np.load((mcmc_file_name + "_" + str(missing_index2) + ".npy"))
-    missing_index1 = missing_index1 - 1
-    missing_index2 = missing_index2 - 1
-    matrix_missing_index1 = (int(missing_indices[missing_index1] % n), int(missing_indices[missing_index1] / n))
-    matrix_missing_index2 = (int(missing_indices[missing_index2] % n), int(missing_indices[missing_index2] / n))
-    nrep = mcmc_samples1.shape[0]
+    mcmc_bivariate_density = np.load((ref_image_folder + "/mcmc_kriging/bivariate/" + mcmc_file_name
+                                             + "_" + str(missing_index1) + "_" +
+                                            str(missing_index2) + ".npy"))
+    if(mcmc_bivariate_density.size == 1):
+        pass
+    else:
+        mcmc_bivariate_density = np.log(mcmc_bivariate_density)
+        missing_index1 = missing_index1-1
+        missing_index2 = missing_index2-1
+        matrix_missing_index1 = (int(missing_indices[missing_index1] % n), int(missing_indices[missing_index1] / n))
+        matrix_missing_index2 = (int(missing_indices[missing_index2] % n), int(missing_indices[missing_index2] / n))
+        number_of_replicates = diffusion_images.shape[0]
+        generated_bivariate_density = np.concatenate([(diffusion_images[:,0,int(matrix_missing_index1[1]),int(matrix_missing_index1[0])]).reshape((number_of_replicates,1)),
+                                                   (diffusion_images[:,0,int(matrix_missing_index2[1]),int(matrix_missing_index2[0])]).reshape((number_of_replicates,1))],
+                                                   axis = 1)
 
+        fig, ax = plt.subplots(nrows = 1, ncols = 2,figsize = (10,4))
 
-    mcmc_bivariate_density = np.concatenate([mcmc_samples1.reshape((nrep,1)),
-                                                  mcmc_samples2.reshape((nrep,1))],
-                                                  axis = 1)
-    mcmc_bivariate_density = np.log(mcmc_bivariate_density)
-    fig, ax = plt.subplots(nrows = 1, ncols = 2,figsize = (10,4))
+        print(ref_image[matrix_missing_index1[1],matrix_missing_index1[0]])
+        print(ref_image[matrix_missing_index2[1],matrix_missing_index2[0]])
+        im = ax[0].imshow(ref_image.reshape((n,n)), alpha = mask.reshape((n,n)).astype(float),
+                        vmin = -2, vmax = 4)
+        plt.colorbar(im, shrink = .9)
+        rect = Rectangle(((matrix_missing_index1[0]-.5), (matrix_missing_index1[1]-.5)), width=1, height=1,
+                                    facecolor='none', edgecolor='r')
+        ax[0].add_patch(rect)
+        rect = Rectangle(((matrix_missing_index2[0]-.5), (matrix_missing_index2[1]-.5)), width=1, height=1,
+                                    facecolor='none', edgecolor='r')
+        ax[0].add_patch(rect)
+        sns.kdeplot(x = mcmc_bivariate_density[:,0], y = mcmc_bivariate_density[:,1],
+                    ax = ax[1], color = "purple", label = "MCMC", alpha = .5)
+        print(generated_bivariate_density)
+        sns.kdeplot(x = generated_bivariate_density[:,0], y = generated_bivariate_density[:,1],
+                    ax = ax[1], color = "orange", label = "diffusion", alpha = .5)
+        ax[1].set_xlim(-4,6)
+        ax[1].set_ylim(-4,6)
 
-    mask[matrix_missing_index1[1],matrix_missing_index1[0]] = 1
-    print(ref_image[matrix_missing_index1[1],matrix_missing_index1[0]])
-    mask[matrix_missing_index2[1],matrix_missing_index2[0]] = 1
-    print(ref_image[matrix_missing_index2[1],matrix_missing_index2[0]])
-    im = ax[0].imshow(ref_image.reshape((n,n)), alpha = mask.reshape((n,n)).astype(float),
-                 vmin = -2, vmax = 4)
-    plt.colorbar(im, shrink = .9)
-    rect = Rectangle(((matrix_missing_index1[0]-.5), (matrix_missing_index1[1]-.5)), width=1, height=1,
-                             facecolor='none', edgecolor='r')
-    ax[0].add_patch(rect)
-    rect = Rectangle(((matrix_missing_index2[0]-.5), (matrix_missing_index2[1]-.5)), width=1, height=1,
-                             facecolor='none', edgecolor='r')
-    ax[0].add_patch(rect)
-    sns.kdeplot(x = mcmc_bivariate_density[:,0], y = mcmc_bivariate_density[:,1],
-                ax = ax[1], color = "blue", label = "MCMC")
-    ax[1].set_xlim(-2,4)
-    ax[1].set_ylim(-2,4)
-
-    plt.axvline(ref_image[int(matrix_missing_index1[1]),int(matrix_missing_index1[0])], color='red', linestyle = 'dashed')
-    plt.axhline(ref_image[int(matrix_missing_index2[1]),int(matrix_missing_index2[0])], color='red', linestyle = 'dashed')
-    ax[1].legend(labels = ['MCMC'])
-    plt.savefig(figname)
-    plt.clf()
+        plt.axvline(ref_image[int(matrix_missing_index1[1]),int(matrix_missing_index1[0])], color='red', linestyle = 'dashed')
+        plt.axhline(ref_image[int(matrix_missing_index2[1]),int(matrix_missing_index2[0])], color='red', linestyle = 'dashed')
+        #ax[1].legend(labels = ['MCMC Kriging'])
+        plt.savefig(figname)
+        plt.clf()
     
 """
 for missing_index in range(200,500):
@@ -561,7 +566,6 @@ for missing_index in range(200,500):
 
 diffusion_images = np.load((data_generation_folder + "/data/model1/ref_image1/diffusion/model1_random50_beta_min_max_01_20_1000.npy"))
 mcmc_images = np.load((data_generation_folder + "/data/model1/ref_image1/mcmc_kriging/mcmc_kriging_neighbors_7_4000.npy"))
-mcmc_mask = np.load((data_generation_folder + "/data/model1/ref_image1/mcmc_kriging/mcmc_kriging_neighbors_7_4000_mask.npy"))
 mask = np.load((data_generation_folder + "/data/model1/ref_image1/mask.npy"))
 n = 32
 ref_image = np.load((data_generation_folder + "/data/model1/ref_image1/ref_image.npy"))
@@ -573,6 +577,7 @@ missing_indices = np.squeeze(np.argwhere((1-mask).reshape((n**2,))))
 m = missing_indices.shape[0]
 number_of_replicates = 4000
 
+
 """
 for missing_index in range(500,511):
 
@@ -583,21 +588,18 @@ for missing_index in range(500,511):
                                                               mcmc_images, ref_image,
                                                               figname)"""
 
-"""
-for i in range(398,399):
-    print(i)
-    for j in [395,396,397]:
+ref_image_folder = (data_generation_folder + "/data/model1/ref_image1")
+mcmc_file_name = "bivariate_mcmc_kriging_neighbors_3_4000"
+for missing_index1 in range(244,247):
+    for missing_index2 in range(240,250):
 
-        missing_two_indices = [i,j]
-        figname = (data_generation_folder + "/data/model3/ref_image1/mcmc/approximate_conditional/bivariate_density/approximate_conditional_vs_diffusion_missing_indices_"
-               + "missing_index_" + str(i) + "_" + str(j) + ".png")
-        produce_generated_and_mcmc_interpolation_bivariate_density(mask, minX, maxX, minY, maxY, n,
-                                                               number_of_replicates, missing_two_indices,
-                                                               missing_indices,
-                                                               diffusion_images,
-                                                               mcmc_images, ref_image, figname)"""
+        figname = (data_generation_folder + "/data/model1/ref_image1/mcmc_kriging/bivariate_density/mcmc_kriging_vs_diffusion_missing_indices_"
+               + "missing_index_" + str(missing_index1) + "_" + str(missing_index2) + ".png")
+        visualize_mcmc_kriging_vs_diffusion_bivariate_density(ref_image_folder, mcmc_file_name, missing_index1,
+                                     missing_index2, n, figname, diffusion_images)
         
-
+        
+"""
 for irep in range(0, 20, 2):
 
     figname = (data_generation_folder + "/data/model1/ref_image1/mcmc_kriging/visualizations/mcmc_kriging_vs_diffusion_"
@@ -608,4 +610,4 @@ for irep in range(0, 20, 2):
 figname = (data_generation_folder + "/data/model1/ref_image1/mcmc_kriging/visualizations/mcmc_kriging_vs_diffusion_conditional_mean"
                + ".png")    
 visualize_diffusion_and_mcmc_kriging_conditional_mean(diffusion_images, mcmc_images, mask,
-                                                                ref_image, mcmc_mask, n, figname)
+                                                                ref_image, mcmc_mask, n, figname)"""
