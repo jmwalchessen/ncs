@@ -37,9 +37,17 @@ flatten_matrix <- function(twodmatrix, n)
 
 located_neighboring_pixels <- function(observed_spatial_grid, k, key_location)
 {
+  m <- dim(observed_spatial_grid)[1]
+
+  if(k == m)
+  {
+    id_matrix <- 1:m
+  }
+  else {
     knn <- kNN(observed_spatial_grid, k = k, query = key_location)
     id_matrix <- as.matrix(knn$id)
-    return(id_matrix)
+  }
+  return(id_matrix)
 }
 
 MCMC_interpolation_per_pixel <- function(observed_spatial_grid, observations, k, key_location,
@@ -144,7 +152,6 @@ for(missing_index in missing_index_start:missing_index_end)
 {
     y <- produce_mcmc_interpolation_per_pixel_via_mask_interrupted(n, range, smooth, nugget, cov_mod, mask_file_name,
                                                                    ref_image_name, neighbors, nrep, missing_index)
-    print(y)
     current_condsim_file <- paste(paste(condsim_file_name, as.character(missing_index), sep = "_"), "npy", sep = ".")
     np <- import("numpy")
     np$save(current_condsim_file, y)

@@ -32,6 +32,7 @@ def visualize_mcmc_kriging_marginal_density(ref_image_name, mask_name, mcmc_file
     ax[0].add_patch(rect)
     pdd = pd.DataFrame(np.log(mcmc_samples), columns = None)
     sns.kdeplot(data = pdd, palette=['blue'], ax = ax[1])
+    ax[1].set_xlim(-10,10)
     ax[1].axvline(ref_image[matrix_missing_index[1],matrix_missing_index[0]], color='red', linestyle = 'dashed')
     ax[1].legend(labels = ['MCMC Kriging'])
     plt.savefig(figname)
@@ -185,19 +186,21 @@ def produce_multiple_approximate_conditional_bivariate_density(folder_name, appr
 n = 32
 evaluation_folder = append_directory(2)
 data_generation_folder = (evaluation_folder + "/diffusion_generation")
-folder_name = (data_generation_folder + "/data/model1/ref_image1")
+folder_name = (data_generation_folder + "/data/model2/ref_image4")
 mask = np.load((folder_name + "/mask.npy"))
 missing_indices = np.squeeze(np.argwhere((1-mask).reshape((n**2,))))
 m = missing_indices.shape[0]
-mcmc_file_name = "bivariate_mcmc_kriging_neighbors_3_4000"
-start = 240
-end = 250
-for missing_index1 in range(start, end):
-    for missing_index2 in range(start, end):
+mcmc_file_name = (data_generation_folder + 
+                  "/data/model2/ref_image4/mcmc_kriging/univariate/mcmc_kriging_neighbors_5_4000")
+ref_image_name = (data_generation_folder + "/data/model2/ref_image4/ref_image.npy")
+mask_name = (data_generation_folder + "/data/model2/ref_image4/mask.npy")
+start = 30
+end = 100
+for missing_index in range(start, end):
 
-        figname = (folder_name + "/mcmc_kriging/bivariate_density/bivariate_mcmc_kriging_neighbors_3_4000_"
-                   + str(missing_index1) + "_" + str(missing_index2) + ".png")
-        visualize_mcmc_kriging_bivariate_density(folder_name, mcmc_file_name, missing_index1,
-                                         missing_index2, n, figname)
+    figname = (folder_name + "/mcmc_kriging/marginal_density/mcmc_kriging_neighbors_5_4000_"
+               + str(missing_index) + ".png")
+    visualize_mcmc_kriging_marginal_density(ref_image_name, mask_name, mcmc_file_name,
+                                                       missing_index, n, figname)
 
 
