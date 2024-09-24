@@ -36,6 +36,13 @@ def prepare_images(generated_images, true_images):
     images = torch.from_numpy(np.concatenate([generated_images, true_images], axis = 0)).float()
     return images
 
+def prepare_random_images(generated_images, true_images):
+
+    images = prepare_images(generated_images, true_images)
+    shuffled_indices = torch.randperm(images.shape[0])
+    images = images[shuffled_indices]
+    return images
+
 def crop_images(images, n, crop_size):
 
     images = images[:,:,crop_size:(n-crop_size),crop_size:(n-crop_size)]
@@ -66,7 +73,7 @@ def prepare_and_create_dataloader(path, num_samples, minX, maxX, minY, maxY, n,
 
 def prepare_crop_and_create_dataloaders(path, split, num_samples, minX, maxX, minY, maxY, n,
                                        variance, lengthscale, seed_value, batch_size,
-                                       eval_batch_size, crop_size):
+                                       eval_batch_size, crop_size, shuffle = False):
 
     diffusion_images = load_images(path)
     true_images = generate_gaussian_process(minX, maxX, minY, maxY, n, variance,
@@ -76,9 +83,13 @@ def prepare_crop_and_create_dataloaders(path, split, num_samples, minX, maxX, mi
     diffusion_train_images = diffusion_images[0:split,:,:,:]
     true_eval_images = true_images[split:,:,:,:]
     diffusion_eval_images = diffusion_images[split:,:,:,:]
-    train_images = prepare_images(diffusion_train_images, true_train_images)
+    if(shuffle == True):
+        train_images = prepare_random_images(diffusion_train_images, true_train_images)
+        eval_images = prepare_random_images(diffusion_eval_images, true_eval_images)
+    else:
+        train_images = prepare_images(diffusion_train_images, true_train_images)
+        eval_images = prepare_images(diffusion_eval_images, true_eval_images)
     train_images = crop_images(train_images, n, crop_size)
-    eval_images = prepare_images(diffusion_eval_images, true_eval_images)
     eval_images = crop_images(eval_images, n, crop_size)
     train_classes = prepare_classes(split)
     eval_classes = prepare_classes((num_samples - split))
