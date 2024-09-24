@@ -16,7 +16,7 @@ produce_ref_image <- function(model_name, ref_image_name, cov_mod, range, smooth
     dim(observations) <- c(n,n)
     np <- import("numpy")
     ref_file_name <- paste(paste(paste("data", model_name, sep = "/"), ref_image_name, sep = "/"), "ref_image.npy", sep = "/")
-    np$save(ref_file_name, observations)
+    np$save(ref_file_name, log(observations))
 }
 
 

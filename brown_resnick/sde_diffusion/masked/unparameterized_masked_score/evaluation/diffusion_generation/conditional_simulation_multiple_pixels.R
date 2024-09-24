@@ -108,9 +108,7 @@ produce_mcmc_interpolation_per_pixel_via_mask <- function(argsList)
     mask <- np$load(mask_file_name)
     ref_image <- exp(np$load(ref_image_name))
     ref_image <- flatten_matrix(ref_image, n)
-    print(ref_image[1:32])
     mask <- flatten_matrix(mask, n)
-    print(mask[1:32])
     observed_indices <- (1:n**2)[mask == 1]
     observed_spatial_grid <- spatial_grid[observed_indices,]
     observations <- ref_image[observed_indices]
@@ -144,9 +142,9 @@ produce_mcmc_interpolation_per_pixel_via_mask_interrupted <- function(n, range, 
 
 for(missing_index in missing_index_start:missing_index_end)
 {
-    print(missing_index)
     y <- produce_mcmc_interpolation_per_pixel_via_mask_interrupted(n, range, smooth, nugget, cov_mod, mask_file_name,
                                                                    ref_image_name, neighbors, nrep, missing_index)
+    print(y)
     current_condsim_file <- paste(paste(condsim_file_name, as.character(missing_index), sep = "_"), "npy", sep = ".")
     np <- import("numpy")
     np$save(current_condsim_file, y)
