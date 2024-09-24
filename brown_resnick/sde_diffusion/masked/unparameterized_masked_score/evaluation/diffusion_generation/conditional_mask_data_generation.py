@@ -9,7 +9,7 @@ evaluation_folder = append_directory(2)
 sys.path.append(evaluation_folder)
 from helper_functions import *
 
-score_model = load_score_model("brown", "model3_beta_min_max_01_20_range_10_smooth_1_random015_log_parameterized_mask.pth", "eval")
+score_model = load_score_model("brown", "model2_beta_min_max_01_20_random025125_log_channel_mask.pth", "eval")
 
 sdevp = load_sde(beta_min = .1, beta_max = 20, N = 1000)
 #mask is a True/False (1,32,32) vector with .5 randomly missing pixels
@@ -107,14 +107,14 @@ def generate_validation_data_with_reference_image(process_type, folder_name, n, 
 
 
 process_type = "brown"
-folder_name = "data/model3/ref_image1"
+folder_name = "data/model2/ref_image4"
 n = 32
 range_value = 10
 smooth_value = 1
 replicates_per_call = 250
 calls = 4
 p = .015
-validation_data_name = "model3_5obsn_4000.npy"
+validation_data_name = "model2_5obsn_4000.npy"
 generate_validation_data_with_reference_image(process_type, folder_name, n, range_value, smooth_value, replicates_per_call, calls, p, validation_data_name)
 
 

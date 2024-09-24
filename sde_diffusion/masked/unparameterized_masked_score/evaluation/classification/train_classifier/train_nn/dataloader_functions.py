@@ -60,7 +60,9 @@ def prepare_and_create_dataloader(path, num_samples, minX, maxX, minY, maxY, n,
                                             lengthscale, num_samples, seed_value))[1]
     diffusion_images = diffusion_images.reshape((num_samples,1,n,n))
     images = prepare_images(diffusion_images, true_images)
+    print(images.shape)
     classes = prepare_classes(num_samples)
+    print(classes.shape)
     dataloader = create_dataloader(images, classes, batch_size)
     return dataloader
 

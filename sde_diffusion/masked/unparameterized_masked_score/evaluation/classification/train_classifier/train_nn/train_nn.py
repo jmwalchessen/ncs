@@ -81,20 +81,20 @@ num_epochs = 1
 weight_decay = 0.001
 beta1 = 0.9
 beta2 = 0.999
-initial_learning_rate = 5e-6
+initial_learning_rate = 3e-7
 device = "cuda:0"
-batch_size = 64
+batch_size = 2048
 
 classifier = (CNNClassifier()).to(device)
 
-
+"""
 classifier, eval_losses, eval_train_losses = train_nn(num_epochs = num_epochs, classifier = classifier,
                                                       weight_decay = weight_decay, beta1 = beta1, beta2 = beta2,
-                                                      epsilon = 1e-8, loss_function = torch.nn.BCELoss(),
+                                                      epsilon = 1e-8, loss_function = torch.nn.BCEWithLogitsLoss(),
                                                       train_loader = train_dataloader, eval_loader = eval_dataloader,
                                                       eval_train_loader = eval_train_dataloader,
                                                       device = device, initial_learning_rate = initial_learning_rate)
 
-lossfig_name = "classifiers/classifier1/classifier1_model6_lengthscale_1.6_variance_0.4_epochs_" + str(num_epochs) + "_losses.png"
+lossfig_name = "classifiers/classifier2/classifier2_model6_lengthscale_1.6_variance_0.4_epochs_" + str(num_epochs) + "_losses.png"
 visualize_loss(num_epochs, eval_losses, eval_train_losses, lossfig_name)
-torch.save(classifier.state_dict(), ("classifiers/classifier1/model6_lengthscale_1.6_variance_0.4_epochs_" + str(num_epochs) + "_parameters.pth"))
+torch.save(classifier.state_dict(), ("classifiers/classifier2/model6_lengthscale_1.6_variance_0.4_epochs_" + str(num_epochs) + "_parameters.pth"))"""

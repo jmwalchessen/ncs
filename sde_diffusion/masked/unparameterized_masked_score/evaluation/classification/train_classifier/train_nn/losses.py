@@ -29,6 +29,7 @@ def step_fn(state, batch, device):
     predicted_classes = classifier(batch_images)
     print(predicted_classes[0:10])
     loss = loss_function(predicted_classes, batch_classes)
+    print(loss)
     loss.backward()
     optimizer.step()
     state['step'] += 1
