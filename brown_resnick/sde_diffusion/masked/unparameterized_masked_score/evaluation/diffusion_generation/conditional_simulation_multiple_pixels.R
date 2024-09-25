@@ -4,19 +4,7 @@ library("reticulate")
 library(SpatialExtremes)
 library(R.utils)
 
-args = commandArgs(trailingOnly=TRUE)
-range <- as.numeric(args[1])
-smooth <- as.numeric(args[2])
-nugget <- as.numeric(args[3])
-ref_image_name <- as.character(args[4])
-mask_file_name <- as.character(args[5])
-condsim_file_name <- as.character(args[6])
-cov_mod <- as.character(args[7])
-neighbors <- as.numeric(args[8])
-n <- as.numeric(args[9])
-nrep <- as.numeric(args[10])
-missing_index_start <- as.numeric(args[11])
-missing_index_end <- as.numeric(args[12])
+
 
 produce_mask <- function(observed_indices, n)
 {
@@ -38,7 +26,6 @@ flatten_matrix <- function(twodmatrix, n)
 located_neighboring_pixels <- function(observed_spatial_grid, k, key_location)
 {
   m <- dim(observed_spatial_grid)[1]
-
   if(k == m)
   {
     id_matrix <- 1:m
@@ -53,13 +40,9 @@ located_neighboring_pixels <- function(observed_spatial_grid, k, key_location)
 MCMC_interpolation_per_pixel <- function(observed_spatial_grid, observations, k, key_location,
                                             cov_mod, nugget, range, smooth, nrep)
 {
-    print("key location")
-    print(key_location)
     id_matrix <- located_neighboring_pixels(observed_spatial_grid, k, key_location)
     cond_data <- observations[id_matrix]
     cond_coord <- observed_spatial_grid[id_matrix,]
-    print("neighbor obs")
-    print(log(cond_data))
     output <- SpatialExtremes::condrmaxstab(nrep, coord = key_location,
               cond.coord = cond_coord,
               cond.data = cond_data,
@@ -122,8 +105,6 @@ produce_mcmc_interpolation_per_pixel_via_mask <- function(argsList)
     observations <- ref_image[observed_indices]
     unobserved_indices <- (1:n**2)[-observed_indices]
     unobserved_observations <- ref_image[unobserved_indices]
-    print("key obs")
-    print(log(unobserved_observations[missing_index]))
     unobserved_spatial_grid <- spatial_grid[unobserved_indices,]
     key_location <- unobserved_spatial_grid[missing_index,]
     condsim <- MCMC_interpolation_per_pixel(observed_spatial_grid, observations, neighbors, key_location,
@@ -147,13 +128,49 @@ produce_mcmc_interpolation_per_pixel_via_mask_interrupted <- function(n, range, 
 
 
 
-
-for(missing_index in missing_index_start:missing_index_end)
+produce_local_conditional_simulation_for_multiple_pixels <- function(indices, n, range, smooth, nugget, cov_mod, mask_file_name,
+                                                                     ref_image_name, neighbors, nrep, condsim_file_name)
 {
+  for(missing_index in indices)
+  {
     y <- produce_mcmc_interpolation_per_pixel_via_mask_interrupted(n, range, smooth, nugget, cov_mod, mask_file_name,
                                                                    ref_image_name, neighbors, nrep, missing_index)
+    print(y[0:4])
     current_condsim_file <- paste(paste(condsim_file_name, as.character(missing_index), sep = "_"), "npy", sep = ".")
+    print(current_condsim_file)
     np <- import("numpy")
     np$save(current_condsim_file, y)
+  }
 }
-rm(list = ls())
+
+produce_local_conditional_simulation_multiple_references <- function(indices, n, range, smooth, nugget, cov_mod,
+                                                                     neighbors, nrep, condsim_file_name, model_folder,
+                                                                     ref_image_indices)
+{
+  for(i in 1:length(ref_image_indices))
+  {
+    ref_image_folder <- paste(paste(model_folder, "ref_image", sep = "/"), as.character(ref_image_indices[i]), sep = "")
+    ref_image_name <- paste(ref_image_folder, "ref_image.npy", sep = "/")
+    mask_file_name <- paste(ref_image_folder, "mask.npy", sep = "/")
+    current_condsim_file <- paste(ref_image_folder, condsim_file_name, sep = "/")
+    produce_local_conditional_simulation_for_multiple_pixels(indices, n, range, smooth, nugget, cov_mod, mask_file_name,
+                                                                     ref_image_name, neighbors, nrep, current_condsim_file)
+  }
+}
+
+indices <- list(50, 100)
+n <- 32
+range <- 1.6
+smooth <- 1.6
+nugget <- .0001
+cov_mod <- "brown"
+neighbors <- 5
+nrep <- 4000
+condsim_file_name <- paste(paste("local_conditional_simulation/univariate/local_conditional_simulation_neighbors", as.character(neighbors), sep = "_"),
+                                  as.character(nrep), sep = "_")
+condsim_file_name <- paste(condsim_file_name, sep = "/")
+model_folder <- "data/model2"
+ref_image_indices <- list(4,5,6,7,8)
+produce_local_conditional_simulation_multiple_references(indices, n, range, smooth, nugget, cov_mod,
+                                                         neighbors, nrep, condsim_file_name, model_folder,
+                                                         ref_image_indices)

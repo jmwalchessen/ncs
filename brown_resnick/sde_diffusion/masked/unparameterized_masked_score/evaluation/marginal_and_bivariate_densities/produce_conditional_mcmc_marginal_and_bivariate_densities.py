@@ -191,14 +191,14 @@ mask = np.load((folder_name + "/mask.npy"))
 missing_indices = np.squeeze(np.argwhere((1-mask).reshape((n**2,))))
 m = missing_indices.shape[0]
 mcmc_file_name = (data_generation_folder + 
-                  "/data/model2/ref_image4/mcmc_kriging/univariate/mcmc_kriging_neighbors_5_4000")
+                  "/data/model2/ref_image4/local_conditional_simulation/univariate/location_conditional_simulation_5_4000")
 ref_image_name = (data_generation_folder + "/data/model2/ref_image4/ref_image.npy")
 mask_name = (data_generation_folder + "/data/model2/ref_image4/mask.npy")
-start = 30
-end = 100
+start = 1
+end = 2
 for missing_index in range(start, end):
 
-    figname = (folder_name + "/mcmc_kriging/marginal_density/mcmc_kriging_neighbors_5_4000_"
+    figname = (folder_name + "/local_conditional_simulation/marginal_density/univariate_local_conditional_simulation_neighbors_5_4000_"
                + str(missing_index) + ".png")
     visualize_mcmc_kriging_marginal_density(ref_image_name, mask_name, mcmc_file_name,
                                                        missing_index, n, figname)

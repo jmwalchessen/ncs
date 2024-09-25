@@ -4,19 +4,6 @@ library("reticulate")
 library(SpatialExtremes)
 library(R.utils)
 
-args = commandArgs(trailingOnly=TRUE)
-range <- as.numeric(args[1])
-smooth <- as.numeric(args[2])
-nugget <- as.numeric(args[3])
-ref_image_name <- as.character(args[4])
-mask_file_name <- as.character(args[5])
-condsim_file_name <- as.character(args[6])
-cov_mod <- as.character(args[7])
-neighbors <- as.numeric(args[8])
-n <- as.numeric(args[9])
-nrep <- as.numeric(args[10])
-missing_index_start <- as.numeric(args[11])
-missing_index_end <- as.numeric(args[12])
 
 produce_mask <- function(observed_indices, n)
 {
@@ -126,12 +113,47 @@ produce_mcmc_interpolation_per_pixel_via_mask_interrupted <- function(n, range, 
 
 
 
-for(missing_index in missing_index_start:missing_index_end)
+produce_local_conditional_simulation_for_multiple_pixels <- function(indices, n, range, smooth, nugget, cov_mod, mask_file_name,
+                                                                     ref_image_name, neighbors, nrep, condsim_file_name)
 {
+  for(missing_index in indices)
+  {
     y <- produce_mcmc_interpolation_per_pixel_via_mask_interrupted(n, range, smooth, nugget, cov_mod, mask_file_name,
                                                                    ref_image_name, neighbors, nrep, missing_index)
     current_condsim_file <- paste(paste(condsim_file_name, as.character(missing_index), sep = "_"), "npy", sep = ".")
     np <- import("numpy")
     np$save(current_condsim_file, y)
+  }
 }
-rm(list = ls())
+
+produce_local_conditional_simulation_multiple_references <- function(indices, n, range_values, smooth, nugget, cov_mod,
+                                                                     neighbors, nrep, condsim_file_name, model_folder,
+                                                                     ref_image_indices)
+{
+  for(i in length(ref_image_indices))
+  {
+    ref_image_folder <- paste(paste(model_folder, "ref_image", sep = "/"), as.character(ref_image_indices[i]), sep = "")
+    ref_image_name <- paste(ref_image_folder, "ref_image.npy", sep = "/")
+    mask_file_name <- paste(ref_image_folder, "mask.npy", sep = "/")
+    current_condsim_file <- paste(ref_image_folder, condsim_file_name, sep = "/")
+    produce_local_conditional_simulation_for_multiple_pixels(indices, n, range_values[i], smooth, nugget, cov_mod, mask_file_name,
+                                                                     ref_image_name, neighbors, nrep, current_condsim_file_name)
+  }
+}
+
+indices <- [50, 100, 150, 200, 300, 400, 500, 600, 700, 800, 900]
+n <- 32
+range_values <- [1.0, 1.2, 1.4, 1.6, 1.8, 2.0]
+smooth <- 1.6
+nugget <- .0001
+cov_mod <- "brown"
+neighbors <- 5
+nrep <- 4000
+condsim_file_name <- paste(paste("local_conditional_simulation/local_conditional_simulation_neighbors", as.character(neighbors), sep = "_"),
+                                  as.character(nrep), sep = "_")
+condsim_file_name <- paste(condsim_file_name, sep = "/")
+model_folder <- "data/model2"
+ref_image_indices <- [1,2,3,4,5,6]
+produce_local_conditional_simulation_multiple_references(indices, n, range_values, smooth, nugget, cov_mod,
+                                                         neighbors, nrep, condsim_file_name, model_folder,
+                                                         ref_image_indices)
