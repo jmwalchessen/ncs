@@ -141,7 +141,7 @@ produce_local_conditional_simulation_multiple_references <- function(indices, n,
   }
 }
 
-indices <- [50, 100, 150, 200, 300, 400, 500, 600, 700, 800, 900]
+indices <- [10*i for i in range(0, 500)]
 n <- 32
 range_values <- [1.0, 1.2, 1.4, 1.6, 1.8, 2.0]
 smooth <- 1.6
