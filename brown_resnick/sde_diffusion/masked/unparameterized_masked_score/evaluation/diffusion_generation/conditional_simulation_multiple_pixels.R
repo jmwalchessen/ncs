@@ -50,7 +50,6 @@ MCMC_interpolation_per_pixel <- function(observed_spatial_grid, observations, k,
               nugget = nugget, 
               range = range,
               smooth = smooth)
-    condsim <- output$sim
 }
 
 interruptor <- function(FUN,args, time.limit, ALTFUN){

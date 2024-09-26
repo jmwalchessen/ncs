@@ -10,7 +10,7 @@ from matplotlib.patches import Rectangle
 from append_directories import *
 
 
-def visualize_mcmc_kriging_marginal_density(ref_image_name, mask_name, mcmc_file_name,
+def visualize_local_conditional_simulation_marginal_density(ref_image_name, mask_name, mcmc_file_name,
                                                        missing_index, n, figname):
 
     mask = np.load(mask_name)
@@ -31,12 +31,22 @@ def visualize_mcmc_kriging_marginal_density(ref_image_name, mask_name, mcmc_file
                              facecolor='none', edgecolor='r')
     ax[0].add_patch(rect)
     pdd = pd.DataFrame(np.log(mcmc_samples), columns = None)
-    sns.kdeplot(data = pdd, palette=['blue'], ax = ax[1])
+    sns.kdeplot(data = pdd, palette=['purple'], ax = ax[1])
     ax[1].set_xlim(-10,10)
+    ax[1].set_xlim(0,1)
     ax[1].axvline(ref_image[matrix_missing_index[1],matrix_missing_index[0]], color='red', linestyle = 'dashed')
-    ax[1].legend(labels = ['MCMC Kriging'])
+    ax[1].legend(labels = ['LCS'])
     plt.savefig(figname)
     plt.clf()
+
+def visualize_multiple_local_conditional_simulation_marginal_density(ref_image_name, mask_name, mcmc_file_name,
+                                                            indices, n, figname):
+
+    for missing_index in indices:
+
+        current_figname = figname + "missing_index" + str(missing_index) + ".png"
+        visualize_local_conditional_simulation_marginal_density(ref_image_name, mask_name, mcmc_file_name,
+                                                       missing_index, n, current_figname)
 
 def visualize_mcmc_kriging_bivariate_density(ref_image_folder, mcmc_file_name, missing_index1,
                                      missing_index2, n, figname):
@@ -184,7 +194,7 @@ def produce_multiple_approximate_conditional_bivariate_density(folder_name, appr
                                                        missing_index1, missing_index2, n, current_figname)
 
 
-"""
+
 n = 32
 evaluation_folder = append_directory(2)
 data_generation_folder = (evaluation_folder + "/diffusion_generation")
@@ -195,22 +205,8 @@ mcmc_file_name = (data_generation_folder + "/data/model2/ref_image4/local_condit
 ref_image_name = (data_generation_folder + "/data/model2/ref_image4/ref_image.npy")
 mask_name = (data_generation_folder + "/data/model2/ref_image4/mask.npy")
 indices = [50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 800, 850, 900]
-for missing_index in indices:
-
-    figname = (folder_name + "/local_conditional_simulation/marginal_density/univariate_local_conditional_simulation_neighbors_5_4000_"
-               + str(missing_index) + ".png")
-    visualize_mcmc_kriging_marginal_density(ref_image_name, mask_name, mcmc_file_name,
-                                                       missing_index, n, figname)"""
-
-n = 32
-evaluation_folder = append_directory(2)
-data_generation_folder = (evaluation_folder + "/diffusion_generation")
-folder_name = (data_generation_folder + "/data/model2/ref_image4")
-mask = np.load((folder_name + "/mask.npy"))
-missing_indices = [25*i for i in range(1,40)]
-approx_cond_name = ("approximate_conditional_simulation_nugget_0.001_1.6_smooth_1.6_4000.npy")
-figname = (folder_name + "/approximate_conditional_simulation/marginal_density/marginal_density_missing_index")
-visualize_multiple_approximate_conditional_marginal_density(folder_name, approx_cond_name,
-                                                                missing_indices, n, figname)
+figname = (folder_name + "/local_conditional_simulation/marginal_density/local_conditional_simulation_marginal_density_missing_index_")
+visualize_multiple_local_conditional_simulation_marginal_density(ref_image_name, mask_name, mcmc_file_name,
+                                                            indices, n, figname)
 
 
