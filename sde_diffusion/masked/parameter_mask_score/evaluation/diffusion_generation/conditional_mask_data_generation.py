@@ -27,7 +27,7 @@ config.model.num_scales = 1000
 config.model.beta_max = 20
 
 score_model = th.nn.DataParallel((ncsnpp.NCSNpp(config)).to("cuda:0"))
-score_model.load_state_dict(th.load((sde_folder + "/trained_score_models/vpsde/model1_variance_.8_lengthscale_1_2_beta_min_max_01_20_random50_channel_mask.pth")))
+score_model.load_state_dict(th.load((sde_folder + "/trained_score_models/vpsde/model3_variance_.8_lengthscale_1_5_beta_min_max_01_20_random50_channel_mask.pth")))
 score_model.eval()
 
 sdevp = sde_lib.VPSDE(beta_min=0.1, beta_max=20, N=1000)
@@ -165,13 +165,13 @@ def generate_validation_data(folder_name, n, variance, lengthscale, replicates_p
 
 
 replicates_per_call = 250
-calls = 4
+calls = 1
 variance = .8
 p = .5
-lengthscales = [round((.2*i),1) for i in range(1,11)]
+lengthscales = [.5,1.,1.5,2.,3.,4.,5.,6.]
 for i, lengthscale in enumerate(lengthscales):
 
-    folder_name = "data/model2/ref_image" + str(i+1)
-    validation_data_name = "model2_variance_.8_lengthscale_0_2_beta_min_max_01_20_random50_channel_masks.npy"
+    folder_name = "data/model3/ref_image" + str(i+1)
+    validation_data_name = "model3_variance_.8_lengthscale_" + str(lengthscale) + "_beta_min_max_01_20_random50_1000.npy"
     generate_validation_data(folder_name, n, variance, lengthscale, replicates_per_call, calls,
                          p, validation_data_name)
