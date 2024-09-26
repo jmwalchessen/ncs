@@ -49,7 +49,9 @@ MCMC_interpolation_per_pixel <- function(observed_spatial_grid, observations, k,
               cov.mod = cov_mod, 
               nugget = nugget, 
               range = range,
-              smooth = smooth)
+              smooth = smooth,
+              thin = 100,
+              burnin = 1000)
 }
 
 interruptor <- function(FUN,args, time.limit, ALTFUN){
