@@ -164,7 +164,7 @@ def generate_validation_data(folder_name, n, variance, lengthscale, replicates_p
                    #vmin = -3, vmax = 3, mask = mask.int().float().detach().cpu().numpy().reshape((n,n)), figname = (folder_name + "/partially_observed_field.png"))
 
 
-replicates_per_call = 250
+replicates_per_call = 1000
 calls = 1
 variance = .8
 p = .5

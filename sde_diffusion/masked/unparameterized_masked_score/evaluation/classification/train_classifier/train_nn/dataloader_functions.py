@@ -100,3 +100,33 @@ def prepare_crop_and_create_dataloaders(path, split, num_samples, minX, maxX, mi
     eval_train_dataloader = create_dataloader(train_images, train_classes, eval_batch_size)
     return train_dataloader, eval_dataloader, eval_train_dataloader
 
+
+def prepare_crop_and_create_dataloaders_on_the_fly(path, train_start, train_end, split,
+                                                   num_samples, minX, maxX, minY, maxY, n,
+                                                   variance, lengthscale, seed_value, batch_size,
+                                                   eval_batch_size, crop_size, shuffle = False):
+
+    diffusion_images = load_images(path)
+    true_images = generate_gaussian_process(minX, maxX, minY, maxY, n, variance,
+                                            lengthscale, num_samples, seed_value)[1]
+    diffusion_images = diffusion_images.reshape((num_samples,1,n,n))
+    true_train_images = true_images[train_start:train_end,:,:,:]
+    diffusion_train_images = diffusion_images[train_start:train_end,:,:,:]
+    true_eval_images = true_images[split:,:,:,:]
+    diffusion_eval_images = diffusion_images[split:,:,:,:]
+    if(shuffle == True):
+        train_images = prepare_random_images(diffusion_train_images, true_train_images)
+        eval_images = prepare_random_images(diffusion_eval_images, true_eval_images)
+    else:
+        train_images = prepare_images(diffusion_train_images, true_train_images)
+        eval_images = prepare_images(diffusion_eval_images, true_eval_images)
+    train_images = crop_images(train_images, n, crop_size)
+    eval_images = crop_images(eval_images, n, crop_size)
+    train_classes = prepare_classes(split)
+    eval_classes = prepare_classes((num_samples - split))
+    train_dataloader = create_dataloader(train_images, train_classes, batch_size)
+    eval_dataloader = create_dataloader(eval_images, eval_classes, eval_batch_size)
+    eval_train_dataloader = create_dataloader(train_images, train_classes, eval_batch_size)
+    return train_dataloader, eval_dataloader, eval_train_dataloader
+
+
