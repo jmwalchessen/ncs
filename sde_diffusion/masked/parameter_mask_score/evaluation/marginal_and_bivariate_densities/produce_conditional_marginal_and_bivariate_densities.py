@@ -276,7 +276,7 @@ def produce_multiple_true_and_generated_bivariate_density(variance, lengthscale,
                                             
 
 lengthscales = [.5,1.,1.5,2.,3.,4.,5.,6.]
-number_of_replicates = 4000
+number_of_replicates = 1000
 variance = .8 
 n = 32
 gap = 10
@@ -292,11 +292,12 @@ for i, lengthscale in enumerate(lengthscales):
     conditional_samples = conditional_samples.reshape((number_of_replicates,n,n))                                                                         
     folder_name = (data_generation_folder + "/data/model3/ref_image"
                    + str(i+1))
-    """produce_multiple_true_and_generated_bivariate_density(variance, lengthscale,
+    produce_multiple_true_and_generated_bivariate_density(variance, lengthscale,
                                                          folder_name,
                                                          conditional_samples,
-                                                         indices1, indices2)"""
+                                                         indices1, indices2)
+    """
     produce_multiple_true_and_generated_marginal_density(variance, lengthscale,
                                                          folder_name,
                                                          conditional_samples,
-                                                         gap, start, end)
+                                                         gap, start, end)"""

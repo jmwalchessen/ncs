@@ -301,7 +301,7 @@ train_per_multiple_random_masks(vpconfig, data_draws, epochs_per_data_draws,
                              seed_values, variance, lengthscale, batch_size,
                              eval_batch_size, score_model_path, loss_path)"""
 
-data_draws = 5
+data_draws = 10
 epochs_per_data_draws = 5
 number_of_random_replicates = 2500
 number_of_evaluation_random_replicates = 32
@@ -318,8 +318,8 @@ parameter_matrix = np.matrix([[variance, .5], [variance, 1.], [variance, 1.5], [
                             [variance,4.],[variance, 5.], [variance, 6.]])
 eval_parameter_matrix = np.matrix([[variance, 1.5],[variance, 4.]])
 seed_values_list = [[(int(np.random.randint(0, 100000)), int(np.random.randint(0, 100000))) for j in range(0, len(random_missingness_percentages))] for i in range(0, data_draws)]
-score_model_path = "trained_score_models/vpsde/model3_variance_.8_lengthscale_1_5_beta_min_max_01_20_random50_channel_mask.pth"
-loss_path = "trained_score_models/vpsde/model3_variance_.8_lengthscale_1_5_beta_min_max_01_20_random50_parameterized_mask_loss.png"
+score_model_path = "trained_score_models/vpsde/model4_variance_.8_lengthscale_1_5_beta_min_max_01_20_random50_channel_mask.pth"
+loss_path = "trained_score_models/vpsde/model4_variance_.8_lengthscale_1_5_beta_min_max_01_20_random50_parameterized_mask_loss.png"
 torch.cuda.empty_cache()
 train_per_multiple_random_masks_revised_data_generation(vpconfig, data_draws, epochs_per_data_draws,
                              random_missingness_percentages,
