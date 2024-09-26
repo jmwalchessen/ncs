@@ -56,6 +56,7 @@ def create_classes(number_of_replicates, device):
 
     true_classes = (np.concatenate([np.ones(number_of_replicates), np.zeros(number_of_replicates)],
                                                axis = 0))
+    true_classes = true_classes.reshape((2*number_of_replicates,1))
     return true_classes
 
 def create_2dclasses(number_of_replicates, device):
@@ -90,10 +91,12 @@ def compute_evaluation_loss(number_of_replicates, model_name, evaluation_file_na
     evaluation_images = evaluation_images.float().to(device)
     classifier = load_classifier(device, classifier_name, classifier_file)
     classifier_probabilities = classifier(evaluation_images)
-    true_classes = create_2dclasses(number_of_replicates, device)
+    true_classes = create_classes(number_of_replicates, device)
     true_classes = th.from_numpy(true_classes).to(device)
-    loss_fn = th.nn.CrossEntropyLoss()
+    loss_fn = th.nn.BCEWithLogitsLoss()
     print(true_classes[0:10,:])
     print(classifier_probabilities[0:10,:])
-    loss = loss_fn(true_classes, classifier_probabilities)
+    print(true_classes[4000:4010,:])
+    print(nn.Sigmoid(classifier_probabilities[4000:4010,:]))
+    loss = loss_fn(classifier_probabilities, true_classes)
     return loss

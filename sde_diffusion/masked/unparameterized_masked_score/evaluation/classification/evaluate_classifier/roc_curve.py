@@ -26,9 +26,9 @@ device = "cuda:1"
 model_name = "model6"
 evaluation_file_name = "evaluation_data_model6_variance_.4_lengthscale_1.6_4000.npy"
 n = 32
-crop_size = 4
-classifier_name = "classifier1"
-classifier_file = "model6_lengthscale_1.6_variance_0.4_epochs_80_parameters.pth"
+crop_size = 2
+classifier_name = "classifier2"
+classifier_file = "model6_lengthscale_1.6_variance_0.4_epochs_5_parameters.pth"
 roc, auc = create_roc_and_auc(number_of_replicates, model_name, evaluation_file_name,
                               classifier_name, classifier_file, n, crop_size)
 loss = compute_evaluation_loss(number_of_replicates, model_name, evaluation_file_name,

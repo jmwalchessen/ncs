@@ -70,16 +70,16 @@ def generate_validation_data(process_type, folder_name, n, range_value, smooth_v
     np.save((folder_name + "/diffusion/" + validation_data_name), conditional_samples)
 
     plot_spatial_field(ref_img.detach().cpu().numpy().reshape((n,n)), -2, 6, (folder_name + "/ref_image.png"))
-    plot_spatial_field((conditional_samples[0,:,:,:]).numpy().reshape((n,n)), -2, 6, (folder_name + "/diffusion_sample.png"))
+    plot_spatial_field((conditional_samples[0,:,:,:]).reshape((n,n)), -2, 6, (folder_name + "/diffusion_sample.png"))
     plot_masked_spatial_field(spatial_field = ref_img.reshape((n,n)),
                    vmin = -2, vmax = 6, mask = mask.int().float().detach().cpu().numpy().reshape((n,n)), figname = (folder_name + "/partially_observed_field.png"))
     
 
-range_values = [(1+.2*i) for i in range(0,6)]
+range_values = [round((1+.2*i),1) for i in range(1,6)]
 for i,range_value in enumerate(range_values):
 
     process_type = "brown"
-    folder_name = "data/model2/ref_image" + str(i+1)
+    folder_name = "data/model2/ref_image" + str(i+2)
     n = 32
     smooth_value = 1.6
     replicates_per_call = 250
