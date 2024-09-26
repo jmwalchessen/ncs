@@ -158,7 +158,7 @@ produce_local_conditional_simulation_multiple_references <- function(indices, n,
   }
 }
 
-indices <- list(200, 300, 400, 500, 600, 700, 800, 900)
+indices <- list(150,250,350,450,550,650,750,850)
 n <- 32
 range <- 1.6
 smooth <- 1.6
@@ -170,7 +170,7 @@ condsim_file_name <- paste(paste("local_conditional_simulation/univariate/local_
                                   as.character(nrep), sep = "_")
 condsim_file_name <- paste(condsim_file_name, sep = "/")
 model_folder <- "data/model2"
-ref_image_indices <- list(4,5,6,7,8)
+ref_image_indices <- list(4,5,6)
 produce_local_conditional_simulation_multiple_references(indices, n, range, smooth, nugget, cov_mod,
                                                          neighbors, nrep, condsim_file_name, model_folder,
                                                          ref_image_indices)
