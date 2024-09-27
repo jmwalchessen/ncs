@@ -47,7 +47,7 @@ def visualize_multiple_local_conditional_simulation_marginal_density(ref_image_n
 
     for missing_index in indices:
 
-        current_figname = figname + "missing_index" + str(missing_index) + ".png"
+        current_figname = figname + "missing_index_" + str(missing_index) + ".png"
         visualize_local_conditional_simulation_marginal_density(ref_image_name, mask_name, mcmc_file_name,
                                                        missing_index, n, current_figname)
 
@@ -201,12 +201,12 @@ def produce_multiple_approximate_conditional_bivariate_density(folder_name, appr
 n = 32
 evaluation_folder = append_directory(2)
 data_generation_folder = (evaluation_folder + "/diffusion_generation")
-folder_name = (data_generation_folder + "/data/model2/ref_image8")
+folder_name = (data_generation_folder + "/data/model4/ref_image3")
 mask = np.load((folder_name + "/mask.npy"))
 missing_indices = np.squeeze(np.argwhere((1-mask).reshape((n**2,))))
-mcmc_file_name = (data_generation_folder + "/data/model2/ref_image8/local_conditional_simulation/univariate/local_conditional_simulation_neighbors_5_4000")
-ref_image_name = (data_generation_folder + "/data/model2/ref_image8/ref_image.npy")
-mask_name = (data_generation_folder + "/data/model2/ref_image8/mask.npy")
+mcmc_file_name = (data_generation_folder + "/data/model4/ref_image3/local_conditional_simulation/univariate/local_conditional_simulation_range_2_smooth_1.6_neighbors_5_4000")
+ref_image_name = (data_generation_folder + "/data/model4/ref_image3/ref_image.npy")
+mask_name = (data_generation_folder + "/data/model4/ref_image3/mask.npy")
 indices = [50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 800, 850, 900]
 figname = (folder_name + "/local_conditional_simulation/marginal_density/local_conditional_simulation_marginal_density_missing_index_")
 visualize_multiple_local_conditional_simulation_marginal_density(ref_image_name, mask_name, mcmc_file_name,
