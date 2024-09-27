@@ -38,10 +38,10 @@ produce_random_mask <- function(model_name, ref_image_name, obsn, n)
     
 }
 
-model_name <- "model2"
-ref_image_name <- "ref_image7"
+model_name <- "model4"
+ref_image_name <- "ref_image3"
 cov_mod = "brown"
-range <- 1.6
+range <- 2
 smooth <- 1.6
 nugget <- 0
 obsn <- 50
