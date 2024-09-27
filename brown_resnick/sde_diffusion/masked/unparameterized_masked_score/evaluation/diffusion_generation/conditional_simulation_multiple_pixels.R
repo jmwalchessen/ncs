@@ -52,6 +52,7 @@ MCMC_interpolation_per_pixel <- function(observed_spatial_grid, observations, k,
               smooth = smooth,
               thin = 100,
               burnin = 1000)
+    condsim <- output$sim
 }
 
 interruptor <- function(FUN,args, time.limit, ALTFUN){
@@ -136,9 +137,7 @@ produce_local_conditional_simulation_for_multiple_pixels <- function(indices, n,
   {
     y <- produce_mcmc_interpolation_per_pixel_via_mask_interrupted(n, range, smooth, nugget, cov_mod, mask_file_name,
                                                                    ref_image_name, neighbors, nrep, missing_index)
-    print(y[0:4])
     current_condsim_file <- paste(paste(condsim_file_name, as.character(missing_index), sep = "_"), "npy", sep = ".")
-    print(current_condsim_file)
     np <- import("numpy")
     np$save(current_condsim_file, y)
   }
@@ -159,7 +158,7 @@ produce_local_conditional_simulation_multiple_references <- function(indices, n,
   }
 }
 
-indices <- list(150,250,350,450,550,650,750,850)
+indices <- list(50,100,150,200,250,300,350,400,450,500,550,600,650,700,750,800,850,900)
 n <- 32
 range <- 1.6
 smooth <- 1.6
@@ -171,7 +170,7 @@ condsim_file_name <- paste(paste("local_conditional_simulation/univariate/local_
                                   as.character(nrep), sep = "_")
 condsim_file_name <- paste(condsim_file_name, sep = "/")
 model_folder <- "data/model2"
-ref_image_indices <- list(4,5,6)
+ref_image_indices <- list(4,5,6,7,8)
 produce_local_conditional_simulation_multiple_references(indices, n, range, smooth, nugget, cov_mod,
                                                          neighbors, nrep, condsim_file_name, model_folder,
                                                          ref_image_indices)
