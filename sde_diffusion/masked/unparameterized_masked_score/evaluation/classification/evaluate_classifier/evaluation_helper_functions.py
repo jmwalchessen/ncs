@@ -2,6 +2,7 @@ import numpy as np
 import torch as th
 import os
 import sys
+import pickle
 from append_directories import *
 classifier_folder = append_directory(2)
 train_nn_folder = (classifier_folder + "/train_classifier/train_nn")
@@ -10,6 +11,7 @@ from nn_architecture import *
 data_generation_folder = (classifier_folder + "/train_classifier/generate_data")
 sys.path.append(data_generation_folder)
 from true_unconditional_data_generation import *
+calibration_folder = (classifier_folder + "/train_classifier/calibration")
 
 def crop_image(images, n, crop_size):
 
@@ -65,6 +67,29 @@ def create_2dclasses(number_of_replicates, device):
     true_2dclasses = np.concatenate([true_classes.reshape((2*number_of_replicates,1)),
                                      (1-true_classes).reshape((2*number_of_replicates,1))], axis = 1)
     return true_2dclasses
+
+def logit_transformation_with_sigmoid(classifier_outputs):
+
+    sigmoid = th.nn.Sigmoid()
+    classifier_probabilities = sigmoid(classifier_outputs)
+    classifier_probabilities = classifier_probabilities.detach().cpu().numpy()
+    classifier_logit = (np.log(classifier_probabilities/(1-classifier_probabilities)))
+    classifier_logit = classifier_logit.reshape(-1,1)
+    classifier_logit[classifier_logit == np.inf] = np.amax(classifier_logit[classifier_logit != np.inf])
+    classifier_logit[classifier_logit == np.NaN] = np.amax(classifier_logit[classifier_logit != np.inf])
+    classifier_logit[classifier_logit == -1*np.inf] = np.amin(classifier_logit[classifier_logit != -1*np.inf])
+
+    return classifier_logit 
+
+def produce_calibrated_probabilities(classifier_logits, calibrated_model_name, calibrated_model_file):
+
+    calibrated_model_file = (calibration_folder + "/calibrated_models/" + str(calibrated_model_name) + "/" + calibrated_model_file)
+    with open(calibrated_model_file, 'rb') as logregmodel_name:
+        logregmodel = pickle.load(logregmodel_name)
+    calibrated_probabilities = (logregmodel.predict_proba(classifier_logits))[:,1]
+    return calibrated_probabilities
+
+
     
 
 def classify_evaluation_data(number_of_replicates, model_name, evaluation_file_name,

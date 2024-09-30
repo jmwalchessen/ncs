@@ -99,7 +99,7 @@ def sample_unconditionally_multiple_calls(vpsde, score_model, device, mask, y, n
 
 "unconditional case so ref_image doesn't matter"
 for i in range(0, 1):
-    num_samples_per_call = 1000
+    num_samples_per_call = 500
     calls = 10
     device = "cuda:0"
     ref_image = np.load((sde_folder + "/evaluation/diffusion_generation/data/model6/ref_image3/ref_image.npy"))
@@ -111,4 +111,4 @@ for i in range(0, 1):
     y = (((th.mul(mask, ref_image)).to(device))).float()
     diffusion_samples = sample_unconditionally_multiple_calls(sdevp, score_model, device, mask,
                                                             y, n, num_samples_per_call, calls)
-    np.save((sde_folder + "/evaluation/classification/train_classifier/generate_data/data/model6/unconditional/evaluation_unconditional_images_variance_.4_lengthscale_1.6_10000.npy"), diffusion_samples)
+    np.save((sde_folder + "/evaluation/classification/train_classifier/generate_data/data/model6/unconditional/calibration_evaluation_unconditional_images_variance_.4_lengthscale_1.6_5000.npy"), diffusion_samples)
