@@ -38,6 +38,7 @@ def compute_calibration(true_labels, pred_labels, predicted_probabilities, num_b
     for b in range(num_bins):
         selected = np.where(indices == b + 1)[0]
         if len(selected) > 0:
+            print(np.mean(true_labels[selected]))
             bin_empirical_probabilities[b] = np.mean(1 == true_labels[selected])
             bin_predicted_probabilities[b] = np.mean(predicted_probabilities[selected])
             bin_counts[b] = len(selected)
@@ -160,40 +161,32 @@ def compute_prediction_classes(probabilities):
     n = probabilities.shape[0]
     predicted_class_labels = (np.asarray([float((compute_prediction_class(probabilities[i]))[0])
                                           for i in range(0, n)]))
+    predicted_class_labels = predicted_class_labels.reshape((n,1))
     return predicted_class_labels
 
 
-def visualize_precalibrated_reliability_diagram(number_of_replicates, model_name, calibration_eval_file,
-                                                n, crop_size, classifier_file, classifier_name, figname):
+def visualize_precalibrated_and_calibrated_reliability_diagrams(number_of_replicates, model_name, calibration_eval_file,
+                                                n, crop_size, classifier_file, classifier_name, precalibrated_figname,
+                                                calibrated_model_name, calibrated_model_file, calibrated_figname):
 
     seed_value = int(np.random.randint(0,100000))
     eval_classifier_probabilities = classify_precalibrated_data(number_of_replicates, seed_value, model_name,
                                                             calibration_eval_file, n, crop_size,
                                                             classifier_name, classifier_file)
-    eval_class_labels = create_classes(number_of_replicates)
-    predicted_class_labels = compute_prediction_classes(eval_classifier_probabilities)
-    #plot the diagram before calibration
-    reliability_diagram(eval_class_labels, eval_classifier_probabilities, eval_classifier_probabilities,
-                        num_bins=50, figsize=(10, 10), dpi=72, return_fig=False, fig_name = figname,
-                        title = "Before Calibration")
-
-def visualize_calibrated_reliability_diagram(number_of_replicates, model_name, calibration_eval_file,
-                                                n, crop_size, classifier_file, classifier_name,
-                                                calibrated_model_name, calibrated_model_file, figname):
-
-    seed_value = int(np.random.randint(0,100000))
-    eval_classifier_probabilities = classify_calibrated_data(number_of_replicates, seed_value, model_name,
+    eval_calibrated_classifier_probabilities = classify_calibrated_data(number_of_replicates, seed_value, model_name,
                                                             calibration_eval_file, n, crop_size,
                                                             classifier_name, classifier_file,
                                                             calibrated_model_name, calibrated_model_file)
     eval_class_labels = create_classes(number_of_replicates)
     predicted_class_labels = compute_prediction_classes(eval_classifier_probabilities)
-    #plot the diagram before calibration    print(calibrated_probabilities[990:1000])
-    reliability_diagram(eval_class_labels, eval_classifier_probabilities, eval_classifier_probabilities,
-                        num_bins=50, figsize=(10, 10), dpi=72, return_fig=False, fig_name = figname,
-                        title = "After Calibration")
-
-
+    #plot the diagram before calibration
+    reliability_diagram(eval_class_labels, predicted_class_labels, eval_classifier_probabilities,
+                        num_bins=50, figsize=(10, 10), dpi=72, return_fig=False, fig_name = precalibrated_figname,
+                        title = "Before Calibration")
+    reliability_diagram(eval_class_labels, predicted_class_labels, eval_calibrated_classifier_probabilities,
+                        num_bins=50, figsize=(10, 10), dpi=72, return_fig=False, fig_name = calibrated_figname,
+                        title = "Before Calibration")
+    
 number_of_replicates = 1000
 model_name = "model6"
 calibration_eval_file = "calibration_evaluation_unconditional_images_variance_.4_lengthscale_1.6_1000.npy"
@@ -202,13 +195,11 @@ crop_size = 2
 epochs = 60
 classifier_file = "model6_lengthscale_1.6_variance_0.4_epochs_" + str(epochs) + "_parameters.pth"
 classifier_name = "classifier6"
-figname = "precalibrated_reliability_diagram.png"
-"""
-visualize_precalibrated_reliability_diagram(number_of_replicates, model_name, calibration_eval_file,
-                                                n, crop_size, classifier_file, classifier_name, figname)"""
+precalibrated_figname = "precalibrated_reliability_diagram_classifier6_model6.png"
+calibrated_figname = "calibrated_reliability_diagram_calibrated_model2_classifier6_model6.png"
 calibrated_model_name = "calibrated_model2"
 calibrated_model_file = "logistic_regression_model6_classifier6.pkl"
-figname = "calibrated_reliability_diagram.png"
-visualize_calibrated_reliability_diagram(number_of_replicates, model_name, calibration_eval_file,
-                                                n, crop_size, classifier_file, classifier_name,
-                                                calibrated_model_name, calibrated_model_file, figname)
+
+visualize_precalibrated_and_calibrated_reliability_diagrams(number_of_replicates, model_name, calibration_eval_file,
+                                                            n, crop_size, classifier_file, classifier_name, precalibrated_figname,
+                                                            calibrated_model_name, calibrated_model_file, calibrated_figname)
