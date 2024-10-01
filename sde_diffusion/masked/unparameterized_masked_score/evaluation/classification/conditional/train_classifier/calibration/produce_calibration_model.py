@@ -16,14 +16,14 @@ from nn_architecture import *
 from calibration_helper_functions import * 
 
 
-def produce_logistic_regression_model(model_name, n, crop_size, classifier_name, classifier_file,
+def produce_logistic_regression_model(model_name, mask_name, n, crop_size, classifier_name, classifier_file,
                                       number_of_replicates, logistic_regression_filename, train_diffusion_file,
                                       train_true_file):
 
     device = "cuda:0"
     classifier = load_classifier(device, classifier_name, classifier_file)
     seed_value = int(np.random.randint(0, 100000))
-    train_images = process_images(number_of_replicates, seed_value, model_name,
+    train_images = process_images(number_of_replicates, model_name, mask_name,
                                   train_diffusion_file, train_true_file, n, crop_size)
     classifier_outputs = (classifier(train_images.float().to(device)))
     train_logits = logit_transformation_with_sigmoid(classifier_outputs)
@@ -37,7 +37,7 @@ def produce_logistic_regression_model(model_name, n, crop_size, classifier_name,
 
 n = 32
 crop_size = 2
-number_of_replicates = 5000
+number_of_replicates = 2500
 classifier_name = "classifier1"
 calibration_diffusion_train_file = "calibration_conditional_diffusion_random50_variance_.4_lengthscale_1.6_model2_2500.npy"
 calibration_true_train_file = "calibration_unconditional_true_variance_.4_lengthscale_1.6_2500.npy"
@@ -46,6 +46,6 @@ epochs = 40
 mask_name = "mask1"
 classifier_file = "model2_random50_lengthscale_1.6_variance_.4_epochs_" + str(epochs) + "_parameters.pth"
 logistic_regression_filename = ("calibrated_models/calibrated_model1/logistic_regression_model2_classifier1.pkl")
-produce_logistic_regression_model(model_name, n, crop_size, classifier_name, classifier_file,
-                                      number_of_replicates, logistic_regression_filename,
-                                      calibration_diffusion_train_file, calibration_true_train_file)
+produce_logistic_regression_model(model_name, mask_name, n, crop_size, classifier_name, classifier_file,
+                                  number_of_replicates, logistic_regression_filename,
+                                  calibration_diffusion_train_file, calibration_true_train_file)

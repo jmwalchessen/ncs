@@ -21,6 +21,15 @@ def mask_generation(p, nrep, n):
     masks = (th.bernoulli(p*th.ones((nrep,1,n,n))))
     return masks
 
+def produce_fixed_mask(p, n, folder_name):
+
+    if(os.path.exists(os.path.join(os.getcwd(), folder_name)) == False):
+        os.makedirs(os.path.join(os.getcwd(), folder_name))
+
+    mask = mask_generation(p, 1, n)
+    mask = mask.numpy().reshape((n,n))
+    np.save((folder_name + "/mask.npy"), mask)
+
 def load_score_model(model_name):
 
     config = ncsnpp_config.get_config()
@@ -82,11 +91,16 @@ def posterior_sample_with_p_mean_variance_via_mask(vpsde, score_model, device, m
     return masked_xt
 
 
-def fixed_mask_data_generation(p, nrep, number_of_calls, variance, lengthscale, model_name,
-                               folder_name, diffusion_file_name, true_file_name):
+def fixed_mask_data_generation(p, n, nrep, number_of_calls, variance, lengthscale, model_name,
+                                     folder_name, diffusion_file_name, true_file_name, train = False):
 
     n = 32
-    mask = mask_generation(p, 1, n)
+    if(os.path.exists(os.path.join(os.getcwd(), folder_name)) == False):
+        os.makedirs(os.path.join(os.getcwd(), folder_name))
+    if(train == True):
+        produce_fixed_mask(p, n, folder_name)
+    
+    mask = th.from_numpy((np.load((folder_name + "/mask.npy"))).reshape((1,1,n,n)))
     repeated_mask = mask.repeat((nrep,1,1,1))
     seed_value = int(np.random.randint(0, 100000))
     minX = -10
@@ -103,7 +117,6 @@ def fixed_mask_data_generation(p, nrep, number_of_calls, variance, lengthscale, 
     diffusion_images = np.zeros((0,1,n,n))
     true_images = np.zeros((0,1,n,n))
     for i in range(0, number_of_calls):
-        print(i)
 
         gp_vec, ys = generate_gaussian_process(minX, maxX, minY, maxY, n, variance, lengthscale, nrep, seed_value)
         ys = (th.from_numpy(ys)).float().to(device)
@@ -113,26 +126,24 @@ def fixed_mask_data_generation(p, nrep, number_of_calls, variance, lengthscale, 
                                            axis = 0)
         true_images = np.concatenate([true_images, ys.detach().cpu().numpy()], axis = 0)
 
-    if(os.path.exists(os.path.join(os.getcwd(), folder_name)) == False):
-        os.makedirs(os.path.join(os.getcwd(), folder_name))
        
     np.save((folder_name + "/" + diffusion_file_name), diffusion_images)
     np.save((folder_name + "/" + true_file_name), true_images)
-    np.save((folder_name + "/mask.npy"), mask.numpy())
 
 
 
 
 
-
+n = 32
 p = .5
 nrep = 500
-number_of_calls = 5
+number_of_calls = 80
 variance = .4
 lengthscale = 1.6
 model_name = "model2_different_mask_generation_beta_min_max_01_20_small_random50_channel_mask.pth"
 folder_name = "data/fixed_mask/model2/mask1"
-diffusion_file_name = "calibration_conditional_diffusion_random50_variance_.4_lengthscale_1.6_model2_2500.npy"
-true_file_name = "calibration_unconditional_true_variance_.4_lengthscale_1.6_2500.npy"
-fixed_mask_data_generation(p, nrep, number_of_calls, variance, lengthscale, model_name,
-                           folder_name, diffusion_file_name, true_file_name)
+diffusion_file_name = "train_conditional_diffusion_random50_variance_.4_lengthscale_1.6_model2_40000.npy"
+true_file_name = "train_unconditional_true_variance_.4_lengthscale_1.6_40000.npy"
+train = True
+fixed_mask_data_generation(p, n, nrep, number_of_calls, variance, lengthscale, model_name,
+                           folder_name, diffusion_file_name, true_file_name, train)

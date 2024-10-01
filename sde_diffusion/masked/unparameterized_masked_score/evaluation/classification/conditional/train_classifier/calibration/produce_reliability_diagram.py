@@ -177,38 +177,44 @@ def visualize_precalibrated_reliability_diagram(number_of_replicates, model_name
                         num_bins=50, figsize=(10, 10), dpi=72, return_fig=False, fig_name = figname,
                         title = "Before Calibration")
 
-def visualize_calibrated_reliability_diagram(number_of_replicates, model_name, calibration_eval_file,
-                                                n, crop_size, classifier_file, classifier_name,
-                                                calibrated_model_name, calibrated_model_file, figname):
+def visualize_precalibrated_and_calibrated_reliability_diagram(number_of_replicates, model_name, calibration_eval_file,
+                                                n, crop_size, classifier_file, classifier_name, precalibrated_figname,
+                                                calibrated_model_name, calibrated_model_file, calibrated_figname):
 
     seed_value = int(np.random.randint(0,100000))
-    eval_classifier_probabilities = classify_calibrated_data(number_of_replicates, seed_value, model_name,
+    eval_classifier_probabilities = classify_precalibrated_data(number_of_replicates, seed_value, model_name,
                                                             calibration_eval_file, n, crop_size,
-                                                            classifier_name, classifier_file,
-                                                            calibrated_model_name, calibrated_model_file)
+                                                            classifier_name, classifier_file)
+    eval_calibrated_classifier_probabilities = classify_calibrated_data(number_of_replicates, seed_value, model_name,
+                                                                        calibration_eval_file, n, crop_size,
+                                                                        classifier_name, classifier_file,
+                                                                        calibrated_model_name, calibrated_model_file)
     eval_class_labels = create_classes(number_of_replicates)
     predicted_class_labels = compute_prediction_classes(eval_classifier_probabilities)
+    predicted_calibrated_class_labels = compute_prediction_classes(eval_calibrated_classifier_probabilities)
     #plot the diagram before calibration    print(calibrated_probabilities[990:1000])
-    reliability_diagram(eval_class_labels, eval_classifier_probabilities, eval_classifier_probabilities,
-                        num_bins=50, figsize=(10, 10), dpi=72, return_fig=False, fig_name = figname,
+    reliability_diagram(eval_class_labels, predicted_class_labels, eval_classifier_probabilities,
+                        num_bins=50, figsize=(10, 10), dpi=72, return_fig=False, fig_name = precalibrated_figname,
+                        title = "After Calibration")
+    reliability_diagram(eval_class_labels, predicted_calibrated_class_labels, eval_calibrated_classifier_probabilities,
+                        num_bins=50, figsize=(10, 10), dpi=72, return_fig=False, fig_name = calibrated_figname,
                         title = "After Calibration")
 
 
-number_of_replicates = 1000
-model_name = "model6"
+number_of_replicates = 2500
+model_name = "model2"
 calibration_eval_file = "calibration_evaluation_unconditional_images_variance_.4_lengthscale_1.6_1000.npy"
 n = 32
 crop_size = 2
-epochs = 60
-classifier_file = "model6_lengthscale_1.6_variance_0.4_epochs_" + str(epochs) + "_parameters.pth"
-classifier_name = "classifier6"
-figname = "precalibrated_reliability_diagram.png"
-"""
-visualize_precalibrated_reliability_diagram(number_of_replicates, model_name, calibration_eval_file,
-                                                n, crop_size, classifier_file, classifier_name, figname)"""
+epochs = 200
+classifier_file = "model2_random50_lengthscale_1.6_variance_.4_epochs_" + str(epochs) + "_parameters.pth"
+classifier_name = "classifier3"
 calibrated_model_name = "calibrated_model2"
 calibrated_model_file = "logistic_regression_model6_classifier6.pkl"
-figname = "calibrated_reliability_diagram.png"
-visualize_calibrated_reliability_diagram(number_of_replicates, model_name, calibration_eval_file,
-                                                n, crop_size, classifier_file, classifier_name,
-                                                calibrated_model_name, calibrated_model_file, figname)
+calibrated_figname = "calibrated_reliability_diagram_calibrated_model2_classifier3_model2.png"
+precalibrated_figname = "precalibrated_reliability_diagram_classifier3_model2.png"
+visualize_precalibrated_and_calibrated_reliability_diagram(number_of_replicates, model_name, calibration_eval_file,
+                                                           n, crop_size, classifier_file, classifier_name,
+                                                           calibrated_model_name, calibrated_model_file,
+                                                           precalibrated_figname, calibrated_model_name,
+                                                           calibrated_model_file, calibrated_figname)

@@ -34,11 +34,11 @@ def generate_true_images(number_of_replicates, seed_value):
     true_images = th.from_numpy(true_images)
     return true_images
 
-def process_images(number_of_replicates, seed_value, model_name, mask_name, true_file_name,
+def process_images(number_of_replicates, model_name, mask_name, true_file_name,
                    diffusion_file_name, n, crop_size):
 
     true_images = load_images(model_name, mask_name, true_file_name)
-    diffusion_images = load_images(model_name, diffusion_file_name)
+    diffusion_images = load_images(model_name, mask_name, diffusion_file_name)
     diffusion_images.reshape((number_of_replicates,1,n,n))
     images = th.cat([diffusion_images, true_images], dim = 0)
     images = crop_image(images, n, crop_size)
