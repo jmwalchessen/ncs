@@ -127,12 +127,12 @@ def fixed_mask_data_generation(p, nrep, number_of_calls, variance, lengthscale, 
 
 p = .5
 nrep = 500
-number_of_calls = 80
+number_of_calls = 5
 variance = .4
 lengthscale = 1.6
 model_name = "model2_different_mask_generation_beta_min_max_01_20_small_random50_channel_mask.pth"
 folder_name = "data/fixed_mask/model2/mask1"
-diffusion_file_name = "conditional_diffusion_random50_variance_.4_lengthscale_1.6_model2_40000.npy"
-true_file_name = "unconditional_true_variance_.4_lengthscale_1.6_40000.npy"
+diffusion_file_name = "calibration_conditional_diffusion_random50_variance_.4_lengthscale_1.6_model2_2500.npy"
+true_file_name = "calibration_unconditional_true_variance_.4_lengthscale_1.6_2500.npy"
 fixed_mask_data_generation(p, nrep, number_of_calls, variance, lengthscale, model_name,
                            folder_name, diffusion_file_name, true_file_name)

@@ -73,7 +73,7 @@ def train_nn(num_epochs, classifier, weight_decay, beta1, beta2, epsilon,
 
 
 #need to keep batch number low and learning rate low otherwise gradient jumps to only positive or negative solution
-num_epochs = 40
+num_epochs = 200
 weight_decay = 0.001
 beta1 = 0.9
 beta2 = 0.999
@@ -105,6 +105,6 @@ classifier, eval_losses, eval_train_losses = train_nn(num_epochs = num_epochs, c
                                                       batch_size = batch_size, eval_batch_size = eval_batch_size, crop_size = crop_size,
                                                       shuffle = False)
 
-lossfig_name = "classifiers/classifier1/classifier1_model2_random50_lengthscale_1.6_variance_.4_epochs_" + str(num_epochs) + "_losses.png"
+lossfig_name = "classifiers/classifier3/classifier3_model2_random50_lengthscale_1.6_variance_.4_epochs_" + str(num_epochs) + "_losses.png"
 visualize_loss(num_epochs, eval_losses, eval_train_losses, lossfig_name)
-torch.save(classifier.state_dict(), ("classifiers/classifier1/model2_random50_lengthscale_1.6_variance_.4_epochs_" + str(num_epochs) + "_parameters.pth"))
+torch.save(classifier.state_dict(), ("classifiers/classifier3/model2_random50_lengthscale_1.6_variance_.4_epochs_" + str(num_epochs) + "_parameters.pth"))
