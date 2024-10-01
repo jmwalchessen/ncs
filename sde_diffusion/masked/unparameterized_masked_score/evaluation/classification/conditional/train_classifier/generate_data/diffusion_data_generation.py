@@ -117,7 +117,7 @@ def fixed_mask_data_generation(p, n, nrep, number_of_calls, variance, lengthscal
     diffusion_images = np.zeros((0,1,n,n))
     true_images = np.zeros((0,1,n,n))
     for i in range(0, number_of_calls):
-
+        print(i)
         gp_vec, ys = generate_gaussian_process(minX, maxX, minY, maxY, n, variance, lengthscale, nrep, seed_value)
         ys = (th.from_numpy(ys)).float().to(device)
         current_diffusion_images = posterior_sample_with_p_mean_variance_via_mask(sdevp, score_model, device,
