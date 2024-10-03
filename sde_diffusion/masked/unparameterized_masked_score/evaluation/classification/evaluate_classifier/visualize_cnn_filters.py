@@ -9,10 +9,10 @@ sys.path.append(train_nn_folder)
 print(train_nn_folder)
 from nn_architecture import *
 
-classifier_name = "classifier10"
-classifier_file = "smallest_avgpool_shifted1_classifier_model6_lengthscale_1.6_variance_0.4_epochs_500_parameters.pth"
-classifier = SmallestCNNClassifier()
-classifier.load_state_dict(torch.load((train_nn_folder + "/classifiers/" + classifier_name + "/" + classifier_file)))
+classifier_name = "classifier9"
+classifier_file = "small1_maxpool_classifier_model6_lengthscale_1.6_variance_0.4_epochs_500_parameters.pth"
+classifier = smallestCNNClassifier()
+classifier.load_state_dict(torch.load((train_nn_folder + "/classifiers/" + classifier_name + "/" + classifier_file), map_location = torch.device("cpu")))
 
 
 def convlayer(image):
@@ -26,7 +26,7 @@ def convlayer(image):
     return filtered_image
 
 
-def visualize_filters(image, figname):
+def visualize_filters(figname):
 
     n = 5
     for idx, mod in enumerate(classifier.modules()):
@@ -44,6 +44,5 @@ n = 32
 crop_size = 2
 figname = "conv_filter"
 evaluation_images = create_evaluation_images(number_of_replicates, seed_value, model_name, evaluation_file_name, n, crop_size)
-for i in range(0, 20):
-    visualize_filters((evaluation_images[(4000 + i):(4000 + i + 1),:,:,:]).float(), figname)
+visualize_filters(figname)
 

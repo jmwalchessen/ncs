@@ -14,19 +14,18 @@ from true_unconditional_data_generation import *
 
 def train_nn(num_epochs, classifier, weight_decay, beta1, beta2, epsilon,
              loss_function, device, 
-             initial_learning_rate, diffusion_images_pathname, true_images_pathname, split, num_samples, batch_size,
+             initial_learning_rate, diffusion_images_pathname, split, num_samples, batch_size,
              eval_batch_size, crop_size, shuffle = False, masks_path_name = None):
 
     seed_value = int(np.random.randint(0, 1000000))
     if(masks_path_name == None):
         train_loader, eval_loader, eval_train_loader = prepare_crop_and_create_dataloaders(diffusion_path = diffusion_images_pathname,
-                                                 true_path = true_images_pathname, split = split,
-                                                 num_samples = num_samples, n = 32,
+                                                 split = split, num_samples = num_samples, n = 32,
                                                  batch_size = batch_size, eval_batch_size = eval_batch_size,
                                                  crop_size = crop_size, shuffle = shuffle)
     else:
         train_loader, eval_loader, eval_train_loader = prepare_crop_and_create_dataloaders(diffusion_path = diffusion_images_pathname,
-                                                 true_path = true_images_pathname, masks_pathname = masks_path_name, split = split,
+                                                 masks_pathname = masks_path_name, split = split,
                                                  num_samples = num_samples, n = 32,
                                                  batch_size = batch_size, eval_batch_size = eval_batch_size,
                                                  crop_size = crop_size)

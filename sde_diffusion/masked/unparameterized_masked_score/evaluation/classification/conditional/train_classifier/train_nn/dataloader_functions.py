@@ -96,11 +96,17 @@ def prepare_and_create_dataloader(path, num_samples, minX, maxX, minY, maxY, n,
     dataloader = create_dataloader(images, classes, batch_size)
     return dataloader
 
-def prepare_crop_and_create_dataloaders(diffusion_path, true_path, split, num_samples, n,
+def prepare_crop_and_create_dataloaders(diffusion_path, split, num_samples, n,
                                        batch_size, eval_batch_size, crop_size, shuffle = False):
 
     diffusion_images = load_images(diffusion_path)
-    true_images = load_images(true_path)
+    minX = minY = -10
+    maxX = maxY = 10
+    variance = .4
+    lengthscale = 1.6
+    seed_value = int(np.random.randint(0, 1000000))
+    true_images = (generate_gaussian_process(minX, maxX, minY, maxY, n, variance,
+                                            lengthscale, num_samples, seed_value))[1]
     diffusion_images = diffusion_images.reshape((num_samples,1,n,n))
     true_train_images = true_images[0:split,:,:,:]
     diffusion_train_images = diffusion_images[0:split,:,:,:]
@@ -125,7 +131,13 @@ def prepare_crop_and_create_dataloader_with_masks(diffusion_path, true_path, mas
                                        batch_size, eval_batch_size, crop_size):
 
     diffusion_images = load_images(diffusion_path)
-    true_images = load_images(true_path)
+    minX = minY = -10
+    maxX = maxY = 10
+    variance = .4
+    lengthscale = 1.6
+    seed_value = int(np.random.randint(0, 1000000))
+    true_images = (generate_gaussian_process(minX, maxX, minY, maxY, n, variance,
+                                            lengthscale, num_samples, seed_value))[1]
     masks = load_images(masks_path)
 
     masks = masks.reshape((num_samples,1,n,n))
