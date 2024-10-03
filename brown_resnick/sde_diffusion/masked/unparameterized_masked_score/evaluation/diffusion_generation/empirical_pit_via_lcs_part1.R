@@ -32,12 +32,16 @@ produce_reference_images <- function(nsim, range, smooth, cov_mod, ref_image_fil
     np$save(ref_image_file, ref_images)  
 }
 
-nsim <- 1000
-range <- 2
-smooth <- 1
-cov_mod <- "brown"
-ref_image_file <- "data/mcmc/mask1/reference_images_range_2_smooth_1.npy"
-mask_file_name <- "data/mcmc/mask1/mask.npy"
-obsn <- 10
-n <- 32
-produce_reference_images(nsim, range, smooth, cov_mod, ref_image_file)
+ranges <- c(3,4,5)
+for(range in ranges)
+{
+    nsim <- 1000
+    smooth <- 1
+    cov_mod <- "brown"
+    ref_image_file <- paste(paste("data/mcmc/mask1/reference_images_range", as.character(range),
+                            sep = "_"), "smooth_1.npy", sep = "_")
+    mask_file_name <- "data/mcmc/mask1/mask.npy"
+    obsn <- 10
+    n <- 32
+    produce_reference_images(nsim, range, smooth, cov_mod, ref_image_file)
+}

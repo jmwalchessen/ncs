@@ -130,6 +130,8 @@ produce_pit_value_via_local_conditional_simulation_per_fixed_location <- functio
 
     for(i in 1:nsim)
     {
+        print("nsim")
+        print(i)
         ref_image <- flatten_matrix(ref_images[i,,], n)
         observations <- ref_image[observed_indices]
         unobserved_observations <- ref_image[unobserved_indices]
@@ -155,6 +157,7 @@ produce_pit_values_via_local_conditional_simulation_for_multiple_pixels <- funct
 {
   for(missing_index in indices)
   {
+    print(missing_index)
     pits <- produce_pit_value_via_local_conditional_simulation_per_fixed_location(mask_file_name, ref_images_file_name, missing_index, neighbors,
                                                                                   cov_mod, nugget, range, smooth, nrep, nsim)
     print(pits[0:10])
@@ -164,19 +167,35 @@ produce_pit_values_via_local_conditional_simulation_for_multiple_pixels <- funct
   }
 }
 
+produce_pit_values_via_lcs_multiple_pixels_and_parameters <- function(parameter_matrix, mask_file_name, ref_images_file_name,
+                                                                      cov_mod, nugget, nrep, nsim,
+                                                                      neighbors, pit_file_name)
+{
+  m <- nrow(parameter_matrix)
+  for(i in 1:m)
+  {
+    range <- parameter_matrix[i,1]
+    smooth <- parameter_matrix[i,2]
+    ref_images_file_name <- paste(paste(paste(paste("data/mcmc/mask1/reference_images_range", as.character(range), sep = "_"),
+                                      "smooth", sep = "_"), as.character(smooth), sep = "_"), "npy", sep = ".")
+    produce_pit_values_via_local_conditional_simulation_for_multiple_pixels(indices, mask_file_name, ref_images_file_name, cov_mod,
+                                                                        nugget, range, smooth, nrep, nsim, neighbors, pit_file_name)
+  }
+}
+                                      
 
-mask_file_name <- "data/mcmc/mask1/mask_range_2_smooth_1.npy"
+
+mask_file_name <- "data/mcmc/mask1/mask.npy"
 cov_mod <- "brown"
 nugget <- 0
-range <- 2
-smooth <- 1
 nrep <- 4000
 nsim <- 1000
 neighbors <- 5
 n <- 32
 obsn <- 10
 indices <- list(1,100,200,300,400,500,600,800,900,1000)
-pit_file_name <- "data/mcmc/mask1/empirical_pit/pit_values_1000_range_2_smooth_1_neighbors_5_4000.npy"
-ref_images_file_name <- "data/mcmc/mask1/reference_images_range_2_smooth_1.npy"
-produce_pit_values_via_local_conditional_simulation_for_multiple_pixels(indices, mask_file_name, ref_images_file_name, cov_mod,
-                                                                        nugget, range, smooth, nrep, nsim, neighbors, pit_file_name)
+pit_file_name <- "data/mcmc/mask1/empirical_pit/pit_values_1000_neighbors_5_4000"
+parameter_matrix <- matrix(1, nrow = 5, ncol = 2)
+parameteri_matrix[,0] <- c(1,2,3,4,5)
+produce_pit_values_via_lcs_multiple_pixels_and_parameters(parameter_matrix, mask_file_name, ref_images_file_name,
+                                                          cov_mod, nugget, nrep, nsim, neighbors, pit_file_name)
