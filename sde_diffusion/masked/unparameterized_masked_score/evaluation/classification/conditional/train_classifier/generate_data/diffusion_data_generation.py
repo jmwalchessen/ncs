@@ -102,7 +102,6 @@ def fixed_mask_data_generation(p, n, nrep, number_of_calls, variance, lengthscal
     
     mask = th.from_numpy((np.load((folder_name + "/mask.npy"))).reshape((1,1,n,n)))
     repeated_mask = mask.repeat((nrep,1,1,1))
-    seed_value = int(np.random.randint(0, 100000))
     minX = -10
     maxX = 10
     minY = -10
@@ -118,6 +117,7 @@ def fixed_mask_data_generation(p, n, nrep, number_of_calls, variance, lengthscal
     true_images = np.zeros((0,1,n,n))
     for i in range(0, number_of_calls):
         print(i)
+        seed_value = int(np.random.randint(0, 100000))
         gp_vec, ys = generate_gaussian_process(minX, maxX, minY, maxY, n, variance, lengthscale, nrep, seed_value)
         ys = (th.from_numpy(ys)).float().to(device)
         current_diffusion_images = posterior_sample_with_p_mean_variance_via_mask(sdevp, score_model, device,
@@ -130,7 +130,46 @@ def fixed_mask_data_generation(p, n, nrep, number_of_calls, variance, lengthscal
     np.save((folder_name + "/" + diffusion_file_name), diffusion_images)
     np.save((folder_name + "/" + true_file_name), true_images)
 
+def one_image_per_mask_data_generation(p, n, nrep, number_of_calls, variance, lengthscale, model_name,
+                                     folder_name, diffusion_file_name, true_file_name, mask_file_name):
 
+    n = 32
+    if(os.path.exists(os.path.join(os.getcwd(), folder_name)) == False):
+        os.makedirs(os.path.join(os.getcwd(), folder_name))
+    
+    minX = -10
+    maxX = 10
+    minY = -10
+    maxY = 10
+    beta_min = .1
+    beta_max = 20
+    N = 1000
+    score_model = load_score_model(model_name)
+    sdevp = load_sde(beta_min, beta_max, N)
+    device = "cuda:0"
+    masks = masks.float().to(device)
+    diffusion_images = np.zeros((0,1,n,n))
+    true_images = np.zeros((0,1,n,n))
+    masks = np.zeros((0,1,n,n))
+
+    for i in range(0, number_of_calls):
+        print(i)
+        current_masks = mask_generation(p, nrep, n)
+        current_masks = masks.float().to(device)
+        seed_value = int(np.random.randint(0, 100000))
+        gp_vec, ys = generate_gaussian_process(minX, maxX, minY, maxY, n, variance, lengthscale, nrep, seed_value)
+        ys = (th.from_numpy(ys)).float().to(device)
+        current_diffusion_images = posterior_sample_with_p_mean_variance_via_mask(sdevp, score_model, device,
+                                                                                  current_masks, ys, n)
+        diffusion_images = np.concatenate([diffusion_images, current_diffusion_images.detach().cpu().numpy()],
+                                           axis = 0)
+        true_images = np.concatenate([true_images, ys.detach().cpu().numpy()], axis = 0)
+        masks = np.concatenate([masks, current_masks.detach().cpu().numpy()], axis = 0)
+
+       
+    np.save((folder_name + "/" + diffusion_file_name), diffusion_images)
+    np.save((folder_name + "/" + true_file_name), true_images)
+    np.save((folder_name + "/" + mask_file_name), masks)
 
 
 
@@ -144,6 +183,6 @@ model_name = "model2_different_mask_generation_beta_min_max_01_20_small_random50
 folder_name = "data/fixed_mask/model2/mask1"
 diffusion_file_name = "train_conditional_diffusion_random50_variance_.4_lengthscale_1.6_model2_40000.npy"
 true_file_name = "train_unconditional_true_variance_.4_lengthscale_1.6_40000.npy"
-train = True
+train = False
 fixed_mask_data_generation(p, n, nrep, number_of_calls, variance, lengthscale, model_name,
                            folder_name, diffusion_file_name, true_file_name, train)

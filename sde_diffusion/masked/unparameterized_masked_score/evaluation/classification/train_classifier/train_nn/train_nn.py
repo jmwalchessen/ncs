@@ -128,14 +128,14 @@ def train_nn_on_the_fly(num_epochs, classifier, weight_decay, beta1, beta2, epsi
         
     return classifier, eval_losses, eval_train_losses
 #need to keep batch number low and learning rate low otherwise gradient jumps to only positive or negative solution
-num_epochs = 40
+num_epochs = 500
 weight_decay = 0.001
 beta1 = 0.9
 beta2 = 0.999
-initial_learning_rate = 2e-9
+initial_learning_rate = 2e-5
 device = "cuda:0"
 
-classifier = (CNNClassifier()).to(device)
+classifier = (SmallestCNNClassifier()).to(device)
 
 images_pathname = (classifier_folder + 
                             "/generate_data/data/model6/unconditional/unconditional_images_variance_.4_lengthscale_1.6_100000.npy")
@@ -156,6 +156,6 @@ classifier, eval_losses, eval_train_losses = train_nn(num_epochs = num_epochs, c
                                                       batch_size = batch_size, eval_batch_size = eval_batch_size, crop_size = crop_size,
                                                       shuffle = False)
 
-lossfig_name = "classifiers/classifier5/classifier5_model6_lengthscale_1.6_variance_0.4_epochs_" + str(num_epochs) + "_losses.png"
+lossfig_name = "classifiers/classifier10/small1_avgpool_shifted1_classifier10_model6_lengthscale_1.6_variance_0.4_epochs_" + str(num_epochs) + "_losses.png"
 visualize_loss(num_epochs, eval_losses, eval_train_losses, lossfig_name)
-torch.save(classifier.state_dict(), ("classifiers/classifier5/model6_lengthscale_1.6_variance_0.4_epochs_" + str(num_epochs) + "_parameters.pth"))
+torch.save(classifier.state_dict(), ("classifiers/classifier10/small1_avgpool_shifted1_classifier_model6_lengthscale_1.6_variance_0.4_epochs_" + str(num_epochs) + "_parameters.pth"))

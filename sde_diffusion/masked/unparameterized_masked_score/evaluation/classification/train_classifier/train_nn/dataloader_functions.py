@@ -78,9 +78,9 @@ def prepare_crop_and_create_dataloaders(path, split, num_samples, minX, maxX, mi
                                        eval_batch_size, crop_size, shuffle = False):
 
     diffusion_images = load_images(path)
-    true_images = generate_gaussian_process(minX, maxX, minY, maxY, n, variance,
-                                            lengthscale, num_samples, seed_value)[1]
-    diffusion_images = diffusion_images.reshape((num_samples,1,n,n))
+    true_images = (generate_gaussian_process(minX, maxX, minY, maxY, n, variance,
+                                            lengthscale, num_samples, seed_value)[1]+1)
+    diffusion_images = (diffusion_images.reshape((num_samples,1,n,n))+1)
     true_train_images = true_images[0:split,:,:,:]
     diffusion_train_images = diffusion_images[0:split,:,:,:]
     true_eval_images = true_images[split:,:,:,:]

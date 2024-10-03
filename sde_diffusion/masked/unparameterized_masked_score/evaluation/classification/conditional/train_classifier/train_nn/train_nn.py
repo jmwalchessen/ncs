@@ -15,15 +15,22 @@ from true_unconditional_data_generation import *
 def train_nn(num_epochs, classifier, weight_decay, beta1, beta2, epsilon,
              loss_function, device, 
              initial_learning_rate, diffusion_images_pathname, true_images_pathname, split, num_samples, batch_size,
-             eval_batch_size, crop_size, shuffle = False):
+             eval_batch_size, crop_size, shuffle = False, masks_path_name = None):
 
     seed_value = int(np.random.randint(0, 1000000))
-    train_loader, eval_loader, eval_train_loader = prepare_crop_and_create_dataloaders(diffusion_path = diffusion_images_pathname,
+    if(masks_path_name == None):
+        train_loader, eval_loader, eval_train_loader = prepare_crop_and_create_dataloaders(diffusion_path = diffusion_images_pathname,
                                                  true_path = true_images_pathname, split = split,
-                                                 num_samples = num_samples, minX = -10, maxX = 10, minY = -10,
-                                                 maxY = 10, n = 32, variance = 0.4, lengthscale = 1.6, seed_value = seed_value,
+                                                 num_samples = num_samples, n = 32,
+                                                 batch_size = batch_size, eval_batch_size = eval_batch_size,
+                                                 crop_size = crop_size, shuffle = shuffle)
+    else:
+        train_loader, eval_loader, eval_train_loader = prepare_crop_and_create_dataloaders(diffusion_path = diffusion_images_pathname,
+                                                 true_path = true_images_pathname, masks_pathname = masks_path_name, split = split,
+                                                 num_samples = num_samples, n = 32,
                                                  batch_size = batch_size, eval_batch_size = eval_batch_size,
                                                  crop_size = crop_size)
+    
 
     optimizer = optim.Adam(classifier.parameters(), lr=initial_learning_rate, betas=(beta1, beta2), eps=epsilon,
                            weight_decay=weight_decay)
@@ -73,16 +80,16 @@ def train_nn(num_epochs, classifier, weight_decay, beta1, beta2, epsilon,
 
 
 #need to keep batch number low and learning rate low otherwise gradient jumps to only positive or negative solution
-num_epochs = 200
+num_epochs = 500
 weight_decay = 0.001
 beta1 = 0.9
 beta2 = 0.999
-initial_learning_rate = 2e-8
+initial_learning_rate = 2e-5
 device = "cuda:0"
 model_number = "model2"
 mask_number = "mask1"
-diffusion_file_name = "conditional_diffusion_random50_variance_.4_lengthscale_1.6_model2_40000.npy"
-true_file_name = "unconditional_true_variance_.4_lengthscale_1.6_40000.npy"
+diffusion_file_name = "train_conditional_diffusion_random50_variance_.4_lengthscale_1.6_model2_40000.npy"
+true_file_name = "train_unconditional_true_variance_.4_lengthscale_1.6_40000.npy"
 classifier = (CNNClassifier()).to(device)
 
 diffusion_pathname = (classifier_folder + "/generate_data/data/fixed_mask/" + model_number
@@ -105,6 +112,6 @@ classifier, eval_losses, eval_train_losses = train_nn(num_epochs = num_epochs, c
                                                       batch_size = batch_size, eval_batch_size = eval_batch_size, crop_size = crop_size,
                                                       shuffle = False)
 
-lossfig_name = "classifiers/classifier3/classifier3_model2_random50_lengthscale_1.6_variance_.4_epochs_" + str(num_epochs) + "_losses.png"
+lossfig_name = "classifiers/classifier1/classifier1_model2_random50_lengthscale_1.6_variance_.4_epochs_" + str(num_epochs) + "_losses.png"
 visualize_loss(num_epochs, eval_losses, eval_train_losses, lossfig_name)
-torch.save(classifier.state_dict(), ("classifiers/classifier3/model2_random50_lengthscale_1.6_variance_.4_epochs_" + str(num_epochs) + "_parameters.pth"))
+torch.save(classifier.state_dict(), ("classifiers/classifier1/model2_random50_lengthscale_1.6_variance_.4_epochs_" + str(num_epochs) + "_parameters.pth"))

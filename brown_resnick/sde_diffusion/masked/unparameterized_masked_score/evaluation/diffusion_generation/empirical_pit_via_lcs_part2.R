@@ -2,7 +2,7 @@ library(dbscan)
 library("parallel")
 library("reticulate")
 library(R.utils)
-library(devtools)
+library(SpatialExtremes)
 
 
 produce_random_mask <- function(mask_file_name, obsn, n)
@@ -45,23 +45,21 @@ located_neighboring_pixels <- function(observed_spatial_grid, k, key_location)
   return(id_matrix)
 }
 
-produce_reference_images <- function(nsim, range, smooth, cov_mod)
-{
-    s1 <- seq(-10,10, length.out = n)
-    s2 <- seq(-10,10, length.out = n)
-    s <- cbind(s1, s2)
-    working_directory <- (strsplit(getwd(), "/sde_diffusion")[[1]])[1]
-    spatialextremes_directory <- paste(working_directory, "my-spatial-extremes", sep = "/")
-    devtools::install(spatialextremes_directory)
-    ref_images <- SpatialExtremes::rmaxstab(nsim, coord = s, cov.mod = cov_mod, grid = TRUE, range = range, smooth = smooth)
-    dim(ref_images) <- c(nsim, n, n)
-    detach(SpatialExtremes, unload = TRUE)
-    return(ref_images)
-}
 
-local_conditional_simulation_per_pixel <- function(observed_spatial_grid, observations, k, key_location,
-                                            cov_mod, nugget, range, smooth, nrep)
+
+local_conditional_simulation_per_pixel <- function(arglist)
+
+
 {
+    observed_spatial_grid <- arglist$observed_spatial_grid
+    observations <- arglist$observations
+    k <- arglist$k
+    key_location <- arglist$key_location
+    cov_mod <- arglist$cov_mod
+    nugget <- arglist$nugget
+    range <- arglist$range
+    smooth <- arglist$smooth
+    nrep <- arglist$nrep
     id_matrix <- located_neighboring_pixels(observed_spatial_grid, k, key_location)
     cond_data <- observations[id_matrix]
     cond_coord <- observed_spatial_grid[id_matrix,]
@@ -96,9 +94,9 @@ interruptor <- function(FUN,args, time.limit, ALTFUN){
   return(results)
 } 
 
-alternative_local_conditional_simulation_per_pixel <- function(argsList)
+alternative_local_conditional_simulation_per_pixel <- function(arglist)
 {
-    return(array(NA, dim = c(1, argsList$nrep)))
+    return(array(NA, dim = c(1, arglist$nrep)))
 }
 
 
@@ -106,13 +104,14 @@ alternative_local_conditional_simulation_per_pixel <- function(argsList)
 produce_local_conditional_simulation_per_pixel_interrupted <- function(observed_spatial_grid, observations, neighbors,
                                                                        key_location, cov_mod, nugget, range, smooth, nrep)
 {
-    x <- interruptor(FUN = local_conditional_simulation_per_pixel, args = list(observed_spatial_grid, observations, neighbors, key_location,
-                                                                                      cov_mod, nugget, range, smooth, nrep),
+    x <- interruptor(FUN = local_conditional_simulation_per_pixel, args = list(observed_spatial_grid = observed_spatial_grid, observations = observations, k = neighbors,
+                                                                               key_location = key_location, cov_mod = cov_mod, nugget = nugget, range = range, smooth = smooth,
+                                                                               nrep = nrep),
                                                                                       time.limit = 60, ALTFUN = alternative_local_conditional_simulation_per_pixel)
     return(x)
 }
 
-produce_pit_value_via_local_conditional_simulation_per_fixed_location <- function(mask_file_name, missing_index, neighbors,
+produce_pit_value_via_local_conditional_simulation_per_fixed_location <- function(mask_file_name, ref_images_file_name, missing_index, neighbors,
                                                                                   cov_mod, nugget, range, smooth, nrep, nsim)
 {
     n <- 32
@@ -126,10 +125,9 @@ produce_pit_value_via_local_conditional_simulation_per_fixed_location <- functio
     observed_spatial_grid <- spatial_grid[observed_indices,]
     unobserved_indices <- (1:n**2)[-observed_indices]
     unobserved_index <- unobserved_indices[missing_index]
-    ref_images <- produce_reference_images(nsim, range, smooth, cov_mod)
+    ref_images <- np$load(ref_images_file_name)
     pits <- array(dim = c(nsim))
 
-    library(SpatialExtremes)
     for(i in 1:nsim)
     {
         ref_image <- flatten_matrix(ref_images[i,,], n)
@@ -139,23 +137,25 @@ produce_pit_value_via_local_conditional_simulation_per_fixed_location <- functio
         key_location <- unobserved_spatial_grid[missing_index,]
         conditional_simulations <- produce_local_conditional_simulation_per_pixel_interrupted(observed_spatial_grid, observations, neighbors, key_location,
                                                                                           cov_mod, nugget, range, smooth, nrep)
-        empirical_cdf <- ecdf(conditional_simulations)
-        pit_value <- empirical_cdf(ref_image[unobserved_index])
-        pits[i] <- pit_value
+        if(typeof(conditional_simulations) != "character")
+          {
+            empirical_cdf <- ecdf(conditional_simulations)
+            pit_value <- empirical_cdf(ref_image[unobserved_index])
+            pits[i] <- pit_value
+          }
     }
-    detach(SpatialExtremes, unload = TRUE)
     return(pits)
 }
 
 
 
-produce_pit_values_via_local_conditional_simulation_for_multiple_pixels <- function(indices, mask_file_name, cov_mod,
-                                                                                    nugget, range, smooth, nrep, nsim,
+produce_pit_values_via_local_conditional_simulation_for_multiple_pixels <- function(indices, mask_file_name, ref_images_file_name,
+                                                                                    cov_mod, nugget, range, smooth, nrep, nsim,
                                                                                     neighbors, pit_file_name)
 {
   for(missing_index in indices)
   {
-    pits <- produce_pit_value_via_local_conditional_simulation_per_fixed_location(mask_file_name, missing_index, neigbors,
+    pits <- produce_pit_value_via_local_conditional_simulation_per_fixed_location(mask_file_name, ref_images_file_name, missing_index, neighbors,
                                                                                   cov_mod, nugget, range, smooth, nrep, nsim)
     print(pits[0:10])
     current_pits_file <- paste(paste(pit_file_name, as.character(missing_index), sep = "_"), "npy", sep = ".")
@@ -165,10 +165,10 @@ produce_pit_values_via_local_conditional_simulation_for_multiple_pixels <- funct
 }
 
 
-mask_file_name <- "data/mcmc/mask1/mask.npy"
+mask_file_name <- "data/mcmc/mask1/mask_range_2_smooth_1.npy"
 cov_mod <- "brown"
 nugget <- 0
-range <- 1
+range <- 2
 smooth <- 1
 nrep <- 4000
 nsim <- 1000
@@ -176,8 +176,7 @@ neighbors <- 5
 n <- 32
 obsn <- 10
 indices <- list(1,100,200,300,400,500,600,800,900,1000)
-pit_file_name <- "data/mcmc/mask1/pit_values_1000_range_1_smooth_1_neighbors_5_4000.npy"
-produce_random_mask(mask_file_name, obsn, n)
-produce_pit_values_via_local_conditional_simulation_for_multiple_pixels(indices, mask_file_name, cov_mod,
-                                                                     nugget, range, smooth, nrep, nsim,
-                                                                     neighbors, pit_file_name)
+pit_file_name <- "data/mcmc/mask1/empirical_pit/pit_values_1000_range_2_smooth_1_neighbors_5_4000.npy"
+ref_images_file_name <- "data/mcmc/mask1/reference_images_range_2_smooth_1.npy"
+produce_pit_values_via_local_conditional_simulation_for_multiple_pixels(indices, mask_file_name, ref_images_file_name, cov_mod,
+                                                                        nugget, range, smooth, nrep, nsim, neighbors, pit_file_name)
