@@ -70,19 +70,19 @@ def visualize_auc_test_statistic(number_of_simulations, number_of_replicates, mo
     plt.legend(labels = ['AUC Null'])
     plt.savefig(figname)
 
-number_of_simulations = 10000
+number_of_simulations = 1000
 number_of_replicates = 4000
 n = 32
 crop_size = 2
-classifier_name = "classifier6"
+classifier_name = "classifier13"
 evaluation_file_name = "evaluation_data_model6_variance_.4_lengthscale_1.6_4000.npy"
-figname = "auc_test_statistic_classifier_" + str(classifier_name) + ".png"
+figname = ("classifiers/" + classifier_name + "/auc_test_statistic_classifier_" + str(classifier_name) + ".png")
 model_name = "model6"
 epochs = 60
-calibrated_model_name = "calibrated_model2"
-calibrated_model_file = "logistic_regression_model6_classifier6.pkl"
-classifier_file = "model6_lengthscale_1.6_variance_0.4_epochs_" + str(epochs) + "_parameters.pth"
-classifier = (CNNClassifier()).to("cuda:0")
+calibrated_model_name = "classifiers/classifier13"
+calibrated_model_file = "logistic_regression_model6_classifier13.pkl"
+classifier_file = "smallercnnclassifier_maxpool_classifier_model6_lengthscale_1.6_variance_0.4_epochs_500_parameters.pth"
+classifier = (SmallerCNNClassifier()).to("cuda:0")
 visualize_auc_test_statistic(number_of_simulations, number_of_replicates, model_name, evaluation_file_name,
                              classifier, classifier_name, classifier_file, n, crop_size, calibrated_model_name,
                              calibrated_model_file, figname)
