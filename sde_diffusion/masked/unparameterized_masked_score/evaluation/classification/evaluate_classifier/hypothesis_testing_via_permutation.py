@@ -9,6 +9,9 @@ import sys
 from evaluation_helper_functions import *
 from append_directories import *
 import seaborn as sns
+classification_folder = append_directory(2)
+sys.path.append((classification_folder + "/train_classifier/train_nn"))
+from nn_architecture import *
 
 
 def permute_class_labels(nrep, device):
@@ -18,12 +21,12 @@ def permute_class_labels(nrep, device):
     return permuted_class_labels
 
 def compute_auc_test_statistic(number_of_replicates, model_name, evaluation_file_name,
-                       classifier_name, classifier_file, n, crop_size, calibrated_model_name,
+                       classifier, classifier_name, classifier_file, n, crop_size, calibrated_model_name,
                        calibrated_model_file):
 
     device = "cuda:0"
     true_classes = create_classes(number_of_replicates, device)
-    classifier = load_classifier(device, classifier_name, classifier_file)
+    classifier = load_classifier_parameters(classifier, classifier_name, classifier_file)
     seed_value = int(np.random.randint(0, 100000))
     eval_images = create_evaluation_images(number_of_replicates, seed_value, model_name, evaluation_file_name, n, crop_size)
     classifier_outputs = (classifier(eval_images.float().to(device)))
@@ -32,12 +35,12 @@ def compute_auc_test_statistic(number_of_replicates, model_name, evaluation_file
     auc = roc_auc_score(true_classes, calibrated_probabilities)
     return auc
 
-def compute_auc_null_distribution(number_of_simulations, number_of_replicates, model_name, evaluation_file_name,
+def compute_auc_null_distribution(number_of_simulations, number_of_replicates, model_name, evaluation_file_name, classifier,
                                   classifier_name, classifier_file, n, crop_size, calibrated_model_name, calibrated_model_file):
 
     device = "cuda:0"
     auc_distribution = np.zeros((number_of_simulations))
-    classifier = load_classifier(device, classifier_name, classifier_file)
+    classifier = load_classifier_parameters(classifier, classifier_name, classifier_file)
     seed_value = int(np.random.randint(0, 100000))
     eval_images = create_evaluation_images(number_of_replicates, seed_value, model_name, evaluation_file_name, n, crop_size)
     classifier_outputs = (classifier(eval_images.float().to(device)))
@@ -52,14 +55,14 @@ def compute_auc_null_distribution(number_of_simulations, number_of_replicates, m
     return auc_distribution
 
 def visualize_auc_test_statistic(number_of_simulations, number_of_replicates, model_name, evaluation_file_name,
-                                  classifier_name, classifier_file, n, crop_size,
+                                  classifier, classifier_name, classifier_file, n, crop_size,
                                   calibrated_model_name, calibrated_model_file, figname):
 
     auc_test_statistic = compute_auc_test_statistic(number_of_replicates, model_name, evaluation_file_name,
-                                                    classifier_name, classifier_file, n, crop_size,
+                                                    classifier, classifier_name, classifier_file, n, crop_size,
                                                     calibrated_model_name, calibrated_model_file)
     auc_distribution = compute_auc_null_distribution(number_of_simulations, number_of_replicates, model_name, evaluation_file_name,
-                                                     classifier_name, classifier_file, n, crop_size,
+                                                     classifier, classifier_name, classifier_file, n, crop_size,
                                                      calibrated_model_name, calibrated_model_file)
     fig, ax = plt.subplots(1)
     sns.kdeplot(auc_distribution, palette = ['blue'])
@@ -79,8 +82,9 @@ epochs = 60
 calibrated_model_name = "calibrated_model2"
 calibrated_model_file = "logistic_regression_model6_classifier6.pkl"
 classifier_file = "model6_lengthscale_1.6_variance_0.4_epochs_" + str(epochs) + "_parameters.pth"
+classifier = (CNNClassifier()).to("cuda:0")
 visualize_auc_test_statistic(number_of_simulations, number_of_replicates, model_name, evaluation_file_name,
-                                  classifier_name, classifier_file, n, crop_size,
-                                  calibrated_model_name, calibrated_model_file, figname)
+                             classifier, classifier_name, classifier_file, n, crop_size, calibrated_model_name,
+                             calibrated_model_file, figname)
 
 

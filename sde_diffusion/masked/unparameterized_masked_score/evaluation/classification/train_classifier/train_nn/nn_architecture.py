@@ -137,7 +137,7 @@ class Small1CNNClassifier(nn.Module):
         super(Small1CNNClassifier, self).__init__()
         layers = [ConvLayer(in_channels = 1, out_channels = 1, kernel = (5,5)),
                   nn.Tanh(),
-                  AvgPool2dlayer(kernel = (5,5), padding = (0,0)),
+                  MaxPool2dlayer(kernel = (5,5), padding = (0,0)),
                   nn.Flatten(),
                   DenseLayer(in_features = 16, out_features = 1)
                   ]
@@ -150,11 +150,28 @@ class Small1CNNClassifier(nn.Module):
 class Small2CNNClassifier(nn.Module):
 
     def __init__(self) -> None:
-        super(Small1CNNClassifier, self).__init__()
+        super(Small2CNNClassifier, self).__init__()
         layers = [ConvLayer(in_channels = 1, out_channels = 1, kernel = (8,8)),
                   nn.Tanh(),
-                  AvgPool2dlayer(kernel = (8,8), padding = (0,0)),
+                  MaxPool2dlayer(kernel = (8,8), padding = (0,0)),
                   nn.Flatten(),
+                  DenseLayer(in_features = 8, out_features = 1)
+                  ]
+        self.model = nn.Sequential(*layers)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self.model(x)
+    
+
+class Small3CNNClassifier(nn.Module):
+
+    def __init__(self) -> None:
+        super(Small3CNNClassifier, self).__init__()
+        layers = [ConvLayer(in_channels = 1, out_channels = 1, kernel = (3,3)),
+                  nn.Tanh(),
+                  MaxPool2dlayer(kernel = (3,3), padding = (0,0)),
+                  nn.Flatten(),
+                  DenseLayer(in_features = 64, out_features = 8),
                   DenseLayer(in_features = 8, out_features = 1)
                   ]
         self.model = nn.Sequential(*layers)

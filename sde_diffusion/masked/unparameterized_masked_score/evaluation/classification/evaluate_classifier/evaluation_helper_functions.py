@@ -30,6 +30,11 @@ def load_classifier(device, classifier_name, classifier_file):
     classifier.load_state_dict(th.load((train_nn_folder + "/classifiers/" + classifier_name + "/" + classifier_file)))
     return classifier
 
+def load_classifier_parameters(classifier, classifier_name, classifier_file):
+
+    classifier.load_state_dict(th.load((train_nn_folder + "/classifiers/" + classifier_name + "/" + classifier_file)))
+    return classifier
+
 def load_smaller_classifier(device, model_name):
 
     smallclassifier = (SmallCNNClassifier()).to(device)
