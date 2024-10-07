@@ -30,12 +30,12 @@ def load_classifier(device, classifier_name, classifier_file):
     classifier.load_state_dict(th.load((train_nn_folder + "/classifiers/" + classifier_name + "/" + classifier_file)))
     return classifier
 
-def load_smaller_classifier(device, model_name):
+def load_classifier_parameters(classifier, classifier_name, classifier_file):
 
-    smallclassifier = (SmallCNNClassifier()).to(device)
-    smallclassifier.load_state_dict(th.load((train_nn_folder + "/classifiers/small_classifier/"
-                                             + model_name)))
-    return smallclassifier
+    classifier.load_state_dict(th.load((train_nn_folder + "/classifiers/" + classifier_name + "/" + classifier_file)))
+    return classifier
+
+
 
 def generate_true_images(number_of_replicates, seed_value):
 
@@ -95,7 +95,7 @@ def produce_calibrated_probabilities(classifier_logits, calibrated_model_name, c
 def classify_evaluation_data(number_of_replicates, model_name, evaluation_file_name,
                              classifier_name, classifier_file, n, crop_size):
 
-    device = "cuda:1"
+    device = "cuda:0"
     seed_value = int(np.random.randint(0, 1000000, 1))
     eval_images = create_evaluation_images(number_of_replicates, seed_value, model_name, evaluation_file_name, n, crop_size)
     eval_images = eval_images.float().to(device)
@@ -109,7 +109,7 @@ def classify_evaluation_data(number_of_replicates, model_name, evaluation_file_n
 def compute_evaluation_loss(number_of_replicates, model_name, evaluation_file_name,
                        classifier_name, classifier_file, n, crop_size):
 
-    device = "cuda:1"
+    device = "cuda:0"
     seed_value = int(np.random.randint(0, 1000000, 1))
     evaluation_images = create_evaluation_images(number_of_replicates, seed_value, model_name,
                                                  evaluation_file_name, n, crop_size)

@@ -53,13 +53,13 @@ class CNNClassifier(nn.Module):
         super(CNNClassifier, self).__init__()
         layers = [ConvLayer(in_channels = 1, out_channels = 128, kernel = (3,3)),
                   nn.Tanh(),
-                  AvgPool2dlayer(kernel = (2,2), padding = (1,1)),
+                  MaxPool2dlayer(kernel = (2,2), padding = (1,1)),
                   ConvLayer(in_channels = 128, out_channels = 128, kernel = (3,3)),
                   nn.Tanh(),
-                  AvgPool2dlayer(kernel = (2,2), padding = (1,1)),
+                  MaxPool2dlayer(kernel = (2,2), padding = (1,1)),
                   ConvLayer(in_channels = 128, out_channels = 16, kernel = (3,3)),
                   nn.Tanh(),
-                  AvgPool2dlayer(kernel = (2,2), padding = (0,0)),
+                  MaxPool2dlayer(kernel = (2,2), padding = (0,0)),
                   nn.Flatten(),
                   DenseLayer(in_features = 64, out_features = 32),
                   nn.Tanh(),
@@ -79,16 +79,100 @@ class SmallCNNClassifier(nn.Module):
     def __init__(self) -> None:
         super(SmallCNNClassifier, self).__init__()
         layers = [ConvLayer(in_channels = 1, out_channels = 16, kernel = (3,3)),
-                  nn.ReLU(),
+                  nn.Tanh(),
                   MaxPool2dlayer(kernel = (2,2), padding = (1,1)),
                   ConvLayer(in_channels = 16, out_channels = 8, kernel = (3,3)),
-                  nn.ReLU(),
+                  nn.Tanh(),
                   MaxPool2dlayer(kernel = (2,2), padding = (1,1)),
                   ConvLayer(in_channels = 8, out_channels = 4, kernel = (3,3)),
-                  nn.ReLU(),
+                  nn.Tanh(),
                   MaxPool2dlayer(kernel = (2,2), padding = (0,0)),
                   nn.Flatten(),
                   DenseLayer(in_features = 16, out_features = 1)
+                  ]
+        self.model = nn.Sequential(*layers)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self.model(x)
+
+
+class SmallerCNNClassifier(nn.Module):
+
+    def __init__(self) -> None:
+        super(SmallerCNNClassifier, self).__init__()
+        layers = [ConvLayer(in_channels = 1, out_channels = 8, kernel = (5,5)),
+                  nn.Tanh(),
+                  MaxPool2dlayer(kernel = (3,3), padding = (1,1)),
+                  ConvLayer(in_channels = 8, out_channels = 4, kernel = (5,5)),
+                  nn.Tanh(),
+                  MaxPool2dlayer(kernel = (2,2), padding = (0,0)),
+                  nn.Flatten(),
+                  DenseLayer(in_features = 16, out_features = 1)
+                  ]
+        self.model = nn.Sequential(*layers)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self.model(x)
+
+class SmallestCNNClassifier(nn.Module):
+
+    def __init__(self) -> None:
+        super(SmallestCNNClassifier, self).__init__()
+        layers = [ConvLayer(in_channels = 1, out_channels = 4, kernel = (5,5)),
+                  nn.Tanh(),
+                  MaxPool2dlayer(kernel = (5,5), padding = (0,0)),
+                  nn.Flatten(),
+                  DenseLayer(in_features = 64, out_features = 8),
+                  DenseLayer(in_features = 8, out_features = 1)
+                  ]
+        self.model = nn.Sequential(*layers)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self.model(x)
+
+
+class Small1CNNClassifier(nn.Module):
+
+    def __init__(self) -> None:
+        super(Small1CNNClassifier, self).__init__()
+        layers = [ConvLayer(in_channels = 1, out_channels = 1, kernel = (5,5)),
+                  nn.Tanh(),
+                  MaxPool2dlayer(kernel = (5,5), padding = (0,0)),
+                  nn.Flatten(),
+                  DenseLayer(in_features = 16, out_features = 1)
+                  ]
+        self.model = nn.Sequential(*layers)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self.model(x)
+
+
+class Small2CNNClassifier(nn.Module):
+
+    def __init__(self) -> None:
+        super(Small2CNNClassifier, self).__init__()
+        layers = [ConvLayer(in_channels = 1, out_channels = 1, kernel = (8,8)),
+                  nn.Tanh(),
+                  MaxPool2dlayer(kernel = (8,8), padding = (0,0)),
+                  nn.Flatten(),
+                  DenseLayer(in_features = 8, out_features = 1)
+                  ]
+        self.model = nn.Sequential(*layers)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self.model(x)
+    
+
+class Small3CNNClassifier(nn.Module):
+
+    def __init__(self) -> None:
+        super(Small3CNNClassifier, self).__init__()
+        layers = [ConvLayer(in_channels = 1, out_channels = 1, kernel = (3,3)),
+                  nn.Tanh(),
+                  MaxPool2dlayer(kernel = (3,3), padding = (0,0)),
+                  nn.Flatten(),
+                  DenseLayer(in_features = 64, out_features = 8),
+                  DenseLayer(in_features = 8, out_features = 1)
                   ]
         self.model = nn.Sequential(*layers)
 
