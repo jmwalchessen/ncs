@@ -303,10 +303,10 @@ train_per_multiple_random_masks(vpconfig, data_draws, epochs_per_data_draws,
 
 data_draws = 5
 epochs_per_data_draws = 10
-number_of_random_replicates = 5000
-number_of_evaluation_random_replicates = 32
+number_of_random_replicates = 2500
+number_of_evaluation_random_replicates = 5
 number_of_masks_per_image = 100
-number_of_evaluation_masks_per_image = 10
+number_of_evaluation_masks_per_image = 5
 #smaller p means less ones which means more observed values
 random_missingness_percentages = [.5]
 batch_size = 512
@@ -314,11 +314,11 @@ eval_batch_size = 32
 #lhs_samples = scipy.stats.qmc.LatinHypercube(d = 2, seed = np.random.randint(0, 100000))
 #variance is first slot and lengthscale is second slot
 variance = 1.5
-parameter_matrix = np.matrix([[variance, 3.], [variance, 4.], [variance, 5.]])
-eval_parameter_matrix = np.matrix([[variance, 1.5],[variance, 4.]])
+parameter_matrix = np.matrix([[variance, .5], [variance, 1.], [variance, 1.5], [variance, 2.], [variance, 3.], [variance, 4.], [variance, 5.], [variance, 5.5]])
+eval_parameter_matrix = np.matrix([[variance, 2],[variance, 4.]])
 seed_values_list = [[(int(np.random.randint(0, 100000)), int(np.random.randint(0, 100000))) for j in range(0, len(random_missingness_percentages))] for i in range(0, data_draws)]
-score_model_path = "trained_score_models/vpsde/model4_variance_1.5_lengthscale_3_5_beta_min_max_01_20_random50_channel_mask.pth"
-loss_path = "trained_score_models/vpsde/model4_variance_1.5_lengthscale_3_5_beta_min_max_01_20_random50_parameterized_mask_loss.png"
+score_model_path = "trained_score_models/vpsde/model6_variance_1.5_lengthscale_.5_5.5_beta_min_max_01_20_random50_channel_mask.pth"
+loss_path = "trained_score_models/vpsde/model6_variance_1.5_lengthscale_.5_5.5_beta_min_max_01_20_random50_parameterized_mask_loss.png"
 torch.cuda.empty_cache()
 train_per_multiple_random_masks_revised_data_generation(vpconfig, data_draws, epochs_per_data_draws,
                              random_missingness_percentages,

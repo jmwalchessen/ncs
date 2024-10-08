@@ -161,6 +161,7 @@ def produce_true_and_generated_bivariate_density(mask, minX, maxX, minY, maxY, n
                                                           variance, lengthscale, observed_vector,
                                                           number_of_replicates)
     #conditional_vectors is shape (number of replicates, m)
+    print(number_of_replicates)
     bivariate_density = (conditional_vectors[:,missing_two_indices]).reshape((number_of_replicates,2))
     missing_true_index1 = missing_indices[missing_two_indices[0]]
     missing_true_index2 = missing_indices[missing_two_indices[1]]
@@ -173,6 +174,8 @@ def produce_true_and_generated_bivariate_density(mask, minX, maxX, minY, maxY, n
     bivariate_density = np.concatenate([bivariate_density, generated_bivariate_density], axis = 0)
     class_vector = np.concatenate([(np.repeat('true', number_of_replicates)).reshape((number_of_replicates,1)),
                                    (np.repeat('generated', number_of_replicates)).reshape((number_of_replicates,1))], axis = 0)
+    print(class_vector.shape)
+    print(bivariate_density.shape)
     bivariate_density = np.concatenate([bivariate_density, class_vector], axis = 1)
     fig, axs = plt.subplots(ncols = 2, figsize = (10,5))
     #emp_mean = round(np.mean(marg), 2)
@@ -209,7 +212,7 @@ def produce_true_and_generated_bivariate_density(mask, minX, maxX, minY, maxY, n
 def produce_multiple_true_and_generated_marginal_density(variance, lengthscale,
                                                          folder_name,
                                                          conditional_generated_samples,
-                                                         gap, start, end):
+                                                         gap, start, end, number_of_replicates):
     
     
     n = 32
@@ -217,7 +220,6 @@ def produce_multiple_true_and_generated_marginal_density(variance, lengthscale,
     maxX = 10
     minY = -10
     maxY = 10
-    number_of_replicates = 4000
     mask = np.load((folder_name + "/mask.npy"))
     ref_image = (np.load((folder_name + "/ref_image.npy")))
     observed_vector = ref_image.reshape((n**2))
@@ -241,7 +243,7 @@ def produce_multiple_true_and_generated_marginal_density(variance, lengthscale,
 def produce_multiple_true_and_generated_bivariate_density(variance, lengthscale,
                                                          folder_name,
                                                          conditional_generated_samples,
-                                                         indices1, indices2):
+                                                         indices1, indices2, number_of_replicates):
     
     
     n = 32
@@ -249,7 +251,7 @@ def produce_multiple_true_and_generated_bivariate_density(variance, lengthscale,
     maxX = 10
     minY = -10
     maxY = 10
-    number_of_replicates = 4000
+    number_of_replicates = 1000
     mask = np.load((folder_name + "/mask.npy"))
     ref_image = (np.load((folder_name + "/ref_image.npy")))
     observed_vector = ref_image.reshape((n**2))
@@ -274,7 +276,7 @@ def produce_multiple_true_and_generated_bivariate_density(variance, lengthscale,
                                 
                                             
 
-lengthscales = [3.,4.,5.]
+lengthscales = [1.,2.,3.,4.,5.]
 number_of_replicates = 1000
 variance = 1.5
 n = 32
@@ -285,19 +287,17 @@ indices1 = [306]
 indices2 = [304,305,307,308,326,327,328,329,330,331]
 for i, lengthscale in enumerate(lengthscales):
     print(i)
-    conditional_samples = np.load((data_generation_folder + "/data/model4/ref_image"
+    conditional_samples = np.load((data_generation_folder + "/data/model5/ref_image"
                                     + str(i+1) +
-                                    "/diffusion/model4_variance_1.5_lengthscale_" + str(lengthscale) + "_beta_min_max_01_20_random50_1000.npy"))
+                                    "/diffusion/model5_variance_1.5_lengthscale_" + str(lengthscale) + "_beta_min_max_01_20_random50_1000.npy"))
     conditional_samples = conditional_samples.reshape((number_of_replicates,n,n))                                                                         
-    folder_name = (data_generation_folder + "/data/model4/ref_image"
+    folder_name = (data_generation_folder + "/data/model5/ref_image"
                    + str(i+1))
-    """
     produce_multiple_true_and_generated_bivariate_density(variance, lengthscale,
                                                          folder_name,
                                                          conditional_samples,
-                                                         indices1, indices2)
-    """
+                                                         indices1, indices2, number_of_replicates)
     produce_multiple_true_and_generated_marginal_density(variance, lengthscale,
                                                          folder_name,
                                                          conditional_samples,
-                                                         gap, start, end)
+                                                         gap, start, end, number_of_replicates)
