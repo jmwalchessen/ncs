@@ -30,6 +30,11 @@ def load_classifier(device, classifier_name, classifier_file):
     classifier.load_state_dict(th.load((train_nn_folder + "/classifiers/" + classifier_name + "/" + classifier_file)))
     return classifier
 
+
+def load_classifier_parameters(classifier, classifier_name, classifier_file)   
+    classifier.load_state_dict(th.load((train_nn_folder + "/classifiers/" + classifier_name + "/" + classifier_file)))
+    return classifier
+
 def load_smaller_classifier(device, model_name):
 
     smallclassifier = (SmallCNNClassifier()).to(device)
@@ -45,13 +50,26 @@ def generate_true_images(number_of_replicates, seed_value):
     true_images = th.from_numpy(true_images)
     return true_images
 
-def create_evaluation_images(number_of_replicates, seed_value, model_name, evaluation_file_name, n, crop_size):
+def create_evaluation_diffusion_images(number_of_replicates, model_name, evaluation_file_name, n, crop_size):
 
-    true_images = generate_true_images(number_of_replicates, seed_value)
     diffusion_images = load_images(model_name, evaluation_file_name)
     diffusion_images.reshape((number_of_replicates,1,n,n))
-    images = th.cat([diffusion_images, true_images], dim = 0)
+    diffusion_images = crop_image(diffusion_images, n, crop_size)
+    return diffusion_images
+
+def create_evaluation_images(number_of_replicates, model_name, evaluation_file_name, n, crop_size):
+
+    minX = minY = -10
+    maxX = maxY = 10
+    n = 32
+    seed_value = int(np.random.randint(0, 100000))
+    true_images = (generate_true_images(number_of_replicates, seed_value)).reshape((number_of_replicates, 1, n, n))
+    diffusion_images = load_images(model_name, evaluation_file_name)
+    diffusion_images.reshape((number_of_replicates,1,n,n))
+    images = np.concatenate([diffusion_images, true_images], axis = 0)
+    images = th.from_numpy(images)
     images = crop_image(images, n, crop_size)
+
     return images
 
 def create_classes(number_of_replicates, device):

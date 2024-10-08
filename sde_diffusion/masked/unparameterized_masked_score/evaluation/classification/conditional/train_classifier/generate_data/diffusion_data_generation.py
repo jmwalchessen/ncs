@@ -92,7 +92,7 @@ def posterior_sample_with_p_mean_variance_via_mask(vpsde, score_model, device, m
 
 
 def fixed_mask_data_generation(p, n, nrep, number_of_calls, variance, lengthscale, model_name,
-                                     folder_name, diffusion_file_name, true_file_name, train = False):
+                                     folder_name, diffusion_file_name, train = False):
 
     n = 32
     if(os.path.exists(os.path.join(os.getcwd(), folder_name)) == False):
@@ -114,7 +114,7 @@ def fixed_mask_data_generation(p, n, nrep, number_of_calls, variance, lengthscal
     device = "cuda:0"
     repeated_mask = repeated_mask.float().to(device)
     diffusion_images = np.zeros((0,1,n,n))
-    true_images = np.zeros((0,1,n,n))
+    
     for i in range(0, number_of_calls):
         print(i)
         seed_value = int(np.random.randint(0, 100000))
@@ -124,14 +124,12 @@ def fixed_mask_data_generation(p, n, nrep, number_of_calls, variance, lengthscal
                                                                                   repeated_mask, ys, n)
         diffusion_images = np.concatenate([diffusion_images, current_diffusion_images.detach().cpu().numpy()],
                                            axis = 0)
-        true_images = np.concatenate([true_images, ys.detach().cpu().numpy()], axis = 0)
 
        
     np.save((folder_name + "/" + diffusion_file_name), diffusion_images)
-    np.save((folder_name + "/" + true_file_name), true_images)
 
 def one_image_per_mask_data_generation(p, n, nrep, number_of_calls, variance, lengthscale, model_name,
-                                     folder_name, diffusion_file_name, true_file_name, mask_file_name):
+                                     folder_name, diffusion_file_name, mask_file_name):
 
     n = 32
     if(os.path.exists(os.path.join(os.getcwd(), folder_name)) == False):
@@ -149,7 +147,6 @@ def one_image_per_mask_data_generation(p, n, nrep, number_of_calls, variance, le
     device = "cuda:0"
     masks = masks.float().to(device)
     diffusion_images = np.zeros((0,1,n,n))
-    true_images = np.zeros((0,1,n,n))
     masks = np.zeros((0,1,n,n))
 
     for i in range(0, number_of_calls):
@@ -163,12 +160,10 @@ def one_image_per_mask_data_generation(p, n, nrep, number_of_calls, variance, le
                                                                                   current_masks, ys, n)
         diffusion_images = np.concatenate([diffusion_images, current_diffusion_images.detach().cpu().numpy()],
                                            axis = 0)
-        true_images = np.concatenate([true_images, ys.detach().cpu().numpy()], axis = 0)
         masks = np.concatenate([masks, current_masks.detach().cpu().numpy()], axis = 0)
 
        
     np.save((folder_name + "/" + diffusion_file_name), diffusion_images)
-    np.save((folder_name + "/" + true_file_name), true_images)
     np.save((folder_name + "/" + mask_file_name), masks)
 
 
@@ -176,13 +171,12 @@ def one_image_per_mask_data_generation(p, n, nrep, number_of_calls, variance, le
 n = 32
 p = .5
 nrep = 500
-number_of_calls = 80
+number_of_calls = 4
 variance = .4
 lengthscale = 1.6
 model_name = "model2_different_mask_generation_beta_min_max_01_20_small_random50_channel_mask.pth"
 folder_name = "data/fixed_mask/model2/mask1"
-diffusion_file_name = "train_conditional_diffusion_random50_variance_.4_lengthscale_1.6_model2_40000.npy"
-true_file_name = "train_unconditional_true_variance_.4_lengthscale_1.6_40000.npy"
+diffusion_file_name = "evaluation_conditional_diffusion_random50_variance_.4_lengthscale_1.6_model2_2000.npy"
 train = False
 fixed_mask_data_generation(p, n, nrep, number_of_calls, variance, lengthscale, model_name,
-                           folder_name, diffusion_file_name, true_file_name, train)
+                           folder_name, diffusion_file_name, train)
