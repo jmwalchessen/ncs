@@ -192,7 +192,8 @@ def train_per_multiple_random_masks_revised_data_generation(config, data_draws, 
                              number_of_random_replicates,
                              number_of_evaluation_random_replicates,
                              number_of_masks_per_image, number_of_evaluation_masks_per_image,
-                             seed_values_list, parameter_matrix, eval_parameter_matrix, batch_size,
+                             number_of_parameters, boundary_start, boundary_end,
+                             number_of_eval_parameters, batch_size,
                              eval_batch_size, score_model_path, loss_path):
     
     # Initialize model.
@@ -232,10 +233,10 @@ def train_per_multiple_random_masks_revised_data_generation(config, data_draws, 
     for data_draw in range(0, data_draws):
         print(data_draw)
 
-        train_dataloader, eval_dataloader = get_training_and_evaluation_data_per_percentages(number_of_random_replicates, random_missingness_percentages,
-                                                     number_of_evaluation_random_replicates, number_of_masks_per_image,
-                                                     number_of_evaluation_masks_per_image, batch_size, eval_batch_size,
-                                                     parameter_matrix, eval_parameter_matrix)       
+        train_dataloader, eval_dataloader = get_training_and_evaluation_data_per_percentages_for_parameters(number_of_random_replicates, random_missingness_percentages,
+                                                                    number_of_evaluation_random_replicates, number_of_masks_per_image,
+                                                                    number_of_evaluation_masks_per_image, batch_size, eval_batch_size,
+                                                                    number_of_parameters, boundary_start, boundary_end, number_of_eval_parameters)     
         
         
         for epoch in range(0, epochs_per_drawn_data):
@@ -303,28 +304,31 @@ train_per_multiple_random_masks(vpconfig, data_draws, epochs_per_data_draws,
 
 data_draws = 5
 epochs_per_data_draws = 10
-number_of_random_replicates = 5000
-number_of_evaluation_random_replicates = 32
+number_of_random_replicates = 5
+number_of_evaluation_random_replicates = 1
 number_of_masks_per_image = 100
-number_of_evaluation_masks_per_image = 10
+number_of_evaluation_masks_per_image = 1
 #smaller p means less ones which means more observed values
 random_missingness_percentages = [.5]
-batch_size = 512
-eval_batch_size = 32
+batch_size = 1024
+eval_batch_size = 10
 #lhs_samples = scipy.stats.qmc.LatinHypercube(d = 2, seed = np.random.randint(0, 100000))
 #variance is first slot and lengthscale is second slot
 variance = 1.5
-parameter_matrix = np.matrix([[variance, 3.], [variance, 4.], [variance, 5.]])
-eval_parameter_matrix = np.matrix([[variance, 1.5],[variance, 4.]])
+boundary_start = .75
+boundary_end = 5.25
+number_of_parameters = 1000
+number_of_eval_parameters = 5
 seed_values_list = [[(int(np.random.randint(0, 100000)), int(np.random.randint(0, 100000))) for j in range(0, len(random_missingness_percentages))] for i in range(0, data_draws)]
-score_model_path = "trained_score_models/vpsde/model4_variance_1.5_lengthscale_3_5_beta_min_max_01_20_random50_channel_mask.pth"
-loss_path = "trained_score_models/vpsde/model4_variance_1.5_lengthscale_3_5_beta_min_max_01_20_random50_parameterized_mask_loss.png"
+score_model_path = "trained_score_models/vpsde/model5_variance_1.5_lengthscale_075_525_beta_min_max_01_20_random50_channel_mask.pth"
+loss_path = "trained_score_models/vpsde/model5_variance_1.5_lengthscale_075_525_beta_min_max_01_20_random50_parameterized_mask_loss.png"
 torch.cuda.empty_cache()
 train_per_multiple_random_masks_revised_data_generation(vpconfig, data_draws, epochs_per_data_draws,
                              random_missingness_percentages,
                              number_of_random_replicates,
                              number_of_evaluation_random_replicates,
                              number_of_masks_per_image, number_of_evaluation_masks_per_image,
-                             seed_values_list, parameter_matrix, eval_parameter_matrix, batch_size,
+                             number_of_parameters, boundary_start, boundary_end,
+                             number_of_eval_parameters, batch_size,
                              eval_batch_size, score_model_path, loss_path)
 

@@ -4,6 +4,7 @@ from numpy import linalg
 from block_mask_generation import *
 import torch
 from torch.utils.data import Dataset, DataLoader
+import scipy
 
 def construct_norm_matrix(minX, maxX, minY, maxY, n):
     # create one-dimensional arrays for x and y
@@ -196,6 +197,7 @@ def get_training_and_evaluation_data_per_percentages(number_of_random_replicates
     eval_parameters = np.zeros((0,2))
 
     for i, p in enumerate(random_missingness_percentages):
+        print(i)
         if(p == 0):
             seed_values = np.random.randint(low = 0, high = 1000000, size = parameter_matrix.shape[0])
             timages, tparams = generate_data_on_the_fly(minX, maxX, minY, maxY, n, parameter_matrix,
@@ -237,6 +239,27 @@ def get_training_and_evaluation_data_per_percentages(number_of_random_replicates
     train_dataloader = DataLoader(train_dataset, batch_size = batch_size, shuffle = True)
     eval_dataloader = DataLoader(eval_dataset, batch_size = eval_batch_size, shuffle = True)
     return train_dataloader, eval_dataloader
+
+def produce_parameters_via_uniform(number_of_parameters, boundary_start, boundary_end):
+
+    uniform_generator = scipy.stats.uniform()
+    parameters = ((boundary_end - boundary_start)*uniform_generator.random(n = number_of_parameters)) + boundary_start
+    return parameters
+
+
+def get_training_and_evaluation_data_per_percentages_for_parameters(number_of_random_replicates, random_missingness_percentages,
+                                                                    number_of_evaluation_random_replicates, number_of_masks_per_image,
+                                                                    number_of_evaluation_masks_per_image, batch_size, eval_batch_size,
+                                                                    number_of_parameters, boundary_start, boundary_end, number_of_eval_parameters):
+    
+    parameter_matrix = produce_parameters_via_uniform(number_of_parameters, boundary_start, boundary_end)
+    eval_parameter_matrix = produce_parameters_via_uniform(number_of_eval_parameters, boundary_start, boundary_end)
+    train_dataloader, eval_dataloader = get_training_and_evaluation_data_per_percentages(number_of_random_replicates, random_missingness_percentages,
+                                                                                         number_of_evaluation_random_replicates, number_of_masks_per_image,
+                                                                                         number_of_evaluation_masks_per_image, batch_size, eval_batch_size,
+                                                                                         parameter_matrix, eval_parameter_matrix)
+    return train_dataloader, eval_dataloader
+
 
 
 

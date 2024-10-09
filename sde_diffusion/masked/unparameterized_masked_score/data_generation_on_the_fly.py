@@ -4,6 +4,7 @@ from numpy import linalg
 from block_mask_generation import *
 import torch
 from torch.utils.data import Dataset, DataLoader
+import scipy
 
 def construct_norm_matrix(minX, maxX, minY, maxY, n):
     # create one-dimensional arrays for x and y
@@ -166,6 +167,7 @@ def get_training_and_evaluation_data_per_percentages(number_of_random_replicates
     train_images = np.zeros((0,1,n,n))
     eval_images = np.zeros((0,1,n,n))
     for i, p in enumerate(random_missingness_percentages):
+        print(i)
         seed_values = seed_values_list[i]
         if(p == 0):
             train_images = np.concatenate([train_images, generate_data_on_the_fly(minX, maxX, minY, maxY, n,
@@ -193,6 +195,7 @@ def get_training_and_evaluation_data_per_percentages(number_of_random_replicates
     eval_masks = generate_random_masks_on_the_fly(n, eval_images.shape[0], random_missingness_percentages)
     train_images = train_images[:,:,2:34,2:34]
     eval_images = eval_images[:,:,2:34,2:34]
+    print(eval_images.shape)
     train_dataset = CustomSpatialImageMaskDataset(train_images, train_masks)
     eval_dataset = CustomSpatialImageMaskDataset(eval_images, eval_masks)
     train_dataloader = DataLoader(train_dataset, batch_size = batch_size, shuffle = True)
@@ -200,6 +203,23 @@ def get_training_and_evaluation_data_per_percentages(number_of_random_replicates
     return train_dataloader, eval_dataloader
 
 
+def produce_percentages_via_uniform(number_of_percentages, boundary_start, boundary_end):
+
+    uniform_generator = scipy.stats.uniform()
+    percentages = ((boundary_end - boundary_start)*uniform_generator.rvs(number_of_percentages)) + boundary_start
+    return percentages
+
+def get_training_and_evaluation_data_for_percentages(number_of_percentages, boundary_start, boundary_end, number_of_random_replicates, 
+                                                     number_of_evaluation_random_replicates, number_of_masks_per_image,
+                                                     number_of_evaluation_masks_per_image, batch_size, eval_batch_size, variance, lengthscale,
+                                                     seed_values_list):
+    
+    random_missingness_percentages = produce_percentages_via_uniform(number_of_percentages, boundary_start, boundary_end)
+    train_dataloader, eval_dataloader = get_training_and_evaluation_data_per_percentages(number_of_random_replicates, random_missingness_percentages,
+                                                     number_of_evaluation_random_replicates, number_of_masks_per_image,
+                                                     number_of_evaluation_masks_per_image, batch_size, eval_batch_size,
+                                                     variance, lengthscale, seed_values_list)
+    return train_dataloader, eval_dataloader
 
 
 

@@ -100,7 +100,7 @@ def train_per_mask(config, data_draws, epochs_per_drawn_data, number_of_replicat
     torch.save(score_model.state_dict(), score_model_path)
 
 def train_per_multiple_random_masks(config, data_draws, epochs_per_drawn_data,
-                             random_missingness_percentages,
+                             number_of_percentages, boundary_start, boundary_end,
                              number_of_random_replicates,
                              number_of_evaluation_random_replicates,
                              number_of_masks_per_image, number_of_evaluation_masks_per_image,
@@ -144,13 +144,12 @@ def train_per_multiple_random_masks(config, data_draws, epochs_per_drawn_data,
     for data_draw in range(0, data_draws):
         print(data_draw)
 
-        train_dataloader, eval_dataloader = get_training_and_evaluation_random_mask_and_image_datasets(number_of_random_replicates, 
-                                                                                                       random_missingness_percentages, 
-                                                                                                       number_of_evaluation_random_replicates,
-                                                                                                       number_of_masks_per_image,
-                                                                                                       number_of_evaluation_masks_per_image,
-                                                                                                       batch_size, eval_batch_size, variance,
-                                                                                                       lengthscale, seed_values[data_draw])        
+        train_dataloader, eval_dataloader = get_training_and_evaluation_data_for_percentages(number_of_percentages, boundary_start, boundary_end,
+                                                                                             number_of_random_replicates, 
+                                                                                             number_of_evaluation_random_replicates,
+                                                                                             number_of_masks_per_image, 
+                                                                                             number_of_evaluation_masks_per_image, batch_size,
+                                                                                             eval_batch_size, variance, lengthscale, seed_values_list)       
         
         
         for epoch in range(0, epochs_per_drawn_data):
@@ -187,7 +186,7 @@ def train_per_multiple_random_masks(config, data_draws, epochs_per_drawn_data,
 
 
 def train_per_multiple_random_masks_revised_data_generation(config, data_draws, epochs_per_drawn_data,
-                             random_missingness_percentages,
+                             number_of_percentages, boundary_start, boundary_end,
                              number_of_random_replicates,
                              number_of_evaluation_random_replicates,
                              number_of_masks_per_image, number_of_evaluation_masks_per_image,
@@ -231,10 +230,10 @@ def train_per_multiple_random_masks_revised_data_generation(config, data_draws, 
     for data_draw in range(0, data_draws):
         print(data_draw)
 
-        train_dataloader, eval_dataloader = get_training_and_evaluation_data_per_percentages(number_of_random_replicates, random_missingness_percentages,
-                                                     number_of_evaluation_random_replicates, number_of_masks_per_image,
-                                                     number_of_evaluation_masks_per_image, batch_size, eval_batch_size,
-                                                     variance, lengthscale, seed_values_list[data_draw])       
+        train_dataloader, eval_dataloader = get_training_and_evaluation_data_for_percentages(number_of_percentages, boundary_start, boundary_end,
+                                                                                             number_of_random_replicates, number_of_evaluation_random_replicates, number_of_masks_per_image,
+                                                                                             number_of_evaluation_masks_per_image, batch_size, eval_batch_size,
+                                                                                             variance, lengthscale, seed_values_list[data_draw])     
         
         
         for epoch in range(0, epochs_per_drawn_data):
@@ -257,10 +256,10 @@ def train_per_multiple_random_masks_revised_data_generation(config, data_draws, 
                 try:
                     batch = get_next_batch(eval_iterator, config)
                     eval_loss = eval_step_fn(state, batch)
-                    print(eval_loss)
                     eval_losses_per_epoch.append(float(eval_loss))
                 except StopIteration:
                     eval_losses.append((sum(eval_losses_per_epoch)/len(eval_losses_per_epoch)))
+                    print(eval_losses)
                     break
 
 
@@ -302,22 +301,24 @@ train_per_multiple_random_masks(vpconfig, data_draws, epochs_per_data_draws,
 
 data_draws = 5
 epochs_per_data_draws = 10
-number_of_random_replicates = 5000
-number_of_evaluation_random_replicates = 32
+number_of_random_replicates = 5
+number_of_evaluation_random_replicates = 1
 number_of_masks_per_image = 100
-number_of_evaluation_masks_per_image = 10
+number_of_evaluation_masks_per_image = 1
 #smaller p means less ones which means more observed values
-random_missingness_percentages = [.025,.05,.1]
+number_of_percentages = 1000
+boundary_start = .01
+boundary_end = .525
 batch_size = 1024
 eval_batch_size = 32
-variance = .4
-lengthscale = 1.6
-seed_values_list = [[(int(np.random.randint(0, 100000)), int(np.random.randint(0, 100000))) for j in range(0, len(random_missingness_percentages))] for i in range(0, data_draws)]
-score_model_path = "trained_score_models/vpsde/model7_beta_min_max_01_20_random02550_channel_mask.pth"
-loss_path = "trained_score_models/vpsde/model7_beta_min_max_01_20_random02550_channel_mask_loss.png"
+variance = 1.5
+lengthscale = 3
+seed_values_list = [[(int(np.random.randint(0, 100000)), int(np.random.randint(0, 100000))) for j in range(0, number_of_percentages)] for i in range(0, data_draws)]
+score_model_path = "trained_score_models/vpsde/model7_beta_min_max_01_20_random01525_variance_1.5_lengthscale_3_channel_mask.pth"
+loss_path = "trained_score_models/vpsde/model7_beta_min_max_01_20_random01525_variance_1.5_lengthscale_3_channel_mask_loss.png"
 torch.cuda.empty_cache()
 train_per_multiple_random_masks_revised_data_generation(vpconfig, data_draws, epochs_per_data_draws,
-                             random_missingness_percentages,
+                             number_of_percentages, boundary_start, boundary_end,
                              number_of_random_replicates,
                              number_of_evaluation_random_replicates,
                              number_of_masks_per_image, number_of_evaluation_masks_per_image,
