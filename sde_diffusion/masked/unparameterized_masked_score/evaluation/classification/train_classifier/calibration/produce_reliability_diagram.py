@@ -8,6 +8,8 @@ train_classifier_folder = append_directory(2)
 train_nn_folder = (train_classifier_folder + "/train_nn")
 data_generation_folder = (train_classifier_folder + "/generate_data")
 sys.path.append(data_generation_folder)
+sys.path.append(train_nn_folder)
+from nn_architecture import *
 
 def compute_calibration(true_labels, pred_labels, predicted_probabilities, num_bins):
     """Collects predictions into bins used to draw a reliability diagram (predicted on x axis and empirical on y axis).
@@ -166,26 +168,26 @@ def compute_prediction_classes(probabilities):
 
 
 def visualize_precalibrated_and_calibrated_reliability_diagrams(number_of_replicates, model_name, calibration_eval_file,
-                                                n, crop_size, classifier_file, classifier_name, precalibrated_figname,
+                                                n, crop_size, classifier, classifier_file, classifier_name, precalibrated_figname,
                                                 calibrated_model_name, calibrated_model_file, calibrated_figname):
 
     seed_value = int(np.random.randint(0,100000))
     eval_classifier_probabilities = classify_precalibrated_data(number_of_replicates, seed_value, model_name,
-                                                            calibration_eval_file, n, crop_size,
+                                                            calibration_eval_file, n, crop_size, classifier,
                                                             classifier_name, classifier_file)
     eval_calibrated_classifier_probabilities = classify_calibrated_data(number_of_replicates, seed_value, model_name,
-                                                            calibration_eval_file, n, crop_size,
+                                                            calibration_eval_file, n, crop_size, classifier,
                                                             classifier_name, classifier_file,
                                                             calibrated_model_name, calibrated_model_file)
     eval_class_labels = create_classes(number_of_replicates)
     predicted_class_labels = compute_prediction_classes(eval_classifier_probabilities)
     #plot the diagram before calibration
     reliability_diagram(eval_class_labels, predicted_class_labels, eval_classifier_probabilities,
-                        num_bins=50, figsize=(10, 10), dpi=72, return_fig=False, fig_name = precalibrated_figname,
+                        num_bins=50, figsize=(10, 10), dpi=72, return_fig=False, fig_name = ("calibrated_models/" + calibrated_model_name + "/" + precalibrated_figname),
                         title = "Before Calibration")
     reliability_diagram(eval_class_labels, predicted_class_labels, eval_calibrated_classifier_probabilities,
-                        num_bins=50, figsize=(10, 10), dpi=72, return_fig=False, fig_name = calibrated_figname,
-                        title = "Before Calibration")
+                        num_bins=50, figsize=(10, 10), dpi=72, return_fig=False, fig_name = ("calibrated_models/" + calibrated_model_name + "/" + calibrated_figname),
+                        title = "After Calibration")
     
 number_of_replicates = 1000
 model_name = "model6"
@@ -193,13 +195,14 @@ calibration_eval_file = "calibration_evaluation_unconditional_images_variance_.4
 n = 32
 crop_size = 2
 epochs = 60
-classifier_file = "model6_lengthscale_1.6_variance_0.4_epochs_" + str(epochs) + "_parameters.pth"
-classifier_name = "classifier6"
-precalibrated_figname = "precalibrated_reliability_diagram_classifier6_model6.png"
-calibrated_figname = "calibrated_reliability_diagram_calibrated_model2_classifier6_model6.png"
-calibrated_model_name = "calibrated_model2"
-calibrated_model_file = "logistic_regression_model6_classifier6.pkl"
+classifier = (Small1CNNClassifier()).to("cuda:0")
+classifier_file = "small1_maxpool_classifier_model6_lengthscale_1.6_variance_0.4_epochs_500_parameters.pth"
+classifier_name = "classifier11"
+precalibrated_figname = "precalibrated_reliability_diagram_classifier11_model6.png"
+calibrated_figname = "calibrated_reliability_diagram_classifier11_model6.png"
+calibrated_model_name = "classifiers/classifier11"
+calibrated_model_file = "logistic_regression_model6_classifier11.pkl"
 
 visualize_precalibrated_and_calibrated_reliability_diagrams(number_of_replicates, model_name, calibration_eval_file,
-                                                            n, crop_size, classifier_file, classifier_name, precalibrated_figname,
+                                                            n, crop_size, classifier, classifier_file, classifier_name, precalibrated_figname,
                                                             calibrated_model_name, calibrated_model_file, calibrated_figname)

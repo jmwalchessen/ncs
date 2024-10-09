@@ -135,7 +135,7 @@ beta2 = 0.999
 initial_learning_rate = 2e-5
 device = "cuda:0"
 
-classifier = (SmallerCNNClassifier()).to(device)
+classifier = (Small1CNNClassifier()).to(device)
 
 images_pathname = (classifier_folder + 
                             "/generate_data/data/model6/unconditional/unconditional_images_variance_.4_lengthscale_1.6_100000.npy")
@@ -144,7 +144,7 @@ split = 38000
 batch_size = 128
 eval_batch_size = 200
 eval_train_batch_size = 200
-crop_size = 2
+crop_size = 4
 train_starts = [i*1900 for i in range(0,20)]
 train_ends = [i*1900 for i in range(1,21)]
 
@@ -156,6 +156,6 @@ classifier, eval_losses, eval_train_losses = train_nn(num_epochs = num_epochs, c
                                                       batch_size = batch_size, eval_batch_size = eval_batch_size, crop_size = crop_size,
                                                       shuffle = False)
 
-lossfig_name = "classifiers/classifier13/smallercnnclassifier_maxpool_classifier13_model6_lengthscale_1.6_variance_0.4_epochs_" + str(num_epochs) + "_losses.png"
+lossfig_name = "classifiers/classifier14/small1cnnclassifier_maxpool_classifier14_model6_lengthscale_1.6_variance_0.4_epochs_" + str(num_epochs) + "_losses.png"
 visualize_loss(num_epochs, eval_losses, eval_train_losses, lossfig_name)
-torch.save(classifier.state_dict(), ("classifiers/classifier13/smallercnnclassifier_maxpool_classifier_model6_lengthscale_1.6_variance_0.4_epochs_" + str(num_epochs) + "_parameters.pth"))
+torch.save(classifier.state_dict(), ("classifiers/classifier14/small1cnnclassifier_maxpool_classifier_crop_4_model6_lengthscale_1.6_variance_0.4_epochs_" + str(num_epochs) + "_parameters.pth"))

@@ -16,11 +16,11 @@ from nn_architecture import *
 from calibration_helper_functions import * 
 
 
-def produce_logistic_regression_model(model_name, calibration_train_file, n, crop_size, classifier_name, classifier_file,
+def produce_logistic_regression_model(model_name, calibration_train_file, n, crop_size, classifier, classifier_name, classifier_file,
                                       number_of_replicates, logistic_regression_filename):
 
     device = "cuda:0"
-    classifier = load_classifier(device, classifier_name, classifier_file)
+    classifier = load_classifier_parameters(classifier, classifier_name, classifier_file)
     seed_value = int(np.random.randint(0, 100000))
     train_images = process_images(number_of_replicates, seed_value, model_name, calibration_train_file, n, crop_size)
     classifier_outputs = (classifier(train_images.float().to(device)))
@@ -39,11 +39,13 @@ def produce_logistic_regression_model(model_name, calibration_train_file, n, cro
 n = 32
 crop_size = 2
 number_of_replicates = 5000
-classifier_name = "classifier6"
+classifier_name = "classifier13"
 calibration_train_file = "calibration_unconditional_images_variance_.4_lengthscale_1.6_5000.npy"
 model_name = "model6"
 epochs = 60
-classifier_file = "model6_lengthscale_1.6_variance_0.4_epochs_" + str(epochs) + "_parameters.pth"
-logistic_regression_filename = ("calibrated_models/calibrated_model2/logistic_regression_model6_classifier6.pkl")
-produce_logistic_regression_model(model_name, calibration_train_file, n, crop_size, classifier_name, classifier_file,
+device = "cuda:0"
+classifier_file = "smallercnnclassifier_maxpool_classifier_model6_lengthscale_1.6_variance_0.4_epochs_500_parameters.pth"
+logistic_regression_filename = ("calibrated_models/classifiers/classifier13/logistic_regression_model6_classifier13.pkl")
+classifier = (SmallerCNNClassifier().to(device))
+produce_logistic_regression_model(model_name, calibration_train_file, n, crop_size, classifier, classifier_name, classifier_file,
                                       number_of_replicates, logistic_regression_filename)

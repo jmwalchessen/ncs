@@ -20,9 +20,8 @@ def load_images(model_name, file_name):
     images = th.from_numpy(np.load((data_generation_folder + "/data/" + model_name + "/unconditional/" + file_name)))
     return images
 
-def load_classifier(device, classifier_name, classifier_file):
+def load_classifier_parameters(classifier, classifier_name, classifier_file):
 
-    classifier = (CNNClassifier()).to(device)
     classifier.load_state_dict(th.load((train_nn_folder + "/classifiers/" + classifier_name + "/" + classifier_file)))
     return classifier
 
@@ -64,18 +63,18 @@ def logit_transformation_with_sigmoid(classifier_outputs):
     return classifier_logit 
 
 def classify_precalibrated_data(number_of_replicates, seed_value, model_name, file_name, n, crop_size,
-                              classifier_name, classifier_file):
+                              classifier, classifier_name, classifier_file):
 
-    device = "cuda:0"
     images = process_images(number_of_replicates, seed_value, model_name, file_name, n, crop_size)
-    classifier = load_classifier(device, classifier_name, classifier_file)
+    print(classifier)
+    classifier = load_classifier_parameters(classifier, classifier_name, classifier_file)
     classifier_outputs = classifier(images.float().to("cuda:0"))
-    sigmoid = torch.nn.Sigmoid()
+    sigmoid = th.nn.Sigmoid()
     classifier_probabilities = sigmoid(classifier_outputs)
     classifier_probabilities = classifier_probabilities.detach().cpu().numpy()
     return classifier_probabilities
 
-def classify_calibrated_data(number_of_replicates, seed_value, model_name, file_name, n, crop_size,
+def classify_calibrated_data(number_of_replicates, seed_value, model_name, file_name, n, crop_size, classifier,
                               classifier_name, classifier_file, calibrated_model_name, calibrated_model_file):
 
     calibrated_model_file = ("calibrated_models/" + str(calibrated_model_name) + "/" + calibrated_model_file)
@@ -84,7 +83,7 @@ def classify_calibrated_data(number_of_replicates, seed_value, model_name, file_
     
     device = "cuda:0"
     images = process_images(number_of_replicates, seed_value, model_name, file_name, n, crop_size)
-    classifier = load_classifier(device, classifier_name, classifier_file)
+    classifier = load_classifier_parameters(classifier, classifier_name, classifier_file)
     classifier_outputs = classifier(images.float().to("cuda:0"))
     classifier_logits = logit_transformation_with_sigmoid(classifier_outputs)
     calibrated_probabilities = (logregmodel.predict_proba(classifier_logits))[:,1]
