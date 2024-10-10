@@ -237,6 +237,8 @@ def train_per_multiple_random_masks_revised_data_generation(config, data_draws, 
         
         
         for epoch in range(0, epochs_per_drawn_data):
+            print("epoch")
+            print(epoch)
             #want to iterate over the same masks and images for each epoch (taking epectation with respect to p(X,M)=p(X)p(M))
             train_losses_per_epoch = []
             eval_losses_per_epoch = []
@@ -299,9 +301,9 @@ train_per_multiple_random_masks(vpconfig, data_draws, epochs_per_data_draws,
                              seed_values, variance, lengthscale, batch_size,
                              eval_batch_size, score_model_path, loss_path)"""
 
-data_draws = 5
+data_draws = 10
 epochs_per_data_draws = 10
-number_of_random_replicates = 5
+number_of_random_replicates = 1
 number_of_evaluation_random_replicates = 1
 number_of_masks_per_image = 100
 number_of_evaluation_masks_per_image = 1
@@ -309,7 +311,7 @@ number_of_evaluation_masks_per_image = 1
 number_of_percentages = 1000
 boundary_start = .01
 boundary_end = .525
-batch_size = 1024
+batch_size = 512
 eval_batch_size = 32
 variance = 1.5
 lengthscale = 3
