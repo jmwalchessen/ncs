@@ -122,16 +122,3 @@ def fixed_mask_data_generation(p, nrep, number_of_calls, variance, lengthscale, 
     np.save((folder_name + "/mask.npy"), mask.numpy())
 
 
-folder_name = "data/model6"
-calls = 4
-replicates_per_call = 250
-variance = .4
-lengthscale = 1.6
-n = 32
-validation_data_name = "evaluation_data_model6_variance_.4_lengthscale_1.6_4000.npy"
-model_name = "model6_beta_min_max_01_20_random02510_channel_mask.pth"
-mode = "eval"
-score_model = load_score_model(model_name, mode)
-sdevp = load_sde(.1,20,1000)
-generate_validation_data(folder_name, n, variance, lengthscale, replicates_per_call, calls,
-                         validation_data_name, sdevp, score_model)
