@@ -262,7 +262,7 @@ def train_per_multiple_random_masks_revised_data_generation(config, data_draws, 
                     eval_losses_per_epoch.append(float(eval_loss))
                 except StopIteration:
                     eval_losses.append((sum(eval_losses_per_epoch)/len(eval_losses_per_epoch)))
-                    print(eval_losses)
+                    print(eval_losses[-1])
                     break
 
 

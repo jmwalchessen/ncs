@@ -287,11 +287,11 @@ indices1 = [306]
 indices2 = [304,305,307,308,326,327,328,329,330,331]
 for i, lengthscale in enumerate(lengthscales):
     print(i)
-    conditional_samples = np.load((data_generation_folder + "/data/model5/ref_image"
+    conditional_samples = np.load((data_generation_folder + "/data/model6/ref_image"
                                     + str(i+1) +
-                                    "/diffusion/model5_variance_1.5_lengthscale_" + str(lengthscale) + "_beta_min_max_01_20_random50_1000.npy"))
+                                    "/diffusion/model6_variance_1.5_lengthscale_" + str(lengthscale) + "_beta_min_max_01_20_random50_1000.npy"))
     conditional_samples = conditional_samples.reshape((number_of_replicates,n,n))                                                                         
-    folder_name = (data_generation_folder + "/data/model5/ref_image"
+    folder_name = (data_generation_folder + "/data/model6/ref_image"
                    + str(i+1))
     produce_multiple_true_and_generated_bivariate_density(variance, lengthscale,
                                                          folder_name,

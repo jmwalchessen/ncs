@@ -27,7 +27,7 @@ config.model.num_scales = 1000
 config.model.beta_max = 20
 
 score_model = th.nn.DataParallel((ncsnpp.NCSNpp(config)).to("cuda:0"))
-score_model.load_state_dict(th.load((sde_folder + "/trained_score_models/vpsde/model4_variance_1.5_lengthscale_3_5_beta_min_max_01_20_random50_channel_mask.pth")))
+score_model.load_state_dict(th.load((sde_folder + "/trained_score_models/vpsde/model6_variance_1.5_lengthscale_.75_5.25_beta_min_max_01_20_random50_channel_mask.pth")))
 score_model.eval()
 
 sdevp = sde_lib.VPSDE(beta_min=0.1, beta_max=20, N=1000)
@@ -40,8 +40,6 @@ maxX = 10
 minY = -10
 maxY = 10
 n = 32
-variance = .8
-lengthscale = 1.6
 
 #y is observed part of field, modified to incorporate the mask as channel
 def p_mean_and_variance_from_score_via_mask(vpsde, score_model, device, masked_xt, mask, y, t, variance, lengthscale):
@@ -171,7 +169,7 @@ p = .5
 lengthscales = [1.,2.,3.,4.,5.]
 for i, lengthscale in enumerate(lengthscales):
 
-    folder_name = "data/model5/ref_image" + str(i+1)
-    validation_data_name = "model5_variance_1.5_lengthscale_" + str(lengthscale) + "_beta_min_max_01_20_random50_1000.npy"
+    folder_name = "data/model6/ref_image" + str(i+1)
+    validation_data_name = "model6_variance_1.5_lengthscale_" + str(lengthscale) + "_beta_min_max_01_20_random50_1000.npy"
     generate_validation_data(folder_name, n, variance, lengthscale, replicates_per_call, calls,
                          p, validation_data_name)
