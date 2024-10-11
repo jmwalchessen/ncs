@@ -243,17 +243,24 @@ def get_training_and_evaluation_data_per_percentages(number_of_random_replicates
 def produce_parameters_via_uniform(number_of_parameters, boundary_start, boundary_end):
 
     uniform_generator = scipy.stats.uniform()
-    parameters = ((boundary_end - boundary_start)*uniform_generator.random(n = number_of_parameters)) + boundary_start
+    parameters = ((boundary_end - boundary_start)*uniform_generator.rvs(number_of_parameters)) + boundary_start
     return parameters
 
 
 def get_training_and_evaluation_data_per_percentages_for_parameters(number_of_random_replicates, random_missingness_percentages,
                                                                     number_of_evaluation_random_replicates, number_of_masks_per_image,
                                                                     number_of_evaluation_masks_per_image, batch_size, eval_batch_size,
-                                                                    number_of_parameters, boundary_start, boundary_end, number_of_eval_parameters):
+                                                                    variance, number_of_parameters, boundary_start, boundary_end,
+                                                                    number_of_eval_parameters):
     
-    parameter_matrix = produce_parameters_via_uniform(number_of_parameters, boundary_start, boundary_end)
-    eval_parameter_matrix = produce_parameters_via_uniform(number_of_eval_parameters, boundary_start, boundary_end)
+    lengthscales = produce_parameters_via_uniform(number_of_parameters, boundary_start, boundary_end)
+    parameter_matrix = np.zeros((number_of_parameters,2))
+    parameter_matrix[:,0] = variance*np.ones((number_of_parameters))
+    parameter_matrix[:,1] = (lengthscales).reshape((number_of_parameters))
+    eval_lengthscales = produce_parameters_via_uniform(number_of_eval_parameters, boundary_start, boundary_end)
+    eval_parameter_matrix = np.zeros((number_of_eval_parameters,2))
+    eval_parameter_matrix[:,0] = variance*np.ones((number_of_eval_parameters))
+    eval_parameter_matrix[:,1] = eval_lengthscales.reshape((number_of_eval_parameters))
     train_dataloader, eval_dataloader = get_training_and_evaluation_data_per_percentages(number_of_random_replicates, random_missingness_percentages,
                                                                                          number_of_evaluation_random_replicates, number_of_masks_per_image,
                                                                                          number_of_evaluation_masks_per_image, batch_size, eval_batch_size,
