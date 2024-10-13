@@ -3,9 +3,11 @@ import numpy as np
 from append_directories import *
 import matplotlib.pyplot as plt
 import time
+import scipy
+from true_unconditional_data_generation import *
 
 home_folder = append_directory(6)
-sde_folder = home_folder + "/unparameterized_masked_score"
+sde_folder = home_folder + "/parameter_mask_score"
 #sde configs folder
 sde_configs_vp_folder = sde_folder + "/configs/vp"
 sys.path.append(sde_configs_vp_folder)
@@ -22,21 +24,16 @@ config.model.num_scales = 1000
 config.model.beta_max = 20
 
 score_model = th.nn.DataParallel((ncsnpp.NCSNpp(config)).to("cuda:0"))
-score_model.load_state_dict(th.load((sde_folder + "/trained_score_models/vpsde/model6_beta_min_max_01_20_random02510_channel_mask.pth")))
+score_model.load_state_dict(th.load((sde_folder + "/trained_score_models/vpsde/model6_variance_1.5_lengthscale_.75_5.25_beta_min_max_01_20_random50_channel_mask.pth")))
 score_model.eval()
 
-sdevp = sde_lib.VPSDE(beta_min=0.1, beta_max=20, N=1000)
+vpsde = sde_lib.VPSDE(beta_min=0.1, beta_max=20, N=1000)
 
-#mask is a True/False (1,32,32) vector with .5 randomly missing pixels
-#function gen_mask is in image_utils.py, 50 at end of random50 denotes
-#50 percent missing
-minX = -10
-maxX = 10
-minY = -10
-maxY = 10
-n = 32
-variance = .4
-lengthscale = 1.6
+
+
+def produce_masks(p, n, nrep):
+
+    return th.bernoulli(p*th.ones((nrep,1,n,n)))
 
 #y is observed part of field, modified to incorporate the mask as channel
 def p_mean_and_variance_from_score_via_mask(vpsde, score_model, device, masked_xt, masks, ys, t, variance, lengthscale):
@@ -75,8 +72,9 @@ def sample_with_p_mean_variance_via_mask(vpsde, score_model, device, masked_xt, 
 def posterior_sample_with_p_mean_variance_via_mask(vpsde, score_model, device, masks,
                                                    ys, n, variance, lengthscale):
 
+    num_samples = masks.shape[0]
     unmasked_xT = th.randn((num_samples, 1, n, n)).to(device)
-    masked_xT = th.mul((1-mask), unmasked_xT) + th.mul(mask, ys)
+    masked_xT = th.mul((1-masks), unmasked_xT) + th.mul(masks, ys)
     masked_xt = masked_xT
     for t in range((vpsde.N-1), 0, -1):
         masked_xt = sample_with_p_mean_variance_via_mask(vpsde, score_model, device, masked_xt,
@@ -84,14 +82,21 @@ def posterior_sample_with_p_mean_variance_via_mask(vpsde, score_model, device, m
 
     return masked_xt
 
-def sample_conditionally_multiple_calls(vpsde, score_model, device, masks, ys, n,
+def sample_conditionally_multiple_calls(vpsde, score_model, device, n, p,
                                           num_samples_per_call, calls, variance, lengthscale):
     
     diffusion_samples = th.zeros((0, 1, n, n))
     for call in range(0, calls):
+
+        masks = (produce_masks(p, n, num_samples_per_call)).float().to(device)
+        seed_value = int(np.random.randint(0, 1000000))
+        minX = minY = -10
+        maxX = maxY = 10
+        yvec, ys, = generate_gaussian_process(minX, maxX, minY, maxY, n, variance, lengthscale, num_samples_per_call,
+                                              seed_value)
+        ys = (th.from_numpy(ys)).float().to(device)
         current_diffusion_samples = posterior_sample_with_p_mean_variance_via_mask(vpsde, score_model,
                                                                                    device, masks, ys, n,
-                                                                                   num_samples_per_call,
                                                                                    variance, lengthscale)
         diffusion_samples = th.cat([current_diffusion_samples.detach().cpu(),
                                     diffusion_samples],
@@ -104,36 +109,33 @@ def produce_parameters_via_uniform(number_of_parameters, boundary_start, boundar
     parameters = ((boundary_end - boundary_start)*uniform_generator.rvs(number_of_parameters)) + boundary_start
     return parameters
 
-def sample_conditionally_multipe_parameters(vpsde, score_model, device, masks, ys, n, num_samples_per_call, calls,
-                                            number_of_parameters, boundary_start, bounday_end, variance, diffusion_file):
+def sample_conditionally_multipe_parameters(vpsde, score_model, device, n, p, num_samples_per_call, calls,
+                                            number_of_parameters, boundary_start, boundary_end, variance, diffusion_file):
 
     lengthscales = produce_parameters_via_uniform(number_of_parameters, boundary_start, boundary_end)
     parameter_matrix = np.zeros((number_of_parameters,2))
-    parameter_matrix[:,0] = variance*np.ones((number_of_parameters,1))
-    parameter_matrix[:,1] = lengthscales.reshape((number_of_parameters,1))
+    parameter_matrix[:,0] = variance*np.ones((number_of_parameters))
+    parameter_matrix[:,1] = lengthscales.reshape((number_of_parameters))
     for i in range(parameter_matrix.shape[0]):
 
         variance = parameter_matrix[i,0]
         lengthscale = parameter_matrix[i,1]
-        diffusion_images = sample_conditionally_multiple_calls(vpsde, score_model, device, masks, ys, n,
+        diffusion_images = sample_conditionally_multiple_calls(vpsde, score_model, device, n, p,
                                                                num_samples_per_call, calls, variance, lengthscale)
-        np.save((diffusion_file + "_variance_" + str(round(variance,1) + "_lengthscale_"
-                 + str(round(lengthscale,1)) + ".npy")), diffusion_images.numpy())
-    pass
+        np.save((diffusion_file + "_variance_" + str(round(variance,2)) + "_lengthscale_"
+                 + str(round(lengthscale,2)) + ".npy"), diffusion_images.numpy())
 
 
-"unconditional case so ref_image doesn't matter"
-for i in range(0, 1):
-    num_samples_per_call = 500
-    calls = 10
-    device = "cuda:0"
-    ref_image = np.load((sde_folder + "/evaluation/diffusion_generation/data/model6/ref_image3/ref_image.npy"))
-    p = 0
-    mask = (th.bernoulli(p*th.ones((1,1,n,n)))).to(device)
-    ref_image = th.from_numpy(ref_image).to(device)
-    #missing_indices = np.squeeze(np.argwhere((1-mask).reshape((n**2,))))
-    #m = missing_indices.shape[0]
-    y = (((th.mul(mask, ref_image)).to(device))).float()
-    diffusion_samples = sample_conditionally_multiple_calls(sdevp, score_model, device, masks,
-                                                            ys, n, num_samples_per_call, calls)
-    np.save((sde_folder + "/evaluation/classification/train_classifier/generate_data/data/model6/unconditional/calibration_evaluation_unconditional_images_variance_.4_lengthscale_1.6_5000.npy"), diffusion_samples)
+
+device = "cuda:0"
+n = 32
+num_samples_per_call = 1000
+calls = 5
+number_of_parameters = 100
+boundary_start = 1
+boundary_end = 5
+variance = 1.5
+diffusion_file = "data/model6/train_conditional_nrep_5000_nparam_100_"
+p = .5
+sample_conditionally_multipe_parameters(vpsde, score_model, device, n, p, num_samples_per_call, calls,
+                                            number_of_parameters, boundary_start, boundary_end, variance, diffusion_file)

@@ -6,7 +6,7 @@ from generate_true_conditional_samples import *
 import matplotlib.pyplot as plt
 import sys
 home_folder = append_directory(6)
-sde_folder = home_folder + "/sde_diffusion/masked/parameter_mask_score"
+sde_folder = home_folder + "/sde_diffusion/masked/unparameterized_masked_score"
 sys.path.append(sde_folder)
 sde_configs_vp_folder = sde_folder + "/configs/vp"
 sys.path.append(sde_configs_vp_folder)
@@ -20,7 +20,7 @@ config.model.num_scales = 1000
 config.model.beta_max = 20
 
 score_model = th.nn.DataParallel((ncsnpp.NCSNpp(config)).to("cuda:0"))
-score_model.load_state_dict(th.load((sde_folder + "/trained_score_models/vpsde/model6_variance_1.5_lengthscale_.75_5.25_beta_min_max_01_20_random50_channel_mask.pth")))
+score_model.load_state_dict(th.load((sde_folder + "/trained_score_models/vpsde/model7_beta_min_max_01_20_random01525_variance_1.5_lengthscale_3_channel_mask.pth")))
 score_model.eval()
 
 
@@ -142,16 +142,19 @@ def generate_validation_data(folder_name, n, variance, lengthscale, replicates_p
 
     np.save((folder_name + "/diffusion/" + validation_data_name), conditional_samples)
 
-    plot_spatial_field(ref_img.detach().cpu().numpy().reshape((n,n)), -2, 2, (folder_name + "/ref_image.png"))
-    plot_spatial_field((conditional_samples[0,:,:,:]).numpy().reshape((n,n)), -2, 2, (folder_name + "/diffusion_sample.png"))
-    plot_masked_spatial_field(spatial_field = ref_img.detach().cpu().numpy().reshape((n,n)),
-                   vmin = -2, vmax = 2, mask = mask.int().float().detach().cpu().numpy().reshape((n,n)), figname = (folder_name + "/partially_observed_field.png"))
+    ref_img = ref_img.detach().cpu().numpy().reshape((n,n))
+    mask = mask.float().detach().cpu().numpy().reshape((n,n))
+    plot_spatial_field(ref_img, -2, 2, (folder_name + "/ref_image.png"))
+    plot_spatial_field((conditional_samples[0,:,:,:]).reshape((n,n)), -2, 2, (folder_name + "/diffusion_sample.png"))
+    plot_masked_spatial_field(spatial_field = ref_img,
+                   vmin = -2, vmax = 2, mask = mask, figname = (folder_name + "/partially_observed_field.png"))
     
 
 
 def generate_validation_data_multiple_percentages(folder_name, n, variance, lengthscale, replicates_per_call, calls, ps, validation_data_name):
 
     for i,p in enumerate(ps):
+        print(i)
         current_folder_name = (folder_name + "/ref_image" + str(i))
         current_validation_data_name = (validation_data_name + "_" + str(p) + ".npy")
         generate_validation_data(current_folder_name, n, variance, lengthscale, replicates_per_call, calls, p, current_validation_data_name)
