@@ -196,7 +196,7 @@ eval_batch_size = 10
 #lhs_samples = scipy.stats.qmc.LatinHypercube(d = 2, seed = np.random.randint(0, 100000))
 #variance is first slot and lengthscale is second slot
 smooth_value = 1.5
-number_of_parameters = 5
+number_of_parameters = 1000
 number_of_eval_parameters = 5
 boundary_start = .5
 boundary_end = 5.5
