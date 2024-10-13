@@ -64,10 +64,14 @@ def generate_random_masks_on_the_fly(n, number_of_random_replicates, random_miss
     mask_matrices = np.zeros((0,1,n,n))
 
     for idx in range(0, len(random_missingness_percentages)):
+        print("percent")
+        print(idx)
         missingness_percentage = random_missingness_percentages[idx]
         #larger p means more ones, and more ones means more missing values (unobserved values)
-        current_mask_matrices = np.random.binomial(n = 1, p = missingness_percentage,
-                                                   size = (number_of_random_replicates, 1, n, n))
+        #current_mask_matrices = np.random.binomial(n = 1, p = round(missingness_percentage,2),
+                                                   #size = (number_of_random_replicates, 1, n, n))
+        p = round(missingness_percentage,2)
+        current_mask_matrices = (torch.bernoulli(p*torch.ones((number_of_random_replicates,1,n,n)))).numpy()
         mask_matrices = np.concatenate([mask_matrices, current_mask_matrices])
     return mask_matrices
 
@@ -195,7 +199,6 @@ def get_training_and_evaluation_data_per_percentages(number_of_random_replicates
     eval_masks = generate_random_masks_on_the_fly(n, eval_images.shape[0], random_missingness_percentages)
     train_images = train_images[:,:,2:34,2:34]
     eval_images = eval_images[:,:,2:34,2:34]
-    print(eval_images.shape)
     train_dataset = CustomSpatialImageMaskDataset(train_images, train_masks)
     eval_dataset = CustomSpatialImageMaskDataset(eval_images, eval_masks)
     train_dataloader = DataLoader(train_dataset, batch_size = batch_size, shuffle = True)

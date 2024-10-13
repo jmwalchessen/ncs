@@ -6,6 +6,7 @@ from torch.utils.data import Dataset, DataLoader
 import subprocess
 import os
 import matplotlib.pyplot as plt
+import scipy
 
 def log_transformation(images):
 
@@ -15,7 +16,7 @@ def log_transformation(images):
 
 def generate_brown_resnick_process(range_value, smooth_value, seed_value, number_of_replicates, n):
 
-    subprocess.run(["Rscript", "brown_resnick_data_generation.R", str(range_value),
+    subprocess.run(["Rscript", "brown_resnick_data_generation.R", str(round(range_value, 2)),
                     str(smooth_value), str(number_of_replicates), str(seed_value)],
                     check = True, capture_output = True, text = False)
     images = np.load("temporary_brown_resnick_samples.npy")
@@ -23,7 +24,7 @@ def generate_brown_resnick_process(range_value, smooth_value, seed_value, number
     images = images.reshape((number_of_replicates,1,n,n))
     return images
 
-def generate_brown_resnick_data_on_the_fly(parameter_matrix, number_of_replicates, n, seed_values):
+def generate_brown_resnick_data_on_the_fly(parameter_matrix, number_of_replicates, n):
 
     images = np.zeros((0,1,n,n))
     nparam = parameter_matrix.shape[0]
@@ -32,7 +33,8 @@ def generate_brown_resnick_data_on_the_fly(parameter_matrix, number_of_replicate
     for i in range(0, nparam):
         range_value = parameter_matrix[i,0]
         smooth_value = parameter_matrix[i,1]
-        current_images = generate_brown_resnick_process(range_value, smooth_value, seed_values[i],
+        seed_value = int(np.random.randint(0, 1000000))
+        current_images = generate_brown_resnick_process(range_value, smooth_value, seed_value,
                                                         number_of_replicates, n)
         images = np.concatenate([images, current_images], axis = 0)
         parameters = np.concatenate([parameters,
@@ -54,15 +56,17 @@ def generate_schlather_process(range_value, smooth_value, seed_value, number_of_
     return images
 
 
-def generate_schlather_data_on_the_fly(parameter_matrix, number_of_replicates, n, seed_values):
+def generate_schlather_data_on_the_fly(parameter_matrix, number_of_replicates, n):
 
     images = np.zeros((0,1,n,n))
     nparam = parameter_matrix.shape[0]
     parameters = np.zeros((0,2))
+
     for i in range(0, nparam):
         range_value = parameter_matrix[i,0]
         smooth_value = parameter_matrix[i,1]
-        current_images = generate_schlather_process(range_value, smooth_value, seed_values[i],
+        seed_value = int(np.random.randint(0, 1000000))
+        current_images = generate_schlather_process(range_value, smooth_value, seed_value,
                                                         number_of_replicates, n)
         images = np.concatenate([images, current_images], axis = 0)
         parameters = np.concatenate([parameters,
@@ -228,12 +232,17 @@ def get_next_batch(image_mask_and_parameter_iterator, config):
     parameters = parameters.to(config.device).float()
     return images_and_masks, parameters
 
+def produce_parameters_via_uniform(number_of_parameters, boundary_start, boundary_end):
+
+    uniform_generator = scipy.stats.uniform()
+    parameters = ((boundary_end - boundary_start)*uniform_generator.rvs(number_of_parameters)) + boundary_start
+    return parameters
+
 #seeds values list is a list of lists of tuples of length equal to number of missing percentages
 def get_training_and_evaluation_data_per_percentages(number_of_random_replicates, random_missingness_percentages,
                                                      number_of_evaluation_random_replicates, number_of_masks_per_image,
                                                      number_of_evaluation_masks_per_image, batch_size, eval_batch_size,
-                                                     train_parameter_matrix, eval_parameter_matrix, seed_values_list,
-                                                     eval_seed_values_list, spatial_process_type):
+                                                     train_parameter_matrix, eval_parameter_matrix, spatial_process_type):
     
     n = 32
     train_images = np.zeros((0,1,n,n))
@@ -242,18 +251,18 @@ def get_training_and_evaluation_data_per_percentages(number_of_random_replicates
     eval_parameters = np.zeros((0,2))
 
     for i, p in enumerate(random_missingness_percentages):
-
+        seed_value = int(np.random.randint(0, 1000000))
         if(p == 0):
             if(spatial_process_type == "schlather"):
                 current_train_images, current_train_parameters = generate_schlather_data_on_the_fly(train_parameter_matrix,
-                                                                                                        number_of_random_replicates*number_of_masks_per_image, n, seed_values_list[i])
+                                                                                                        number_of_random_replicates*number_of_masks_per_image, n)
                 
                 current_eval_images, current_eval_parameters = generate_schlather_data_on_the_fly(eval_parameter_matrix,
-                                                                                                        number_of_evaluation_random_replicates*number_of_evaluation_masks_per_image, n, eval_seed_values_list[i])
+                                                                                                        number_of_evaluation_random_replicates*number_of_evaluation_masks_per_image, n)
                 
             elif(spatial_process_type == "brown"):
-                current_train_images, current_train_parameters = generate_brown_resnick_data_on_the_fly(train_parameter_matrix, number_of_random_replicates*number_of_masks_per_image, n, seed_values_list[i])
-                current_eval_images, current_eval_parameters = generate_brown_resnick_data_on_the_fly(eval_parameter_matrix, number_of_evaluation_random_replicates*number_of_evaluation_masks_per_image, n, eval_seed_values_list[i])
+                current_train_images, current_train_parameters = generate_brown_resnick_data_on_the_fly(train_parameter_matrix, number_of_random_replicates*number_of_masks_per_image, n)
+                current_eval_images, current_eval_parameters = generate_brown_resnick_data_on_the_fly(eval_parameter_matrix, number_of_evaluation_random_replicates*number_of_evaluation_masks_per_image, n)
             train_images = np.concatenate([train_images, current_train_images])
             eval_images = np.concatenate([eval_images, current_eval_images])
             train_parameters = np.concatenate([train_parameters, current_train_parameters])
@@ -262,12 +271,12 @@ def get_training_and_evaluation_data_per_percentages(number_of_random_replicates
         else:
             if(spatial_process_type == "schlather"):
 
-                timages, tparams = generate_schlather_data_on_the_fly(train_parameter_matrix, number_of_random_replicates, n, seed_values_list[i])
-                eimages, eparams = generate_schlather_data_on_the_fly(eval_parameter_matrix, number_of_evaluation_random_replicates, n, eval_seed_values_list[i])
+                timages, tparams = generate_schlather_data_on_the_fly(train_parameter_matrix, number_of_random_replicates, n)
+                eimages, eparams = generate_schlather_data_on_the_fly(eval_parameter_matrix, number_of_evaluation_random_replicates, n)
 
             elif(spatial_process_type == "brown"):
-                timages, tparams = generate_brown_resnick_data_on_the_fly(train_parameter_matrix, number_of_random_replicates, n, seed_values_list[i])
-                eimages, eparams = generate_brown_resnick_data_on_the_fly(eval_parameter_matrix, number_of_evaluation_random_replicates, n, eval_seed_values_list[i])
+                timages, tparams = generate_brown_resnick_data_on_the_fly(train_parameter_matrix, number_of_random_replicates, n)
+                eimages, eparams = generate_brown_resnick_data_on_the_fly(eval_parameter_matrix, number_of_evaluation_random_replicates, n)
 
             train_images = np.concatenate([train_images, np.repeat(timages, number_of_masks_per_image, axis = 0)])
             train_parameters = np.concatenate([train_parameters, np.repeat(tparams, number_of_masks_per_image, axis = 0)], axis =0)
@@ -287,4 +296,23 @@ def get_training_and_evaluation_data_per_percentages(number_of_random_replicates
     eval_dataloader = DataLoader(eval_dataset, batch_size = eval_batch_size, shuffle = True)
     return train_dataloader, eval_dataloader
 
-        
+
+def get_training_and_evaluation_data_per_percentages_for_parameters(number_of_random_replicates, random_missingness_percentages,
+                                                                    number_of_evaluation_random_replicates, number_of_masks_per_image,
+                                                                    number_of_evaluation_masks_per_image, batch_size, eval_batch_size,
+                                                                    smooth_value, number_of_parameters, boundary_start, boundary_end,
+                                                                    number_of_eval_parameters, spatial_process_type):
+    
+    range_values = produce_parameters_via_uniform(number_of_parameters, boundary_start, boundary_end)
+    parameter_matrix = np.zeros((number_of_parameters,2))
+    parameter_matrix[:,0] = (range_values).reshape((number_of_parameters))
+    parameter_matrix[:,1] = smooth_value*np.ones((number_of_parameters))
+    eval_range_values = produce_parameters_via_uniform(number_of_eval_parameters, boundary_start, boundary_end)
+    eval_parameter_matrix = np.zeros((number_of_eval_parameters,2))
+    eval_parameter_matrix[:,0] = eval_range_values.reshape((number_of_eval_parameters))
+    eval_parameter_matrix[:,1] = smooth_value*np.ones((number_of_eval_parameters))
+    train_dataloader, eval_dataloader = get_training_and_evaluation_data_per_percentages(number_of_random_replicates, random_missingness_percentages,
+                                                                                         number_of_evaluation_random_replicates, number_of_masks_per_image,
+                                                                                         number_of_evaluation_masks_per_image, batch_size, eval_batch_size,
+                                                                                         parameter_matrix, eval_parameter_matrix, spatial_process_type)
+    return train_dataloader, eval_dataloader

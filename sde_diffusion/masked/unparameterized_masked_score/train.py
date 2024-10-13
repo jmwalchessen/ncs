@@ -228,6 +228,7 @@ def train_per_multiple_random_masks_revised_data_generation(config, data_draws, 
     
     num_train_steps = config.training.n_iters
     for data_draw in range(0, data_draws):
+        print("data draw")
         print(data_draw)
 
         train_dataloader, eval_dataloader = get_training_and_evaluation_data_for_percentages(number_of_percentages, boundary_start, boundary_end,
@@ -301,17 +302,17 @@ train_per_multiple_random_masks(vpconfig, data_draws, epochs_per_data_draws,
                              seed_values, variance, lengthscale, batch_size,
                              eval_batch_size, score_model_path, loss_path)"""
 
-data_draws = 10
+data_draws = 40
 epochs_per_data_draws = 10
-number_of_random_replicates = 1
+number_of_random_replicates = 25
 number_of_evaluation_random_replicates = 1
 number_of_masks_per_image = 100
 number_of_evaluation_masks_per_image = 1
 #smaller p means less ones which means more observed values
-number_of_percentages = 1000
+number_of_percentages = 50
 boundary_start = .01
 boundary_end = .525
-batch_size = 512
+batch_size = 2048
 eval_batch_size = 32
 variance = 1.5
 lengthscale = 3

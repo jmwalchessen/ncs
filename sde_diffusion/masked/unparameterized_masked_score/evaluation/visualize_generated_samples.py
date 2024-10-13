@@ -140,12 +140,12 @@ minX = -10
 maxX = 10
 minY = -10
 maxY = 10
-variance = .4
-lengthscale = 1.6
+variance = 1.5
+lengthscale = 3
 number_of_replicates = 1
-
-for i in range(0,10):
-    p = .4
+ps = [.01,.05,.1,.2,.3,.4,.5]
+i = 0
+for p in ps:
     mask = (th.bernoulli(p*th.ones(1,1,n,n))).to(device)
     seed_value = int(np.random.randint(0, 100000))
     unmasked_y = (th.from_numpy(generate_gaussian_process(minX, maxX, minY, maxY, n, variance,
@@ -158,6 +158,6 @@ for i in range(0,10):
                                                                     device, mask, y, n,
                                                                     num_samples)
 
-    figname = ("visualizations/models/model4/random40_variance_.4_lengthscale_1.6_observed_and_generated_samples_" + str(i) + ".png")
+    figname = ("visualizations/models/model7/random" + str(p) + "_variance_1.5_lengthscale_3_observed_and_generated_samples_" + str(i) + ".png")
     visualize_observed_and_generated_samples(unmasked_y, mask, diffusion_samples[0,:,:,:],
                                             diffusion_samples[1,:,:,:], n, figname)

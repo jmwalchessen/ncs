@@ -4,9 +4,30 @@ from append_directories import *
 from functools import partial
 from generate_true_conditional_samples import *
 import matplotlib.pyplot as plt
+import sys
+home_folder = append_directory(6)
+sde_folder = home_folder + "/sde_diffusion/masked/parameter_mask_score"
+sys.path.append(sde_folder)
+sde_configs_vp_folder = sde_folder + "/configs/vp"
+sys.path.append(sde_configs_vp_folder)
+import ncsnpp_config
+from sde_lib import *
+from models import ncsnpp
+
+#get trained score model
+config = ncsnpp_config.get_config()
+config.model.num_scales = 1000
+config.model.beta_max = 20
+
+score_model = th.nn.DataParallel((ncsnpp.NCSNpp(config)).to("cuda:0"))
+score_model.load_state_dict(th.load((sde_folder + "/trained_score_models/vpsde/model6_variance_1.5_lengthscale_.75_5.25_beta_min_max_01_20_random50_channel_mask.pth")))
+score_model.eval()
 
 
 
+def produce_mask(p,nrep,n):
+
+    return th.bernoulli(p*th.ones((nrep,1,n,n)))
 
 #y is observed part of field, modified to incorporate the mask as channel
 def p_mean_and_variance_from_score_via_mask(vpsde, score_model, device, masked_xt, mask, y, t):
@@ -87,8 +108,9 @@ def generate_validation_data(folder_name, n, variance, lengthscale, replicates_p
         os.mkdir(os.path.join(os.getcwd(), folder_name))
 
     if(os.path.exists(os.path.join(os.getcwd(), folder_name, "diffusion")) == False):
-        os.mkdir(os.path.join(os.getcwd(), folder_name, diffusion))
+        os.mkdir(os.path.join(os.getcwd(), folder_name, "diffusion"))
 
+    sdevp = VPSDE(beta_min = .1, beta_max = 20, N = 1000)
     minX = -10
     maxX = 10
     minY = -10
@@ -96,19 +118,25 @@ def generate_validation_data(folder_name, n, variance, lengthscale, replicates_p
     n = 32
     number_of_replicates = 1
     seed_value = int(np.random.randint(0, 1000000))
+    mask = produce_mask(p,1,n)
+    device = "cuda:0"
     ref_vec, ref_img = generate_gaussian_process(minX, maxX, minY, maxY, n, variance, lengthscale,
-                                                 number_of_replicates, seed_value):
+                                                 number_of_replicates, seed_value)
 
-    partially_observed = (mask*ref_img).detach().cpu().numpy().reshape((n,n))
-    np.save((folder_name + "/ref_image.npy"), ref_img.detach().cpu().numpy().reshape((n,n)))
+    partially_observed = (mask*ref_img).reshape((n,n))
+    np.save((folder_name + "/ref_image.npy"), ref_img.reshape((n,n)))
 
     conditional_samples = np.zeros((0,1,n,n))
     np.save((folder_name + "/partially_observed_field.npy"), partially_observed.reshape((n,n)))
-    np.save((folder_name + "/mask.npy"), mask.int().detach().cpu().numpy().reshape((n,n)))
+    np.save((folder_name + "/mask.npy"), mask.reshape((n,n)))
     np.save((folder_name + "seed_value.npy"), np.array([int(seed_value)]))
+    ref_img = th.from_numpy(ref_img)
+    y = ((th.mul(mask, ref_img)).to(device)).float()
+    mask = mask.to(device)
+    ref_img = ref_img.to(device)
 
     for i in range(0, calls):
-        y = ((th.mul(mask, ref_img)).to(device)).float()
+
         conditional_samples = np.concatenate([conditional_samples, sample_unconditionally_multiple_calls(sdevp, score_model, device, mask, y, n,
                                           replicates_per_call, calls)], axis = 0)
 
@@ -121,15 +149,23 @@ def generate_validation_data(folder_name, n, variance, lengthscale, replicates_p
     
 
 
+def generate_validation_data_multiple_percentages(folder_name, n, variance, lengthscale, replicates_per_call, calls, ps, validation_data_name):
+
+    for i,p in enumerate(ps):
+        current_folder_name = (folder_name + "/ref_image" + str(i))
+        current_validation_data_name = (validation_data_name + "_" + str(p) + ".npy")
+        generate_validation_data(current_folder_name, n, variance, lengthscale, replicates_per_call, calls, p, current_validation_data_name)
+
 minX = -10
 maxX = 10
 minY = -10
 maxY = 10
 n = 32
-variance = .4
-lengthscale = 1.6
-folder_name = "data/model6/ref_image11"
+variance = 1.5
+lengthscale = 3
 replicates_per_call = 250
 calls = 4
-p = .125
-generate_validation_data(folder_name, n, variance, lengthscale, replicates_per_call, calls, p, validation_data_name)
+ps = [.01,.05,.1,.2,.25,.3,.4,.5]
+folder_name = "data/model7"
+validation_data_name = "model7_beta_min_max_01_20_1000"
+generate_validation_data_multiple_percentages(folder_name, n, variance, lengthscale, replicates_per_call, calls, ps, validation_data_name)
