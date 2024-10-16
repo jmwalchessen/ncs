@@ -31,6 +31,7 @@ def generate_brown_resnick_data_on_the_fly(parameter_matrix, number_of_replicate
     parameters = np.zeros((0,2))
 
     for i in range(0, nparam):
+        print(i)
         range_value = parameter_matrix[i,0]
         smooth_value = parameter_matrix[i,1]
         seed_value = int(np.random.randint(0, 1000000))

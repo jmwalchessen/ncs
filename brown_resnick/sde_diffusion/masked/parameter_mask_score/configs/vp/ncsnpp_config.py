@@ -49,8 +49,8 @@ def get_config():
   model.nf = 128
   #this is a channel multiplier per number of residual blocks
   model.ch_mult = (1, 2, 2, 2)
-  model.num_res_blocks = 3
-  model.attn_resolutions = (4,)
+  model.num_res_blocks = 4
+  model.attn_resolutions = (16,)
   model.resamp_with_conv = True
   model.conditional = True
   model.fir = True
@@ -64,5 +64,7 @@ def get_config():
   model.init_scale = 0.0
   model.embedding_type = 'positional'
   model.conv_size = 3
+
+  #fir and fir_kernel and progress input and combin are different
 
   return config

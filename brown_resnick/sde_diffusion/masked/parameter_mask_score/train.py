@@ -39,7 +39,7 @@ def plot_original_and_diffusion_images(ref_image, mask, diffusion_images, vmin, 
 
         if(i == 0):
             im = ax.imshow(ref_image.reshape((n,n)), vmin = vmin, vmax = vmax)
-        if(i == 1):
+        elif(i == 1):
             ax.imshow(ref_image.reshape((n,n)), alpha = mask.float().detach().cpu().numpy().reshape((n,n)),
              vmin = vmin, vmax = vmax)
         else:
@@ -165,7 +165,7 @@ def train(config, data_draws, epochs_per_drawn_data,
                     break
 
 
-            figname = ("diffusion_images_data_draw_" + str(data_draw) + "_epoch_" + str(epoch) + ".png")
+            figname = ("diffusion_images_1_3_data_draw_" + str(data_draw) + "_epoch_" + str(epoch) + ".png")
             for p in random_missingness_percentages:
                 n = 32
                 evaluate_diffusion(score_model, sde, spatial_process_type, eval_range_value, eval_smooth_value, p, folder_name,
@@ -196,10 +196,10 @@ eval_batch_size = 10
 #lhs_samples = scipy.stats.qmc.LatinHypercube(d = 2, seed = np.random.randint(0, 100000))
 #variance is first slot and lengthscale is second slot
 smooth_value = 1.5
-number_of_parameters = 1000
+number_of_parameters = 200
 number_of_eval_parameters = 5
-boundary_start = .5
-boundary_end = 5.5
+boundary_start = 1
+boundary_end = 3
 eval_range_value = 2.5
 eval_smooth_value = 1.5
 score_model_path = "trained_score_models/vpsde/model3/model3_beta_min_max_01_20_range_.5_5.5_smooth_1.5_random50_log_parameterized_mask.pth"
