@@ -89,6 +89,7 @@ def evaluate_diffusion(score_model, sde, process_type, range_value, smooth_value
 
 
 def train_per_multiple_random_masks(config, data_draws, epochs_per_drawn_data,
+                             number_of_percentages, boundary_start, boundary_end,
                              random_missingness_percentages,
                              number_of_random_replicates,
                              number_of_evaluation_random_replicates,
@@ -134,10 +135,11 @@ def train_per_multiple_random_masks(config, data_draws, epochs_per_drawn_data,
     for data_draw in range(0, data_draws):
         print(data_draw)
 
-        train_dataloader, eval_dataloader = get_training_and_evaluation_data_per_percentages(number_of_random_replicates, random_missingness_percentages,
-                                                     number_of_evaluation_random_replicates, number_of_masks_per_image,
-                                                     number_of_evaluation_masks_per_image, batch_size, eval_batch_size,
-                                                     range_value, smooth_value, seed_values_list[data_draw], spatial_process_type) 
+        train_dataloader, eval_dataloader = get_training_and_evaluation_data_for_percentages(number_of_percentages, boundary_start, boundary_end,
+                                                                                             number_of_random_replicates, random_missingness_percentages,
+                                                                                             number_of_evaluation_random_replicates, number_of_masks_per_image,
+                                                                                             number_of_evaluation_masks_per_image, batch_size, eval_batch_size,
+                                                                                             range_value, smooth_value, seed_values_list[data_draw], spatial_process_type) 
         
         
         for epoch in range(0, epochs_per_drawn_data):
@@ -184,27 +186,30 @@ def train_per_multiple_random_masks(config, data_draws, epochs_per_drawn_data,
 vp_ncsnpp_configuration = vp_ncsnpp_config.get_config()
 vpconfig = vp_ncsnpp_configuration
 
-data_draws = 5
+data_draws = 40
 epochs_per_data_draws = 10
-number_of_random_replicates = 5000
-number_of_evaluation_random_replicates = 50
+number_of_random_replicates = 25
+number_of_evaluation_random_replicates = 25
 number_of_masks_per_image = 100
-number_of_evaluation_masks_per_image = 5
+number_of_evaluation_masks_per_image = 1
 #smaller p means less ones which means more observed values
-random_missingness_percentages = [.015]
-batch_size = 512
-eval_batch_size = 32
-range_value = 10
-smooth_value = 1
+batch_size = 2048
+eval_batch_size = 10
+range_value = 3
+smooth_value = 1.5
 seed_values_list = [[(int(np.random.randint(0, 100000)), int(np.random.randint(0, 100000))) for j in range(0, len(random_missingness_percentages))] for i in range(0, data_draws)]
-score_model_path = "trained_score_models/vpsde/model3_beta_min_max_01_20_range_10_smooth_1_random015_log_parameterized_mask.pth"
-loss_path = "trained_score_models/vpsde/model3_beta_min_max_01_20_range_10_smooth_1_random015_log_parameterized_mask_loss.png"
+score_model_path = "trained_score_models/vpsde/model4_beta_min_max_01_20_range_3_smooth_1.5_random01525_log_parameterized_mask.pth"
+loss_path = "trained_score_models/vpsde/model4_beta_min_max_01_20_range_3_smooth_1.5_random01525_log_parameterized_mask_loss.png"
 torch.cuda.empty_cache()
 spatial_process_type = "brown"
 folder_name = "trained_score_models/vpsde"
 vmin = -2
 vmax = 6
+number_of_percentages = 50
+boundary_start = .01
+boundary_end = .525
 train_per_multiple_random_masks(vpconfig, data_draws, epochs_per_data_draws,
+                             number_of_percentages, boundary_start, boundary_end,
                              random_missingness_percentages,
                              number_of_random_replicates,
                              number_of_evaluation_random_replicates,
