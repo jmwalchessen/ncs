@@ -232,11 +232,12 @@ def get_parameterized_masked_score_ddpm_loss_fn(vpsde, train, reduce_mean = True
     sqrt_1m_alphas_cumprod = vpsde.sqrt_1m_alphas_cumprod.to(batch_images_and_masks.device)
     batch_images = batch_images_and_masks[:,0:1,:,:]
     batch_masks = batch_images_and_masks[:,1:2,:,:]
-    smooth_value = batch_parameters[:,1]
-    smooth_value = smooth_value.view((batch_images.shape[0],1,1,1))
+    range_value = batch_parameters[:,0]
+    range_value = range_value.view((batch_images.shape[0],1,1,1))
+    print(range_value)
     n = batch_images.shape[2]
     nrep = batch_images.shape[0]
-    batch_parameter_masks = torch.mul(smooth_value, batch_masks)
+    batch_parameter_masks = torch.mul(range_value, batch_masks)
     noise = torch.randn_like(batch_images)
     perturbed_image = sqrt_alphas_cumprod[labels, None, None, None] * batch_images + \
                      sqrt_1m_alphas_cumprod[labels, None, None, None] * noise
