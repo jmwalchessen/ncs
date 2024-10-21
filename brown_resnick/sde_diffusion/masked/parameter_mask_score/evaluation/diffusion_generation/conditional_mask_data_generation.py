@@ -9,7 +9,7 @@ evaluation_folder = append_directory(2)
 sys.path.append(evaluation_folder)
 from helper_functions import *
 
-score_model = load_score_model("brown", "model2/model2_beta_min_max_01_20_range_1_2_smooth_1.6_random50_log_parameterized_mask.pth", "eval")
+score_model = load_score_model("brown", "model3/model3_beta_min_max_01_20_range_.5_5.5_smooth_1.5_random50_log_parameterized_mask.pth", "eval")
 
 sdevp = load_sde(beta_min = .1, beta_max = 20, N = 1000)
 #mask is a True/False (1,32,32) vector with .5 randomly missing pixels
@@ -75,17 +75,17 @@ def generate_validation_data(process_type, folder_name, n, range_value, smooth_v
                    vmin = -2, vmax = 6, mask = mask.int().float().detach().cpu().numpy().reshape((n,n)), figname = (folder_name + "/partially_observed_field.png"))
     
 
-range_values = [round((1+.2*i),1) for i in range(1,6)]
+range_values = [float(i) for i in range(1,6)]
 for i,range_value in enumerate(range_values):
 
     process_type = "brown"
-    folder_name = "data/model2/ref_image" + str(i+2)
+    folder_name = "data/model3/ref_image" + str(i)
     n = 32
-    smooth_value = 1.6
+    smooth_value = 1.5
     replicates_per_call = 250
     calls = 4
     p = .5
-    validation_data_name = "model2_range_" + str(range_value) + "_" + str(smooth_value) + "_random" + str(p) + "_4000.npy"
+    validation_data_name = "model3_range_" + str(range_value) + "_smooth_" + str(smooth_value) + "_random" + str(p) + "_4000.npy"
     generate_validation_data(process_type, folder_name, n, range_value, smooth_value, replicates_per_call, calls, p, validation_data_name)
 
 
