@@ -1,4 +1,5 @@
 from append_directories import *
+import numpy as np
 
 
 def load_diffusion_images(model_name, image_name, file_name):

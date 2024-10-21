@@ -525,18 +525,22 @@ def visualize_location_conditional_simulation_vs_diffusion_bivariate_density(ref
         plt.savefig(figname)
         plt.clf()
 
-range_values = [1.0, 1.2, 1.4, 1.6, 1.8, 2.]
-indices = [10*i for i in range(1,50)]
-smooth_value = 1.6
+range_values = [1.0, 2.0, 3.0, 4.0, 5.0]
+indices = [10*i for i in range(1,40)]
+smooth_value = 1.5
+number_of_replicates = 4000
+missing_indices1 = [350]
+missing_indices2 = [348,349,351,352]
 
 for i, range_value in enumerate(range_values):
 
-    ref_folder = (data_generation_folder + "/data/model2/ref_image" + str(i+1))
+    ref_folder = (data_generation_folder + "/data/model3/ref_image" + str(i))
     mask = np.load((ref_folder + "/mask.npy"))
     ref_image = np.load((ref_folder + "/ref_image.npy"))
     n = 32
-    diffusion_images = np.load((ref_folder + "/diffusion/model2_range_" + str(range_value) + "_smooth_1.6_random0.5_4000.npy"))
-    mcmc_file_name = "local_conditional_simulation_neighbors_5_4000"
-    figname = (ref_folder + "/local_conditional_simulation/marginal_density/univariate_marginal_density_neighbors_5_4000_1000")
-    visualize_multiple_local_conditional_simulation_vs_diffusion_marginal_density(ref_folder, mcmc_file_name, indices,
-                                                                                  n, figname, diffusion_images)
+    diffusion_images = np.load((ref_folder + "/diffusion/model3_range_" + str(range_value) + "_smooth_1.5_random0.5_4000.npy"))
+    figname = (ref_folder + "/bivariate_density/model3_smooth_1.5_range_" + str(range_value) + "_bivariate_density")
+    produce_multiple_generated_bivariate_density(mask, n, range_value, smooth_value,
+                                                 number_of_replicates, missing_indices1, missing_indices2,
+                                                 diffusion_images, ref_image, figname)
+    
