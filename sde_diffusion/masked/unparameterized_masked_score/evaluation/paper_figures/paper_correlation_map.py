@@ -36,25 +36,26 @@ def produce_true_and_diffusion_correlation_map_per_pixel(diffusion_images, mask,
     return true_cov_image, diffusion_cov_image
 
 def visualize_true_and_diffusion_correlation_maps(missing_indices, n, nrep,
-                                                  variance, model_name, figname):
+                                                  lengthscale, variance, model_name, figname):
     
     n = 32
     masks = np.zeros((5,n,n))
     minX = minY = -10
     maxX = maxY = 10
-    lengthscales = [1.0,2.0,3.0,4.0,5.0]
+    percentages = [.01,.05,.1,.25,.5]
+    ref_numbers = [0,1,2,4,7]
     true_cov_images = np.zeros((5,n,n))
     diffusion_cov_images = np.zeros((5,n,n))
     for i in range(0, 5):
-        image_name = "ref_image" + str(i)
+        image_name = "ref_image" + str(ref_numbers[i])
         ref_image = load_reference_image(model_name, image_name)
         mask = load_mask(model_name, image_name)
         masks[i,:,:] = mask
         y = load_observations(model_name, image_name, mask, n)
-        file_name = (model_name + "_variance_" + str(variance) + "_lengthscale_" + str(lengthscales[i]) + "_beta_min_max_01_20_random50_1000")
+        file_name = (model_name + "_beta_min_max_01_20_1000_" + str(percentages[i]))
         diffusion_images = load_diffusion_images(model_name, image_name, file_name)
         true_cov_image, diffusion_cov_image = produce_true_and_diffusion_correlation_map_per_pixel(diffusion_images, mask, missing_indices[i], n, nrep,
-                                                                                                   variance, lengthscales[i], ref_image)
+                                                                                                   variance, lengthscale, ref_image)
         true_cov_images[i,:,:] = true_cov_image.reshape((n,n))
         diffusion_cov_images[i,:,:] = diffusion_cov_image.reshape((n,n))
 
@@ -88,9 +89,10 @@ def visualize_true_and_diffusion_correlation_maps(missing_indices, n, nrep,
     
 
 n = 32
-nrep = 1000
+nrep = 4000
 variance = 1.5
-model_name = "model6"
-figname = "figures/paper_correlation_maps.png"
-missing_indices = [123, 203, 303, 403, 459]
-visualize_true_and_diffusion_correlation_maps(missing_indices, n, nrep, variance, model_name, figname)
+lengthscale = 3.0
+model_name = "model7"
+figname = "figures/paper_correlation_map_close_to_observed.png"
+missing_indices = [788, 427, 553, 548, 218]
+visualize_true_and_diffusion_correlation_maps(missing_indices, n, nrep, lengthscale, variance, model_name, figname)

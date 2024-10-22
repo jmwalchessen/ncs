@@ -8,17 +8,6 @@ from append_directories import *
 from generate_true_conditional_samples import *
 from paper_figure_helper_functions import *
 
-def concatenate_observed_and_kriging_sample(observed, conditional_unobserved_sample, mask, n):
-
-    conditional_sample = np.zeros((n**2))
-    observed_indices = np.argwhere(mask.flatten() == 1)
-    missing_indices = np.argwhere(mask.flatten() == 0)
-    m = observed.shape[0]
-    conditional_sample[missing_indices] = conditional_unobserved_sample.reshape(((n**2-m),1))
-    conditional_sample[observed_indices] = observed.reshape((m,1))
-    conditional_sample = conditional_sample.reshape((n,n))
-    return conditional_sample
-
 def visualize_conditional_mean_observed_and_diffusion(variance, figname, n, model_name):
 
     diffusion_means = np.zeros((5,n,n))
