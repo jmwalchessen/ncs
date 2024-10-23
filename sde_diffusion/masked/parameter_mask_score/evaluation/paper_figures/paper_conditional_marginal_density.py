@@ -6,9 +6,6 @@ import matplotlib.pyplot as plt
 from paper_figure_helper_functions import *
 import seaborn as sns
 
-def index_to_matrix_index(index, n):
-    return (int(index / n), int(index % n))
-
 def produce_marginal_density(model_name, image_name, file_name, missing_index, n, nrep, variance, lengthscale):
 
     diffusion_images = load_diffusion_images(model_name, image_name, file_name)
