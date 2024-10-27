@@ -11,10 +11,11 @@ from true_unconditional_data_generation import *
 
 
 
-class CustomSpatialImageAndClassDataset(Dataset):
-    def __init__(self, images, classes):
+class CustomSpatialImageParameterAndClassDataset(Dataset):
+    def __init__(self, images, lengthscales, classes):
         self.images = images
         self.classes = classes
+        self.lengthscales = lengthscales
 
     def __len__(self):
         return ((self.images).shape[0])
@@ -22,12 +23,13 @@ class CustomSpatialImageAndClassDataset(Dataset):
     def __getitem__(self, idx):
         image = self.images[idx,:,:,:]
         class_label = self.classes[idx,:]
-        return image, class_label
+        lengthscale = self.lengthscales[idx]
+        return image, lengthscale, class_label
     
 
-def create_dataloader(images, classes, batch_size):
+def create_dataloader(images, lengthscales, classes, batch_size):
 
-    dataset = CustomSpatialImageAndClassDataset(images, classes)
+    dataset = CustomSpatialImageParameterAndClassDataset(images, lengthscales, classes)
     dataloader = DataLoader(dataset, batch_size = batch_size, shuffle = True)
     return dataloader
 
@@ -59,59 +61,43 @@ def load_images(path):
     images = np.load(path)
     return images
 
-def prepare_and_create_dataloader(path, num_samples, minX, maxX, minY, maxY, n,
-                                  variance, lengthscale, seed_value, batch_size):
+def load_parameters(path):
 
-    diffusion_images = load_images(path)
-    true_images = (generate_gaussian_process(minX, maxX, minY, maxY, n, variance,
-                                            lengthscale, num_samples, seed_value))[1]
+    parameters = np.load(path)
+    return parameters
+
+def generate_gaussian_processes_multiple_lengthscales(minX, maxX, minY, maxY, n, variance, lengthscales, num_samples):
+
+    gp_samples = np.zeros((0,1,n,n))
+    for lengthscale in lengthscales:
+        seed_value = int(np.random.randint(0, 100000))
+        gp_samples = np.concatenate([gp_samples, (generate_gaussian_process(minX, maxX, minY, maxY, n, variance,
+                                                                lengthscale, num_samples, seed_value))[1]], axis = 0)
+        
+    return gp_samples
+
+def prepare_and_create_dataloader(image_path, parameter_path, num_samples, minX, maxX, minY, maxY, n,
+                                  variance, batch_size):
+
+    diffusion_images = load_images(image_path)
+    lengthscales = load_parameters(parameter_path)
+    true_images = generate_gaussian_processes_multiple_lengthscales(minX, maxX, minY, maxY, n, variance, lengthscales, num_samples)
     diffusion_images = diffusion_images.reshape((num_samples,1,n,n))
     images = prepare_images(diffusion_images, true_images)
-    print(images.shape)
     classes = prepare_classes(num_samples)
-    print(classes.shape)
-    dataloader = create_dataloader(images, classes, batch_size)
+    dataloader = create_dataloader(images, lengthscales, classes, batch_size)
     return dataloader
 
-def prepare_crop_and_create_dataloaders(path, split, num_samples, minX, maxX, minY, maxY, n,
-                                       variance, lengthscale, seed_value, batch_size,
+def prepare_crop_and_create_dataloaders(image_path, parameter_path, split, num_samples, minX, maxX, minY, maxY, n,
+                                       variance, batch_size,
                                        eval_batch_size, crop_size, shuffle = False):
 
-    diffusion_images = load_images(path)
-    true_images = (generate_gaussian_process(minX, maxX, minY, maxY, n, variance,
-                                            lengthscale, num_samples, seed_value)[1]+1)
+    diffusion_images = load_images(image_path)
+    lengthscales = load_parameters(parameter_path)
+    true_images = generate_gaussian_processes_multiple_lengthscales(minX, maxX, minY, maxY, n, variance, lengthscales, num_samples)
     diffusion_images = (diffusion_images.reshape((num_samples,1,n,n))+1)
     true_train_images = true_images[0:split,:,:,:]
     diffusion_train_images = diffusion_images[0:split,:,:,:]
-    true_eval_images = true_images[split:,:,:,:]
-    diffusion_eval_images = diffusion_images[split:,:,:,:]
-    if(shuffle == True):
-        train_images = prepare_random_images(diffusion_train_images, true_train_images)
-        eval_images = prepare_random_images(diffusion_eval_images, true_eval_images)
-    else:
-        train_images = prepare_images(diffusion_train_images, true_train_images)
-        eval_images = prepare_images(diffusion_eval_images, true_eval_images)
-    train_images = crop_images(train_images, n, crop_size)
-    eval_images = crop_images(eval_images, n, crop_size)
-    train_classes = prepare_classes(split)
-    eval_classes = prepare_classes((num_samples - split))
-    train_dataloader = create_dataloader(train_images, train_classes, batch_size)
-    eval_dataloader = create_dataloader(eval_images, eval_classes, eval_batch_size)
-    eval_train_dataloader = create_dataloader(train_images, train_classes, eval_batch_size)
-    return train_dataloader, eval_dataloader, eval_train_dataloader
-
-
-def prepare_crop_and_create_dataloaders_on_the_fly(path, train_start, train_end, split,
-                                                   num_samples, minX, maxX, minY, maxY, n,
-                                                   variance, lengthscale, seed_value, batch_size,
-                                                   eval_batch_size, crop_size, shuffle = False):
-
-    diffusion_images = load_images(path)
-    true_images = generate_gaussian_process(minX, maxX, minY, maxY, n, variance,
-                                            lengthscale, num_samples, seed_value)[1]
-    diffusion_images = diffusion_images.reshape((num_samples,1,n,n))
-    true_train_images = true_images[train_start:train_end,:,:,:]
-    diffusion_train_images = diffusion_images[train_start:train_end,:,:,:]
     true_eval_images = true_images[split:,:,:,:]
     diffusion_eval_images = diffusion_images[split:,:,:,:]
     if(shuffle == True):
