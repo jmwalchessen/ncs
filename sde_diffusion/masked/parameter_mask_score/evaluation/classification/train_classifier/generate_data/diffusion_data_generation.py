@@ -135,7 +135,7 @@ number_of_parameters = 100
 boundary_start = 1
 boundary_end = 5
 variance = 1.5
-diffusion_file = "data/model6/train_conditional_nrep_5000_nparam_100_"
+diffusion_file = "data/model6/validation/validation_conditional_nrep_500_nparam_50_"
 p = .5
 sample_conditionally_multipe_parameters(vpsde, score_model, device, n, p, num_samples_per_call, calls,
                                             number_of_parameters, boundary_start, boundary_end, variance, diffusion_file)

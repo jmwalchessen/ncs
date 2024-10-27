@@ -58,3 +58,6 @@ def concatenate_observed_and_kriging_samples(observed, conditional_unobserved_sa
     conditional_samples[:,observed_indices] = np.tile(observed.reshape((1,m)), (nrep,1))
     conditional_samples = conditional_samples.reshape((nrep,n,n))
     return conditional_samples
+
+def index_to_matrix_index(index, n):
+    return (int(index / n), int(index % n))

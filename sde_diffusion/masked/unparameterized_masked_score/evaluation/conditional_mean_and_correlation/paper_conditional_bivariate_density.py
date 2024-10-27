@@ -82,20 +82,21 @@ def visualize_bivariate_density(model_name, variance, nrep,
     plt.clf()
 
 
-def visualize_close_bivariate_density(model_name, variance, nrep,
+def visualize_close_bivariate_density(model_name, lengthscale, variance, nrep,
                                       missing_indices1, missing_indices2,
                                       n, figname):
     
-    lengthscales = [1.0,2.0,3.0,4.0,5.0]
+    percentages = [.01,.05,.1,.25,.5]
     bivariate_densities = np.zeros((5,2*nrep,2))
     masks = np.zeros((5,n,n))
     reference_images = np.zeros((5,n,n))
+    reference_names = [0,1,2,4,7]
 
     for i in range(0,5):
 
-        image_name = "ref_image" + str(i)
-        file_name = (model_name + "_variance_" + str(variance) + "_lengthscale_" + str(lengthscales[i]) + "_beta_min_max_01_20_random50_1000")
-        bdensities, dbdensities = produce_bivariate_densities(model_name, lengthscales[i], variance,
+        image_name = "ref_image" + str(reference_names[i])
+        file_name = (model_name + "_beta_min_max_01_20_1000_" + str(percentages[i]))
+        bdensities, dbdensities = produce_bivariate_densities(model_name, lengthscale, variance,
                                                                                          image_name, nrep, missing_indices1[i],
                                                                                          missing_indices2[i], file_name)
         masks[i,:,:] = load_mask(model_name, image_name)
@@ -136,13 +137,15 @@ def visualize_close_bivariate_density(model_name, variance, nrep,
     fig.colorbar(im, ax=axs, shrink = .6)
     plt.savefig(figname)
     plt.clf()
-model_name = "model6"
+
+model_name = "model7"
+lengthscale = 3.0
 variance = 1.5
-nrep = 1000
-missing_indices1 = [232,772,810,327,567]
-missing_indices2 = [233,835,874,390,568]
-figname = "figures/gp_parameter_close_bivairate_density.png" 
+nrep = 4000
+missing_indices1 = [232,772,870,500,567]
+missing_indices2 = [233,835,873,502,568]
+figname = "figures/gp_percentage_close_bivairate_density.png" 
 n = 32
-visualize_close_bivariate_density(model_name, variance, nrep,
+visualize_close_bivariate_density(model_name, lengthscale, variance, nrep,
                                   missing_indices1, missing_indices2,
-                                  n, figname) 
+                                  n, figname)
