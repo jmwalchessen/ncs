@@ -309,7 +309,7 @@ number_of_evaluation_random_replicates = 5
 number_of_masks_per_image = 100
 number_of_evaluation_masks_per_image = 1
 #smaller p means less ones which means more observed values
-random_missingness_percentages = [.5]
+random_missingness_percentages = [.05]
 batch_size = 512
 eval_batch_size = 10
 #lhs_samples = scipy.stats.qmc.LatinHypercube(d = 2, seed = np.random.randint(0, 100000))
@@ -317,11 +317,11 @@ eval_batch_size = 10
 variance = 1.5
 number_of_parameters = 1000
 number_of_eval_parameters = 5
-boundary_start = .75
-boundary_end = 5.25
+boundary_start = .5
+boundary_end = 5.5
 seed_values_list = [[(int(np.random.randint(0, 100000)), int(np.random.randint(0, 100000))) for j in range(0, len(random_missingness_percentages))] for i in range(0, data_draws)]
-score_model_path = "trained_score_models/vpsde/model6_variance_1.5_lengthscale_.75_5.25_beta_min_max_01_20_random50_channel_mask.pth"
-loss_path = "trained_score_models/vpsde/model6_variance_1.5_lengthscale_.75_5.25_beta_min_max_01_20_random50_parameterized_mask_loss.png"
+score_model_path = "trained_score_models/vpsde/model7_variance_1.5_lengthscale_.5_5.5_beta_min_max_01_20_random05_channel_mask.pth"
+loss_path = "trained_score_models/vpsde/model7_variance_1.5_lengthscale_.5_5.5_beta_min_max_01_20_random05_parameterized_mask_loss.png"
 torch.cuda.empty_cache()
 train_per_multiple_random_masks_revised_data_generation(vpconfig, data_draws, epochs_per_data_draws,
                              random_missingness_percentages,

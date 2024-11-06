@@ -46,7 +46,9 @@ def visualize_marginal_density(model_name, missing_indices, n, nrep, lengthscale
     for i in range(0,10):
         if(i < 5):
             matrix_index = index_to_matrix_index(missing_indices[i], n)
-            axs[int(i/5),int(i%5)].imshow(reference_images[i,:,:], cmap = 'viridis', vmin = -4, vmax = 4, alpha = masks[i,:,:].astype(float))
+            im = axs[int(i/5),int(i%5)].imshow(reference_images[i,:,:], cmap = 'viridis', vmin = -4, vmax = 4, alpha = masks[i,:,:].astype(float))
+            axs[int(i/5),int(i%5)].set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
+            axs[int(i/5),int(i%5)].set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
             axs[int(i/5),int(i%5)].plot(matrix_index[1], matrix_index[0], "ro", markersize = 10, linewidth = 20)
         else:
             matrix_index = index_to_matrix_index(missing_indices[(i%5)], n)
@@ -55,9 +57,9 @@ def visualize_marginal_density(model_name, missing_indices, n, nrep, lengthscale
             axs[int(i/5),int(i%5)].axvline(reference_images[(i%5),matrix_index[0],matrix_index[1]], color='red', linestyle = 'dashed')
             axs[int(i/5),int(i%5)].set_xlim([-4.5,4.5])
             axs[int(i/5),int(i%5)].set_ylim([0,1])
-            axs[int(i/5),int(i%5)].legend(labels = ['true', 'diffusion'])
+            axs[int(i/5),int(i%5)].legend(labels = ['true', 'NCS'])
 
-
+    fig.colorbar(im, ax=axs, shrink = 1)
     plt.savefig(figname)
     plt.clf()
 
