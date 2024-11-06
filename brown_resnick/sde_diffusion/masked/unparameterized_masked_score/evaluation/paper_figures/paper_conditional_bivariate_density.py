@@ -1,7 +1,6 @@
 import numpy as np
 from append_directories import *
 import matplotlib.pyplot as plt
-from generate_true_conditional_samples import *
 from paper_figure_helper_functions import *
 from matplotlib import patches as mpatches
 
