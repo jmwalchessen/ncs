@@ -104,7 +104,7 @@ def visualize_close_bivariate_density(model_name, variance, nrep,
     for i in range(0,5):
 
         image_name = "ref_image" + str(i)
-        file_name = (model_name + "_variance_" + str(variance) + "_lengthscale_" + str(lengthscales[i]) + "_beta_min_max_01_20_random50_1000")
+        file_name = (model_name + "_variance_" + str(variance) + "_lengthscale_" + str(lengthscales[i]) + "_beta_min_max_01_20_random05_4000")
         bdensities, dbdensities = produce_bivariate_densities(model_name, lengthscales[i], variance,
                                                                                          image_name, nrep, missing_indices1[i],
                                                                                          missing_indices2[i], file_name)
@@ -142,16 +142,20 @@ def visualize_close_bivariate_density(model_name, variance, nrep,
             axs[int(i/5),int(i%5)].axhline(reference_images[(i%5),matrix_index2[0],matrix_index2[1]], color='red', linestyle = 'dashed')
             axs[int(i/5),int(i%5)].set_xlim([-4.5,4.5])
             axs[int(i/5),int(i%5)].set_ylim([-4.5,4.5])
+            axs[int(i/5),int(i%5)].set_xlabel("")
+            axs[int(i/5),int(i%5)].set_ylabel("")
+            axs[int(i/5),int(i%5)].set_xticks(ticks = [-4,-2,0,2,4], labels = [-4,-2,0,2,4])
+            axs[int(i/5),int(i%5)].set_yticks(ticks = [-4,-2,0,2,4], labels = [-4,-2,0,2,4])
 
     fig.colorbar(im, ax=axs, shrink = .6)
     plt.savefig(figname)
     plt.clf()
-model_name = "model6"
+model_name = "model7"
 variance = 1.5
-nrep = 1000
-missing_indices1 = [232,772,810,327,567]
-missing_indices2 = [233,835,874,390,568]
-figname = "figures/gp_parameter_close_bivairate_density.png" 
+nrep = 4000
+missing_indices1 = [232,772,810,493,567]
+missing_indices2 = [233,835,874,505,568]
+figname = "figures/gp_parameter_close_bivairate_density_model7_random05.png" 
 n = 32
 visualize_close_bivariate_density(model_name, variance, nrep,
                                   missing_indices1, missing_indices2,

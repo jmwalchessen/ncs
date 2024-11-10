@@ -36,7 +36,7 @@ def visualize_observed_and_diffusion(variance, figname, n, model_name):
         partial_field = np.multiply(mask, ref_image)
         y = load_observations(model_name, image_name, mask, n)
         file_name = (model_name + "_variance_" + str(variance) + "_lengthscale_" + str(lengthscales[i]) +
-                     "_beta_min_max_01_20_random50_1000")
+                     "_beta_min_max_01_20_random05_4000")
         diffusion_images = load_diffusion_images(model_name, image_name, file_name)
         diffusion_visualizations[i,:,:] = (diffusion_images[20,:,:,:]).reshape((n,n))
         reference_visualizations[i,:,:] = ref_image
@@ -74,8 +74,8 @@ def visualize_observed_and_diffusion(variance, figname, n, model_name):
     plt.savefig(figname)
 
 variance = 1.5
-model_name = "model6"
-image_name = "ref_image1"
+model_name = "model7"
+image_name = "ref_image0"
 n = 32
-figname = "figures/gp_parameter_visualization_model6.png"
+figname = "figures/gp_parameter_visualization_model7_random05.png"
 visualize_observed_and_diffusion(variance, figname, n, model_name)

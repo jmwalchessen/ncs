@@ -51,7 +51,7 @@ def visualize_true_and_diffusion_correlation_maps(missing_indices, n, nrep,
         mask = load_mask(model_name, image_name)
         masks[i,:,:] = mask
         y = load_observations(model_name, image_name, mask, n)
-        file_name = (model_name + "_variance_" + str(variance) + "_lengthscale_" + str(lengthscales[i]) + "_beta_min_max_01_20_random50_1000")
+        file_name = (model_name + "_variance_" + str(variance) + "_lengthscale_" + str(lengthscales[i]) + "_beta_min_max_01_20_random05_4000")
         diffusion_images = load_diffusion_images(model_name, image_name, file_name)
         true_cov_image, diffusion_cov_image = produce_true_and_diffusion_correlation_map_per_pixel(diffusion_images, mask, missing_indices[i], n, nrep,
                                                                                                    variance, lengthscales[i], ref_image)
@@ -88,9 +88,9 @@ def visualize_true_and_diffusion_correlation_maps(missing_indices, n, nrep,
     
 
 n = 32
-nrep = 1000
+nrep = 4000
 variance = 1.5
-model_name = "model6"
-figname = "figures/paper_correlation_maps.png"
+model_name = "model7"
+figname = "figures/paper_correlation_maps_model7_random05.png"
 missing_indices = [123, 203, 303, 403, 459]
 visualize_true_and_diffusion_correlation_maps(missing_indices, n, nrep, variance, model_name, figname)

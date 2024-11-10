@@ -22,7 +22,7 @@ def visualize_conditional_mean_observed_and_diffusion(variance, figname, n, mode
         ref_image = load_reference_image(model_name, image_name)
         mask = load_mask(model_name, image_name)
         y = load_observations(model_name, image_name, mask, n)
-        file_name = (model_name + "_variance_" + str(variance) + "_lengthscale_" + str(lengthscales[i]) + "_beta_min_max_01_20_random50_1000")
+        file_name = (model_name + "_variance_" + str(variance) + "_lengthscale_" + str(lengthscales[i]) + "_beta_min_max_01_20_random05_4000")
         diffusion_images = load_diffusion_images(model_name, image_name, file_name)
         nrep = diffusion_images.shape[0]
         diffusion_means[i,:,:] = (np.mean(diffusion_images, axis = (0,1))).reshape((n,n))
@@ -48,12 +48,14 @@ def visualize_conditional_mean_observed_and_diffusion(variance, figname, n, mode
             ax.set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
             ax.set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
         elif(i < 10):
-            im = ax.imshow(true_conditional_unobserved_means[(i % 5),:,:], cmap='viridis', vmin = -4, vmax = 4)
+            im = ax.imshow(true_conditional_unobserved_means[(i % 5),:,:], cmap='viridis', vmin = -4, vmax = 4,
+                           alpha = (1-masks[(i % 5),:,:].astype(float)))
             ax.set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
             ax.set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
 
         else:
-            im = ax.imshow(diffusion_means[(i % 5),:,:], cmap='viridis', vmin = -4, vmax = 4)
+            im = ax.imshow(diffusion_means[(i % 5),:,:], cmap='viridis', vmin = -4, vmax = 4,
+                           alpha = (1-masks[(i % 5),:,:].astype(float)))
             ax.set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
             ax.set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
 
@@ -62,7 +64,7 @@ def visualize_conditional_mean_observed_and_diffusion(variance, figname, n, mode
     plt.savefig(figname)
 
 variance = 1.5
-model_name = "model6"
+model_name = "model7"
 n = 32
-figname = "figures/gp_parameter_conditional_mean_model6.png"
+figname = "figures/gp_parameter_conditional_mean_model7_random05.png"
 visualize_conditional_mean_observed_and_diffusion(variance, figname, n, model_name)

@@ -21,7 +21,7 @@ def visualize_conditional_mean_observed_and_diffusion(variance, figname, n, mode
         ref_image = load_reference_image(model_name, image_name)
         mask = load_mask(model_name, image_name)
         y = load_observations(model_name, image_name, mask, n)
-        file_name = (model_name + "_range_" + str(range_values[i]) + "_smooth_1.5_random0.5_4000")
+        file_name = (model_name + "_range_" + str(range_values[i]) + "_smooth_1.5_random0.05_4000")
         diffusion_images = load_diffusion_images(model_name, image_name, file_name)
         nrep = diffusion_images.shape[0]
         diffusion_means[i,:,:] = (np.mean(diffusion_images, axis = (0,1))).reshape((n,n))
@@ -52,8 +52,8 @@ def visualize_conditional_mean_observed_and_diffusion(variance, figname, n, mode
     plt.savefig(figname)
 
 smooth = 1.5
-model_name = "model3"
+model_name = "model4"
 n = 32
 smooth_value = 1.5
-figname = "figures/br_parameter_conditional_mean_model3.png"
+figname = "figures/br_parameter_conditional_mean_model4_random05.png"
 visualize_conditional_mean_observed_and_diffusion(smooth_value, figname, n, model_name)

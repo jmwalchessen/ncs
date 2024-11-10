@@ -34,7 +34,7 @@ def visualize_observed_and_diffusion(smooth, figname, n, model_name):
         mask = load_mask(model_name, image_name)
         partial_field = np.multiply(mask, ref_image)
         y = load_observations(model_name, image_name, mask, n)
-        file_name = (model_name + "_range_" + str(range_values[i]) + "_smooth_" + str(smooth) + "_random0.5_4000")
+        file_name = (model_name + "_range_" + str(range_values[i]) + "_smooth_" + str(smooth) + "_random0.05_4000")
         diffusion_images = load_diffusion_images(model_name, image_name, file_name)
         diffusion_visualizations[i,:,:] = (diffusion_images[20,:,:,:]).reshape((n,n))
         reference_visualizations[i,:,:] = ref_image
@@ -64,8 +64,8 @@ def visualize_observed_and_diffusion(smooth, figname, n, model_name):
     plt.savefig(figname)
 
 smooth = 1.5
-model_name = "model3"
+model_name = "model4"
 image_name = "ref_image0"
 n = 32
-figname = "figures/br_parameter_visualization_model3.png"
+figname = "figures/br_parameter_visualization_model4_random05.png"
 visualize_observed_and_diffusion(smooth, figname, n, model_name)

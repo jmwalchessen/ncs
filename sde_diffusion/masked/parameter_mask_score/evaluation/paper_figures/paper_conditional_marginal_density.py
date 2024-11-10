@@ -28,7 +28,7 @@ def visualize_marginal_density(model_name, missing_indices, n, nrep, variance, f
     marginal_densities = np.zeros((5,nrep))
     diffusion_marginal_densities = np.zeros((5,nrep))
     for i in range(0, 5):
-        file_name = (model_name + "_variance_" + str(variance) + "_lengthscale_" + str(lengthscales[i]) + "_beta_min_max_01_20_random50_1000")
+        file_name = (model_name + "_variance_" + str(variance) + "_lengthscale_" + str(lengthscales[i]) + "_beta_min_max_01_20_random05_4000")
         image_name = "ref_image" + str(i)
         masks[i,:,:] = load_mask(model_name, image_name)
         reference_images[i,:,:] = load_reference_image(model_name, image_name)
@@ -59,10 +59,10 @@ def visualize_marginal_density(model_name, missing_indices, n, nrep, variance, f
     plt.savefig(figname)
     plt.clf()
 
-model_name = "model6"
-missing_indices = [838, 700, 200, 301, 118]
+model_name = "model7"
+missing_indices = [845, 700, 200, 301, 118]
 n = 32
-nrep = 1000
+nrep = 4000
 variance = 1.5
-figname = "figures/gp_parameter_marginal_density.png"
+figname = "figures/gp_parameter_marginal_density_model7_random05.png"
 visualize_marginal_density(model_name, missing_indices, n, nrep, variance, figname)
