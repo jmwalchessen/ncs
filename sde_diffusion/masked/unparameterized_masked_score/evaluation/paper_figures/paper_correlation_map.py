@@ -60,7 +60,7 @@ def visualize_true_and_diffusion_correlation_maps(missing_indices, n, nrep,
         diffusion_cov_images[i,:,:] = diffusion_cov_image.reshape((n,n))
 
         
-        fig = plt.figure(figsize=(10,6))
+        fig = plt.figure(figsize=(10,4))
         grid = ImageGrid(fig, 111,  # similar to subplot(111)
                     nrows_ncols=(2, 5),  # creates 2x2 grid of Axes
                     axes_pad=0.1,  # pad between Axes in inch.
@@ -93,6 +93,6 @@ nrep = 4000
 variance = 1.5
 lengthscale = 3.0
 model_name = "model7"
-figname = "figures/paper_correlation_map_close_to_observed.png"
-missing_indices = [788, 427, 553, 548, 218]
+figname = "figures/paper_correlation_map_far_from_observed.png"
+missing_indices = [455, 103, 500, 200, 305]
 visualize_true_and_diffusion_correlation_maps(missing_indices, n, nrep, lengthscale, variance, model_name, figname)

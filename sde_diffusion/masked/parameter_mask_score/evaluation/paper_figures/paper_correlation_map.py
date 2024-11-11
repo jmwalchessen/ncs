@@ -59,7 +59,7 @@ def visualize_true_and_diffusion_correlation_maps(missing_indices, n, nrep,
         diffusion_cov_images[i,:,:] = diffusion_cov_image.reshape((n,n))
 
         
-        fig = plt.figure(figsize=(10,6))
+        fig = plt.figure(figsize=(10,4))
         grid = ImageGrid(fig, 111,  # similar to subplot(111)
                     nrows_ncols=(2, 5),  # creates 2x2 grid of Axes
                     axes_pad=0.1,  # pad between Axes in inch.

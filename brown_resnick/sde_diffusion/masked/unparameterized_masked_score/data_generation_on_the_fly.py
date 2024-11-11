@@ -6,6 +6,7 @@ import torch
 from torch.utils.data import Dataset, DataLoader
 import subprocess
 import os
+import scipy
 
 def log_transformation(images):
 
@@ -224,9 +225,6 @@ def get_training_and_evaluation_data_per_percentages(number_of_random_replicates
 
     train_images = np.log(train_images)
     eval_images = np.log(eval_images)
-    fig, ax = plt.subplots(1)
-    plt.imshow(train_images[0,:,:,:].reshape((n,n)))
-    plt.savefig("brown_sample1.png")
     train_masks = generate_random_masks_on_the_fly(n, train_images.shape[0], random_missingness_percentages)
     eval_masks = generate_random_masks_on_the_fly(n, eval_images.shape[0], random_missingness_percentages)
     train_dataset = CustomSpatialImageMaskDataset(train_images, train_masks)
@@ -236,7 +234,7 @@ def get_training_and_evaluation_data_per_percentages(number_of_random_replicates
     return train_dataloader, eval_dataloader
 
 
- def produce_percentages_via_uniform(number_of_percentages, boundary_start, boundary_end):
+def produce_percentages_via_uniform(number_of_percentages, boundary_start, boundary_end):
 
     uniform_generator = scipy.stats.uniform()
     percentages = ((boundary_end - boundary_start)*uniform_generator.rvs(number_of_percentages)) + boundary_start
@@ -245,7 +243,7 @@ def get_training_and_evaluation_data_per_percentages(number_of_random_replicates
 def get_training_and_evaluation_data_for_percentages(number_of_percentages, boundary_start, boundary_end, number_of_random_replicates, 
                                                      number_of_evaluation_random_replicates, number_of_masks_per_image,
                                                      number_of_evaluation_masks_per_image, batch_size, eval_batch_size, range_value, smooth_value,
-                                                     seed_values_list):
+                                                     seed_values_list, spatial_process_type):
     
     random_missingness_percentages = produce_percentages_via_uniform(number_of_percentages, boundary_start, boundary_end)
     train_dataloader, eval_dataloader = get_training_and_evaluation_data_per_percentages(number_of_random_replicates, random_missingness_percentages,
