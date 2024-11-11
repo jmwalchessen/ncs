@@ -246,6 +246,7 @@ def get_training_and_evaluation_data_for_percentages(number_of_percentages, boun
                                                      seed_values_list, spatial_process_type):
     
     random_missingness_percentages = produce_percentages_via_uniform(number_of_percentages, boundary_start, boundary_end)
+    print(random_missingness_percentages)
     train_dataloader, eval_dataloader = get_training_and_evaluation_data_per_percentages(number_of_random_replicates, random_missingness_percentages,
                                                      number_of_evaluation_random_replicates, number_of_masks_per_image,
                                                      number_of_evaluation_masks_per_image, batch_size, eval_batch_size,
