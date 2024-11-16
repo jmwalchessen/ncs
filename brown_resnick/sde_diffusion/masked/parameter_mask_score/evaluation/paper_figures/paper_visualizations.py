@@ -40,9 +40,9 @@ def visualize_observed_and_diffusion(smooth, figname, n, model_name):
         reference_visualizations[i,:,:] = ref_image
         masks[i,:,:] = mask
 
-    fig = plt.figure(figsize=(10,4))
+    fig = plt.figure(figsize=(10,6))
     grid = ImageGrid(fig, 111,  # similar to subplot(111)
-                 nrows_ncols=(2, 5),  # creates 2x2 grid of Axes
+                 nrows_ncols=(3, 5),  # creates 2x2 grid of Axes
                  axes_pad=0.1,  # pad between Axes in inch.
                  cbar_mode="single"
                  )
@@ -54,6 +54,10 @@ def visualize_observed_and_diffusion(smooth, figname, n, model_name):
                            alpha = (masks[i,:,:].astype(float)))
             ax.set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
             ax.set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
+        elif(i < 10):
+            im = ax.imshow(reference_visualizations[(i % 5),:,:], cmap='viridis', vmin = -2, vmax = 6)
+            ax.set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
+            ax.set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
         else:
             im = ax.imshow(diffusion_visualizations[(i % 5),:,:], cmap='viridis', vmin = -2, vmax = 6)
             ax.set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
@@ -61,6 +65,7 @@ def visualize_observed_and_diffusion(smooth, figname, n, model_name):
 
 
     ax.cax.colorbar(im)
+    plt.tight_layout()
     plt.savefig(figname)
 
 smooth = 1.5

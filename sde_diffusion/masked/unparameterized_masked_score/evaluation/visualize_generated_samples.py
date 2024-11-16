@@ -1,24 +1,25 @@
 import numpy as np
-import torch as th
+#import torch as th
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import ImageGrid
 import os
 import sys
 from append_directories import *
-
 home_folder = append_directory(2)
 sys.path.append(home_folder)
 from models import ncsnpp
+"""
 from sde_lib import *
 from configs.vp import ncsnpp_config
 from block_mask_generation import *
+
 
 device = "cuda:0"
 config = ncsnpp_config.get_config()
 #if trained parallelized, need to be evaluated that way too
 score_model = torch.nn.DataParallel((ncsnpp.NCSNpp(config)).to("cuda:0"))
 score_model.load_state_dict(th.load((home_folder + "/trained_score_models/vpsde/model4_beta_min_max_01_20_random4060_channel_mask.pth")))
-score_model.eval()
+score_model.eval()"""
 
 def construct_norm_matrix(minX, maxX, minY, maxY, n):
     # create one-dimensional arrays for x and y
@@ -108,6 +109,28 @@ def visualize_sample(diffusion_sample, n):
     ax.imshow(diffusion_sample.detach().cpu().numpy().reshape((n,n)), vmin = -2, vmax = 2)
     plt.show()
 
+
+def visualize_gp(variance, lengthscale, n, figname):
+    
+    minX = minY = -10
+    maxX = maxY = 10
+    seed_value = int(np.random.randint(0, 1000000, 1))
+    number_of_replicates = 1
+    gp_matrix = generate_gaussian_process(minX, maxX, minY, maxY, n, variance, lengthscale, number_of_replicates,
+                                          seed_value)
+    fig, ax = plt.subplots(figsize = (5,5))
+    ax.imshow(gp_matrix.reshape((n,n)), vmin = -2, vmax = 2)
+    plt.savefig(figname)
+
+def visualize_white_noise(n, figname):
+
+    white_noise = np.randon.normal(loc = 0, scale = 1, size = n**2)
+    fig, ax = plt.subplots(figsize = (5,5))
+    im = ax.imshow(white_noise.reshape((n,n)), vmin = -2, vmax = 2)
+    plt.colorbar(im)
+    plt.savefig(figname)
+
+
 def visualize_observed_and_generated_samples(observed, mask, diffusion1, diffusion2, n, figname):
 
     fig = plt.figure(figsize=(10,10))
@@ -129,7 +152,7 @@ def visualize_observed_and_generated_samples(observed, mask, diffusion1, diffusi
     grid[0].cax.colorbar(im)
     plt.savefig(figname)
 
-
+"""
 sdevp = VPSDE(beta_min=0.1, beta_max=20, N=1000)
 n = 32
 #mask = torch.ones((1,1,n,n)).to(device)
@@ -160,4 +183,8 @@ for p in ps:
 
     figname = ("visualizations/models/model7/random" + str(p) + "_variance_1.5_lengthscale_3_observed_and_generated_samples_" + str(i) + ".png")
     visualize_observed_and_generated_samples(unmasked_y, mask, diffusion_samples[0,:,:,:],
-                                            diffusion_samples[1,:,:,:], n, figname)
+                                            diffusion_samples[1,:,:,:], n, figname)"""
+
+n = 32
+figname = "white_noise_image.png"
+visualize_white_noise(n, figname)

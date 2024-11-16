@@ -37,7 +37,7 @@ located_neighboring_pixels <- function(observed_spatial_grid, k, key_location)
   return(id_matrix)
 }
 
-MCMC_interpolation_per_pixel <- function(observed_spatial_grid, observations, k, key_location,
+lcs_per_pixel <- function(observed_spatial_grid, observations, k, key_location,
                                             cov_mod, nugget, range, smooth, nrep)
 {
     id_matrix <- located_neighboring_pixels(observed_spatial_grid, k, key_location)
@@ -74,12 +74,12 @@ interruptor <- function(FUN,args, time.limit, ALTFUN){
   return(results)
 } 
 
-alternative_MCMC_interpolation_per_pixel_via_mask <- function(argsList)
+alternative_lcs_per_pixel_via_mask <- function(argsList)
 {
     return(array(NA, dim = c(1, argsList$nrep)))
 }
 
-produce_mcmc_interpolation_per_pixel_via_mask <- function(argsList)
+produce_lcs_per_pixel_via_mask <- function(argsList)
 {
     n <- argsList$n
     range <- argsList$range
@@ -109,22 +109,23 @@ produce_mcmc_interpolation_per_pixel_via_mask <- function(argsList)
     unobserved_observations <- ref_image[unobserved_indices]
     unobserved_spatial_grid <- spatial_grid[unobserved_indices,]
     key_location <- unobserved_spatial_grid[missing_index,]
-    condsim <- MCMC_interpolation_per_pixel(observed_spatial_grid, observations, neighbors, key_location,
-                                            cov_mod, nugget, range, smooth, nrep)
+    condsim <- lcs_per_pixel(observed_spatial_grid, observations, neighbors, key_location,
+                             cov_mod, nugget, range, smooth, nrep)
     return(condsim)
 }
 
 
-produce_mcmc_interpolation_per_pixel_via_mask_interrupted <- function(n, range, smooth, nugget, cov_mod, mask_file_name, ref_image_name,
-                                                          neighbors, nrep, missing_index)
+produce_lcs_per_pixel_via_mask_interrupted <- function(n, range, smooth, nugget, cov_mod, mask_file_name, ref_image_name,
+                                                       neighbors, nrep, missing_index)
 {
-    x <- interruptor(FUN = produce_mcmc_interpolation_per_pixel_via_mask, args = list(n = n, range = range, smooth = smooth,
-                                                                                      nugget = nugget, cov_mod = cov_mod,
-                                                                                      mask_file_name = mask_file_name,
-                                                                                      ref_image_name = ref_image_name,
-                                                                                      neighbors = neighbors, nrep = nrep,
-                                                                                      missing_index = missing_index),
-                                                                                      time.limit = 60, ALTFUN = alternative_MCMC_interpolation_per_pixel_via_mask)
+    x <- interruptor(FUN = produce_lcs_per_pixel_via_mask, args = list(n = n, range = range, smooth = smooth,
+                                                                       nugget = nugget, cov_mod = cov_mod,
+                                                                       mask_file_name = mask_file_name,
+                                                                       ref_image_name = ref_image_name,
+                                                                       neighbors = neighbors, nrep = nrep,
+                                                                       missing_index = missing_index),
+                                                                       time.limit = 60,
+                                                                       ALTFUN = alternative_lcs_per_pixel_via_mask)
     return(x)
 }
 
@@ -135,7 +136,7 @@ produce_local_conditional_simulation_for_multiple_pixels <- function(indices, n,
 {
   for(missing_index in indices)
   {
-    y <- produce_mcmc_interpolation_per_pixel_via_mask_interrupted(n, range, smooth, nugget, cov_mod, mask_file_name,
+    y <- produce_lcs_per_pixel_via_mask_interrupted(n, range, smooth, nugget, cov_mod, mask_file_name,
                                                                    ref_image_name, neighbors, nrep, missing_index)
     print(log(y[0:20]))
     current_condsim_file <- paste(paste(condsim_file_name, as.character(missing_index), sep = "_"), "npy", sep = ".")
@@ -144,9 +145,8 @@ produce_local_conditional_simulation_for_multiple_pixels <- function(indices, n,
   }
 }
 
-produce_local_conditional_simulation_multiple_references <- function(indices, n, range, smooth, nugget, cov_mod,
-                                                                     neighbors, nrep, condsim_file_name, model_folder,
-                                                                     ref_image_indices)
+produce_lcs_multiple_references <- function(indices, n, range_values, smooth, nugget, cov_mod, neighbors, nrep,
+                                            condsim_file_name, model_folder, ref_image_indices)
 {
   for(i in 1:length(ref_image_indices))
   {
@@ -154,20 +154,21 @@ produce_local_conditional_simulation_multiple_references <- function(indices, n,
     ref_image_name <- paste(ref_image_folder, "ref_image.npy", sep = "/")
     mask_file_name <- paste(ref_image_folder, "mask.npy", sep = "/")
     current_condsim_file <- paste(ref_image_folder, condsim_file_name, sep = "/")
-    produce_local_conditional_simulation_for_multiple_pixels(indices, n, range, smooth, nugget, cov_mod, mask_file_name,
-                                                                     ref_image_name, neighbors, nrep, current_condsim_file)
+    produce_lcs_for_multiple_pixels(indices, n, range, smooth, nugget, cov_mod, mask_file_name,
+                                    ref_image_name, neighbors, nrep, current_condsim_file)
   }
 }
 
 indices <- list(50,100,150,200,250,300,350,400,450,500,550,600,650,700,750,800,850,900)
 n <- 32
-range <- 2
-smooth <- 1.6
+range <- 3
+smooth <- 1.5
 nugget <- .0001
 cov_mod <- "brown"
 neighbors <- 5
 nrep <- 4000
-condsim_file_name <- paste(paste("local_conditional_simulation/univariate/local_conditional_simulation_range_2_smooth_1.6_neighbors", as.character(neighbors), sep = "_"),
+percentages <- list(.01,.05,.1,.25,.5)
+condsim_file_name <- paste(paste("lcs/univariate/local_conditional_simulation_range_3_smooth_1.5_neighbors", as.character(neighbors), sep = "_"),
                                   as.character(nrep), sep = "_")
 condsim_file_name <- paste(condsim_file_name, sep = "/")
 model_folder <- "data/model4"
