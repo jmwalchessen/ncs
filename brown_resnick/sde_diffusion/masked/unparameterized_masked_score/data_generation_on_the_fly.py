@@ -16,7 +16,7 @@ def log_transformation(images):
 
 def generate_brown_resnick_process(range_value, smooth_value, seed_value, number_of_replicates, n):
 
-    subprocess.run(["Rscript", "brown_resnick_data_generation.R", str(range_value),
+    subprocess.run(["Rscript", "brown_resnick_data_generation.R", str(round(range_value, 2)),
                     str(smooth_value), str(number_of_replicates), str(seed_value)],
                     check = True, capture_output = True, text = False)
     images = np.load("temporary_brown_resnick_samples.npy")
@@ -191,6 +191,7 @@ def get_training_and_evaluation_data_per_percentages(number_of_random_replicates
     eval_images = np.zeros((0,1,n,n))
 
     for i, p in enumerate(random_missingness_percentages):
+        print(i)
         seed_values = seed_values_list[i]
         if(p == 0):
             if(spatial_process_type == "schlather"):
@@ -198,7 +199,7 @@ def get_training_and_evaluation_data_per_percentages(number_of_random_replicates
                                                                                         number_of_random_replicates*number_of_masks_per_image, n)
                 current_eval_images = generate_schlather_process(range_value, smooth_value, seed_values[1],
                                                                                         number_of_evaluation_random_replicates*number_of_evaluation_masks_per_image, n)
-            elif(spatial_process_type == "brown resnick"):
+            elif(spatial_process_type == "brown"):
                 current_train_images = generate_brown_resnick_process(range_value, smooth_value, seed_values[0],
                                                                                         number_of_random_replicates*number_of_masks_per_image, n)
                 current_eval_images = generate_brown_resnick_process(range_value, smooth_value, seed_values[1],
@@ -246,9 +247,10 @@ def get_training_and_evaluation_data_for_percentages(number_of_percentages, boun
                                                      seed_values_list, spatial_process_type):
     
     random_missingness_percentages = produce_percentages_via_uniform(number_of_percentages, boundary_start, boundary_end)
-    print(random_missingness_percentages)
     train_dataloader, eval_dataloader = get_training_and_evaluation_data_per_percentages(number_of_random_replicates, random_missingness_percentages,
                                                      number_of_evaluation_random_replicates, number_of_masks_per_image,
                                                      number_of_evaluation_masks_per_image, batch_size, eval_batch_size,
                                                      range_value, smooth_value, seed_values_list, spatial_process_type)
-    return train_dataloader, eval_dataloader       
+    return train_dataloader, eval_dataloader
+
+   

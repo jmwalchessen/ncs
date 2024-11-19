@@ -20,6 +20,7 @@ def visualize_loss(epochs_and_draws, train_losses, eval_losses, figname):
     ax.set_ylabel('Loss')
     ax.legend()
     plt.savefig(figname)
+    
 def plot_original_and_diffusion_images(ref_image, mask, diffusion_images, vmin, vmax, figname, n):
 
     fig = plt.figure(figsize=(10, 10))
