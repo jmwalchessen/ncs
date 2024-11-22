@@ -169,7 +169,7 @@ produce_bivariate_lcs_for_multiple_pixels <- function(indices1, indices2, n, ran
 
 }
 
-produce_bivariate_local_conditional_simulation_multiple_references <- function(indices1, indices2, n, range_values,
+produce_bivariate_local_conditional_simulation_multiple_references <- function(indices1, indices2, n, range,
                                                                                smooth, nugget, cov_mod, neighbors,
                                                                                nrep, condsim_file_name, model_folder,
                                                                                ref_image_indices)
@@ -180,7 +180,7 @@ produce_bivariate_local_conditional_simulation_multiple_references <- function(i
     ref_image_name <- paste(ref_image_folder, "ref_image.npy", sep = "/")
     mask_file_name <- paste(ref_image_folder, "mask.npy", sep = "/")
     current_condsim_file_name <- paste(paste(ref_image_folder, "lcs/bivariate", sep = "/"), condsim_file_name, sep = "/")
-    produce_bivariate_lcs_for_multiple_pixels(indices1, indices2, n, range_values[i], smooth, nugget, cov_mod, mask_file_name,
+    produce_bivariate_lcs_for_multiple_pixels(indices1, indices2, n, range, smooth, nugget, cov_mod, mask_file_name,
                                               ref_image_name, neighbors, nrep, current_condsim_file_name)
   }
 }

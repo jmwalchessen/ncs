@@ -163,30 +163,31 @@ produce_empirical_pit_values_multiple_pixels <- function(n, range, smooth, nugge
                                                          neighbors, missing_indices, nrep_per_pit,
                                                          nrep, nrep_per_call, calls)
 {
-  empirical_pit_values <- array(NA, dim = c(nrep))
+  empirical_pit_values <- array(NA, dim = c(n**2,nrep))
   for(missing_index in missing_indices)
   {
-    empirical_pit_values[i] <- produce_empirical_pit_values_per_pixel(n, range, smooth, nugget, cov_mod, mask,
-                                                                      neighbors, missing_index, nrep_per_pit,
-                                                                      nrep, nrep_per_call, calls)
+    empirical_pit_values[missing_index,] <- produce_empirical_pit_values_per_pixel(n, range, smooth, nugget, cov_mod, mask,
+                                                                                   neighbors, missing_index, nrep_per_pit,
+                                                                                   nrep, nrep_per_call, calls)
   }
   return(empirical_pit_values)
 }
 
+np <- import("numpy")
 n <- 32
 range <- 1.
 smooth <- 1.5
 nugget <- .00001
 cov_mod <- "brown"
 p <- .05
-mask <- produce_random_mask(p, n)
 neighbors <- 7
 nrep <- 1000
 nrep_per_pit <- 4000
 calls <- 20
 nrep_per_call <- 50
-np <- import("numpy")
-mask <- np$load("data/model4/empirical_pit/mask1/mask.npy")
-produce_empirical_pit_values_multiple_pixels(n, range, smooth, nugget, cov_mod, mask,
-                                             neighbors, missing_indices, nrep_per_pit,
-                                             nrep, nrep_per_call, calls)
+mask <- np$load("data/model4/ref_image0/mask.npy")
+missing_indices <- which(flatten_matrix(mask, n)==0)
+empirical_pit_values <- produce_empirical_pit_values_multiple_pixels(n, range, smooth, nugget, cov_mod, mask,
+                                                                     neighbors, missing_indices, nrep_per_pit,
+                                                                     nrep, nrep_per_call, calls)
+np$save("data/model4/ref_image0/empirical_pit/lcs/univariate/empirical_pits_range_1_smooth_1.5_nugget_1e5_neighbors_7_1000_pits_per_4000_images.npy", empirical_pit_values)

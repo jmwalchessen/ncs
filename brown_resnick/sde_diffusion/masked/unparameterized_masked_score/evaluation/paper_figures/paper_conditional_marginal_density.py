@@ -1,5 +1,4 @@
 import numpy as np
-from generate_true_conditional_samples import *
 from append_directories import *
 from mpl_toolkits.axes_grid1 import ImageGrid
 import matplotlib.pyplot as plt
@@ -15,30 +14,24 @@ def produce_marginal_density(model_name, image_name, file_name, missing_index, n
     mask = load_mask(model_name, image_name)
     observations = load_observations(model_name, image_name, mask, n)
     diffusion_marginal_density = (diffusion_images.reshape((nrep,n**2)))[:,missing_index]
-    minX = minY = -10
-    maxX = maxY = 10
-    true_images = sample_conditional_distribution(mask, minX, maxX, minY, maxY, n, variance, lengthscale, observations, nrep)
-    true_images = concatenate_observed_and_kriging_samples(observations, true_images, mask, n)
-    true_marginal_density = (true_images.reshape((nrep,n**2)))[:,missing_index]
-    return true_marginal_density, diffusion_marginal_density
+    return diffusion_marginal_density
 
-def visualize_marginal_density(model_name, missing_indices, n, nrep, lengthscale, variance, figname):
+def visualize_marginal_density(model_name, missing_indices, n, nrep, range_value, smooth_value, figname):
 
     percentages = [.01,.05,.1,.25,.5]
-    reference_numbers = [0,1,2,4,7]
+    reference_numbers = [0,1,2,3,4]
     masks = np.zeros((5,n,n))
     reference_images = np.zeros((5,n,n))
     marginal_densities = np.zeros((5,nrep))
     diffusion_marginal_densities = np.zeros((5,nrep))
     for i in range(0, 5):
-        file_name = (model_name + "_beta_min_max_01_20_1000_" + str(percentages[i]))
+        file_name = (model_name + "_range_" + str(range_value) + "_smooth_" + str(smooth_value) + "_4000_random" + str(percentages[i]))
         image_name = "ref_image" + str(reference_numbers[i])
         masks[i,:,:] = load_mask(model_name, image_name)
         reference_images[i,:,:] = load_reference_image(model_name, image_name)
-        true_marginal_density, diffusion_marginal_density = produce_marginal_density(model_name, image_name, file_name,
-                                                                                     missing_indices[i], n, nrep, variance,
-                                                                                     lengthscale)
-        marginal_densities[i,:] = true_marginal_density
+        diffusion_marginal_density = produce_marginal_density(model_name, image_name, file_name,
+                                                              missing_indices[i], n, nrep, range_value,
+                                                              smooth_value)
         diffusion_marginal_densities[i,:] = diffusion_marginal_density
 
 
@@ -61,11 +54,11 @@ def visualize_marginal_density(model_name, missing_indices, n, nrep, lengthscale
     plt.savefig(figname)
     plt.clf()
 
-model_name = "model7"
-missing_indices = [838, 700, 200, 301, 495]
+model_name = "model4"
+missing_indices = [600, 700, 200, 343, 495]
 n = 32
 nrep = 4000
-variance = 1.5
-figname = "figures/gp_percentages_marginal_density.png"
-lengthscale = 3.0
-visualize_marginal_density(model_name, missing_indices, n, nrep, lengthscale, variance, figname)
+range_value = 3.0
+figname = "figures/br_percentages_marginal_density.png"
+smooth_value = 1.5
+visualize_marginal_density(model_name, missing_indices, n, nrep, range_value, smooth_value, figname)

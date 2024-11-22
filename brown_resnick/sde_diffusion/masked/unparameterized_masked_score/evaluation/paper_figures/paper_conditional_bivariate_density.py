@@ -3,6 +3,8 @@ from append_directories import *
 import matplotlib.pyplot as plt
 from paper_figure_helper_functions import *
 from matplotlib import patches as mpatches
+import pandas as pd
+import seaborn as sns
 
 
 def produce_bivariate_densities(model_name, lengthscale, variance, image_name, nrep,
@@ -14,22 +16,16 @@ def produce_bivariate_densities(model_name, lengthscale, variance, image_name, n
     mask = load_mask(model_name, image_name)
     observations = load_observations(model_name, image_name, mask, n)
     diffusion_images = load_diffusion_images(model_name, image_name, file_name)
-    conditional_unobserved_samples = sample_conditional_distribution(mask, minX, maxX, minY, maxY, n, variance,
-                                                  lengthscale, observations, nrep)
-    true_images = concatenate_observed_and_kriging_samples(observations, conditional_unobserved_samples, mask, n)
-    true_images = true_images.reshape((nrep,n**2))
     diffusion_images = diffusion_images.reshape((nrep,n**2))
-    bivariate_densities = np.concatenate([(true_images[:,missing_index1]).reshape((nrep,1)),
-                                          (true_images[:,missing_index2]).reshape((nrep,1))], axis = 1)
     diffusion_bivariate_densities = np.concatenate([(diffusion_images[:,missing_index1]).reshape((nrep,1)),
                                           (diffusion_images[:,missing_index2]).reshape((nrep,1))], axis = 1)
-    return bivariate_densities, diffusion_bivariate_densities
+    return diffusion_bivariate_densities
 
-def visualize_bivariate_density(model_name, lengthscale, variance, nrep,
+def visualize_bivariate_density(model_name, range_value, smooth, nrep,
                                 missing_indices1, missing_indices2, n, figname):
     
     percentages = [.01,.05,.1,.25,.5]
-    bivariate_densities = np.zeros((5,2*nrep,2))
+    bivariate_densities = np.zeros((5,nrep,2))
     masks = np.zeros((5,n,n))
     reference_images = np.zeros((5,n,n))
     reference_numbers = [0,1,2,4,7]
@@ -37,13 +33,14 @@ def visualize_bivariate_density(model_name, lengthscale, variance, nrep,
     for i in range(0,5):
 
         image_name = "ref_image" + str(reference_numbers[i])
-        file_name = (model_name + "_beta_min_max_01_20_1000_" + str(percentages[i]))
-        bdensities, dbdensities = produce_bivariate_densities(model_name, lengthscale, variance, 
+        file_name = (model_name + "_range_" + str(range_value) + "_smooth_" + str(smooth) + "_random" + str(percentages[i]))
+        dbdensities = produce_bivariate_densities(model_name, range_value, smooth, 
                                                               image_name, nrep, missing_indices1[i],
                                                               missing_indices2[i], file_name)
         masks[i,:,:] = load_mask(model_name, image_name)
         reference_images[i,:,:] = load_reference_image(model_name, image_name)
-        bivariate_densities[i,:,:] = np.concatenate([bdensities,dbdensities], axis = 0)
+        #bivariate_densities[i,:,:] = np.concatenate([bdensities,dbdensities], axis = 0)
+        bivariate_densities[i,:,:] = dbdensities
     
     class_vector = np.concatenate([(np.ones((nrep))).reshape((nrep,1)),
                                    (np.zeros((nrep)).reshape((nrep,1)))], axis = 0)
@@ -66,12 +63,11 @@ def visualize_bivariate_density(model_name, lengthscale, variance, nrep,
             pdd = pd.DataFrame(np.concatenate([bivariate_densities[(i%5),:,:], class_vector],axis = 1),
                                     columns = ['x', 'y', 'class'])
             pdd = pdd.astype({'x': 'float64', 'y': 'float64', 'class': 'float64'})
-            print(pdd)
             kde1 = sns.kdeplot(data = pdd, x = 'x', y = 'y', ax = axs[int(i/5),int(i%5)], hue = 'class',
-                               fill = False, levels = [.1,.2,.3,.4,.5,.6,.7,.8,.9,.95,.99], alpha = .5)
+                               fill = False, levels = [.1,.2,.3,.4,.5,.6,.7,.8,.9,.95,.99], alpha = 1)
             blue_patch = mpatches.Patch(color='blue')
             orange_patch = mpatches.Patch(color='orange')
-            axs[int(i/5),int(i%5)].legend(handles = [blue_patch, orange_patch], labels = ['true', 'diffusion'])
+            #axs[int(i/5),int(i%5)].legend(handles = [blue_patch, orange_patch], labels = ['true', 'NCS'])
             axs[int(i/5),int(i%5)].axvline(reference_images[(i%5),matrix_index1[0],matrix_index1[1]], color='red', linestyle = 'dashed')
             axs[int(i/5),int(i%5)].axhline(reference_images[(i%5),matrix_index2[0],matrix_index2[1]], color='red', linestyle = 'dashed')
             axs[int(i/5),int(i%5)].set_xlim([-4.5,4.5])
@@ -82,7 +78,7 @@ def visualize_bivariate_density(model_name, lengthscale, variance, nrep,
     plt.clf()
 
 
-def visualize_close_bivariate_density(model_name, lengthscale, variance, nrep,
+def visualize_close_bivariate_density(model_name, range_value, smooth, nrep,
                                       missing_indices1, missing_indices2,
                                       n, figname):
     
@@ -95,10 +91,10 @@ def visualize_close_bivariate_density(model_name, lengthscale, variance, nrep,
     for i in range(0,5):
 
         image_name = "ref_image" + str(reference_names[i])
-        file_name = (model_name + "_beta_min_max_01_20_1000_" + str(percentages[i]))
-        bdensities, dbdensities = produce_bivariate_densities(model_name, lengthscale, variance,
-                                                                                         image_name, nrep, missing_indices1[i],
-                                                                                         missing_indices2[i], file_name)
+        file_name = (model_name + "_range_" +str(range_value) + "_smooth_" + str(smooth) + "_random" + str(percentages[i]))
+        bdensities, dbdensities = produce_bivariate_densities(model_name, range_value, smooth,
+                                                              image_name, nrep, missing_indices1[i],
+                                                              missing_indices2[i], file_name)
         masks[i,:,:] = load_mask(model_name, image_name)
         reference_images[i,:,:] = load_reference_image(model_name, image_name)
         bivariate_densities[i,:,:] = np.concatenate([bdensities,dbdensities], axis = 0)
@@ -138,20 +134,20 @@ def visualize_close_bivariate_density(model_name, lengthscale, variance, nrep,
     plt.savefig(figname)
     plt.clf()
 
-model_name = "model7"
-lengthscale = 3.0
-variance = 1.5
+model_name = "model4"
+range_value = 3.0
+smooth = 1.5
 nrep = 4000
 missing_indices1 = [232,772,870,500,567]
 missing_indices2 = [233,835,873,502,568]
-figname = "figures/gp_percentage_close_bivairate_density.png" 
+figname = "figures/br_percentage_close_bivairate_density.png" 
 n = 32
-visualize_close_bivariate_density(model_name, lengthscale, variance, nrep,
+visualize_close_bivariate_density(model_name, range_value, smooth, nrep,
                                   missing_indices1, missing_indices2,
                                   n, figname)
 
 missing_indices1 = [484,168,230,500,567]
 missing_indices2 = [570,835,255,807,908]
-figname = "figures/gp_percentage_bivairate_density.png"
-visualize_bivariate_density(model_name, lengthscale, variance, nrep,
+figname = "figures/br_percentage_bivairate_density.png"
+visualize_bivariate_density(model_name, range_value, smooth, nrep,
                                 missing_indices1, missing_indices2, n, figname)
