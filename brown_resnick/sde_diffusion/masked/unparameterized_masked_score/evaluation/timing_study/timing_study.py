@@ -45,14 +45,21 @@ def plot_sample_size_vs_time(replicates_list, smooth_value, range_value, p, n, f
     ax.set_ylabel("Evaluation Time (Seconds)")
     plt.savefig(figname)
 
+def plot_sample_size_vs_time_multiple_percentages(replicates_list, smooth_value, range_value, plist, n, figname):
+
+
+    for p in plist:
+        current_figname = (figname + str(p) + ".png")
+        plot_sample_size_vs_time(replicates_list, smooth_value, range_value, p, n, current_figname)
+
 
 replicates_list = [1,5,10,25,50,100,250,500,1000]
 smooth_value = 1.5
 range_value = 3.0
-p = .05
+plist = [.01,.05,.1,.25,.5]
 n = 32
-figname = "data/model4/timings_smooth_1.5_range_3.0_random05.png"
-plot_sample_size_vs_time(replicates_list, smooth_value, range_value, p, n, figname)
+figname = "data/model4/timings_smooth_1.5_range_3.0_random"
+plot_sample_size_vs_time(replicates_list, smooth_value, range_value, plist, n, figname)
 
     
 
