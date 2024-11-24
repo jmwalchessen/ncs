@@ -17,7 +17,7 @@ def return_timing(number_of_replicates, variance, lengthscale, p, n):
     N = 1000
     device = "cuda:0"
     mask = (th.bernoulli(p*th.ones((1,1,n,n)))).float().to(device)
-    score_model = load_score_model("model7_beta_min_max_01_20_random01525_variance_1.5_lengthscale_3_channel_mask.pth", "eval")
+    score_model = load_score_model("model7_variance_1.5_lengthscale_.5_5.5_beta_min_max_01_20_random05_channel_mask.pth", "eval")
     vpsde = load_sde(beta_min, beta_max, N)
     seed_value = int(np.random.randint(0, 1000000, 1))
     y = (th.from_numpy(generate_gaussian_process(minX = -10, maxX = 10, minY = -10, maxY = 10, n = 32, variance = variance,
@@ -48,26 +48,26 @@ def plot_sample_size_vs_time(replicates_list, variance, lengthscale, p, n, figna
     ax.set_ylabel("Evaluation Time (Seconds)")
     plt.savefig(figname)
 
-def plot_sample_size_vs_time_multiple_percentages(replicates_list, variance, lengthscale, plist, n, figname, npfilename):
+def plot_sample_size_vs_time_multiple_lengthscales(replicates_list, variance, lengthscales, p, n, figname, npfilename):
 
 
-    for p in plist:
-        current_figname = (figname + str(p) + ".png")
-        current_npfilename = (npfilename + str(p) + ".npy")
-        plot_sample_size_vs_time(replicates_list, variance, lengthscale, p, n, current_figname, current_npfilename)
+    for lengthscale in lengthscales:
+        current_figname = (figname + str(lengthscale) + ".png")
+        current_npfilename = (npfilename + str(lengthscale) + ".npy")
+        plot_sample_size_vs_time(replicates_list, variance, lengthscales, p, n, current_figname, current_npfilename)
 
-def plot_timing_vs_percentages(variance, lengthscale, plist, n, figname, npfilename):
+def plot_timing_vs_lengthscales(variance, lengthscales, p, n, figname, npfilename):
 
     fig, ax = plt.subplots()
-    timings = np.zeros((len(plist),2))
-    for i in range(0, len(plist)):
+    timings = np.zeros((len(lengthscales),2))
+    for i in range(0, len(lengthscales)):
 
-        timings[i,0] = plist[i]
-        timings[i,1] = return_timing(1, variance, lengthscale, plist[i], n)
+        timings[i,0] = lengthscales[i]
+        timings[i,1] = return_timing(1, variance, lengthscales[i], p, n)
 
 
     np.save(npfilename, timings)
-    ax.plot(plist, timings[:,1])
+    ax.plot(lengthscales, timings[:,1])
     ax.set_xlabel("Sample Size")
     ax.set_ylabel("Evaluation Time (Seconds)")
     plt.savefig(figname)
@@ -76,12 +76,12 @@ def plot_timing_vs_percentages(variance, lengthscale, plist, n, figname, npfilen
 replicates_list = [1,2]
 variance = 1.5
 lengthscale = 3.0
+lengthscales = [1.0,2.0,3.0,4.0,5.0]
 n = 32
-plist = [.01,.05,.1,.25,.5]
+p = .05
 figname = "data/model7/timings_random05_variance_1.5_lengthscale_"
-npfilename = "data/model7/timing_array__variance_1.5_lengthscale_"
-plot_sample_size_vs_time_multiple_percentages(replicates_list, variance, lengthscale, plist, n, figname, npfilename)
-figname = "data/model7/timings_variance_1.5_lengthscale_3_varying_percentages_0105102550.png"
-npfilename = "data/model7/timing_array_variance_1.5_lengthscale_3_varying_percentages_0105102550.npy"
-plot_timing_vs_percentages(variance, lengthscale, plist, n, figname, npfilename)
-    
+npfilename = "data/model7/timing_array_random05_variance_1.5_lengthscale_"
+plot_sample_size_vs_time_multiple_lengthscales(replicates_list, variance, lengthscales, p, n, figname, npfilename)
+figname = "data/model7/timings_random05_smooth_1.5_range_1_5.png"
+npfilename = "data/model7/timing_array_random05_variance_1.5_lengthscales_1_5.npy"
+plot_timing_vs_lengthscales(variance, lengthscales, p, n, figname, npfilename)

@@ -4,10 +4,10 @@ from append_directories import *
 import sys
 import os
 import torch as th
-from brown_resnick_data_generation import *
 evaluation_folder = append_directory(2)
 sys.path.append(evaluation_folder)
 from helper_functions import *
+from brown_resnick_data_generation import *
 import time
 
 
@@ -17,11 +17,11 @@ def return_timing(number_of_replicates, smooth_value, range_value, p, n):
     beta_max = 20
     N = 1000
     device = "cuda:0"
-    mask = (th.bernoulli(p*th.ones((1,1,n,n)))).float().to(device)
+    mask = (th.bernoulli(p*th.ones((1,1,n,n)))).to(device)
     score_model = load_score_model("brown", "model4_beta_min_max_01_20_random01525_smooth_1.5_range_3_channel_mask.pth", "eval")
     vpsde = load_sde(beta_min, beta_max, N)
     seed_value = int(np.random.randint(0, 1000000, 1))
-    y = (th.from_numpy(generate_brown_resnick_process(range_value, smooth_value, seed_value, number_of_replicates, n))).to(device)
+    y = generate_brown_resnick_process(range_value, smooth_value, seed_value, number_of_replicates, n)
     start = time.time()
     br_samples = posterior_sample_with_p_mean_variance_via_mask(vpsde, score_model, device, mask,
                                                             y, n, number_of_replicates)
@@ -83,4 +83,3 @@ plot_sample_size_vs_time_multiple_percentages(replicates_list, smooth_value, ran
 figname = "data/model4/timings_smooth_1.5_range_3.0_varying_percentage_0105102550.png"
 npfilename = "data/model4/timing_array_smooth_1.5_range_3.0_varying_percentage_0105102550.npy"
 plot_timing_vs_percentage(smooth_value, range_value, plist, n, figname, npfilename)
-

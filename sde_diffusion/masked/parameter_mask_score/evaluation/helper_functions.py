@@ -7,7 +7,7 @@ from append_directories import *
 #get trained score model
 def load_score_model(model_name, mode):
 
-    home_folder = append_directory(7)
+    home_folder = append_directory(5)
     if "sde_diffusion" in home_folder:
         sde_folder = home_folder + "/masked/unparameterized_masked_score"
     else:
@@ -89,6 +89,7 @@ def sample_unconditionally_multiple_calls(vpsde, score_model, device, mask, y, n
                                     diffusion_samples],
                                     dim = 0)
     return diffusion_samples
+
 
 
 def construct_norm_matrix(minX, maxX, minY, maxY, n):
