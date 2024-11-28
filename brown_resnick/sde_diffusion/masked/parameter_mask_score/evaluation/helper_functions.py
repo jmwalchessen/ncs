@@ -59,6 +59,26 @@ def p_mean_and_variance_from_score_via_mask(vpsde, score_model, device, masked_x
     masked_p_variance = th.mul((1-mask), unmasked_p_variance)
     return masked_p_mean, masked_p_variance
 
+
+def multiple_p_mean_and_variance_from_score_via_mask(vpsde, score_model, device, masked_xt, masks, ys, t):
+
+    num_samples = masked_xt.shape[0]
+    timestep = ((th.tensor([t])).repeat(num_samples)).to(device)
+    reps = masked_xt.shape[0]
+    masked_xt_and_mask = th.cat([masked_xt, masks], dim = 1)
+    with th.no_grad():
+        score_and_mask = score_model(masked_xt_and_mask, timestep)
+    
+    #first channel is score, second channel is mask
+    score = score_and_mask[:,0:1,:,:]
+    squared_sigmat = (th.square(th.tensor(vpsde.sigmas[t]))).to(device)
+    sqrt_alphat = (th.sqrt(th.tensor(vpsde.alphas[t]))).to(device)
+    unmasked_p_mean = (1/sqrt_alphat)*(masked_xt + squared_sigmat*score)
+    masked_p_mean = th.mul((1-masks), unmasked_p_mean) + th.mul(masks, ys)
+    unmasked_p_variance = squared_sigmat*th.ones_like(masked_xt)
+    masked_p_variance = th.mul((1-masks), unmasked_p_variance)
+    return masked_p_mean, masked_p_variance
+
 def sample_with_p_mean_variance_via_mask(vpsde, score_model, device, masked_xt, mask, y, t, num_samples,
                                          range_value, smooth_value):
 
@@ -68,6 +88,16 @@ def sample_with_p_mean_variance_via_mask(vpsde, score_model, device, masked_xt, 
     noise = th.randn_like(masked_xt)
     #just to make sure that the masked values aren't perturbed by the noise, the variance should already be masked though
     masked_noise = th.mul((1-mask), noise)
+    sample = p_mean + std*masked_noise
+    return sample
+
+def multiple_sample_with_p_mean_variance_via_mask(vpsde, score_model, device, masked_xt, masks, ys, t):
+
+    p_mean, p_variance = multiple_p_mean_and_variance_from_score_via_mask(vpsde, score_model, device, masked_xt, masks, ys, t)
+    std = th.exp(0.5 * th.log(p_variance))
+    noise = th.randn_like(masked_xt)
+    #just to make sure that the masked values aren't perturbed by the noise, the variance should already be masked though
+    masked_noise = th.mul((1-masks), noise)
     sample = p_mean + std*masked_noise
     return sample
 
@@ -82,6 +112,19 @@ def posterior_sample_with_p_mean_variance_via_mask(vpsde, score_model, device, m
         masked_xt = sample_with_p_mean_variance_via_mask(vpsde, score_model, device, masked_xt,
                                                          mask, y, t, num_samples, range_value,
                                                          smooth_value)
+
+    return masked_xt
+
+def multiple_posterior_sample_with_p_mean_variance_via_mask(vpsde, score_model, device, masks,
+                                                   ys, n):
+
+    nrep = masks.shape[0]
+    unmasked_xT = th.randn((nrep, 1, n, n)).to(device)
+    masked_xT = th.mul((1-masks), unmasked_xT) + th.mul(masks, ys)
+    masked_xt = masked_xT
+    for t in range((vpsde.N-1), 0, -1):
+        masked_xt = multiple_sample_with_p_mean_variance_via_mask(vpsde, score_model, device, masked_xt,
+                                                         masks, ys, t)
 
     return masked_xt
 
