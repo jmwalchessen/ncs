@@ -50,11 +50,12 @@ bivariate_lcs_per_pixel <- function(observed_spatial_grid, observations, k, key_
     two_key_locations <- data.frame(s1 = c(as.numeric(key_location1$s1), as.numeric(key_location2$s1)),
                                     s2 = c(as.numeric(key_location1$s2), as.numeric(key_location2$s2)))
     id_matrix <- bivariate_located_neighboring_pixels(observed_spatial_grid, k, two_key_locations)
-    print(id_matrix)
     
     cond_data <- observations[id_matrix]
     cond_coord <- observed_spatial_grid[id_matrix,]
-    print(log(cond_data))
+    print(two_key_locations)
+    print(cond_coord)
+    print(cond_data)
     output <- SpatialExtremes::condrmaxstab(nrep, coord = two_key_locations,
               cond.coord = cond_coord,
               cond.data = cond_data,
@@ -154,6 +155,7 @@ produce_bivariate_lcs_for_multiple_pixels <- function(indices1, indices2, n, ran
   m <- length(indices1)
   for(i in 1:m)
   {
+    missing_index1 <- indices1[i]
     missing_index2 <- indices2[i]
       if((missing_index1 != missing_index2))
       {

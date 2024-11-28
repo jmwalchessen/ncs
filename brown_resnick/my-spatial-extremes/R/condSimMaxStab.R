@@ -21,6 +21,9 @@ condrmaxstab <- function(k = 1, coord, cond.coord, cond.data, cov.mod = "powexp"
     all.coord <- scale(rbind(cond.coord, coord), scale = FALSE)
     dim <- ncol(coord)
   }
+  
+  print(n.site)
+  print(n.cond)
 
   dist <- as.matrix(dist(all.coord, diag = TRUE, upper = TRUE))
 
