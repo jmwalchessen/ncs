@@ -19,6 +19,7 @@ def generate_joint_ncs_images(masked_true_images_file, mask_file, vpsde, score_m
 
     masks = load_npfile(mask_file)
     masked_true_images = load_npfile(masked_true_images_file)
+    masked_true_images[masked_true_images != 0] = np.exp(masked_true_images[masked_true_images != 0])
     nimages = masked_true_images.shape[0]
     device = "cuda:0"
     num_samples = 1
