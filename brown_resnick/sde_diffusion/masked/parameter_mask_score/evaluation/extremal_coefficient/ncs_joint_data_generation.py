@@ -31,12 +31,11 @@ def generate_joint_ncs_images(masked_true_images_file, mask_file, vpsde, score_m
         print(current_masked_true_images.shape)
         current_masks = ((th.from_numpy(masks[i*batches_per_call:(i+1)*batches_per_call,:,:])).float().to(device)).reshape((batches_per_call,1,n,n))
         print(current_masks.shape)
-        ncs_images[i*batches_per_call:(i+1)*batches_per_call,:,:] = ((posterior_multiple_sample_with_p_mean_variance_via_mask(vpsde, score_model, device, current_masks,
-                                                       current_masked_true_images, n, num_samples,
-                                                       range_value, smooth_value)).detach().cpu().numpy()).reshape((batches_per_call,n,n))
+        ncs_images[i*batches_per_call:(i+1)*batches_per_call,:,:] = ((multiple_posterior_sample_with_p_mean_variance_via_mask(vpsde, score_model, device, current_masks,
+                                                                            current_masked_true_images, n, range_value, smooth_value)).detach().cpu().numpy()).reshape((batches_per_call,n,n))
         
     
-    np.load(ncs_images_file)
+    np.save(ncs_images_file, ncs_images)
 
 
 def generate_joint_ncs_images_multiple_ranges(masked_true_images_file, mask_file, vpsde, score_model,

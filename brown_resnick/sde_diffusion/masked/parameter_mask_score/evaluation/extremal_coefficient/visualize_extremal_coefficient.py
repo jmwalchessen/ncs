@@ -21,6 +21,13 @@ def visualize_extremal_coefficient(extremal_matrix, range_value, smooth, bins, f
                   + str(smooth) + ", bins = " + str(bins)))
     plt.savefig(figname)
 
+def visualize_ncs_extremal_coefficient(ref_folder, base_ncs_file, range_value, smooth_value, bins, nrep, figname):
+
+    ext_ncs_images = np.load((ref_folder + "/" + base_ncs_file + "_" + str(range_value) +
+                              "_smooth_" + str(smooth_value) + "_" + str(nrep) + ".npy"))
+    
+
+
 
 smooth = 1.5
 range_value = 5
