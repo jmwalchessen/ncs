@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 evaluation_folder = append_directory(2)
 sys.path.append(evaluation_folder)
 from helper_functions import *
-score_model = load_score_model("brown", "model4/model4_beta_min_max_01_20_range_.5_5.5_smooth_1.5_random05_log_parameterized_mask.pth", "eval")
+score_model = load_score_model("brown", "model4_beta_min_max_01_20_random01525_smooth_1.5_range_3_channel_mask.pth", "eval")
 sdevp = load_sde(beta_min = .1, beta_max = 20, N = 1000)
 
 def load_npfile(npfile):
@@ -46,7 +46,8 @@ def generate_joint_ncs_images_multiple_percentages(masked_true_images_file, mask
 
         current_masked_true_images_file = (masked_true_images_file + "_random" + str(p) + ".npy")
         current_ncs_images_file = (ncs_images_file + "_random" + str(p) + ".npy")
-        generate_joint_ncs_images(current_masked_true_images_file, mask_file, vpsde, score_model, range_value, smooth_value,
+        current_mask_file = (mask_file + "_random" + str(p) + ".npy")
+        generate_joint_ncs_images(current_masked_true_images_file, current_mask_file, vpsde, score_model, range_value, smooth_value,
                                   current_ncs_images_file, batches_per_call, calls, n)
 
 
@@ -61,4 +62,4 @@ batches_per_call = 500
 n = 32
 ps = [.01,.05,.1,.25,.5]
 generate_joint_ncs_images_multiple_percentages(masked_true_images_file, mask_file, sdevp, score_model, range_value, smooth_value,
-                                               ncs_images_file, nrep, batches_per_call, calls, n, ps)
+                                               ncs_images_file, batches_per_call, calls, n, ps)
