@@ -34,14 +34,14 @@ compute_true_extremal_coefficient_multiple_ranges <- function(number_of_replicat
   }
 }
 
-compute_ncs_extremal_coefficient <- function(number_of_replicates, range, smooth, nbins, ncs_file, ext_file)
+compute_ncs_extremal_coefficient <- function(number_of_replicates, range, smooth, nbins, ncs_file, ext_file, n)
 {
   n.size <- 1024
   nn <- sqrt(n.size)
   x <- y <- seq(-10, 10, length = nn)
   coord <- expand.grid(x, y)
-  ncs_images <- np$load(ncs_file)
-  dim(ncs_images) <- c(number_of_replicates,1)
+  ncs_images <- exp(np$load(ncs_file))
+  dim(ncs_images) <- c(number_of_replicates,(n**2))
   mado <- madogram(data = ncs_images, coord = as.matrix(coord), which = "ext", n.bins = nbins)
   np$save(ext_file, mado)
 }
@@ -60,10 +60,11 @@ compute_true_extremal_coefficient_multiple_ranges_fixed_values <- function()
 }
 
 number_of_replicates <- 4000
-range <- 1.0
+range <- 5.0
 smooth <- 1.5
 nbins <- 100
-ncs_file <- "data/ncs/model4/"
-ext_file <- "data/ncs/model4/extremal_coefficient"
-compute_ncs_extremal_coefficient(number_of_replicates, range, smooth, nbins, ncs_file, ext_file)
+n <- 32
+ncs_file <- "data/ncs/model4/brown_resnick_ncs_images_range_5.0_smooth_1.5_4000.npy"
+ext_file <- "data/ncs/model4/extremal_coefficient_range_5.0_smooth_1.5_bins_100_4000.npy"
+compute_ncs_extremal_coefficient(number_of_replicates, range, smooth, nbins, ncs_file, ext_file, n)
 

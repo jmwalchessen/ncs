@@ -21,21 +21,40 @@ def visualize_extremal_coefficient(extremal_matrix, range_value, smooth, bins, f
                   + str(smooth) + ", bins = " + str(bins)))
     plt.savefig(figname)
 
-def visualize_ncs_extremal_coefficient(ref_folder, base_ncs_file, range_value, smooth_value, bins, nrep, figname):
 
-    ext_ncs_images = np.load((ref_folder + "/" + base_ncs_file + "_" + str(range_value) +
-                              "_smooth_" + str(smooth_value) + "_" + str(nrep) + ".npy"))
+def visualize_ncs_and_true_extremal_coefficient(extremal_matrix, ncs_extremal_matrix,
+                                                range_value, smooth, bins, figname):
+
+    h = extremal_matrix[:,0]
+    ext_coeff = extremal_matrix[:,2]
+    ncs_ext_coeff = ncs_extremal_matrix[:,2]
+    fig, ax = plt.subplots()
+    ax.plot(h, ext_coeff, "blue")
+    ax.plot(h, ncs_ext_coeff, "purple")
+    ax.set_xlabel("Distance Lag (h)")
+    ax.set_ylabel("Extremal Coefficient")
+    ax.set_title(("Extremal Coefficient (range = " + str(range_value) + ", smooth = "
+                  + str(smooth) + ", bins = " + str(bins)))
+    ax.legend(labels = ['true', 'NCS'])
+    plt.savefig(figname)
     
 
 
 
 smooth = 1.5
-range_value = 5
+range_value = 5.0
 bins = 100
+nrep = 4000
 figname = ("data/true/extremal_coefficient_smooth_" + str(smooth) + "_range_" + 
-                                  str(range_value) + "_nbins_" + str(bins) + ".png")
+                                  str(round(range_value)) + "_nbins_" + str(bins) + ".png")
 extremal_matrix = load_numpy_file(("data/true/extremal_coefficient_smooth_" + str(smooth) + "_range_" + 
-                                  str(range_value) + "_nbins_" + str(bins) + ".npy"))
-visualize_extremal_coefficient(extremal_matrix, range_value, smooth, bins, figname)
+                                  str(round(range_value)) + "_nbins_" + str(bins) + ".npy"))
+ncs_extremal_matrix = load_numpy_file(("data/ncs/model4/extremal_coefficient_range_"
+                                            + str(range_value) + "_smooth_" + str(smooth) 
+                                            + "_bins_" + str(bins) + "_" + str(nrep) + ".npy"))
+figname = ("data/ncs/model4/ncs_extremal_coefficient_smooth_" + str(smooth) + "_range_" + 
+                                  str(range_value) + "_nbins_" + str(bins) + ".png")
+visualize_ncs_and_true_extremal_coefficient(extremal_matrix, ncs_extremal_matrix, range_value,
+                                            smooth, bins, figname)
 
     
