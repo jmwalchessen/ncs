@@ -101,6 +101,7 @@ def visualize_conditional_mean_observed_ncs_lcs(figname, n, model_name, lcs_file
 
 
     ax.cax.colorbar(im)
+    plt.tight_layout()
     plt.savefig(figname)
 
 smooth = 1.5
