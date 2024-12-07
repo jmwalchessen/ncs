@@ -25,7 +25,7 @@ flatten_matrix <- function(twodmatrix, n)
 order_bivariate_neighbors <- function(id_matrix)
 {
   neighbors <- union(id_matrix[1,], id_matrix[2,])
-  return(neighbors[1:7])
+  print(nrow(neighbors))
 }
 
 bivariate_located_neighboring_pixels <- function(observed_spatial_grid, k, key_location)

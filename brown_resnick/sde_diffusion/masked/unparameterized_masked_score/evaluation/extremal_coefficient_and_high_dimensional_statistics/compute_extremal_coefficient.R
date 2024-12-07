@@ -16,8 +16,7 @@ compute_true_extremal_coefficient <- function(number_of_replicates, number_of_re
   coord <- expand.grid(x, y)
   calls <- as.integer(number_of_replicates/number_of_replicates_per_call)
   repnumberslist <- rep(number_of_replicates_per_call, calls)
-  print(repnumberslist)
-  y <- simulate_data_across_cores(repnumberslist, nn, coord, range, smooth)
+  y <- simulate_data_across_cores(repnumberslist, nn, coord, range, smooth, number_of_replicates_per_call)
   mado <- madogram(data = y, coord = as.matrix(coord), which = "ext", n.bins = nbins)
   np$save(ext_file, mado)
   dim(y) <- c(number_of_replicates,n,n)
@@ -40,6 +39,8 @@ compute_ncs_extremal_coefficient <- function(number_of_replicates, range, smooth
 
 
 number_of_replicates <- 4000
+number_of_replicates_per_call <- 50
+calls <- 80
 range <- 3.0
 number_of_replicates_per_call <- 50
 smooth <- 1.5

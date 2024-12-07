@@ -19,7 +19,7 @@ collect_data <- function(parallel_output, nn, number_of_replicates_per_call)
   return(y)
 }
 
-simulate_data_across_cores <- function(repnumberslist, nn, coord, range, smooth)
+simulate_data_across_cores <- function(repnumberslist, nn, coord, range, smooth, number_of_replicates_per_call)
 {
   cores <- (detectCores(logical = TRUE))
   y <- mclapply(repnumberslist, function(nrep)

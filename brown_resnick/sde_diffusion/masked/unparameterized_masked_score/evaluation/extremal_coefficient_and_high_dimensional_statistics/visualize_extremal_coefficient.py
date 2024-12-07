@@ -26,8 +26,8 @@ def visualize_ncs_and_true_extremal_coefficient(extremal_matrix, ncs_extremal_ma
                                                 range_value, smooth, bins, figname):
 
     h = extremal_matrix[:,0]
-    ext_coeff = extremal_matrix[:,2]
-    ncs_ext_coeff = ncs_extremal_matrix[:,2]
+    ext_coeff = 2-extremal_matrix[:,2]
+    ncs_ext_coeff = 2-ncs_extremal_matrix[:,2]
     fig, ax = plt.subplots()
     ax.plot(h, ext_coeff, "blue")
     ax.plot(h, ncs_ext_coeff, "orange")
@@ -45,15 +45,14 @@ smooth = 1.5
 range_value = 3.0
 bins = 100
 nrep = 4000
-p = .05
-figname = ("data/true/extremal_coefficient_range_" + str(range_value) + "_smooth_" + 
-          str(smooth) + "_" + str(nrep) + ".png")
-extremal_matrix = load_numpy_file(("data/true/extremal_coefficient_range_" + str(range_value) + "_smooth_" + 
-                                  str(smooth) + "_nbins_" + str(bins) + ".npy"))
-ncs_extremal_matrix = load_numpy_file(("data/ncs/model4/brown_resnick_ncs_extremal_matrix_bins_"
-                                            + str(bins) + "_range_"
+p = .01
+figname = ("data/true/extremal_coefficient_smooth_" + str(smooth) + "_range_" + 
+                                  str(round(range_value)) + "_nbins_" + str(bins) + "_random" + str(100*p) + ".png")
+extremal_matrix = load_numpy_file(("data/true/extremal_coefficient_smooth_" + str(smooth) + "_range_" + 
+                                  str(round(range_value)) + "_nbins_" + str(bins) + "_random" + str(100*p) + ".npy"))
+ncs_extremal_matrix = load_numpy_file(("data/ncs/model4/extremal_coefficient_range_"
                                             + str(range_value) + "_smooth_" + str(smooth) 
-                                            + "_" + str(nrep) + "_random" + str(p) + ".npy"))
+                                            + "_bins_" + str(bins) + "_" + str(nrep) + "_random" + str(100*p) + ".npy"))
 figname = ("data/ncs/model4/ncs_extremal_coefficient_smooth_" + str(smooth) + "_range_" + 
                                   str(range_value) + "_nbins_" + str(bins) + "_random" + str(p) + ".png")
 visualize_ncs_and_true_extremal_coefficient(extremal_matrix, ncs_extremal_matrix, range_value,

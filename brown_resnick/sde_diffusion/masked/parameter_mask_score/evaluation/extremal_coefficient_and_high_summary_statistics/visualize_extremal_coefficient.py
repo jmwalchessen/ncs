@@ -12,6 +12,7 @@ def load_numpy_file(npfile):
 def visualize_extremal_coefficient(extremal_matrix, range_value, smooth, bins, figname):
 
     h = extremal_matrix[:,0]
+    print(h)
     ext_coeff = extremal_matrix[:,2]
     fig, ax = plt.subplots()
     ax.plot(h, ext_coeff)
@@ -26,6 +27,7 @@ def visualize_ncs_and_true_extremal_coefficient(extremal_matrix, ncs_extremal_ma
                                                 range_value, smooth, bins, figname):
 
     h = extremal_matrix[:,0]
+    print(h)
     ext_coeff = extremal_matrix[:,2]
     ncs_ext_coeff = ncs_extremal_matrix[:,2]
     fig, ax = plt.subplots()
@@ -42,16 +44,15 @@ def visualize_ncs_and_true_extremal_coefficient(extremal_matrix, ncs_extremal_ma
 
 
 smooth = 1.5
-range_value = 5.0
-bins = 100
+range_value = 1.0
+bins = 500
 nrep = 4000
 figname = ("data/true/extremal_coefficient_smooth_" + str(smooth) + "_range_" + 
                                   str(round(range_value)) + "_nbins_" + str(bins) + ".png")
 extremal_matrix = load_numpy_file(("data/true/extremal_coefficient_smooth_" + str(smooth) + "_range_" + 
                                   str(round(range_value)) + "_nbins_" + str(bins) + ".npy"))
-ncs_extremal_matrix = load_numpy_file(("data/ncs/model4/extremal_coefficient_range_"
-                                            + str(range_value) + "_smooth_" + str(smooth) 
-                                            + "_bins_" + str(bins) + "_" + str(nrep) + ".npy"))
+ncs_extremal_matrix = load_numpy_file(("data/ncs/model4/ncs_extremal_coefficient_smooth_" + str(smooth) 
+                                            + "_range_" + str(round(range_value)) + "_nbins_" + str(bins) + ".npy"))
 figname = ("data/ncs/model4/ncs_extremal_coefficient_smooth_" + str(smooth) + "_range_" + 
                                   str(range_value) + "_nbins_" + str(bins) + ".png")
 visualize_ncs_and_true_extremal_coefficient(extremal_matrix, ncs_extremal_matrix, range_value,
