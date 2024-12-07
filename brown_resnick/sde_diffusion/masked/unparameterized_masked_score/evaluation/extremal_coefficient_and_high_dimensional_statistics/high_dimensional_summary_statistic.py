@@ -24,11 +24,11 @@ def compute_maximum_summary_statistic_multiple_percentages(ncs_images_file,
     
     for p in ps:
 
-        current_ncs_images_file = (ncs_images_file + "_random" + str(100*p) + ".npy")
-        current_true_images_file = (true_images_file + "_random" + str(100*p) + ".npy")
+        current_ncs_images_file = (ncs_images_file + "_random" + str(p) + ".npy")
+        current_true_images_file = (true_images_file + "_random" + str(p) + ".npy")
         current_ncs_images = np.load(current_ncs_images_file)
         current_true_images = np.load(current_true_images_file)
-        current_figname = (figname + "_random" + str(100*p) + ".npy")
+        current_figname = (figname + "_random" + str(p) + ".npy")
         compute_maximum_summary_statistic(current_ncs_images_file, current_true_images_file, current_figname)
 
 
