@@ -63,8 +63,7 @@ def multiple_p_mean_and_variance_from_score_via_mask(vpsde, score_model, device,
     num_samples = masked_xt.shape[0]
     timestep = ((th.tensor([t])).repeat(num_samples)).to(device)
     reps = masked_xt.shape[0]
-    parameter_masks = range_value*masks
-    masked_xt_and_mask = th.cat([masked_xt, parameter_masks], dim = 1)
+    masked_xt_and_mask = th.cat([masked_xt, masks], dim = 1)
     with th.no_grad():
         score_and_mask = score_model(masked_xt_and_mask, timestep)
     
