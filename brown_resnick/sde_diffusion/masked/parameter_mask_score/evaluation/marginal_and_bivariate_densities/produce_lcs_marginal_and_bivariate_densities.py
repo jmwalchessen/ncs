@@ -126,41 +126,45 @@ def produce_generated_and_lcs_bivariate_density(ref_image_folder, n, missing_ind
     ncs_images = np.load((data_generation_folder + "/" + ref_image_folder + "/diffusion/" + ncs_file_name))
     bivariate_lcs_density = np.load((data_generation_folder + "/" + ref_image_folder + "/lcs/bivariate/" + 
                                      bivariate_lcs_file + "_" + str(missing_index1) + "_" + str(missing_index2) + ".npy"))
-    bivariate_lcs_density = np.log(bivariate_lcs_density)
-    matrix_missing_index1 = (int(missing_indices[(missing_index1-1)] % n), int(missing_indices[(missing_index1-1)] / n))
-    matrix_missing_index2 = (int(missing_indices[(missing_index2-1)] % n), int(missing_indices[(missing_index2-1)] / n))
-    bivariate_ncs_density = np.concatenate([(ncs_images[:,0,int(matrix_missing_index1[0]),int(matrix_missing_index1[1])]).reshape((nrep,1)),
+    if(bivariate_lcs_density.size == 1):
+        pass
+    else:
+
+        bivariate_lcs_density = np.log(bivariate_lcs_density)
+        matrix_missing_index1 = (int(missing_index1 % n), int(missing_index2 / n))
+        matrix_missing_index2 = (int(missing_index2 % n), int(missing_index2 / n))
+        bivariate_ncs_density = np.concatenate([(ncs_images[:,0,int(matrix_missing_index1[0]),int(matrix_missing_index1[1])]).reshape((nrep,1)),
                                             (ncs_images[:,0,int(matrix_missing_index2[0]),int(matrix_missing_index2[1])]).reshape((nrep,1))],
                                             axis = 1)
 
 
-    #fig, ax = plt.subplots(1)
-    #ax.hist(marginal_disalsotribution, density = True, histtype = 'step', bins = 100)
-    fig, axs = plt.subplots(ncols = 2, figsize = (10,5))
+        #fig, ax = plt.subplots(1)
+        #ax.hist(marginal_disalsotribution, density = True, histtype = 'step', bins = 100)
+        fig, axs = plt.subplots(ncols = 2, figsize = (9,3.5))
 
-    #partially_observed_field = np.multiply(mask.astype(bool), observed_vector.reshape((n,n)))
-    mask = mask.astype(float).reshape((n,n))
-    im = axs[0].imshow(ref_image.reshape((n,n)), alpha = mask, vmin = -2, vmax = 6)
-    axs[0].plot(matrix_missing_index1[1], matrix_missing_index1[0], "r+")
-    axs[0].plot(matrix_missing_index2[1], matrix_missing_index2[0], "r+")
-    plt.colorbar(im, shrink = .8)
-    sns.kdeplot(x = bivariate_lcs_density[:,0], y = bivariate_lcs_density[:,1],
-                ax = axs[1], palette = ['purple'])
-    sns.kdeplot(x = bivariate_ncs_density[:,0], y = bivariate_ncs_density[:,1],
-                ax = axs[1], palette = ['orange'])
-    plt.axvline(ref_image[int(matrix_missing_index1[0]),int(matrix_missing_index1[1])], color='red', linestyle = 'dashed')
-    plt.axhline(ref_image[int(matrix_missing_index2[0]),int(matrix_missing_index2[1])], color='red', linestyle = 'dashed')
-    axs[1].set_title("Bivariate")
-    axs[1].set_xlim(-10,10)
-    axs[1].set_ylim(-10,10)
-    #location = index_to_spatial_location(minX, maxX, minY, maxY, n, missing_true_index)
-    #rlocation = (round(location[0],2), round(location[1],2))
-    #axs[1].set_xlabel("location: " + str(rlocation))
-    purple_patch = mpatches.Patch(color='purple')
-    orange_patch = mpatches.Patch(color='orange')
-    axs[1].legend(handles = [purple_patch, orange_patch], labels = ['bivariate LCS', 'NCS'])
-    plt.savefig((data_generation_folder + "/" + ref_image_folder + "/lcs/bivariate/bivariate_density/" + figname))
-    plt.clf()
+        #partially_observed_field = np.multiply(mask.astype(bool), observed_vector.reshape((n,n)))
+        mask = mask.astype(float).reshape((n,n))
+        im = axs[0].imshow(ref_image.reshape((n,n)), alpha = mask, vmin = -2, vmax = 6)
+        axs[0].plot(matrix_missing_index1[1], matrix_missing_index1[0], "r+")
+        axs[0].plot(matrix_missing_index2[1], matrix_missing_index2[0], "r+")
+        plt.colorbar(im, shrink = .8)
+        sns.kdeplot(x = bivariate_lcs_density[:,0], y = bivariate_lcs_density[:,1],
+                    ax = axs[1], color = 'purple')
+        sns.kdeplot(x = bivariate_ncs_density[:,0], y = bivariate_ncs_density[:,1],
+                    ax = axs[1], color = 'orange')
+        plt.axvline(ref_image[int(matrix_missing_index1[0]),int(matrix_missing_index1[1])], color='red', linestyle = 'dashed')
+        plt.axhline(ref_image[int(matrix_missing_index2[0]),int(matrix_missing_index2[1])], color='red', linestyle = 'dashed')
+        axs[1].set_title("Bivariate")
+        axs[1].set_xlim(-10,10)
+        axs[1].set_ylim(-10,10)
+        #location = index_to_spatial_location(minX, maxX, minY, maxY, n, missing_true_index)
+        #rlocation = (round(location[0],2), round(location[1],2))
+        #axs[1].set_xlabel("location: " + str(rlocation))
+        purple_patch = mpatches.Patch(color='purple')
+        orange_patch = mpatches.Patch(color='orange')
+        axs[1].legend(handles = [purple_patch, orange_patch], labels = ['bivariate LCS', 'NCS'])
+        plt.savefig((data_generation_folder + "/" + ref_image_folder + "/lcs/bivariate/bivariate_density/" + figname))
+        plt.clf()
 
 
 
@@ -179,14 +183,15 @@ for missing_index in range(0, 1000, 10):
                                                       ncs_file_name, univariate_lcs_file, figname)"""
 
 
-ref_image_folder = "data/model4/ref_image0"
+ref_image_folder = "data/model4/ref_image4"
 nrep = 4000
 neighbors = 7
+range_value = 5.0
 bivariate_lcs_file = "bivariate_lcs_" + str(nrep) + "_neighbors_" + str(neighbors) + "_nugget_1e5"
 n = 32
-ncs_file_name = "model4_range_1.0_smooth_1.5_random0.05_4000.npy"
-missing_indices1 = [10,12,15,17,28,34,40,63,64,70,85,106,132,134,140,154,166,167]
-missing_indices2 = [165,769,974,654,863,115,496,456,627,398,757,321,587,468,347,475,507]
+ncs_file_name = "model4_range_" + str(range_value) + "_smooth_1.5_random0.05_4000.npy"
+missing_indices1 = [198,210,229,304,317,322,431,476]
+missing_indices2 = [900,748,310,520,264,191,488,24]
 for i in range(len(missing_indices1)):
 
     figname = ("bivariate_lcs_" + str(nrep) + "neighbors_" + str(neighbors) + "_nugget_1e5_bivariate_density_missing_index_"

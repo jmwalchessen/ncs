@@ -22,24 +22,37 @@ flatten_matrix <- function(twodmatrix, n)
   return(onedarray)
 }
 
-order_bivariate_neighbors <- function(id_matrix)
+order_bivariate_neighbors <- function(id_matrix, neighbors_size)
 {
-  neighbors <- union(id_matrix[1,], id_matrix[2,])
-  print(nrow(neighbors))
+  neighborsk <- as.vector(unique(c(id_matrix[1,1:3], id_matrix[2,1:3])))
+  extra_neighbors <- as.vector(unique(c(id_matrix[1,4:7], id_matrix[2,4:7])))
+  if(length(neighborsk) == as.integer(neighbors_size))
+  {
+    return(neighborsk)
+  }
+  else
+  {
+    extra_size <- neighbors_size - as.integer(length(neighborsk))
+    extra_neighbors_size <- length(extra_neighbors)
+    indices <- (sample(1:extra_neighbors_size, extra_size))
+    neighbors <- c(neighborsk, as.vector(extra_neighbors[indices]))
+    return(neighbors)
+
+  }
 }
 
 bivariate_located_neighboring_pixels <- function(observed_spatial_grid, k, key_location)
 {
   m <- dim(observed_spatial_grid)[1]
-  if(k == m)
+  if(as.integer(k) == as.integer(m))
   {
     id_matrix <- 1:m
   }
   else {
-    knn <- kNN(observed_spatial_grid, k = k, query = key_location)
-    id_matrix <- as.matrix(knn$id)
+    knn <- kNN(observed_spatial_grid, k = as.integer(k), query = key_location)
+    id_matrix <- knn$id
   }
-  bneighbors <- order_bivariate_neighbors(id_matrix)
+  bneighbors <- order_bivariate_neighbors(id_matrix, k)
   return(bneighbors)
 }
 
@@ -49,13 +62,9 @@ bivariate_lcs_per_pixel <- function(observed_spatial_grid, observations, k, key_
 {
     two_key_locations <- data.frame(s1 = c(as.numeric(key_location1$s1), as.numeric(key_location2$s1)),
                                     s2 = c(as.numeric(key_location1$s2), as.numeric(key_location2$s2)))
-    id_matrix <- bivariate_located_neighboring_pixels(observed_spatial_grid, k, two_key_locations)
-    
+    id_matrix <- as.matrix(bivariate_located_neighboring_pixels(observed_spatial_grid, k, two_key_locations))
     cond_data <- observations[id_matrix]
     cond_coord <- observed_spatial_grid[id_matrix,]
-    print(two_key_locations)
-    print(cond_coord)
-    print(cond_data)
     output <- SpatialExtremes::condrmaxstab(nrep, coord = two_key_locations,
               cond.coord = cond_coord,
               cond.data = cond_data,
@@ -64,6 +73,7 @@ bivariate_lcs_per_pixel <- function(observed_spatial_grid, observations, k, key_
               range = range,
               smooth = smooth)
     condsim <- output$sim
+    return(condsim)
 }
 
 interruptor <- function(FUN,args, time.limit, ALTFUN){
@@ -115,16 +125,22 @@ produce_bivariate_lcs_per_pixel_via_mask <- function(argsList)
     ref_image <- flatten_matrix(ref_image, n)
     mask <- flatten_matrix(mask, n)
     observed_indices <- (1:n**2)[mask == 1]
-    observed_spatial_grid <- spatial_grid[observed_indices,]
-    observations <- ref_image[observed_indices]
-    unobserved_indices <- (1:n**2)[-observed_indices]
-    unobserved_observations <- ref_image[unobserved_indices]
-    unobserved_spatial_grid <- spatial_grid[unobserved_indices,]
-    key_location1 <- unobserved_spatial_grid[missing_index1,]
-    key_location2 <- unobserved_spatial_grid[missing_index2,]
-    condsim <- bivariate_lcs_per_pixel(observed_spatial_grid, observations, neighbors,
-                                       key_location1, key_location2, cov_mod, nugget,
-                                       range, smooth, nrep)
+    if((is.element(missing_index1, observed_indices) | is.element(missing_index2, observed_indices)))
+    {
+      condsim <- vec()
+    }
+    else {
+      observed_spatial_grid <- spatial_grid[observed_indices,]
+      observations <- ref_image[observed_indices]
+      unobserved_indices <- (1:n**2)[-observed_indices]
+      unobserved_observations <- ref_image[unobserved_indices]
+      unobserved_spatial_grid <- spatial_grid[unobserved_indices,]
+      key_location1 <- spatial_grid[missing_index1,]
+      key_location2 <- spatial_grid[missing_index2,]
+      condsim <- bivariate_lcs_per_pixel(observed_spatial_grid, observations, neighbors,
+                                         key_location1, key_location2, cov_mod, nugget,
+                                         range, smooth, nrep)
+    }
     return(condsim)
 }
 
@@ -162,8 +178,8 @@ produce_bivariate_lcs_for_multiple_pixels <- function(indices1, indices2, n, ran
         y <- produce_bivariate_lcs_per_pixel_via_mask_interrupted(n, range, smooth, nugget, cov_mod, mask_file_name,
                                                                 ref_image_name, neighbors, nrep, missing_index1,
                                                                 missing_index2)
-        current_condsim_file <- paste(paste(paste(condsim_file_name, as.character(missing_index1), sep = "_"),
-                                          as.character(missing_index2), sep = "_"), "npy", sep = ".")
+        current_condsim_file <- paste(paste(paste(condsim_file_name, as.character((missing_index1-1)), sep = "_"),
+                                          as.character((missing_index2-1)), sep = "_"), "npy", sep = ".")
         np <- import("numpy")
         np$save(current_condsim_file, y)
       }
