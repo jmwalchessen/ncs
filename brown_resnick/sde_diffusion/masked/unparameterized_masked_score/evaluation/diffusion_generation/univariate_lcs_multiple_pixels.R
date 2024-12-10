@@ -39,11 +39,9 @@ located_neighboring_pixels <- function(observed_spatial_grid, k, key_location)
 lcs_per_pixel <- function(observed_spatial_grid, observations, k, key_location,
                           cov_mod, nugget, range, smooth, nrep)
 {
-    print(key_location)
     id_matrix <- located_neighboring_pixels(observed_spatial_grid, k, key_location)
     cond_data <- observations[id_matrix]
     cond_coord <- observed_spatial_grid[id_matrix,]
-    print(log(cond_data))
     output <- SpatialExtremes::condrmaxstab(nrep, coord = key_location,
               cond.coord = cond_coord,
               cond.data = cond_data,
@@ -96,7 +94,6 @@ produce_lcs_per_pixel_via_mask <- function(argsList)
     s <- cbind(s1, s2)
     spatial_grid <- expand.grid(s1 = s1, 
                   s2 = s2)
-
     mask <- np$load(mask_file_name)
     ref_image <- exp(np$load(ref_image_name))
     ref_image <- flatten_matrix(ref_image, n)
@@ -117,13 +114,10 @@ produce_lcs_per_pixel_via_mask <- function(argsList)
 produce_lcs_per_pixel_via_mask_interrupted <- function(n, range, smooth, nugget, cov_mod, mask_file_name, ref_image_name,
                                                           neighbors, nrep, missing_index)
 {
-    x <- interruptor(FUN = produce_lcs_per_pixel_via_mask, args = list(n = n, range = range, smooth = smooth,
-                                                                       nugget = nugget, cov_mod = cov_mod,
-                                                                       mask_file_name = mask_file_name,
-                                                                       ref_image_name = ref_image_name,
-                                                                       neighbors = neighbors, nrep = nrep,
-                                                                       missing_index = missing_index),
-                                                                       time.limit = 60, ALTFUN = alternative_MCMC_interpolation_per_pixel_via_mask)
+    arglist <- list(n = n, range = range, smooth = smooth, nugget = nugget, cov_mod = cov_mod,
+                    mask_file_name = mask_file_name, ref_image_name = ref_image_name,
+                    neighbors = neighbors, nrep = nrep, missing_index = missing_index)
+    x <- interruptor(FUN = produce_lcs_per_pixel_via_mask, args = arglist, time.limit = 60, ALTFUN = alternative_lcs_per_pixel_via_mask)
     return(x)
 }
 
