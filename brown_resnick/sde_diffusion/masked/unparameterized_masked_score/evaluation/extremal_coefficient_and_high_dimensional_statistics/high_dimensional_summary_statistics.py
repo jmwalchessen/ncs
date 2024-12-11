@@ -53,7 +53,7 @@ def compute_quantile_summary_statistic(ncs_images_file, true_images_file, fignam
     plt.savefig(figname)
     plt.clf()
 
-p = .25
+p = .01
 figname = "high_dimensional_summary_statistics/ncs/model4/maximum_summary_statistics_ncs_vs_true_4000_random" + str(p) + ".png"
 ncs_images_file = "data/ncs/model4/brown_resnick_ncs_images_range_3.0_smooth_1.5_4000_random" + str(p) + ".npy"
 true_images_file = "data/true/brown_resnick_images_range_3.0_smooth_1.5_4000.npy"
@@ -62,6 +62,6 @@ n = 32
 compute_maximum_summary_statistic(ncs_images_file, true_images_file, figname, nrep, n)
 figname = "high_dimensional_summary_statistics/ncs/model4/minimum_summary_statistics_ncs_vs_true_4000_random" + str(p) + ".png"
 compute_minimum_summary_statistic(ncs_images_file, true_images_file, figname, nrep, n)
-q = .5
+q = .01
 figname = "high_dimensional_summary_statistics/ncs/model4/quantile_" + str(q) + "_summary_statistics_ncs_vs_true_4000_random" + str(p) + ".png"
 compute_quantile_summary_statistic(ncs_images_file, true_images_file, figname, nrep, n, q)

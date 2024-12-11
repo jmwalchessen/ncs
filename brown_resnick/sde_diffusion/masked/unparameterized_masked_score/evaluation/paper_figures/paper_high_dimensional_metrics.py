@@ -59,7 +59,7 @@ def compute_minimum_summary_statistic(ncs_images_file, true_images_file, figname
         sns.kdeplot(data = truepdd, palette=['blue'], ax = axes[i])
         sns.kdeplot(data = ncspdd, palette=['orange'], ax = axes[i])
         axes[i].legend(labels = ['true', 'NCS'])
-        axes[i].set_xlim(-10,0)
+        axes[i].set_xlim(-5,0)
 
     
     plt.savefig(figname)
@@ -90,7 +90,7 @@ def compute_quantile_summary_statistic(ncs_images_file, true_images_file, fignam
         sns.kdeplot(data = truepdd, palette = ['blue'], ax = axes[i], legend = True)
         sns.kdeplot(data = ncspdd, palette =['orange'], ax = axes[i], legend = True)
         axes[i].legend(labels = ['true', 'NCS'])
-        axes[i].set_xlim((-2,2))
+        axes[i].set_xlim((-.5,10))
     
     plt.savefig(figname)
     plt.clf()
@@ -161,20 +161,22 @@ n = 32
 nrep = 4000
 smooth = 1.5
 range_value = 3.0
-q = .1
+q = .99
 qs = [.01,.05,.1,.25,.5]
+"""
 figname = "figures/br_percentage_model4_max_summary_statistic.png"
 compute_maximum_summary_statistic(ncs_images_file, true_images_file, figname, nrep, n, qs,
                                   range_value, smooth)
 figname = "figures/br_percentage_model4_min_summary_statistic.png"
 compute_minimum_summary_statistic(ncs_images_file, true_images_file, figname, nrep,
-                                      n, qs, range_value, smooth)
-figname = "figures/br_percentage_model4_quantile_.1_summary_statistic.png"
+                                      n, qs, range_value, smooth)"""
+figname = "figures/br_percentage_model4_quantile" + str(q) + "_summary_statistic.png"
 compute_quantile_summary_statistic(ncs_images_file, true_images_file, figname, nrep,
                                        n, qs, q, range_value, smooth)
+"""
 figname = "figures/br_percentage_model4_summation_statistic.png"
 compute_summation_statistic(ncs_images_file, true_images_file, figname, nrep,
                                 n, qs, range_value, smooth)
 figname = "figures/br_percentage_model4_absolute_summation_statistic.png"
 compute_absolute_summation_statistic(ncs_images_file, true_images_file, figname, nrep,
-                                n, qs, range_value, smooth)
+                                n, qs, range_value, smooth)"""

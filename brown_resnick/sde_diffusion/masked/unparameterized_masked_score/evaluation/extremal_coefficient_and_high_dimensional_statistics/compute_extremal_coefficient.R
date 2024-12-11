@@ -47,7 +47,7 @@ smooth <- 1.5
 nbins <- 100
 n <- 32
 true_image_file <- "data/true/brown_resnick_range_3.0_smooth_1.5_4000.npy"
-ncs_file <- "data/ncs/model4/brown_resnick_ncs_images_range_3.0_smooth_1.5_4000_random0.1.npy"
-ncs_ext_file <- "data/ncs/model4/brown_resnick_ncs_extremal_matrix_bins_100_range_3.0_smooth_1.5_4000_random0.1.npy"
+ncs_file <- "data/ncs/model4/brown_resnick_ncs_images_range_3.0_smooth_1.5_4000_random0.01.npy"
+ncs_ext_file <- "data/ncs/model4/brown_resnick_ncs_extremal_matrix_bins_100_range_3.0_smooth_1.5_4000_random0.01.npy"
 ext_file <- "data/true/extremal_coefficient_range_3.0_smooth_1.5_nbins_100.npy"
 compute_ncs_extremal_coefficient(number_of_replicates, range, smooth, nbins, ncs_file, ncs_ext_file, n)
