@@ -68,10 +68,9 @@ joint_lcs <- function(mask_file_name, ref_image_name, n, nrep, range, smooth, nu
   unobserved_indices <- (1:n**2)[-observed_indices]
   unobserved_observations <- ref_image[unobserved_indices]
   unobserved_spatial_grid <- spatial_grid[unobserved_indices,]
-  print(observations)
   output <- SpatialExtremes::condrmaxstab(nrep, coord = unobserved_spatial_grid,
-                                          cond.coord = observations,
-                                          cond.data = observed_spatial_grid,
+                                          cond.coord = observed_spatial_grid,
+                                          cond.data = observations,
                                           cov.mod = "brown", 
                                           nugget = nugget, 
                                           range = range,
@@ -80,7 +79,7 @@ joint_lcs <- function(mask_file_name, ref_image_name, n, nrep, range, smooth, nu
   np$save(joint_lcs_file, condsim)
 }
 
-m <- 2
+m <- 7
 n <- 32
 ref_image_name <- "data/model4/ref_image0/ref_image.npy"
 mask_file_name <- "data/model4/ref_image0/mask.npy"

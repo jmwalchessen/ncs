@@ -47,20 +47,24 @@ def visualize_local_conditional_simulation_marginal_density(ref_image_folder, un
     plt.clf()
 
 
-def visualize_lcs_bivariate_density(ref_image_folder, bivariate_lcs_file, missing_index1, missing_index2, n, nrep, figname):
+def visualize_lcs_bivariate_density(ref_image_folder, bivariate_lcs_file, n, nrep, figname):
 
     mask = np.load((data_generation_folder + "/" + ref_image_folder + "/mask.npy"))
     missing_indices = np.squeeze(np.argwhere((1-mask).reshape((n**2,))))
     ref_image = np.load((data_generation_folder + "/" + ref_image_folder + "/ref_image.npy"))
     bivariate_lcs_density = np.load((data_generation_folder + "/" + ref_image_folder + "/lcs/bivariate/" + 
-                                     bivariate_lcs_file + "_" + str(missing_index1) + "_" + str(missing_index2) + ".npy"))
+                                     bivariate_lcs_file))
     bivariate_lcs_density = np.log(bivariate_lcs_density)
+    missing_index1 = int((bivariate_lcs_file.split("_"))[-2])
+    missing_index2 = int(((((bivariate_lcs_file)).split("_"))[-1]).split(".")[0])
     matrix_missing_index1 = (int(missing_indices[missing_index1] % n), int(missing_indices[missing_index1] / n))
     matrix_missing_index2 = (int(missing_indices[missing_index2] % n), int(missing_indices[missing_index2] / n))
 
     fig, ax = plt.subplots(nrows = 1, ncols = 2,figsize = (10,4))
     im = ax[0].imshow(ref_image.reshape((n,n)), alpha = mask.reshape((n,n)).astype(float),
                  vmin = -2, vmax = 4)
+    ax[0].plot(matrix_missing_index1[1], matrix_missing_index1[0], "r+")
+    ax[0].plot(matrix_missing_index2[1], matrix_missing_index2[0], "r+")
     plt.colorbar(im, shrink = .8)
     sns.kdeplot(x = bivariate_lcs_density[:,0], y = bivariate_lcs_density[:,1],
                 ax = ax[1])
@@ -69,9 +73,10 @@ def visualize_lcs_bivariate_density(ref_image_folder, bivariate_lcs_file, missin
     ax[1].legend(labels = ['Bivariate LCS'])
     ax[1].set_xlim(-10,10)
     ax[1].set_ylim(-10,10)
-    plt.show()
-    #plt.savefig(figname)
-    #plt.clf()
+    plt.savefig(figname)
+    plt.clf()
+
+
 
 def produce_generated_and_univariate_lcs_marginal_density(ref_image_folder, n, missing_index,
                                                           ncs_file_name, univariate_lcs_file,
@@ -96,7 +101,7 @@ def produce_generated_and_univariate_lcs_marginal_density(ref_image_folder, n, m
     lcs_pdd = pd.DataFrame(lcs_marginal_density,
                                     columns = None)
 
-    #partially_observed_field = np.multiply(mask.astype(bool), observed_vector.reshape((n,n)))
+    #missing_index1, missing_index2,, missing_index2,ield = np.multiply(mask.astype(bool), observed_vector.reshape((n,n)))
     mask = mask.astype(float).reshape((n,n))
     axs[0].imshow(ref_image.reshape((n,n)), alpha = mask, vmin = -2, vmax = 6)
     axs[0].plot(matrix_missing_index[1], matrix_missing_index[0], "r+")
@@ -117,7 +122,7 @@ def produce_generated_and_univariate_lcs_marginal_density(ref_image_folder, n, m
     plt.clf()
 
 
-def produce_generated_and_lcs_bivariate_density(ref_image_folder, n, missing_index1, missing_index2,
+def produce_generated_and_lcs_bivariate_density(ref_image_folder, n,
                                                 ncs_file_name, bivariate_lcs_file, figname, nrep):
     
     mask = np.load((data_generation_folder + "/" + ref_image_folder + "/mask.npy"))
@@ -125,17 +130,22 @@ def produce_generated_and_lcs_bivariate_density(ref_image_folder, n, missing_ind
     ref_image = np.load((data_generation_folder + "/" + ref_image_folder + "/ref_image.npy"))
     ncs_images = np.load((data_generation_folder + "/" + ref_image_folder + "/diffusion/" + ncs_file_name))
     bivariate_lcs_density = np.load((data_generation_folder + "/" + ref_image_folder + "/lcs/bivariate/" + 
-                                     bivariate_lcs_file + "_" + str(missing_index1) + "_" + str(missing_index2) + ".npy"))
+                                     bivariate_lcs_file))
+    missing_index1 = int((bivariate_lcs_file.split("_"))[-2])
+    missing_index2 = int(((((bivariate_lcs_file)).split("_"))[-1]).split(".")[0])
     if(bivariate_lcs_density.size == 1):
         pass
     else:
 
         bivariate_lcs_density = np.log(bivariate_lcs_density)
-        matrix_missing_index1 = (int(missing_index1 % n), int(missing_index2 / n))
-        matrix_missing_index2 = (int(missing_index2 % n), int(missing_index2 / n))
+        matrix_missing_index1 = index_to_matrix_index(missing_index1, n)
+        matrix_missing_index2 = index_to_matrix_index(missing_index2, n)
+        print(matrix_missing_index1)
+        print(matrix_missing_index2)
         bivariate_ncs_density = np.concatenate([(ncs_images[:,0,int(matrix_missing_index1[0]),int(matrix_missing_index1[1])]).reshape((nrep,1)),
                                             (ncs_images[:,0,int(matrix_missing_index2[0]),int(matrix_missing_index2[1])]).reshape((nrep,1))],
-                                            axis = 1)
+                       
+                                             axis = 1)
 
 
         #fig, ax = plt.subplots(1)
@@ -163,7 +173,8 @@ def produce_generated_and_lcs_bivariate_density(ref_image_folder, n, missing_ind
         purple_patch = mpatches.Patch(color='purple')
         orange_patch = mpatches.Patch(color='orange')
         axs[1].legend(handles = [purple_patch, orange_patch], labels = ['bivariate LCS', 'NCS'])
-        plt.savefig((data_generation_folder + "/" + ref_image_folder + "/lcs/bivariate/bivariate_density/" + figname))
+        plt.savefig((data_generation_folder + "/" + ref_image_folder + "/lcs/bivariate/bivariate_density/" + figname +
+                     str(missing_index1) + "_" + str(missing_index2) + ".png"))
         plt.clf()
 
 
@@ -182,19 +193,32 @@ for missing_index in range(0, 1000, 10):
     produce_generated_and_univariate_lcs_marginal_density(ref_image_folder, n, missing_index,
                                                       ncs_file_name, univariate_lcs_file, figname)"""
 
-
-ref_image_folder = "data/model4/ref_image4"
+ref_image_folder = "data/model4/ref_image0"
 nrep = 4000
 neighbors = 7
-range_value = 5.0
+range_value = 1.0
 bivariate_lcs_file = "bivariate_lcs_" + str(nrep) + "_neighbors_" + str(neighbors) + "_nugget_1e5"
 n = 32
 ncs_file_name = "model4_range_" + str(range_value) + "_smooth_1.5_random0.05_4000.npy"
-missing_indices1 = [198,210,229,304,317,322,431,476]
-missing_indices2 = [900,748,310,520,264,191,488,24]
-for i in range(len(missing_indices1)):
+bilcs_folder = (evaluation_folder + "/diffusion_generation/" + ref_image_folder
+                 + "/lcs/bivariate")
+filenames = [f for f in os.listdir(bilcs_folder) if os.path.isfile(os.path.join(bilcs_folder, f))]
 
-    figname = ("bivariate_lcs_" + str(nrep) + "neighbors_" + str(neighbors) + "_nugget_1e5_bivariate_density_missing_index_"
-                + str(missing_indices1[i]) + "_" + str(missing_indices2[i]) + ".png")
-    produce_generated_and_lcs_bivariate_density(ref_image_folder, n, missing_indices1[i], missing_indices2[i],
-                                                ncs_file_name, bivariate_lcs_file, figname, nrep)
+
+for i in range(len(filenames)):
+
+    figname = ("bivariate_lcs_" + str(nrep) + "neighbors_" + str(neighbors) + "_nugget_1e5_bivariate_density_missing_index_")
+    produce_generated_and_lcs_bivariate_density(ref_image_folder, n,
+                                                ncs_file_name, filenames[i], figname, nrep)
+
+#110 413
+f = "bivariate_lcs_4000_neighbors_7_nugget_1e5_413_110.npy"
+figname = ("bivariate_lcs_" + str(nrep) + "neighbors_" + str(neighbors) + "_nugget_1e5_bivariate_density_missing_index_")
+produce_generated_and_lcs_bivariate_density(ref_image_folder, n, ncs_file_name, f, figname, nrep)
+#993 489
+
+#408 101
+#64 650
+#470 841
+#528 580
+#5 990
