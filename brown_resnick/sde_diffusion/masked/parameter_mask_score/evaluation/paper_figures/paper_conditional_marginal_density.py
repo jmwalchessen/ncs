@@ -127,7 +127,7 @@ n = 32
 nrep = 4000
 smooth = 1.5
 univariate_lcs_file_name = "univariate_lcs_4000_neighbors_7_nugget_1e5"
-figname = "figures/br_parameter_marginal_density_model4_random05.png"
+figname = "figures/br_parameter_lcs_vs_ncs_marginal_density_model4_random05.png"
 visualize_marginal_density(model_name, missing_indices, n, nrep, figname)
 figname = "figures/br_parameter_lcs_vs_ncs_marginal_density_model4_random05.png"
 visualize_ncs_vs_univariate_lcs_marginal_density(model_name, univariate_lcs_file_name,
