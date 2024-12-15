@@ -28,7 +28,7 @@ def generate_ncs_images(ref_folder, vpsde, score_model, range_value,
 
     for i in range(calls):
         ncs_images[i*batches_per_call:(i+1)*batches_per_call,:,:] = ((posterior_sample_with_p_mean_variance_via_mask(vpsde, score_model, device, mask,
-                                                                                                                     masked_image, n, batches_per_call, range_value, smooth_value)).detach().cpu().numpy()).reshape((batches_per_call,n,n))
+                                                                                                                     masked_image, n, batches_per_call)).detach().cpu().numpy()).reshape((batches_per_call,n,n))
         
     
     np.save(ncs_images_file, ncs_images)
@@ -41,7 +41,7 @@ def generate_ncs_images_multiple_files(vpsde, score_model, range_values,
     for i in range(m):
 
         ref_folder = ("data/model4/ref_image" + str(i))
-        ncs_images_file = (ref_folder + "/ncs_images_range_" + str(range_values[i]) +
+        ncs_images_file = (ref_folder + "/ncs_images_range_" + str(range_value) +
                            "_smooth_" + str(smooth_value) + "_" + str(nrep) + ".npy")
         generate_ncs_images(ref_folder, vpsde, score_model, range_value,
                         smooth_value, ncs_images_file, batches_per_call, calls, n, device)
