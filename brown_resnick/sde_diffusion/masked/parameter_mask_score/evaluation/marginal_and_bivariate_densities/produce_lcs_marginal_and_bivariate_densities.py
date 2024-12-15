@@ -211,14 +211,3 @@ for i in range(len(filenames)):
     produce_generated_and_lcs_bivariate_density(ref_image_folder, n,
                                                 ncs_file_name, filenames[i], figname, nrep)
 
-#110 413
-f = "bivariate_lcs_4000_neighbors_7_nugget_1e5_413_110.npy"
-figname = ("bivariate_lcs_" + str(nrep) + "neighbors_" + str(neighbors) + "_nugget_1e5_bivariate_density_missing_index_")
-produce_generated_and_lcs_bivariate_density(ref_image_folder, n, ncs_file_name, f, figname, nrep)
-#993 489
-
-#408 101
-#64 650
-#470 841
-#528 580
-#5 990

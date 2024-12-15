@@ -112,7 +112,7 @@ def visualize_ncs_vs_univariate_lcs_marginal_density(model_name, univariate_lcs_
             ax.set_ylabel("")
             ax.set_yticks(ticks = [.5, 1, 1.5], labels = np.array([.5,1,1.5]))
             ax.tick_params(axis='both', which='major', labelsize=5, labelrotation=0)
-            ax.legend(labels = ['NCS'], fontsize = 6)
+            ax.legend(labels = ['NCS', 'LCS'], fontsize = 6)
 
     plt.tight_layout()
     plt.savefig(figname)

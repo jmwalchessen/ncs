@@ -8,6 +8,13 @@ def load_diffusion_images(model_name, image_name, file_name):
                                 image_name + "/diffusion/" + file_name + ".npy"))
     return diffusion_images
 
+def load_univariate_lcs_images(model_name, image_name, file_name):
+
+    eval_folder = append_directory(2)
+    univariate_lcs_images = np.load((eval_folder + "/diffusion_generation/data/" + model_name + "/" +
+                                image_name + "/lcs/univariate/" + file_name + ".npy"))
+    return univariate_lcs_images
+
 def load_mask(model_name, image_name):
 
     eval_folder = append_directory(2)

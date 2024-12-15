@@ -23,15 +23,17 @@ def concatenate_lcs_files(ref_image_folder, nrep, n, unibi_type):
 
     print(len(filenames))
     for missing_index,f in enumerate(filenames):
+        print(missing_index)
 
         current_lcs_samples = np.load((lcs_folder + "/" + f))
         if(current_lcs_samples.size == nrep):
             current_lcs_samples = np.log(current_lcs_samples)
             lcs_samples = np.concatenate([lcs_samples, current_lcs_samples.reshape((nrep,1))],
                                           axis = 1)
-            lcs_mask[int(missing_index)] = 0
-        else:
-            lcs_mask[int(missing_index)] = -1
+            if(missing_index < len(missing_indices)):
+                lcs_mask[int(missing_indices[missing_index])] = 0
+            else:
+                lcs_mask[int(missing_indices[missing_index])] = -1
 
     lcs_images = np.tile(ref_image.reshape(1,n**2), reps = (nrep,1))
     lcs_images[:,lcs_mask == 0] = lcs_samples

@@ -22,7 +22,7 @@ def visualize_joint_lcs(ref_folder, joint_lcs_file, figname, irep):
 
 
 ref_folder = "data/model4/ref_image0"
-joint_lcs_file = "joint_lcs_range_1.0_smooth_1.5_nugget_1e5_4000.npy"
-figname = "visualizations/joint_lcs_range_1.0_smooth_1.5_nugget_1e5_0.png"
+joint_lcs_file = "processed_joint_lcs_range_3.0_smooth_1.5_nugget_1e5_4000.npy"
+figname = "visualizations/joint_lcs_range_3.0_smooth_1.5_nugget_1e5_0.png"
 irep = 0
 visualize_joint_lcs(ref_folder, joint_lcs_file, figname, irep)
