@@ -13,29 +13,31 @@ def load_numpy_file(npfile):
     nparr = np.load(npfile)
     return nparr
 
-def visualize_ncs_and_true_extremal_coefficient_and_high_dimensional_summary_metrics_multiple_percentages(range_value, smooth,
-                                                                                                          ps, bins, figname, nrep):
+def visualize_ncs_and_true_extremal_coefficient_and_high_dimensional_summary_metrics_multiple_ranges(range_values, smooth,
+                                                                                                          bins, figname, nrep):
     
-    extremal_matrices = np.zeros((len(ps), (bins+1),3))
-    ncs_extremal_matrices = np.zeros((len(ps), (bins+1),3))
-    ncs_images = np.zeros((len(qs),nrep,n,n))
-    true_images = np.zeros((len(qs),nrep,n,n))
-    ncs_abs_summation = np.zeros((len(ps),nrep))
-    true_abs_summation = np.zeros((len(ps),nrep))
-    ncs_mins = np.zeros((len(ps),nrep))
-    ncs_maxs = np.zeros((len(ps),nrep))
-    true_mins = np.zeros((len(ps),nrep))
-    true_maxs = np.zeros((len(ps),nrep))
+    extremal_matrices = np.zeros((len(range_values), (bins+1),3))
+    ncs_extremal_matrices = np.zeros((len(range_values), (bins+1),3))
+    ncs_images = np.zeros((len(range_values),nrep,n,n))
+    true_images = np.zeros((len(range_values),nrep,n,n))
+    ncs_abs_summation = np.zeros((len(range_values),nrep))
+    true_abs_summation = np.zeros((len(range_values),nrep))
+    ncs_mins = np.zeros((len(range_values),nrep))
+    ncs_maxs = np.zeros((len(range_values),nrep))
+    true_mins = np.zeros((len(range_values),nrep))
+    true_maxs = np.zeros((len(range_values),nrep))
 
-    for i in range(len(ps)):
+    for i in range(len(range_values)):
 
-        extremal_matrices[i,:,:] = load_numpy_file((evaluation_folder + "/extremal_coefficient_and_high_dimensional_statistics/data/true/extremal_coefficient_range_"
-                                                    + str(range_value) + "_smooth_" + str(smooth) + "_bins_" + str(bins) + "_" + str(nrep) + ".npy"))
-        ncs_extremal_matrices[i,:,:] = load_numpy_file((evaluation_folder + "/extremal_coefficient_and_high_dimensional_statistics/data/ncs/model4/brown_resnick_ncs_extremal_matrix_bins_"
-                                            + str(bins) + "_range_" + str(range_value) + "_smooth_" + str(smooth) 
-                                            + "_" + str(nrep) + "_random" + str(ps[i]) + ".npy"))
-        ncs_images[i,:,:,:] = np.load((ncs_images_file + str(qs[i]) + ".npy"))
-        true_images[i,:,:,:] = np.log(np.load(true_images_file))
+        extremal_matrices[i,:,:] = load_numpy_file((evaluation_folder + "/extremal_coefficient_and_high_summary_statistics/data/true/extremal_coefficient_smooth_" + str(smooth) + "_range_" + 
+                                  str(round(range_values[i])) + "_nbins_" + str(bins) + ".npy"))
+        ncs_extremal_matrices[i,:,:] = load_numpy_file((evaluation_folder + "/extremal_coefficient_and_high_summary_statistics/data/ncs/model4/extremal_coefficient_range_"
+                                            + str(range_values[i]) + "_smooth_" + str(smooth) 
+                                            + "_bins_" + str(bins) + "_" + str(nrep) + ".npy"))
+        ncs_images[i,:,:,:] = np.load((ncs_images_file + str(range_values[i]) + "_smooth_"
+                                       + str(smooth) + "_" + str(nrep) + ".npy"))
+        true_images[i,:,:,:] = (np.log(np.load(true_images_file + str(smooth) + "_range_" +
+                                               str(round(range_values[i])) + ".npy"))).reshape((nrep,n,n))
         ncs_abs_summation[i,:] = np.sum(np.abs(ncs_images[i,:,:,:]).reshape((nrep, n**2)), axis = 1)
         true_abs_summation[i,:] = np.sum(np.abs(true_images[i,:,:,:]).reshape((nrep, n**2)), axis = 1)
         ncs_mins[i,:] = np.min(ncs_images[i,:,:,:].reshape((nrep, n**2)), axis = 1)
@@ -118,8 +120,8 @@ def visualize_ncs_and_true_extremal_coefficient_and_high_dimensional_summary_met
 
 range_value = 3.0
 smooth = 1.5
-ps = [.01,.05,.1,.25,.5]
+range_values = [1.,2.,3.,4.,5.]
 bins = 100
 nrep = 4000
-figname = "figures/paper_ncs_vs_true_extremal_coefficient_and_high_dimensional_summary_metrics.png"
-visualize_ncs_and_true_extremal_coefficient_and_high_dimensional_summary_metrics_multiple_percentages(range_value, smooth, ps, bins, figname, nrep)
+figname = "figures/br_parameter_ncs_vs_true_extremal_coefficient_and_high_dimensional_summary_metrics.png"
+visualize_ncs_and_true_extremal_coefficient_and_high_dimensional_summary_metrics_multiple_ranges(range_values, smooth, bins, figname, nrep)
