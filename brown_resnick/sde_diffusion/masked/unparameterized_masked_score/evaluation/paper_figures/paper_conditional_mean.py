@@ -58,6 +58,7 @@ def visualize_conditional_mean_observed_and_diffusion(figname, n, model_name):
 
 
     ax.cax.colorbar(im)
+    plt.tight_layout()
     plt.savefig(figname)
 
 range_value = 3.0

@@ -1,0 +1,144 @@
+import numpy as np
+from append_directories import *
+from mpl_toolkits.axes_grid1 import ImageGrid
+import matplotlib.pyplot as plt
+from paper_figure_helper_functions import *
+import seaborn as sns
+from matplotlib import gridspec
+import pandas as pd
+from matplotlib import patches as mpatches
+
+evaluation_folder = append_directory(2)
+data_generation_folder = (evaluation_folder + "/diffusion_generation")
+
+def produce_ncs_marginal_density(model_name, image_name, file_name, missing_index, n, nrep):
+
+    diffusion_images = load_diffusion_images(model_name, image_name, file_name)
+    diffusion_marginal_density = (diffusion_images.reshape((nrep,n**2)))[:,missing_index]
+    return diffusion_marginal_density
+
+def produce_univariate_lcs_marginal_density(model_name, image_name, lcs_file_name,
+                                            missing_index, n, nrep):
+    univariate_lcs_images = load_univariate_lcs_images(model_name, image_name, lcs_file_name)
+    univariate_lcs_marginal_density = (univariate_lcs_images.reshape((nrep,n**2)))[:,missing_index]
+    return univariate_lcs_marginal_density
+
+def produce_bivariate_densities(model_name, image_name, nrep,missing_index1, missing_index2, file_name):
+
+    minX = minY = -10
+    maxX = maxY = 10
+    n = 32
+    mask = load_mask(model_name, image_name)
+    observations = load_observations(model_name, image_name, mask, n)
+    diffusion_images = load_diffusion_images(model_name, image_name, file_name)
+    diffusion_images = diffusion_images.reshape((nrep,n**2))
+    diffusion_bivariate_densities = np.concatenate([(diffusion_images[:,missing_index1]).reshape((nrep,1)),
+                                          (diffusion_images[:,missing_index2]).reshape((nrep,1))], axis = 1)
+    return diffusion_bivariate_densities
+
+def visualize_ncs_vs_univariate_lcs_marginal_and_bivariate_density(model_name, univariate_lcs_file_name, missing_indices,
+                                                                   missing_indices1, missing_indices2, bivariate_lcs_file,
+                                                                   n, nrep, figname):
+
+    range_values = [1.0,2.0,3.0,4.0,5.0]
+    masks = np.zeros((5,n,n))
+    reference_images = np.zeros((5,n,n))
+    diffusion_marginal_densities = np.zeros((5,nrep))
+    univariate_lcs_marginal_densities = np.zeros((5,nrep))
+    bivariate_densities = np.zeros((5,nrep,2))
+    lcs_bivariate_density = np.zeros((5,nrep,2))
+    class_vector = np.ones((nrep)).reshape((nrep, 1))
+    
+    for i in range(0, 5):
+        ref_image_folder = ("/data/model4/ref_image" + str(i))
+        file_name = (model_name + "_range_" + str(range_values[i]) + "_smooth_1.5_random0.05_4000")
+        image_name = "ref_image" + str(i)
+        masks[i,:,:] = load_mask(model_name, image_name)
+        masked_indices = np.squeeze(np.argwhere((1-masks[i,:,:]).reshape((n**2,))))
+        reference_images[i,:,:] = load_reference_image(model_name, image_name)
+        diffusion_marginal_density = produce_ncs_marginal_density(model_name, image_name, file_name, missing_indices[i], n, nrep)
+        univariate_lcs_marginal_density = produce_univariate_lcs_marginal_density(model_name, image_name, univariate_lcs_file_name, missing_indices[i], n, nrep)
+        diffusion_marginal_densities[i,:] = diffusion_marginal_density
+        univariate_lcs_marginal_densities[i,:] = univariate_lcs_marginal_density
+        dbdensities = produce_bivariate_densities(model_name, image_name, nrep, missing_indices1[i], missing_indices2[i], file_name)
+        bilcs = np.log(np.load((data_generation_folder + ref_image_folder + "/lcs/bivariate/" +
+                                                 bivariate_lcs_file + "_" + str(missing_indices1[i]) + "_" + str(missing_indices2[i]) + ".npy")))
+        bivariate_densities[i,:,:] = dbdensities
+        lcs_bivariate_density[i,:,:] = bilcs
+    
+
+
+    #fig, axs = plt.subplots(ncols = 5, nrows = 2, figsize = (9,2.5))
+    fig = plt.figure()
+    # set height of each subplot as 8
+    fig.set_figheight(6)
+ 
+    # set width of each subplot as 8
+    fig.set_figwidth(10)
+    spec = gridspec.GridSpec(ncols=5, nrows=3,
+                         width_ratios=[1,1,1,1,1], wspace=0.25,
+                         hspace=0.25, height_ratios=[1, 1, 1])
+    
+    for i in range(0,15):
+        ax = fig.add_subplot(spec[i])
+        if(i < 5):
+            matrix_index = index_to_matrix_index(missing_indices[i], n)
+            missing_index1 = missing_indices1[(i%5)]
+            missing_index2 = missing_indices2[(i%5)]
+            matrix_index1 = index_to_matrix_index(missing_index1, n)
+            matrix_index2 = index_to_matrix_index(missing_index2, n)
+            im = ax.imshow(reference_images[i,:,:], cmap = 'viridis', vmin = -2, vmax = 6, alpha = masks[i,:,:].astype(float))
+            ax.plot(matrix_index[1], matrix_index[0], "ro", markersize = 10, linewidth = 20)
+            ax.set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
+            ax.set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
+            ax.plot(matrix_index1[1], matrix_index1[0], "r^", markersize = 10, linewidth = 20)
+            ax.plot(matrix_index2[1], matrix_index2[0], "k^", markersize = 10, linewidth = 20)
+        elif(i < 10):
+            sns.kdeplot(diffusion_marginal_densities[(i % 5),:], ax = ax, color = 'orange')
+            sns.kdeplot(univariate_lcs_marginal_densities[(i % 5),:], ax = ax, color = 'purple')
+            ax.axvline(reference_images[(i%5),matrix_index[1],matrix_index[0]], color='red', linestyle = 'dashed')
+            ax.set_xlim([-2,6])
+            ax.set_ylim([0,1.75])
+            ax.set_ylabel("")
+            ax.set_yticks(ticks = [.5, 1, 1.5], labels = np.array([.5,1,1.5]))
+            ax.tick_params(axis='both', which='major', labelsize=5, labelrotation=0)
+            ax.legend(labels = ['NCS', 'LCS'], fontsize = 6)
+        else:
+            missing_index1 = missing_indices1[(i%5)]
+            missing_index2 = missing_indices2[(i%5)]
+            matrix_index1 = index_to_matrix_index(missing_index1, n)
+            matrix_index2 = index_to_matrix_index(missing_index2, n)
+            kde1 = sns.kdeplot(x = lcs_bivariate_density[(i%5),:,0], y = lcs_bivariate_density[(i%5),:,1],
+                               ax = ax, color = 'purple', alpha = .5)
+            kde2 = sns.kdeplot(x = bivariate_densities[(i%5),:,0], y = bivariate_densities[(i%5),:,1],
+                               ax = ax, color = 'orange', alpha = .5)
+            orange_patch = mpatches.Patch(color='orange')
+            purple_patch = mpatches.Patch(color='purple')
+            ax.legend(handles = [orange_patch, purple_patch], labels = ['NCS', 'LCS'], fontsize = 5)
+            ax.set_xlabel("")
+            ax.set_ylabel("")
+            ax.set_xticks(ticks = [-2,0,2,4,6], labels = np.array([-2,0,2,4,6]))
+            ax.set_yticks(ticks = [-2,0,2,4,6], labels = np.array([-2,0,2,4,6]))
+            ax.axvline(reference_images[(i%5),matrix_index1[0],matrix_index1[1]], color='red', linestyle = 'dashed')
+            ax.axhline(reference_images[(i%5),matrix_index2[0],matrix_index2[1]], color='red', linestyle = 'dashed')
+            ax.set_xlim([-2,6])
+            ax.set_ylim([-2,6])
+
+    plt.tight_layout()
+    plt.savefig(figname)
+    plt.clf()
+
+
+n = 32
+range_values = [1.,2.,3.,4.,5.]
+model_name = "model4"
+missing_indices1 = [401,500,934,200,822]
+missing_indices2 = [597,342,918,274,960]
+figname = "figures/br_parameter_lcs_vs_ncs_conditional_marginal_bivariate_density.png"
+nrep = 4000
+bivariate_lcs_file = "bivariate_lcs_4000_neighbors_7_nugget_1e5"
+univariate_lcs_file_name = "univariate_lcs_4000_neighbors_7_nugget_1e5"
+missing_indices = [642,129,392,497,829]
+visualize_ncs_vs_univariate_lcs_marginal_and_bivariate_density(model_name, univariate_lcs_file_name, missing_indices,
+                                                                   missing_indices1, missing_indices2, bivariate_lcs_file,
+                                                                   n, nrep, figname)

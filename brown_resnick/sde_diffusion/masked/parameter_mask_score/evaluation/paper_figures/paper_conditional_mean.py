@@ -49,6 +49,7 @@ def visualize_conditional_mean_observed_and_diffusion(variance, figname, n, mode
 
 
     ax.cax.colorbar(im)
+    plt.tight_layout()
     plt.savefig(figname)
 
 
@@ -73,7 +74,7 @@ def visualize_conditional_mean_observed_ncs_lcs(figname, n, model_name, lcs_file
         reference_images[i,:,:] = ref_image
         masks[i,:,:] = mask
 
-    fig = plt.figure(figsize=(10,4))
+    fig = plt.figure(figsize=(10,6))
     grid = ImageGrid(fig, 111,  # similar to subplot(111)
                  nrows_ncols=(3, 5),  # creates 2x2 grid of Axes
                  axes_pad=0.1,  # pad between Axes in inch.

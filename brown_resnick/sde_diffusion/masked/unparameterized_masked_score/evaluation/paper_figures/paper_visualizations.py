@@ -93,7 +93,7 @@ def visualize_observed_and_diffusion(figname, n, model_name):
             ax.set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
             ax.set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
 
-    #plt.tight_layout()
+    plt.tight_layout()
     ax.cax.colorbar(im)
     plt.savefig(figname)
 

@@ -57,6 +57,7 @@ def visualize_true_and_diffusion_correlation_maps(missing_indices, n, nrep,
         true_cov_image, diffusion_cov_image = produce_true_and_diffusion_correlation_map_per_pixel(diffusion_images, mask, missing_indices[i], n, nrep,
                                                                                                    variance, lengthscale, ref_image)
         true_cov_images[i,:,:] = true_cov_image.reshape((n,n))
+        print(np.min(true_cov_images))
         diffusion_cov_images[i,:,:] = diffusion_cov_image.reshape((n,n))
 
         
@@ -85,6 +86,7 @@ def visualize_true_and_diffusion_correlation_maps(missing_indices, n, nrep,
 
 
         ax.cax.colorbar(im)
+        plt.tight_layout()
         plt.savefig(figname)
     
 

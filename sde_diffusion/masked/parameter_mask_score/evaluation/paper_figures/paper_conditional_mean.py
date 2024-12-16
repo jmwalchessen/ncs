@@ -61,6 +61,7 @@ def visualize_conditional_mean_observed_and_diffusion(variance, figname, n, mode
 
 
     ax.cax.colorbar(im)
+    plt.tight_layout()
     plt.savefig(figname)
 
 variance = 1.5

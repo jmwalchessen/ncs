@@ -36,10 +36,10 @@ def produce_generated_and_bivariate_lcs_density_multiple_percentages(n, missing_
         ref_images[i,:,:] = np.load((data_generation_folder + "/" + ref_image_folder + "/ref_image.npy"))
         ncs_file_name = model_name + "_range_3.0_smooth_1.5_4000_random" + str(ps[i]) + ".npy"
         ncs_images[i,:,:,:] = (np.load((data_generation_folder + "/" + ref_image_folder + "/diffusion/" + ncs_file_name))).reshape((nrep,n,n))
-        bili = np.log(np.load((data_generation_folder + ref_image_folder + "/lcs/bivariate/" +
+        bilcs = np.log(np.load((data_generation_folder + ref_image_folder + "/lcs/bivariate/" +
                                bivariate_lcs_file + "_random" + str(ps[i]) + "_" + str(missing_index1)
                                + "_" + str(missing_index2) + ".npy")))
-        lcs_bivariate_density[i,:,:] = bili
+        lcs_bivariate_density[i,:,:] = bilcs
         matrix_missing_index1 = index_to_matrix_index(missing_index1, n)
         matrix_missing_index2 = index_to_matrix_index(missing_index2, n)
         generated_bivariate_density[i,:,:] = np.concatenate([(ncs_images[i,:,int(matrix_missing_index1[0]),int(matrix_missing_index1[1])]).reshape((nrep,1)),

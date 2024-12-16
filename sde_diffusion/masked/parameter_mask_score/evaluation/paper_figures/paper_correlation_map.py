@@ -84,6 +84,7 @@ def visualize_true_and_diffusion_correlation_maps(missing_indices, n, nrep,
 
 
         ax.cax.colorbar(im)
+        plt.tight_layout()
         plt.savefig(figname)
     
 
