@@ -179,20 +179,21 @@ def produce_generated_and_lcs_bivariate_density(ref_image_folder, n,
 
 
 
-"""
-ref_image_folder = "data/model4/ref_image0"
+ref_image_folder = "data/model4/ref_image2"
 nrep = 4000
 neighbors = 7
+range_value = 3.0
 univariate_lcs_file = "univariate_lcs_" + str(nrep) + "_neighbors_" + str(neighbors) + "_nugget_1e5.npy"
 n = 32
-ncs_file_name = "model4_range_1.0_smooth_1.5_random0.05_4000.npy"
-for missing_index in range(0, 1000, 10):
+ncs_file_name = "model4_range_" + str(range_value) + "_smooth_1.5_random0.05_4000.npy"
+for missing_index in range(200,400, 1):
     figname = ("univariate_lcs_" + str(nrep) + "neighbors_" + str(neighbors) + "_nugget_1e5_marginal_density_missing_index_"
                 + str(missing_index) + ".png")
 
     produce_generated_and_univariate_lcs_marginal_density(ref_image_folder, n, missing_index,
-                                                      ncs_file_name, univariate_lcs_file, figname)"""
+                                                      ncs_file_name, univariate_lcs_file, figname)
 
+"""
 ref_image_folder = "data/model4/ref_image0"
 nrep = 4000
 neighbors = 7
@@ -210,4 +211,4 @@ for i in range(len(filenames)):
     figname = ("bivariate_lcs_" + str(nrep) + "neighbors_" + str(neighbors) + "_nugget_1e5_bivariate_density_missing_index_")
     produce_generated_and_lcs_bivariate_density(ref_image_folder, n,
                                                 ncs_file_name, filenames[i], figname, nrep)
-
+"""

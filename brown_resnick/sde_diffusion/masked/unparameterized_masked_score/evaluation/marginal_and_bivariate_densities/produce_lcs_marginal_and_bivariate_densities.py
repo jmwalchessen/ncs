@@ -52,6 +52,7 @@ def visualize_lcs_bivariate_density(ref_image_folder, bivariate_lcs_file, n, nre
     mask = np.load((data_generation_folder + "/" + ref_image_folder + "/mask.npy"))
     missing_indices = np.squeeze(np.argwhere((1-mask).reshape((n**2,))))
     ref_image = np.load((data_generation_folder + "/" + ref_image_folder + "/ref_image.npy"))
+    print(bivariate_lcs_file)
     bivariate_lcs_density = np.load((data_generation_folder + "/" + ref_image_folder + "/lcs/bivariate/" + 
                                      bivariate_lcs_file))
     bivariate_lcs_density = np.log(bivariate_lcs_density)
@@ -76,12 +77,6 @@ def visualize_lcs_bivariate_density(ref_image_folder, bivariate_lcs_file, n, nre
     plt.savefig(figname)
     plt.clf()
 
-ref_image_folder = "data/model4/ref_image0"
-bivariate_lcs_file = "bivariate_lcs_4000_neighbors_7_nugget_1e5_0_11.npy"
-n = 32
-nrep = 4000
-figname = (evaluation_folder + "/diffusion_generation/data/model4/ref_image0/lcs/bivariate/bivariate_density/bivariate_lcs_4000_neighbors_7_nugget_1e5_0_11.png")
-visualize_lcs_bivariate_density(ref_image_folder, bivariate_lcs_file, n, nrep, figname)
 
 def produce_generated_and_univariate_lcs_marginal_density(ref_image_folder, n, missing_index,
                                                           ncs_file_name, univariate_lcs_file,
@@ -167,8 +162,8 @@ def produce_generated_and_lcs_bivariate_density(ref_image_folder, n,
         plt.axvline(ref_image[int(matrix_missing_index1[0]),int(matrix_missing_index1[1])], color='red', linestyle = 'dashed')
         plt.axhline(ref_image[int(matrix_missing_index2[0]),int(matrix_missing_index2[1])], color='red', linestyle = 'dashed')
         axs[1].set_title("Bivariate")
-        axs[1].set_xlim(-10,10)
-        axs[1].set_ylim(-10,10)
+        axs[1].set_xlim(-3,6)
+        axs[1].set_ylim(-3,6)
         #location = index_to_spatial_location(minX, maxX, minY, maxY, n, missing_true_index)
         #rlocation = (round(location[0],2), round(location[1],2))
         #axs[1].set_xlabel("location: " + str(rlocation))
@@ -197,23 +192,19 @@ for missing_index in range(0, 1000, 10):
 
 #54 653
 #514 444
-ref_image_folder = "data/model4/ref_image0"
+ref_image_folder = "data/model4/ref_image4"
 nrep = 4000
 neighbors = 7
-range_value = 1.0
-bivariate_lcs_file = "bivariate_lcs_" + str(nrep) + "_neighbors_" + str(neighbors) + "_nugget_1e5"
+range_value = 3.0
+p = .5
+bivariate_lcs_file = "bivariate_lcs_" + str(nrep) + "_neighbors_" + str(neighbors) + "_nugget_1e5_random" + str(p)
 n = 32
-ncs_file_name = "model4_range_" + str(range_value) + "_smooth_1.5_random0.05_4000.npy"
+ncs_file_name = "model4_range_" + str(range_value) + "_smooth_1.5_4000_random" + str(p) + ".npy"
 bilcs_folder = (evaluation_folder + "/diffusion_generation/" + ref_image_folder + "/lcs/bivariate")
 filenames = [f for f in os.listdir(bilcs_folder) if os.path.isfile(os.path.join(bilcs_folder, f))]
-"""
-for i in range(len(filenames)):
 
+for i in range(len(filenames)):
+    print(filenames[i])
     figname = ("bivariate_lcs_" + str(nrep) + "neighbors_" + str(neighbors) + "_nugget_1e5_bivariate_density_missing_index_")
     produce_generated_and_lcs_bivariate_density(ref_image_folder, n,
                                                 ncs_file_name, filenames[i], figname, nrep)
-"""
-f = "bivariate_lcs_4000_neighbors_7_nugget_1e5_0_230.npy"
-figname = ("bivariate_lcs_" + str(nrep) + "neighbors_" + str(neighbors) + "_nugget_1e5_bivariate_density_missing_index_")
-produce_generated_and_lcs_bivariate_density(ref_image_folder, n,
-                                                ncs_file_name, f, figname, nrep)
