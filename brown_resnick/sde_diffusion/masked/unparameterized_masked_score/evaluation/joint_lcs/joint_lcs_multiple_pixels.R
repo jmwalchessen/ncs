@@ -80,14 +80,14 @@ joint_lcs <- function(mask_file_name, ref_image_name, n, nrep, range, smooth, nu
 }
 
 m <- 7
-n <- 32
-ref_image_name <- "data/model4/ref_image4/ref_image.npy"
-mask_file_name <- "data/model4/ref_image4/mask.npy"
+n <- 8
+ref_image_name <- "data/model4/ref_image2/ref_image.npy"
+mask_file_name <- "data/model4/ref_image2/mask.npy"
 nrep <- 10
 range <- 3.0
 smooth <- 1.5
 nugget <- .00001
 generate_reference_data(number_of_replicates = nrep, range = range, smooth = smooth, m = m, n = n,
                         mask_file = mask_file_name, ref_image_file = ref_image_name)
-joint_lcs_file <- "data/model4/ref_image4/joint_lcs_range_3.0_smooth_1.5_nugget_1e5_obs_7_10.npy"
+joint_lcs_file <- "data/model4/ref_image2/joint_lcs_range_3.0_smooth_1.5_nugget_1e5_obs_7_10.npy"
 joint_lcs(mask_file_name, ref_image_name, n, nrep, range, smooth, nugget, joint_lcs_file)

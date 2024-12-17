@@ -192,11 +192,11 @@ for missing_index in range(0, 1000, 10):
 
 #54 653
 #514 444
-ref_image_folder = "data/model4/ref_image4"
+ref_image_folder = "data/model4/ref_image1"
 nrep = 4000
 neighbors = 7
 range_value = 3.0
-p = .5
+p = .05
 bivariate_lcs_file = "bivariate_lcs_" + str(nrep) + "_neighbors_" + str(neighbors) + "_nugget_1e5_random" + str(p)
 n = 32
 ncs_file_name = "model4_range_" + str(range_value) + "_smooth_1.5_4000_random" + str(p) + ".npy"
