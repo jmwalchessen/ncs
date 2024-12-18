@@ -22,9 +22,9 @@ def process_joint_lcs_file(ref_folder, joint_lcs_file, processed_joint_lcs_file,
     joint_lcs = joint_lcs.reshape((nrep,n,n))
     np.save((ref_folder + "/" + processed_joint_lcs_file), joint_lcs)
 
-ref_folder = "data/model4/ref_image0"
+ref_folder = "data/model4/ref_image6"
 joint_lcs_file = "joint_lcs_range_3.0_smooth_1.5_nugget_1e5_obs_7_10.npy"
 processed_joint_lcs_file = "processed_joint_lcs_range_3.0_smooth_1.5_nugget_1e5_obs_7_10.npy"
 nrep = 10
-n = 4
+n = 32
 process_joint_lcs_file(ref_folder, joint_lcs_file, processed_joint_lcs_file, nrep, n)
