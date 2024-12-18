@@ -35,12 +35,12 @@ def generate_ncs_images(ref_folder, vpsde, score_model, range_value,
 
 
 def generate_ncs_images_multiple_files(vpsde, score_model, range_values,
-                                        smooth_value, batches_per_call, calls, n, device, m):
+                                        smooth_value, batches_per_call, calls, n, device, ref_numbers):
     
     nrep = (batches_per_call * calls)
-    for i in range(m):
+    for ref_number in range(ref_numbers):
 
-        ref_folder = ("data/model4/ref_image" + str(i))
+        ref_folder = ("data/model4/ref_image" + str(ref_number))
         ncs_images_file = (ref_folder + "/ncs_images_range_" + str(range_value) +
                            "_smooth_" + str(smooth_value) + "_" + str(nrep) + ".npy")
         generate_ncs_images(ref_folder, vpsde, score_model, range_value,
@@ -50,13 +50,13 @@ def generate_ncs_images_multiple_files(vpsde, score_model, range_values,
 
 range_value = 3.0
 smooth_value = 1.5
-batches_per_call = 5
-calls = 2
+batches_per_call = 500
+calls = 8
 n = 32
 device = "cuda:0"
-m = 5
+ref_numbers = [i for i in range(0,5)]
 generate_ncs_images_multiple_files(vpsde, score_model, range_value,
-                                    smooth_value,
-                                    batches_per_call, calls, n, device, 5) 
+                                   smooth_value, batches_per_call, calls,
+                                   n, device, ref_numbers) 
 
     
