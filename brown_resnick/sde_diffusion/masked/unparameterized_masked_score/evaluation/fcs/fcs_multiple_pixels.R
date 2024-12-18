@@ -79,15 +79,29 @@ generate_fcs <- function(mask_file_name, ref_image_name, n, nrep, range, smooth,
   np$save(fcs_file, condsim)
 }
 
+generate_fcs_multipe_files <- function(ref_numbers, m, n, nrep, range, smooth, nugget, fcs_file)
+{
+  for(i in 1:length(ref_numbers))
+  {
+    ref_folder <- paste("data/model4/ref_image", as.character(ref_numbers[i]), sep = "")
+    mask_file_name <- paste(ref_folder, "mask.npy", sep = "/")
+    ref_image_name <- paste(ref_folder, "ref_image.npy", sep = "/")
+    fcs_file_name <- paste(paste(paste(fcs_file, as.character(m), sep = "_"), as.character(nrep), sep = "_"), "npy", sep = ".")
+    fcs_file_name <- paste(ref_folder, fcs_file_name, sep = "/")
+    generate_fcs(mask_file_name, ref_image_name, n, nrep, range, smooth, nugget, fcs_file_name)
+  }
+}
+
 m <- 7
 n <- 32
 ref_image_name <- "data/model4/ref_image6/ref_image.npy"
 mask_file_name <- "data/model4/ref_image6/mask.npy"
-nrep <- 10
+nrep <- 4000
 range <- 3.0
 smooth <- 1.5
 nugget <- .00001
-generate_reference_data(number_of_replicates = nrep, range = range, smooth = smooth, m = m, n = n,
-                        mask_file = mask_file_name, ref_image_file = ref_image_name)
-fcs_file <- "data/model4/ref_image6/fcs_range_3.0_smooth_1.5_nugget_1e5_obs_7_10.npy"
-generate_fcs(mask_file_name, ref_image_name, n, nrep, range, smooth, nugget, fcs_file)
+ref_numbers <- seq(0,6,1)
+#generate_reference_data(number_of_replicates = nrep, range = range, smooth = smooth, m = m, n = n,
+                        #mask_file = mask_file_name, ref_image_file = ref_image_name)
+fcs_file <- "fcs_range_3.0_smooth_1.5_nugget_1e5_obs"
+generate_fcs_multipe_files(ref_numbers, m, n, nrep, range, smooth, nugget, fcs_file)

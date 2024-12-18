@@ -10,8 +10,8 @@ sys.path.append(evaluation_folder)
 from helper_functions import *
 import time
 
-
-def return_timing(number_of_replicates, smooth_value, range_value, n, number_of_locations):
+#assume we only want to sample once from diffusion model
+def return_timing(smooth_value, range_value, n, number_of_locations):
 
     beta_min = .1
     beta_max = 20
@@ -24,7 +24,9 @@ def return_timing(number_of_replicates, smooth_value, range_value, n, number_of_
     score_model = load_score_model("brown", "model4_beta_min_max_01_20_random01525_smooth_1.5_range_3_channel_mask.pth", "eval")
     vpsde = load_sde(beta_min, beta_max, N)
     seed_value = int(np.random.randint(0, 1000000, 1))
+    number_of_replicates = 1
     y = (th.from_numpy(generate_brown_resnick_process(range_value, smooth_value, seed_value, number_of_replicates, n))).float().to(device)
+    number_of_replicates = 1
     start = time.time()
     br_samples = posterior_sample_with_p_mean_variance_via_mask(vpsde, score_model, device, mask,
                                                             y, n, number_of_replicates)
@@ -32,21 +34,22 @@ def return_timing(number_of_replicates, smooth_value, range_value, n, number_of_
     time_elapsed = end - start
     return time_elapsed
 
-def return_timings(number_of_replicates, smooth_value, range_value, n, number_of_locations_list, timing_file):
+def return_timings(tnrep, smooth_value, range_value, n, number_of_locations_list, timing_file):
     
-    timings = np.zeros((len(number_of_locations_list),2))
+    timings = np.zeros((len(number_of_locations_list),(tnrep+1)))
     for i,nlocation in enumerate(number_of_locations_list):
-
         timings[i,0] = nlocation
-        timings[i,1] = return_timing(number_of_replicates, smooth_value, range_value, n, nlocation)
+        for t in range(tnrep):
+            timings[i,(t+1)] = return_timing(smooth_value, range_value, n, nlocation)
 
 
     np.save(timing_file, timings)
 
-number_of_replicates = 1
+tnrep = 1
+tnrep = 50
 smooth_value = 1.5
 range_value = 3.0
 n = 32
-number_of_locations_list = [1,2,3,4,5,6,7,8,9] + [i*5 for i in range(2,204)]
-timing_file = "data/model4/increasing_number_of_observed_locations_timing_array.npy"
-return_timings(number_of_replicates, smooth_value, range_value, n, number_of_locations_list, timing_file)
+number_of_locations_list = [1,2,3,4,5,6,7,8,9]
+timing_file = "data/model4/increasing_number_of_observed_locations_timing_array_niasra_node_6_1_conditional_simulation_1_7_tnrep_50.npy"
+return_timings(tnrep, smooth_value, range_value, n, number_of_locations_list, timing_file)
