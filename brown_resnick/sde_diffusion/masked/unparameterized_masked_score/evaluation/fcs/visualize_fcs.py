@@ -54,10 +54,12 @@ def multiple_visualize_fcs(ref_folder, fcs_file, figname, nrep):
                             irep)
 
 
-ref_folder = "data/model4/ref_image5"
+ref_folder = "data/model4/ref_image0"
 irep = 0
-nrep = 10
+nrep = 4000
 n = 32
-fcs_file = "processed_fcs_range_3.0_smooth_1.5_nugget_1e5_obs_7_10.npy"
-figname = (ref_folder + "/visualizations/fcs_range_3.0_smooth_1.5_nugget_1e5_obs_6")
+m = 1
+nrep = 4000
+fcs_file = "processed_fcs_range_3.0_smooth_1.5_nugget_1e5_obs_" + str(m) + "_" + str(nrep) + ".npy"
+figname = (ref_folder + "/visualizations/fcs_range_3.0_smooth_1.5_nugget_1e5_obs_" + str(m))
 multiple_visualize_fcs(ref_folder, fcs_file, figname, nrep)

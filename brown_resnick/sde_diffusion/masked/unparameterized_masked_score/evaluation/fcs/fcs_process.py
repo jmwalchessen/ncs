@@ -23,8 +23,9 @@ def process_fcs_file(ref_folder, fcs_file, processed_fcs_file, nrep, n):
     np.save((ref_folder + "/" + processed_fcs_file), fcs)
 
 ref_folder = "data/model4/ref_image6"
-fcs_file = "fcs_range_3.0_smooth_1.5_nugget_1e5_obs_7_10.npy"
-processed_fcs_file = "processed_fcs_range_3.0_smooth_1.5_nugget_1e5_obs_7_10.npy"
-nrep = 10
+m = 7
+nrep = 4000
+fcs_file = "fcs_range_3.0_smooth_1.5_nugget_1e5_obs_" + str(m) + "_" + str(nrep) + ".npy"
+processed_fcs_file = "processed_fcs_range_3.0_smooth_1.5_nugget_1e5_obs_" + str(m) + "_" + str(nrep) + ".npy"
 n = 32
 process_fcs_file(ref_folder, fcs_file, processed_fcs_file, nrep, n)
