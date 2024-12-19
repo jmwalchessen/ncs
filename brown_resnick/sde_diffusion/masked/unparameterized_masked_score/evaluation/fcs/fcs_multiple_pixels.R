@@ -144,13 +144,11 @@ generate_unconditional_fcs_multipe_files <- function(n, nrep, range, smooth, nug
 }
 
 n <- 32
-ref_image_name <- "data/model4/ref_image6/ref_image.npy"
-mask_file_name <- "data/model4/ref_image6/mask.npy"
 nrep <- 1
 range <- 3.0
 smooth <- 1.5
 nugget <- .00001
-observed_location_numbers <- seq(1,7,1)
+observed_location_numbers <- seq(5,6,1)
 evaluation_folder <- (strsplit(getwd(), "/lcs")[[1]])[1]
 extremal_coefficient_and_high_dimensional_folder <- paste(evaluation_folder, "extremal_coefficient_and_high_dimensional_statistics/data/fcs", sep = "/")
 fcs_file <- paste(extremal_coefficient_and_high_dimensional_folder,
