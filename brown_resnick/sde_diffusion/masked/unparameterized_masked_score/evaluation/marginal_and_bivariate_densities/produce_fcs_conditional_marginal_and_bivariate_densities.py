@@ -87,7 +87,7 @@ def produce_ncs_and_fcs_marginal_density(ref_image_folder, n, missing_index,
     ncs_images = np.load((fcs_folder + "/" + ref_image_folder + "/" + ncs_file_name))
     fcs_images = np.load((fcs_folder + "/" + ref_image_folder + "/" + fcs_file))
     matrix_missing_index = index_to_matrix_index(missing_index, n)
-    ncs_marginal_density = ncs_images[:,0,int(matrix_missing_index[0]),int(matrix_missing_index[1])]
+    ncs_marginal_density = ncs_images[:,int(matrix_missing_index[0]),int(matrix_missing_index[1])]
     fcs_marginal_density = fcs_images[:,int(matrix_missing_index[0]),int(matrix_missing_index[1])]
 
 
@@ -120,6 +120,15 @@ def produce_ncs_and_fcs_marginal_density(ref_image_folder, n, missing_index,
     plt.clf()
 
 
+def produce_multiple_ncs_and_fcs_marginal_density(ref_image_folder, n, missing_indices,
+                                                  ncs_file_name, fcs_file, figname):
+    
+    for missing_index in missing_indices:
+        current_figname = (figname + "_" + str(missing_index) + ".png")
+        produce_ncs_and_fcs_marginal_density(ref_image_folder, n, missing_index,
+                                             ncs_file_name, fcs_file, current_figname)
+
+
 def produce_ncs_and_fcs_bivariate_density(ref_image_folder, n,
                                           ncs_file_name, fcs_file,
                                           missing_index1, missing_index2,
@@ -127,7 +136,7 @@ def produce_ncs_and_fcs_bivariate_density(ref_image_folder, n,
     
     mask = np.load((fcs_folder + "/" + ref_image_folder + "/mask.npy"))
     missing_indices = np.squeeze(np.argwhere((1-mask).reshape((n**2,))))
-    ref_image = np.load((fcs_folder + "/" + ref_image_folder + "/ref_image.npy"))
+    ref_image = np.log(np.load((fcs_folder + "/" + ref_image_folder + "/ref_image.npy")))
     ncs_images = np.load((fcs_folder + "/" + ref_image_folder + "/" + ncs_file_name))
     fcs_images = np.load((fcs_folder + "/" + ref_image_folder + "/" + fcs_file))
     matrix_missing_index1 = index_to_matrix_index(missing_index1, n)
@@ -135,10 +144,9 @@ def produce_ncs_and_fcs_bivariate_density(ref_image_folder, n,
     bivariate_fcs_density = np.concatenate([(fcs_images[:,matrix_missing_index1[0],matrix_missing_index1[1]]).reshape((nrep,1)),
                                             (fcs_images[:,matrix_missing_index2[0], matrix_missing_index2[1]]).reshape((nrep,1))],
                                             axis = 1)
-
     bivariate_fcs_density = np.log(bivariate_fcs_density)
-    bivariate_ncs_density = np.concatenate([(ncs_images[:,0,int(matrix_missing_index1[0]),int(matrix_missing_index1[1])]).reshape((nrep,1)),
-                                            (ncs_images[:,0,int(matrix_missing_index2[0]),int(matrix_missing_index2[1])]).reshape((nrep,1))],
+    bivariate_ncs_density = np.concatenate([(ncs_images[:,int(matrix_missing_index1[0]),int(matrix_missing_index1[1])]).reshape((nrep,1)),
+                                            (ncs_images[:,int(matrix_missing_index2[0]),int(matrix_missing_index2[1])]).reshape((nrep,1))],
                                             axis = 1)
 
 
@@ -158,8 +166,10 @@ def produce_ncs_and_fcs_bivariate_density(ref_image_folder, n,
                     ax = axs[1], color = 'orange')
     plt.axvline(ref_image[int(matrix_missing_index1[0]),int(matrix_missing_index1[1])], color='red', linestyle = 'dashed')
     plt.axhline(ref_image[int(matrix_missing_index2[0]),int(matrix_missing_index2[1])], color='red', linestyle = 'dashed')
-    axs[1].set_xlim(-3,6)
-    axs[1].set_ylim(-3,6)
+    print(ref_image[int(matrix_missing_index1[0]),int(matrix_missing_index1[1])])
+    print(ref_image[int(matrix_missing_index2[0]),int(matrix_missing_index2[1])])
+    axs[1].set_xlim(-4,8)
+    axs[1].set_ylim(-4,8)
         #location = index_to_spatial_location(minX, maxX, minY, maxY, n, missing_true_index)
         #rlocation = (round(location[0],2), round(location[1],2))
         #axs[1].set_xlabel("location: " + str(rlocation))
@@ -170,3 +180,39 @@ def produce_ncs_and_fcs_bivariate_density(ref_image_folder, n,
                  figname + "_" + str(missing_index1) + "_" + str(missing_index2)
                  + ".png"))
     plt.clf()
+
+
+def produce_multiple_ncs_and_fcs_bivariate_densities(ref_image_folder, n,
+                                                     ncs_file_name, fcs_file,
+                                                     missing_indices1, missing_indices2,
+                                                     figname, nrep):
+    
+    for missing_index1 in missing_indices1:
+        for missing_index2 in missing_indices2:
+            current_figname = (figname + "_" + str(missing_index1) + 
+                               "_" + str(missing_index2) + ".png")
+            produce_ncs_and_fcs_bivariate_density(ref_image_folder, n,
+                                          ncs_file_name, fcs_file,
+                                          missing_index1, missing_index2,
+                                          current_figname, nrep)
+
+ref_image_folder = "data/model4/ref_image2"
+n = 32
+nrep = 4000
+obs = 3
+ncs_file_name = ("ncs_images_range_3.0_smooth_1.5_" + str(nrep) + ".npy")
+fcs_file = ("processed_fcs_range_3.0_smooth_1.5_nugget_1e5_obs_" + str(obs)
+            + "_" + str(nrep) + ".npy")
+"""
+missing_indices1 = (np.random.randint(0, 1024, size = 2)).tolist()
+missing_indices2 = (np.random.randint(0, 1024, size = 2)).tolist()
+figname = ("bivariate_fcs_vs_ncs_range_3.0_smooth_1.5_nugget_1e5_obs_" + str(obs))
+produce_multiple_ncs_and_fcs_bivariate_densities(ref_image_folder, n,
+                                                 ncs_file_name, fcs_file,
+                                                 missing_indices1, missing_indices2,
+                                                 figname, nrep)"""
+
+missing_indices = [i for i in range(0,200)]
+figname = ("marginal_fcs_vs_ncs_range_3.0_smooth_1.5_nugget_1e5_obs_" + str(obs))
+produce_multiple_ncs_and_fcs_marginal_density(ref_image_folder, n, missing_indices,
+                                                  ncs_file_name, fcs_file, figname)
