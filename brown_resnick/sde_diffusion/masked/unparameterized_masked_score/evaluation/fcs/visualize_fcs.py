@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch as th
 from matplotlib.patches import Rectangle
+from append_directories import *
 
 def preprocessing_fcs_file(ref_folder, fcs_file, nrep, n):
     
@@ -52,14 +53,46 @@ def multiple_visualize_fcs(ref_folder, fcs_file, figname, nrep):
 
         visualize_fcs(ref_folder, fcs_file, (figname + "_" + str(irep) + ".png"),
                             irep)
+        
+def visualize_unconditional_fcs(ref_folder, fcs_file, mask_file, obs_file, irep, nrep, n):
+    
+    ref_images = np.log((np.load((ref_folder + "/" + obs_file))).reshape((nrep,n,n)))
+    masks = (np.load((ref_folder + "/" + mask_file))).reshape((nrep,n,n))
+    observed_indices = np.argwhere(masks[irep,:,:] > 0)
+    fcs_images = np.log((np.load((ref_folder + "/" + fcs_file))).reshape((nrep,n,n)))
+    fig, ax = plt.subplots(nrows = 2, ncols = 2, figsize = (10,10))
+    im = ax[0,0].imshow(ref_images[irep,:,:], alpha = masks[irep,:,:].astype(float), vmin = -2, vmax = 6)
+    plt.colorbar(im, shrink = .6)
+    im = ax[0,1].imshow(fcs_images[irep,:,:], alpha = masks[irep,:,:].astype(float), vmin = -2, vmax = 6)
+    plt.colorbar(im, shrink = .6)
+    im = ax[1,0].imshow(ref_images[irep,:,:], vmin = -2, vmax = 6)
+    plt.colorbar(im, shrink = .6)
+    im = ax[1,1].imshow(fcs_images[irep,:,:], vmin = -2, vmax = 6)
+    plt.colorbar(im, shrink = .6)
+    for i in range(observed_indices.shape[0]):
+        rect = Rectangle(((observed_indices[i,1]-.55), (observed_indices[i,0]-.55)), width=1, height=1, facecolor='none', edgecolor='r')
+        ax[0,0].add_patch(rect)
+        rect = Rectangle(((observed_indices[i,1]-.55), (observed_indices[i,0]-.55)), width=1, height=1, facecolor='none', edgecolor='r')
+        ax[0,1].add_patch(rect)
+        rect = Rectangle(((observed_indices[i,1]-.55), (observed_indices[i,0]-.55)), width=1, height=1, facecolor='none', edgecolor='r')
+        ax[1,0].add_patch(rect)
+        rect = Rectangle(((observed_indices[i,1]-.55), (observed_indices[i,0]-.55)), width=1, height=1, facecolor='none', edgecolor='r')
+        ax[1,1].add_patch(rect)
+    plt.tight_layout()
+    plt.show()
 
+def visualize_unconditional_fcs_with_variables(irep, m):
 
-ref_folder = "data/model4/ref_image6"
-irep = 0
-nrep = 4000
-n = 32
-m = 7
-nrep = 4000
-fcs_file = "processed_fcs_range_3.0_smooth_1.5_nugget_1e5_obs_" + str(m) + "_" + str(nrep) + ".npy"
-figname = (ref_folder + "/visualizations/fcs_range_3.0_smooth_1.5_nugget_1e5_obs_" + str(m))
-multiple_visualize_fcs(ref_folder, fcs_file, figname, nrep)
+    evaluation_folder = append_directory(2)
+    ref_folder = (evaluation_folder + "/extremal_coefficient_and_high_dimensional_metrics/data/fcs")
+    nrep = 4000
+    n = 32
+    nrep = 4000
+    fcs_file = "processed_unconditional_fcs_range_3.0_smooth_1.5_nugget_1e5_obs_" + str(m) + "_" + str(nrep) + ".npy"
+    mask_file = "unconditional_mask_fcs_range_3.0_smooth_1.5_nugget_1e5_obs_" + str(m) + "_" + str(nrep) + ".npy"
+    obs_file = "unconditional_obs_fcs_range_3.0_smooth_1.5_nugget_1e5_obs_" + str(m) + "_" + str(nrep) + ".npy"
+    visualize_unconditional_fcs(ref_folder, fcs_file, mask_file, obs_file, irep, nrep, n)
+
+irep = 2600
+m = 5
+visualize_unconditional_fcs_with_variables(irep, m)
