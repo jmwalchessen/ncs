@@ -70,6 +70,9 @@ def visualize_conditional_marginal_bivariate_density(model_name, range_value, sm
         diffusion_marginal_densities[i,:] = diffusion_marginal_density
         univariate_lcs_images[i,:,:,:] = (np.load((data_generation_folder + ref_image_folder + "/lcs/univariate/" + univariate_lcs_file))).reshape((nrep,n,n))
         lcs_marginal_density[i,:] = univariate_lcs_images[i,:,int(matrix_missing_index[0]),int(matrix_missing_index[1])]
+        print((data_generation_folder + ref_image_folder + "/lcs/bivariate/" +
+                               bivariate_lcs_file + "_random" + str(ps[i]) + "_" + str(missing_indices1[i])
+                               + "_" + str(missing_indices2[i]) + ".npy"))
         bilcs = np.log(np.load((data_generation_folder + ref_image_folder + "/lcs/bivariate/" +
                                bivariate_lcs_file + "_random" + str(ps[i]) + "_" + str(missing_indices1[i])
                                + "_" + str(missing_indices2[i]) + ".npy")))
@@ -84,7 +87,7 @@ def visualize_conditional_marginal_bivariate_density(model_name, range_value, sm
     # set width of each subplot as 8
     fig.set_figwidth(10)
     spec = gridspec.GridSpec(ncols=5, nrows=3,
-                         width_ratios=[1,1,1,1,1], wspace=0.25,
+                         width_ratios=[1,1,1,1,1], wspace=0.1,
                          hspace=0.25, height_ratios=[1, 1, 1])
 
     for i in range(0, 15):
@@ -94,11 +97,14 @@ def visualize_conditional_marginal_bivariate_density(model_name, range_value, sm
             matrix_index1 = index_to_matrix_index(missing_indices1[i], n)
             matrix_index2 = index_to_matrix_index(missing_indices2[i], n)
             im = ax.imshow(reference_images[i,:,:], cmap = 'viridis', vmin = -2, vmax = 6, alpha = masks[i,:,:].astype(float))
-            ax.plot(matrix_index1[1], matrix_index1[0], "r^", markersize = 10, linewidth = 20)
-            ax.plot(matrix_index2[1], matrix_index2[0], "r^", markersize = 10, linewidth = 20)
-            ax.plot(matrix_index[1], matrix_index[0], "ro", markersize = 10, linewidth = 20)
+            ax.plot(matrix_index1[1], matrix_index1[0], "r*", markersize = 6, linewidth = 20)
+            ax.plot(matrix_index2[1], matrix_index2[0], "r*", markersize = 6, linewidth = 20)
+            ax.plot(matrix_index[1], matrix_index[0], "rP", markersize = 6, linewidth = 20)
+            if(i == 0):
+                ax.set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
+            else:
+                ax.set_yticks([])
             ax.set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
-            ax.set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
 
         elif(i < 10):
             sns.kdeplot(diffusion_marginal_densities[(i % 5),:], ax = ax, color = 'orange')
@@ -107,9 +113,12 @@ def visualize_conditional_marginal_bivariate_density(model_name, range_value, sm
             ax.set_xlim([-2,6])
             ax.set_ylim([0,1.75])
             ax.set_ylabel("")
-            ax.set_yticks(ticks = [.5, 1, 1.5], labels = np.array([.5,1,1.5]))
-            ax.tick_params(axis='both', which='major', labelsize=5, labelrotation=0)
-            ax.legend(labels = ['NCS', 'LCS'], fontsize = 6)
+            if(i == 5):
+                ax.set_yticks([0.,.5,1.,1.5], [0.,.5,1.,1.5])
+            else:
+                ax.set_yticks([])
+            ax.set_xticks([-2,0,2,4,6], [-2,0,2,4,6])
+            ax.legend(labels = ['NCS', 'LCS'], fontsize = 7)
         else:
             matrix_index1 = index_to_matrix_index(missing_indices1[(i%5)], n)
             matrix_index2 = index_to_matrix_index(missing_indices2[(i%5)], n)
@@ -122,11 +131,14 @@ def visualize_conditional_marginal_bivariate_density(model_name, range_value, sm
             ax.set_xlim([-2,6])
             ax.set_ylim([-2,6])
             ax.set_ylabel("")
-            ax.set_yticks(ticks = [-2,0,2,4,6], labels = np.array([-2,0,2,4,6]))
+            if(i == 10):
+                ax.set_yticks([-2,0,2,4,6], [-2,0,2,4,6])
+            else:
+                ax.set_yticks([])
+            ax.set_xticks([-2,0,2,4,6], [-2,0,2,4,6])
             purple_patch = mpatches.Patch(color='purple')
             orange_patch = mpatches.Patch(color='orange')
             ax.legend(handles = [purple_patch, orange_patch], labels = ['LCS', 'NCS'], fontsize = 7)
-            ax.tick_params(axis='both', which='major', labelsize=5, labelrotation=0)
 
     plt.savefig(figname)
     plt.clf()
@@ -134,8 +146,8 @@ def visualize_conditional_marginal_bivariate_density(model_name, range_value, sm
 
 n = 32
 model_name = "model4"
-missing_indices1 = [267,407,746,203,226]
-missing_indices2 = [353,452,241,186,827]
+missing_indices1 = [390,586,144,203,333]
+missing_indices2 = [303,552,173,186,220]
 figname = "figures/br_percentage_lcs_vs_ncs_conditional_marginal_bivariate_density.png"
 nrep = 4000
 ps = [.01,.05,.1,.25,.5]

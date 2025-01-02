@@ -74,7 +74,7 @@ def visualize_marginal_and_bivariate_density(model_name, missing_indices, missin
     # set width of each subplot as 8
     fig.set_figwidth(10)
     spec = gridspec.GridSpec(ncols=5, nrows=3,
-                         width_ratios=[1,1,1,1,1], wspace=0.25,
+                         width_ratios=[1,1,1,1,1], wspace=0.1,
                          hspace=0.25, height_ratios=[1, 1,1])
     for i in range(0,15):
         ax = fig.add_subplot(spec[i])
@@ -83,11 +83,16 @@ def visualize_marginal_and_bivariate_density(model_name, missing_indices, missin
             matrix_index1 = index_to_matrix_index(missing_indices1[i], n)
             matrix_index2 = index_to_matrix_index(missing_indices2[i], n)
             im = ax.imshow(reference_images[i,:,:], cmap = 'viridis', vmin = -4, vmax = 4, alpha = masks[i,:,:].astype(float))
-            ax.plot(matrix_index[1], matrix_index[0], "ro", markersize = 10, linewidth = 20)
+            ax.plot(matrix_index[1], matrix_index[0], "rP", markersize = 6, linewidth = 20)
             ax.set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
             ax.set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
-            ax.plot(matrix_index1[1], matrix_index1[0], "rx", markersize = 10, linewidth = 20)
-            ax.plot(matrix_index2[1], matrix_index2[0], "kx", markersize = 10, linewidth = 20)
+            ax.plot(matrix_index1[1], matrix_index1[0], "r*", markersize = 6, linewidth = 20)
+            ax.plot(matrix_index2[1], matrix_index2[0], "r*", markersize = 6, linewidth = 20)
+            if(i == 0):
+                ax.set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
+            else:
+                ax.set_yticks([])
+            ax.set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
 
         elif(i < 10):
             matrix_index = index_to_matrix_index(missing_indices[(i%5)], n)
@@ -97,7 +102,12 @@ def visualize_marginal_and_bivariate_density(model_name, missing_indices, missin
             ax.set_xlim([-4.5,4.5])
             ax.set_ylim([0,1])
             ax.set_ylabel("")
-            ax.legend(labels = ['true', 'NCS'], fontsize = 5)
+            if(i == 5):
+                ax.set_yticks([0.,.25,.5,.75,1.], [0.,.25,.5,.75,1.])
+            else:
+                ax.set_yticks([])
+            ax.set_xticks([-4,-2,0,2,4], [-4,-2,0,2,4])
+            ax.legend(labels = ['true', 'NCS'], fontsize = 7)
         else:
             missing_index1 = missing_indices1[(i%5)]
             missing_index2 = missing_indices2[(i%5)]
@@ -110,13 +120,18 @@ def visualize_marginal_and_bivariate_density(model_name, missing_indices, missin
                                fill = False, levels = [.1,.2,.3,.4,.5,.6,.7,.8,.9,.95,.99], alpha = .5)
             blue_patch = mpatches.Patch(color='blue')
             orange_patch = mpatches.Patch(color='orange')
-            ax.legend(handles = [blue_patch, orange_patch], labels = ['true', 'NCS'], fontsize = 5)
+            ax.legend(handles = [blue_patch, orange_patch], labels = ['true', 'NCS'], fontsize = 7)
             ax.axvline(reference_images[(i%5),matrix_index1[0],matrix_index1[1]], color='red', linestyle = 'dashed')
             ax.axhline(reference_images[(i%5),matrix_index2[0],matrix_index2[1]], color='red', linestyle = 'dashed')
             ax.set_xlim([-4.5,4.5])
             ax.set_ylim([-4.5,4.5])
             ax.set_ylabel("")
             ax.set_xlabel("")
+            if(i == 10):
+                ax.set_yticks([-4,-2,0,2,4], [-4,-2,0,2,4])
+            else:
+                ax.set_yticks([])
+            ax.set_xticks([-4,-2,0,2,4], [-4,-2,0,2,4])
 
     #fig.colorbar(im, shrink = 1)
     plt.tight_layout()
@@ -129,7 +144,7 @@ n = 32
 nrep = 4000
 variance = 1.5
 figname = "figures/gp_parameter_marginal_bivariate_density_model7_random05.png"
-missing_indices1 = [232,772,810,493,567]
-missing_indices2 = [233,835,874,505,568]
+missing_indices1 = [232,360,658,493,567]
+missing_indices2 = [233,362,654,505,568]
 visualize_marginal_and_bivariate_density(model_name, missing_indices, missing_indices1, missing_indices2,
                                              n, nrep, variance, figname)

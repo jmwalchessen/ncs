@@ -10,9 +10,9 @@ def load_mask(ref_folder):
 
     return np.load((ref_folder + "/mask.npy"))
 
-def process_fcs_file(ref_folder, fcs_file, processed_fcs_file, nrep, n):
+def process_fcs_file(ref_folder, mask_file, fcs_file, processed_fcs_file, nrep, n):
 
-    mask = load_mask(ref_folder)
+    mask = np.load((ref_folder + "/" + mask_file))
     ref_image = np.log(load_ref_image(ref_folder))
     observed_image = ((mask)*ref_image).reshape((1,n**2))
     print(observed_image)
@@ -51,6 +51,12 @@ def proocess_unconditional_fcs_file_with_variables():
         obs_file = "unconditional_obs_fcs_range_3.0_smooth_1.5_nugget_1e5_obs_" + str(m) + "_" + str(nrep) + ".npy"
         process_unconditional_fcs_file(ref_folder, mask_file, obs_file, fcs_file,
                                        processed_fcs_file, nrep, n, m)
-
-
-proocess_unconditional_fcs_file_with_variables()
+        
+m = 7
+ref_folder = "data/ranges/ref_image4"
+fcs_file = "fcs_range_5_smooth_1.5_nugget_1e5_obs_" + str(m) + "_10.npy"
+processed_fcs_file = "processed_fcs_range_5_smooth_1.5_nugget_1e5_obs_" + str(m) + "_10.npy"
+nrep = 10
+n = 32
+mask_file = ("mask_obs_" + str(m) + ".npy")
+process_fcs_file(ref_folder, mask_file, fcs_file, processed_fcs_file, nrep, n)

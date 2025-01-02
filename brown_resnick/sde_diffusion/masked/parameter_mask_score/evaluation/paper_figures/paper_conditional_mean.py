@@ -90,13 +90,15 @@ def visualize_conditional_mean_observed_ncs_lcs(figname, n, model_name, lcs_file
             ax.set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
         elif(i < -10):
 
-            im = ax.imshow(lcs_means[(i % 5),:,:], cmap='viridis', vmin = -2, vmax = 6)
+            im = ax.imshow(lcs_means[(i % 5),:,:], cmap='viridis', vmin = -2, vmax = 6,
+                           alpha = ((1-masks[(i % 5),:,:]).astype(float)))
             ax.set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
             ax.set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
             pass
 
         else:
-            im = ax.imshow(diffusion_means[(i % 5),:,:], cmap='viridis', vmin = -2, vmax = 6)
+            im = ax.imshow(diffusion_means[(i % 5),:,:], cmap='viridis', vmin = -2, vmax = 6,
+                           alpha = ((1-masks[(i % 5),:,:]).astype(float)))
             ax.set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
             ax.set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
 

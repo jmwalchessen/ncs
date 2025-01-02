@@ -100,7 +100,7 @@ def produce_generated_and_univariate_lcs_marginal_density(ref_image_folder, n, m
     mask = mask.astype(float).reshape((n,n))
     axs[0].imshow(ref_image.reshape((n,n)), alpha = mask, vmin = -2, vmax = 6)
     axs[0].plot(matrix_missing_index[1], matrix_missing_index[0], "r+")
-    sns.kdeplot(data = generated_pdd, palette = ["orange"], ax = axs[1])
+    kd = sns.kdeplot(data = generated_pdd, palette = ["orange"], ax = axs[1], bw_adjust = 1, bw_method = "scott")
     sns.kdeplot(data = lcs_pdd, palette = ["purple"], ax = axs[1])
     plt.axvline(ref_image[int(matrix_missing_index[0]),int(matrix_missing_index[1])], 
                 color='red', linestyle = 'dashed')
@@ -167,7 +167,7 @@ def produce_generated_and_lcs_bivariate_density(ref_image_folder, n, missing_ind
         plt.clf()
 
 
-"""
+
 ref_image_folder = "data/model4/ref_image4"
 nrep = 4000
 neighbors = 7
@@ -180,10 +180,10 @@ for missing_index in range(0,1000):
                 + str(missing_index) + ".png")
 
     produce_generated_and_univariate_lcs_marginal_density(ref_image_folder, n, missing_index,
-                                                      ncs_file_name, univariate_lcs_file, figname)"""
+                                                      ncs_file_name, univariate_lcs_file, figname)
 
 
-
+"""
 ref_image_folder = "data/model4/ref_image0"
 nrep = 4000
 neighbors = 7
@@ -201,4 +201,4 @@ for i in range(len(filenames)):
 
     figname = ("bivariate_lcs_" + str(nrep) + "neighbors_" + str(neighbors) + "_nugget_1e5_bivariate_density_missing_index_")
     produce_generated_and_lcs_bivariate_density(ref_image_folder, n,
-                                                ncs_file_name, filenames[i], figname, nrep)
+                                                ncs_file_name, filenames[i], figname, nrep)"""
