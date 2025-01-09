@@ -43,13 +43,11 @@ def return_timings(tnrep, smooth_value, range_value, n, number_of_locations_list
             timings[i,(t+1)] = return_timing(smooth_value, range_value, n, nlocation)
 
 
-    np.save(timing_file, timings)
-
-tnrep = 1
+    np.save(timing_file, timing)
 tnrep = 50
 smooth_value = 1.5
 range_value = 3.0
 n = 32
-number_of_locations_list = [1,2,3,4,5,6,7,8,9]
-timing_file = "data/model4/increasing_number_of_observed_locations_timing_array_niasra_node_6_1_conditional_simulation_1_7_tnrep_50.npy"
+number_of_locations_list = [1,2,3,4,5,6,7]
+timing_file = "data/model4/ncs_timing_array_niasra_node_6_1_conditional_simulation_1_7_tnrep_50.npy"
 return_timings(tnrep, smooth_value, range_value, n, number_of_locations_list, timing_file)
