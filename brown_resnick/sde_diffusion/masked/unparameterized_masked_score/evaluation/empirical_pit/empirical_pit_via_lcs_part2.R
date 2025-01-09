@@ -1,6 +1,6 @@
 library(dbscan)
-library("parallel")
-library("reticulate")
+library(parallel)
+library(reticulate)
 library(SpatialExtremes)
 library(R.utils)
 
@@ -151,14 +151,14 @@ produce_lcs <- function()
   smooth <- 1.5
   nugget <- .00001
   cov_mod <- "brown"
-  ps <- seq(.01,.05,.1,.25,.5)
+  ps <- c(.01,.05,.1,.25,.5)
   nrep <- 4000
   neighbors <- 7
   for(p in ps)
   {
     ref_folder <- paste("data/model4/random", as.character(p), sep = "")
     mask_file_name <- paste(ref_folder, "mask.npy", sep = "/")
-    ref_image_name <- paste(paste(paste(ref_name, "reference_images_range_3_smooth_1.5_random", sep = "/"),
+    ref_image_name <- paste(paste(paste(ref_folder, "reference_images_range_3_smooth_1.5_random", sep = "/"),
                                             as.character(p), sep = "_"), "4000.npy", sep = "_")
     condsims <- array(NA, dim = c(nrep,n**2,nrep))
     for(ref_image_index in 1:nrep)

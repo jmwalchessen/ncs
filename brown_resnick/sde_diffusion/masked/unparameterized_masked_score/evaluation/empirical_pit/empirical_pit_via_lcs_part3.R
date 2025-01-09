@@ -1,13 +1,14 @@
-library("reticulate")
+library(reticulate)
 
 
 load_reference_images_masks_and_conditional_simulations <- function(p)
 {
 
     np <- import("numpy")
-    ref_folder <- paste("data/model4/random", str(p), sep = "")
-    ref_images <- paste(np$load(paste(ref_folder, "/reference_images_range_3_smooth_1.5_random", sep = "/"),
-                                as.character(p), sep = ""), "_4000.npy", sep = "")
+    ref_folder <- paste("data/model4/random", as.character(p), sep = "")
+    print(p)
+    ref_images <-np$load(paste(paste(paste(ref_folder, "reference_images_range_3_smooth_1.5_random", sep = "/"),
+                                as.character(p), sep = "_"), "_4000.npy", sep = ""))
     masks <- np$load(paste(ref_folder, "mask.npy", sep = "/"))
     condsims <- np$load(paste(ref_folder, "univariate_lcs_range_3.0_smooth_1.5_nugget_0.00001_neighbors_7_4000.npy", sep = "/"))
     return(list(ref_images, masks, condsims))
@@ -54,3 +55,5 @@ compute_empirical_pit_values <- function()
        compute_empirical_pit_values_per_approx_percentage(p) 
     }
 }
+
+compute_empirical_pit_values()
