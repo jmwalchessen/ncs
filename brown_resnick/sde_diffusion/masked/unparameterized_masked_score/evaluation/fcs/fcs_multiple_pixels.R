@@ -75,12 +75,13 @@ generate_fcs <- function(mask_file_name, ref_image_name, n, nrep, range, smooth,
                               s2 = s2)
   
   mask <- np$load(mask_file_name)
-  ref_image <- exp(np$load(ref_image_name))
+  ref_image <- np$load(ref_image_name)
   ref_image <- flatten_matrix(ref_image, n)
   mask <- flatten_matrix(mask, n)
   observed_indices <- (1:n**2)[mask == 1]
   observed_spatial_grid <- spatial_grid[observed_indices,]
   observations <- ref_image[observed_indices]
+  print(observations)
   unobserved_indices <- (1:n**2)[-observed_indices]
   unobserved_observations <- ref_image[unobserved_indices]
   unobserved_spatial_grid <- spatial_grid[unobserved_indices,]
@@ -93,7 +94,9 @@ generate_fcs <- function(mask_file_name, ref_image_name, n, nrep, range, smooth,
                                             cov.mod = "brown", 
                                             nugget = nugget, 
                                             range = range,
-                                            smooth = smooth)
+                                            smooth = smooth,
+                                            burnin = 1000,
+                                            thin = 100)
     condsim[i,] <- output$sim
   }
   np$save(fcs_file, condsim)
@@ -212,7 +215,9 @@ generate_fcs_with_temporary_data <- function(n, nrep, range, smooth, nugget, m)
                                           cov.mod = "brown", 
                                           nugget = nugget, 
                                           range = range,
-                                          smooth = smooth)
+                                          smooth = smooth,
+                                          burnin = 1000,
+                                          thin = 100)
   return(list(ref_image, mask, output$sim))
 }
 
@@ -253,26 +258,27 @@ generate_unconditional_fcs_multipe_files <- function(n, nrep, range, smooth, nug
   }
 }
 
-generate_unconditional_fcs_multiple_files_with_variables <- function()
+generate_unconditional_fcs_multiple_files_with_variables <- function(range_values)
 {
   n <- 32
   nrep <- 4000
-  range <- 3.0
   smooth <- 1.5
   nugget <- .00001
   observed_location_numbers <- seq(1,7,1)
   evaluation_folder <- (strsplit(getwd(), "/fcs")[[1]])[1]
   extremal_coefficient_and_high_dimensional_folder <- paste(evaluation_folder, "extremal_coefficient_and_high_dimensional_statistics/data/fcs", sep = "/")
-  fcs_file <- paste(extremal_coefficient_and_high_dimensional_folder,
-                    "unconditional_fcs_range_3.0_smooth_1.5_nugget_1e5_obs", sep = "/")
-  ref_file <- paste(extremal_coefficient_and_high_dimensional_folder,
-                    "unconditional_obs_fcs_range_3.0_smooth_1.5_nugget_1e5_obs", sep = "/")
-  mask_file <- paste(extremal_coefficient_and_high_dimensional_folder,
-                    "unconditional_mask_fcs_range_3.0_smooth_1.5_nugget_1e5_obs", sep = "/")
-  generate_unconditional_fcs_multipe_files(n, nrep, range, smooth, nugget, fcs_file, mask_file, ref_file,
-                                  observed_location_numbers) 
+  for(i in 1:length(range_values))
+  {
+    fcs_file <- paste(paste(paste(extremal_coefficient_and_high_dimensional_folder,
+                    "unconditional_fcs_range", as.character(range_values[i]), sep = "_"), "smooth_1.5_nugget_1e5_obs", sep = "_"), sep = "/")
+    ref_file <- paste(paste(paste(extremal_coefficient_and_high_dimensional_folder,
+                    "unconditional_obs_fcs_range", as.character(range_values[i]), sep = "_"), "smooth_1.5_nugget_1e5_obs", sep = "_"), sep = "/")
+    mask_file <- paste(paste(paste(extremal_coefficient_and_high_dimensional_folder,
+                    "unconditional_mask_fcs_range", as.character(range_values[i]), sep = "_"), "smooth_1.5_nugget_1e5_obs", sep = "_"), sep = "/")
+    generate_unconditional_fcs_multipe_files(n, nrep, range_values[i], smooth, nugget, fcs_file, mask_file, ref_file,
+                                  observed_location_numbers)
+  } 
 }
 
-ms <- c(7)
-range_values <- seq(1,6)
-generate_fcs_multiple_ranges_fixed(range_values, ms)
+range_values <- seq(1,5,1)
+generate_unconditional_fcs_multiple_files_with_variables(range_values)

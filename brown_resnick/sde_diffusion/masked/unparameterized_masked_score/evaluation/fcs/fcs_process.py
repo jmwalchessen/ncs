@@ -55,7 +55,7 @@ def proocess_unconditional_fcs_file_with_variables():
 m = 7
 ref_folder = "data/ranges/ref_image4"
 fcs_file = "fcs_range_5_smooth_1.5_nugget_1e5_obs_" + str(m) + "_10.npy"
-processed_fcs_file = "processed_fcs_range_5_smooth_1.5_nugget_1e5_obs_" + str(m) + "_10.npy"
+processed_fcs_file = "processed_log_scale_fcs_range_5_smooth_1.5_nugget_1e5_obs_" + str(m) + "_10.npy"
 nrep = 10
 n = 32
 mask_file = ("mask_obs_" + str(m) + ".npy")

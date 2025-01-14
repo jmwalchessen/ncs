@@ -109,10 +109,10 @@ nrep <- 1
 range <- 3.0
 smooth <- 1.5
 nugget <- .00001
-time_nrep <- 50
+time_nrep <- 75
 spatial_location_numbers <- seq(1,7,1)
-user_time_array_file <- "data/model4/fcs_increasing_number_of_observed_locations_user_timing_array_niasra_node_6_1_conditional_simulation_1_7_tnrep_50.npy"
-sys_time_array_file <- "data/model4/fcs_increasing_number_of_observed_locations_sys_timing_array_niasra_node_6_1_conditional_simulation_1_7_tnrep_50.npy"
-elapsed_time_array_file <- "data/model4/fcs_increasing_number_of_observed_locations_elapsed_timing_array_niasra_node_6_1_conditional_simulation_1_7_tnrep_5.npy"
+user_time_array_file <- "data/model4/fcs_increasing_number_of_observed_locations_user_timing_array_niasra_node_6_1_conditional_simulation_1_7_tnrep_75.npy"
+sys_time_array_file <- "data/model4/fcs_increasing_number_of_observed_locations_sys_timing_array_niasra_node_6_1_conditional_simulation_1_7_tnrep_75.npy"
+elapsed_time_array_file <- "data/model4/fcs_increasing_number_of_observed_locations_elapsed_timing_array_niasra_node_6_1_conditional_simulation_1_7_tnrep_75.npy"
 collect_time_fcs(n, nrep, range, smooth, nugget, time_nrep, spatial_location_numbers,
                  user_time_array_file, sys_time_array_file, elapsed_time_array_file)

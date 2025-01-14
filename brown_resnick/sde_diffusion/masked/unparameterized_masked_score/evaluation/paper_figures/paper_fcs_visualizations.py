@@ -60,7 +60,7 @@ def visualize_fcs_multiple_ranges(evaluation_folder, range_values, m, n, figname
     for i in range(len(range_values)):
 
         fcs_images[i,:,:,:] = np.load((evaluation_folder + "/fcs/data/ranges/ref_image" +
-                                           str(i) + "/processed_fcs_range_" + str(range_values[i])
+                                           str(i) + "/processed_log_scale_fcs_range_" + str(range_values[i])
                                            + "_smooth_1.5_nugget_1e5_obs_" + str(m) + "_10.npy"))
         ref_images[i,:,:] = np.load((evaluation_folder + "/fcs/data/ranges/ref_image"
                                        + str(i) + "/ref_image.npy"))

@@ -97,14 +97,14 @@ def visualize_unconditional_fcs_with_variables(irep, m):
 
 def visualize_fcs_multiple_ranges_and_locations(ireps):
 
-    range_values = [i for i in range(5,6)]
+    range_values = [i for i in range(1,6)]
     ms = [i for i in range(1,8)]
     nrep = 10
     for range_value in range_values:
         ref_folder = "data/ranges/ref_image" + str((range_value-1))
         for m in ms:
             for irep in ireps:
-                fcs_file = ("processed_fcs_range_" + str(range_value) + "_smooth_1.5_nugget_1e5_obs_" +
+                fcs_file = ("processed_log_scale_fcs_range_" + str(range_value) + "_smooth_1.5_nugget_1e5_obs_" +
                             str(m) +  "_" + str(nrep) + ".npy")
                 mask_file = (ref_folder + "/mask_obs_" + str(m) + ".npy")
                 figname = ("visualizations/fcs_range_" + str(range_value) +
