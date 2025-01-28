@@ -264,17 +264,17 @@ generate_unconditional_fcs_multiple_files_with_variables <- function(range_value
   nrep <- 4000
   smooth <- 1.5
   nugget <- .00001
-  observed_locations_numbers <- seq(1,7,1)
+  observed_location_numbers <- seq(6,7,1)
   evaluation_folder <- (strsplit(getwd(), "/fcs")[[1]])[1]
-  extremal_coefficient_and_high_dimensional_folder <- paste(evaluation_folder, "extremal_coefficient_and_high_dimensional_statistics/data/fcs", sep = "/")
+  extremal_coefficient_and_high_dimensional_folder <- paste(evaluation_folder, "extremal_coefficient_and_high_dimensional_metrics/data/fcs", sep = "/")
   for(i in 1:length(range_values))
   {
     fcs_file <- paste(paste(paste(extremal_coefficient_and_high_dimensional_folder,
-                    "unconditional_fcs_range", as.character(range_values[i]), sep = "_"), "smooth_1.5_nugget_1e5_obs", sep = "_"), sep = "/")
+                    "unconditional_fcs_range", sep = "/"), as.character(range_values[i]), sep = "_"), "smooth_1.5_nugget_1e5_obs", sep = "_")
     ref_file <- paste(paste(paste(extremal_coefficient_and_high_dimensional_folder,
-                    "unconditional_obs_fcs_range", as.character(range_values[i]), sep = "_"), "smooth_1.5_nugget_1e5_obs", sep = "_"), sep = "/")
+                    "unconditional_obs_fcs_range", sep = "/"), as.character(range_values[i]), sep = "_"), "smooth_1.5_nugget_1e5_obs", sep = "_")
     mask_file <- paste(paste(paste(extremal_coefficient_and_high_dimensional_folder,
-                    "unconditional_mask_fcs_range", as.character(range_values[i]), sep = "_"), "smooth_1.5_nugget_1e5_obs", sep = "_"), sep = "/")
+                    "unconditional_mask_fcs_range", sep = "/"), as.character(range_values[i]), sep = "_"), "smooth_1.5_nugget_1e5_obs", sep = "_")
     generate_unconditional_fcs_multipe_files(n, nrep, range_values[i], smooth, nugget, fcs_file, mask_file, ref_file,
                                   observed_location_numbers)
   } 
