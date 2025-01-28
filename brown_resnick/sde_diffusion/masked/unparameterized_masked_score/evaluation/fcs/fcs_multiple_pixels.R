@@ -264,7 +264,7 @@ generate_unconditional_fcs_multiple_files_with_variables <- function(range_value
   nrep <- 4000
   smooth <- 1.5
   nugget <- .00001
-  observed_location_numbers <- seq(1,7,1)
+  observed_locations_numbers <- seq(1,7,1)
   evaluation_folder <- (strsplit(getwd(), "/fcs")[[1]])[1]
   extremal_coefficient_and_high_dimensional_folder <- paste(evaluation_folder, "extremal_coefficient_and_high_dimensional_statistics/data/fcs", sep = "/")
   for(i in 1:length(range_values))
@@ -280,5 +280,5 @@ generate_unconditional_fcs_multiple_files_with_variables <- function(range_value
   } 
 }
 
-range_values <- seq(1,5,1)
+range_values <- c(3.)
 generate_unconditional_fcs_multiple_files_with_variables(range_values)

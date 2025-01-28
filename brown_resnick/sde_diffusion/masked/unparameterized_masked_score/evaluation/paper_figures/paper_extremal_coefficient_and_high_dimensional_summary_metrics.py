@@ -3,10 +3,12 @@ import torch as th
 import numpy as np
 from append_directories import *
 from mpl_toolkits.axes_grid1 import ImageGrid
-from paper_high_dimensional_metrics import *
 from matplotlib import gridspec
+import pandas as pd
+import seaborn as sns
 
 evaluation_folder = append_directory(2)
+extr_folder = (evaluation_folder + "/extremal_coefficient_and_high_dimensional_metrics")
 
 def load_numpy_file(npfile):
 
@@ -14,12 +16,12 @@ def load_numpy_file(npfile):
     return nparr
 
 def visualize_ncs_and_true_extremal_coefficient_and_high_dimensional_summary_metrics_multiple_percentages(range_value, smooth,
-                                                                                                          ps, bins, figname, nrep):
+                                                                                                          ps, bins, figname, nrep, n):
     
     extremal_matrices = np.zeros((len(ps), (bins+1),3))
     ncs_extremal_matrices = np.zeros((len(ps), (bins+1),3))
-    ncs_images = np.zeros((len(qs),nrep,n,n))
-    true_images = np.zeros((len(qs),nrep,n,n))
+    ncs_images = np.zeros((len(ps),nrep,n,n))
+    true_images = np.zeros((len(ps),nrep,n,n))
     ncs_abs_summation = np.zeros((len(ps),nrep))
     true_abs_summation = np.zeros((len(ps),nrep))
     ncs_mins = np.zeros((len(ps),nrep))
@@ -29,13 +31,13 @@ def visualize_ncs_and_true_extremal_coefficient_and_high_dimensional_summary_met
 
     for i in range(len(ps)):
 
-        extremal_matrices[i,:,:] = load_numpy_file((evaluation_folder + "/extremal_coefficient_and_high_dimensional_statistics/data/true/extremal_coefficient_range_"
+        extremal_matrices[i,:,:] = load_numpy_file((extr_folder + "/data/true/extremal_coefficient_range_"
                                                     + str(range_value) + "_smooth_" + str(smooth) + "_bins_" + str(bins) + "_" + str(nrep) + ".npy"))
-        ncs_extremal_matrices[i,:,:] = load_numpy_file((evaluation_folder + "/extremal_coefficient_and_high_dimensional_statistics/data/ncs/model4/brown_resnick_ncs_extremal_matrix_bins_"
+        ncs_extremal_matrices[i,:,:] = load_numpy_file((extr_folder + "/data/ncs/model4/brown_resnick_ncs_extremal_matrix_bins_"
                                             + str(bins) + "_range_" + str(range_value) + "_smooth_" + str(smooth) 
                                             + "_" + str(nrep) + "_random" + str(ps[i]) + ".npy"))
-        ncs_images[i,:,:,:] = np.load((ncs_images_file + str(qs[i]) + ".npy"))
-        true_images[i,:,:,:] = np.log(np.load(true_images_file))
+        ncs_images[i,:,:,:] = np.load((extr_folder + "/data/ncs/model4/brown_resnick_ncs_images_range_3.0_smooth_1.5_4000_random" + str(ps[i]) + ".npy"))
+        true_images[i,:,:,:] = np.log(np.load(extr_folder + "/data/true/brown_resnick_images_range_3.0_smooth_1.5_4000.npy"))
         ncs_abs_summation[i,:] = np.sum(np.abs(ncs_images[i,:,:,:]).reshape((nrep, n**2)), axis = 1)
         true_abs_summation[i,:] = np.sum(np.abs(true_images[i,:,:,:]).reshape((nrep, n**2)), axis = 1)
         ncs_mins[i,:] = np.min(ncs_images[i,:,:,:].reshape((nrep, n**2)), axis = 1)
@@ -115,11 +117,71 @@ def visualize_ncs_and_true_extremal_coefficient_and_high_dimensional_summary_met
     plt.tight_layout()
     plt.savefig(figname)
 
+def visualize_ncs_and_true_min_max(ps, figname, nrep, n):
+
+    ncs_images = np.zeros((len(ps),nrep,n,n))
+    true_images = np.zeros((len(ps),nrep,n,n))
+    ncs_mins = np.zeros((len(ps),nrep))
+    ncs_maxs = np.zeros((len(ps),nrep))
+    true_mins = np.zeros((len(ps),nrep))
+    true_maxs = np.zeros((len(ps),nrep))
+
+    ncs_image_file = ""
+
+    for i,p in enumerate(ps):
+        ncs_images[i,:,:,:] = np.load((extr_folder + "/data/ncs/model4/brown_resnick_ncs_images_range_3.0_smooth_1.5_4000_random" + str(ps[i]) + ".npy"))
+        true_images[i,:,:,:] = np.log(np.load(extr_folder + "/data/true/brown_resnick_images_range_3.0_smooth_1.5_4000.npy"))
+        ncs_mins[i,:] = np.min(ncs_images[i,:,:,:].reshape((nrep, n**2)), axis = 1)
+        true_mins[i,:] = np.min(true_images[i,:,:,:].reshape((nrep, n**2)), axis = 1)
+        ncs_maxs[i,:] = np.max(ncs_images[i,:,:,:].reshape((nrep, n**2)), axis = 1)
+        true_maxs[i,:] = np.max(true_images[i,:,:,:].reshape((nrep, n**2)), axis = 1)
+
+    fig = plt.figure()
+    # set height of each subplot as 8
+    fig.set_figheight(4)
+ 
+    # set width of each subplot as 8
+    fig.set_figwidth(11)
+    spec = gridspec.GridSpec(ncols=5, nrows=2,
+                         width_ratios=[1,1,1,1,1], wspace=0.25,
+                         hspace=0.35, height_ratios=[1, 1])
+    
+    for i in range(10):
+        ax = fig.add_subplot(spec[i])
+        if(i < 5):
+            ncspdd = pd.DataFrame(ncs_mins[(i%5),:], columns = None)
+            truepdd = pd.DataFrame(true_mins[(i%5),:], columns = None)
+            sns.kdeplot(data = truepdd, palette = ['blue'], ax = ax, legend = True)
+            sns.kdeplot(data = ncspdd, palette =['orange'], ax = ax, legend = True)
+            ax.legend(labels = ['true', 'NCS'], fontsize = 7)
+            ax.set_xlim((-3,1))
+            ax.set_ylim((0,1.5))
+            ax.set_xlabel("")
+            ax.set_ylabel("")
+        else:
+            ncspdd = pd.DataFrame(ncs_maxs[(i%5),:], columns = None)
+            truepdd = pd.DataFrame(true_maxs[(i%5),:], columns = None)
+            sns.kdeplot(data = truepdd, palette = ['blue'], ax = ax, legend = True)
+            sns.kdeplot(data = ncspdd, palette =['orange'], ax = ax, legend = True)
+            ax.legend(labels = ['true', 'NCS'], fontsize = 7)
+            ax.set_xlim((0,15))
+            ax.set_ylim((0,.45))
+            ax.set_xlabel("")
+            ax.set_ylabel("")
+
+    #fig.text(0.3, .9, "Extremal Coefficient", fontsize = 15)
+    plt.tight_layout()
+    plt.savefig(figname)
+
+
 
 range_value = 3.0
 smooth = 1.5
 ps = [.01,.05,.1,.25,.5]
 bins = 100
 nrep = 4000
+n = 32
 figname = "figures/paper_ncs_vs_true_extremal_coefficient_and_high_dimensional_summary_metrics.png"
-visualize_ncs_and_true_extremal_coefficient_and_high_dimensional_summary_metrics_multiple_percentages(range_value, smooth, ps, bins, figname, nrep)
+visualize_ncs_and_true_extremal_coefficient_and_high_dimensional_summary_metrics_multiple_percentages(range_value, smooth, ps, bins, figname, nrep, n)
+figname = "figures/presentation_ncs_vs_true_min_max.png"
+visualize_ncs_and_true_min_max(ps, figname, nrep, n)
