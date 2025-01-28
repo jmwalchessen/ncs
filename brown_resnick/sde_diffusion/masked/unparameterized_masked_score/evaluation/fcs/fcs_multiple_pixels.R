@@ -126,6 +126,7 @@ generate_fcs_multiple_ranges <- function(range_values)
   {
     for(i in 1:length(range_values))
     {
+      np <- import("numpy")
       ref_folder_name <- paste("data/ranges/ref_image", as.character((range_values[i]-1)), sep = "")
       ref_image_name <- paste(ref_folder_name, "ref_image.npy", sep = "/")
       mask_file_name <- paste(ref_folder_name, "mask.npy", sep = "/")
@@ -195,7 +196,6 @@ generate_fcs_with_variables <- function(m)
 
 generate_fcs_with_temporary_data <- function(n, nrep, range, smooth, nugget, m)
 {
-  np <- import("numpy")
   s1 <- s2 <- seq(-10, 10, length.out = n)
   s <- cbind(s1, s2)
   spatial_grid <- expand.grid(s1 = s1, 
@@ -223,7 +223,6 @@ generate_fcs_with_temporary_data <- function(n, nrep, range, smooth, nugget, m)
 
 generate_unconditional_fcs <- function(m, n, nrep, range, smooth, nugget, fcs_file, mask_file, ref_file)
 {
-  np <- import("numpy")
   conditional_simulations <- array(0, dim = c(nrep, ((n**2)-m)))
   ref_images <- array(0, dim = c(nrep, n**2))
   masks <- array(0, c(nrep, n**2))
@@ -234,9 +233,10 @@ generate_unconditional_fcs <- function(m, n, nrep, range, smooth, nugget, fcs_fi
     masks[i,] <- list_values[[2]]
     conditional_simulations[i,] <- list_values[[3]]
   }
- np$save(fcs_file, conditional_simulations)
- np$save(ref_file, ref_images)
- np$save(mask_file, masks)
+  np <- import("numpy")
+  np$save(fcs_file, conditional_simulations)
+  np$save(ref_file, ref_images)
+  np$save(mask_file, masks)
 }
 
 generate_unconditional_fcs_multipe_files <- function(n, nrep, range, smooth, nugget, fcs_file, mask_file, ref_file,
@@ -261,7 +261,7 @@ generate_unconditional_fcs_multipe_files <- function(n, nrep, range, smooth, nug
 generate_unconditional_fcs_multiple_files_with_variables <- function(range_values)
 {
   n <- 32
-  nrep <- 4000
+  nrep <- 2
   smooth <- 1.5
   nugget <- .00001
   observed_location_numbers <- seq(6,7,1)
@@ -280,5 +280,5 @@ generate_unconditional_fcs_multiple_files_with_variables <- function(range_value
   } 
 }
 
-range_values <- c(3.)
+range_values <- seq(3.,5.,1.)
 generate_unconditional_fcs_multiple_files_with_variables(range_values)
