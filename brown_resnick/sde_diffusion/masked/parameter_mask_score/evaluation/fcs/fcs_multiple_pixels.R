@@ -169,7 +169,7 @@ generate_fcs_multiple_ranges_fixed <- function(range_values, ms)
   {
     for(i in 1:length(range_values))
     {
-      ref_folder_name <- paste("data/ranges/ref_image", as.character((range_values[i]-1)), sep = "")
+      ref_folder_name <- paste(paste(paste("data/model4/obs", as.character(ms[i]), sep = ""), "ref_image", sep = "/"), as.character((range_values[i]-1)), sep = "")
       ref_image_name <- paste(ref_folder_name, "ref_image.npy", sep = "/")
       mask_file_name <- paste(ref_folder_name, "mask.npy", sep = "/")
       mask_file_name <- paste(ref_folder_name, "mask.npy", sep = "/")
