@@ -147,10 +147,23 @@ generate_fcs_multiple_ranges <- function(range_values)
 generate_fcs_multiple_ranges_fixed <- function(range_values, ms)
 {
   n <- 32
+  x <- y <- seq(-10, 10, length = n)
+  coord <- expand.grid(x, y)
   number_of_replicates <- 4000
   smooth <- 1.5
   nugget <- .00001
   np <- import("numpy")
+
+  for(i in 1:length(ms))
+  {
+    for(j in 1:length(range_values))
+    {
+      ref_folder_name <- paste(paste("data/model4/obs", str(ms[i]), sep = ""), "/ref_image", as.character((range_values[j]-1)), sep = "")
+      ref_image_name <- paste(ref_folder_name, "ref_image.npy", sep = "/")
+      mask_file_name <- paste(ref_folder_name, "mask.npy", sep = "/")
+      generate_reference_data(number_of_replicates, coord, range_values[j], smooth, ms[i], n, mask_file, ref_image_file)
+    }
+  }
 
   for(j in 1:length(ms))
   {
@@ -159,10 +172,7 @@ generate_fcs_multiple_ranges_fixed <- function(range_values, ms)
       ref_folder_name <- paste("data/ranges/ref_image", as.character((range_values[i]-1)), sep = "")
       ref_image_name <- paste(ref_folder_name, "ref_image.npy", sep = "/")
       mask_file_name <- paste(ref_folder_name, "mask.npy", sep = "/")
-      mask <- produce_random_mask(ms[j], n)
-      mask_file_name <- paste(paste(paste(ref_folder_name, "mask_obs", sep = "/"), as.character(ms[j]), sep = "_"), "npy", sep = ".")
-      dim(mask) <- c(n,n)
-      np$save(mask_file_name, mask)
+      mask_file_name <- paste(ref_folder_name, "mask.npy", sep = "/")
       fcs_file <- paste(paste(paste(paste(paste("fcs_range", as.character(range_values[i]), sep = "_"),
                                     "smooth_1.5_nugget_1e5_obs", sep = "_"), as.character(ms[j]), sep = "_"),
                                     as.character(number_of_replicates), sep = "_"), "npy", sep = ".")
@@ -172,6 +182,7 @@ generate_fcs_multiple_ranges_fixed <- function(range_values, ms)
     }
   }
 }
+
 
 
 generate_fcs_with_variables <- function(m)
@@ -281,5 +292,4 @@ generate_unconditional_fcs_multiple_files_with_variables <- function(range_value
   } 
 }
 
-range_values <- seq(1.,5.)
-generate_unconditional_fcs_multiple_files_with_variables(range_values)
+generate_fcs_multiple_ranges_fixed()

@@ -21,7 +21,7 @@ def visualize_fcs(ref_folder, fcs_file, figname, irep):
     plt.savefig(figname)
 
 
-ref_folder = "data/model4/ref_image0"
+ref_folder = "data/model4/ref_image1"
 fcs_file = "fcs_range_1.0_smooth_1.5_nugget_1e5_4000.npy"
 figname = "visualizations/fcs_range_1.0_smooth_1.5_nugget_1e5_0.png"
 irep = 0
