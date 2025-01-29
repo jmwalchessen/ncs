@@ -49,8 +49,24 @@ generate_reference_data <- function(number_of_replicates, coord, range, smooth, 
   np$save(ref_image_file, ref_image)
 }
 
+generate_reference_data_without_mask <- function(number_of_replicates, coord, range, smooth, n, ref_image_file)
+{
+  np <- import("numpy")
+  ref_image <- brown_resnick_data_generation(number_of_replicates = 1, n = n, range = range, smooth = smooth)
+  dim(ref_image) <- c(n,n)
+  np <- import("numpy")
+  np$save(ref_image_file, ref_image)
+}
 
-fcs <- function(mask_file_name, ref_image_name, n, nrep, range, smooth, nugget, fcs_file) 
+generate_mask <- function(n, mask_file, m)
+{
+  np <- import("numpy")
+  mask <- produce_random_mask(m, n)
+  np$save(mask_file, mask)
+}
+
+
+generate_fcs <- function(mask_file_name, ref_image_name, n, nrep, range, smooth, nugget, fcs_file, m) 
 {
   np <- import("numpy")
   s1 <- s2 <- seq(-10, 10, length.out = n)
@@ -59,9 +75,134 @@ fcs <- function(mask_file_name, ref_image_name, n, nrep, range, smooth, nugget, 
                               s2 = s2)
   
   mask <- np$load(mask_file_name)
-  ref_image <- exp(np$load(ref_image_name))
+  ref_image <- np$load(ref_image_name)
   ref_image <- flatten_matrix(ref_image, n)
   mask <- flatten_matrix(mask, n)
+  observed_indices <- (1:n**2)[mask == 1]
+  observed_spatial_grid <- spatial_grid[observed_indices,]
+  observations <- ref_image[observed_indices]
+  print(observations)
+  unobserved_indices <- (1:n**2)[-observed_indices]
+  unobserved_observations <- ref_image[unobserved_indices]
+  unobserved_spatial_grid <- spatial_grid[unobserved_indices,]
+  condsim <- array(0, dim = c(nrep,((n**2)-m)))
+  for(i in 1:nrep)
+  {
+    output <- SpatialExtremes::condrmaxstab(1, coord = unobserved_spatial_grid,
+                                            cond.coord = observed_spatial_grid,
+                                            cond.data = observations,
+                                            cov.mod = "brown", 
+                                            nugget = nugget, 
+                                            range = range,
+                                            smooth = smooth,
+                                            burnin = 1000,
+                                            thin = 100)
+    condsim[i,] <- output$sim
+  }
+  np$save(fcs_file, condsim)
+}
+
+generate_fcs_multiple_ranges <- function(range_values)
+{
+  n <- 32
+  x <- y <- seq(-10, 10, length = n)
+  coord <- expand.grid(x, y)
+  number_of_replicates <- 10
+  smooth <- 1.5
+  nugget <- .00001
+  ms <- seq(1,7)
+  np <- import("numpy")
+
+  for(i in 1:length(range_values))
+  {
+    ref_folder_name <- paste("data/ranges/ref_image", as.character((range_values[i]-1)), sep = "")
+    ref_image_name <- paste(ref_folder_name, "ref_image.npy", sep = "/")
+    mask_file_name <- paste(ref_folder_name, "mask.npy", sep = "/")
+    generate_reference_data_without_mask(number_of_replicates, coord, range_values[i], smooth, n,
+                                           ref_image_name)
+  }
+
+  for(j in 1:length(ms))
+  {
+    for(i in 1:length(range_values))
+    {
+      np <- import("numpy")
+      ref_folder_name <- paste("data/ranges/ref_image", as.character((range_values[i]-1)), sep = "")
+      ref_image_name <- paste(ref_folder_name, "ref_image.npy", sep = "/")
+      mask_file_name <- paste(ref_folder_name, "mask.npy", sep = "/")
+      mask <- produce_random_mask(ms[j], n)
+      mask_file_name <- paste(paste(paste(ref_folder_name, "mask_obs", sep = "/"), as.character(ms[j]), sep = "_"), "npy", sep = ".")
+      dim(mask) <- c(n,n)
+      np$save(mask_file_name, mask)
+      fcs_file <- paste(paste(paste(paste(paste("fcs_range", as.character(range_values[i]), sep = "_"),
+                                    "smooth_1.5_nugget_1e5_obs", sep = "_"), as.character(ms[j]), sep = "_"),
+                                    as.character(number_of_replicates), sep = "_"), "npy", sep = ".")
+      fcs_file <- paste(ref_folder_name, fcs_file, sep = "/")
+      generate_fcs(mask_file_name, ref_image_name, n, number_of_replicates,
+                    range_values[i], smooth, nugget, fcs_file, ms[j])
+    }
+  }
+}
+
+generate_fcs_multiple_ranges_fixed <- function(range_values, ms)
+{
+  n <- 32
+  number_of_replicates <- 4000
+  smooth <- 1.5
+  nugget <- .00001
+  np <- import("numpy")
+
+  for(j in 1:length(ms))
+  {
+    for(i in 1:length(range_values))
+    {
+      ref_folder_name <- paste("data/ranges/ref_image", as.character((range_values[i]-1)), sep = "")
+      ref_image_name <- paste(ref_folder_name, "ref_image.npy", sep = "/")
+      mask_file_name <- paste(ref_folder_name, "mask.npy", sep = "/")
+      mask <- produce_random_mask(ms[j], n)
+      mask_file_name <- paste(paste(paste(ref_folder_name, "mask_obs", sep = "/"), as.character(ms[j]), sep = "_"), "npy", sep = ".")
+      dim(mask) <- c(n,n)
+      np$save(mask_file_name, mask)
+      fcs_file <- paste(paste(paste(paste(paste("fcs_range", as.character(range_values[i]), sep = "_"),
+                                    "smooth_1.5_nugget_1e5_obs", sep = "_"), as.character(ms[j]), sep = "_"),
+                                    as.character(number_of_replicates), sep = "_"), "npy", sep = ".")
+      fcs_file <- paste(ref_folder_name, fcs_file, sep = "/")
+      generate_fcs(mask_file_name, ref_image_name, n, number_of_replicates,
+                    range_values[i], smooth, nugget, fcs_file, ms[j])
+    }
+  }
+}
+
+
+generate_fcs_with_variables <- function(m)
+{
+  ref_folder <- "data/model4/ref_image"
+  ms <- seq(1,7,1)
+  n <- 32
+  nrep <- 4000
+  range <- 3.0
+  smooth <- 1.5
+  nugget <- .00001
+  ref_folder <- paste(ref_folder, as.character((m-1)), sep = "")
+  fcs_file <- paste(paste(paste(ref_folder, "fcs_1_by_1_range_3.0_smooth_1.5_nugget_1e5_obs",
+                                sep = "/"), as.character(m), sep = "_"), "4000.npy", sep = "_")
+  mask_file <- paste(current_ref_folder, "mask.npy", sep = "/")
+  ref_image_name <- paste(current_ref_folder, "ref_image.npy", sep = "/")
+  generate_fcs(mask_file, ref_image_name, n, nrep, range, smooth, nugget, fcs_file, m)
+}
+
+
+
+
+generate_fcs_with_temporary_data <- function(n, nrep, range, smooth, nugget, m)
+{
+  s1 <- s2 <- seq(-10, 10, length.out = n)
+  s <- cbind(s1, s2)
+  spatial_grid <- expand.grid(s1 = s1, 
+                              s2 = s2)
+  
+  mask <- produce_random_mask(m, n)
+  ref_image <- brown_resnick_data_generation(1, n, range, smooth)
   observed_indices <- (1:n**2)[mask == 1]
   observed_spatial_grid <- spatial_grid[observed_indices,]
   observations <- ref_image[observed_indices]
@@ -74,20 +215,71 @@ fcs <- function(mask_file_name, ref_image_name, n, nrep, range, smooth, nugget, 
                                           cov.mod = "brown", 
                                           nugget = nugget, 
                                           range = range,
-                                          smooth = smooth)
-  condsim <- output$sim
-  np$save(fcs_file, condsim)
+                                          smooth = smooth,
+                                          burnin = 1000,
+                                          thin = 100)
+  return(list(ref_image, mask, output$sim))
 }
 
-m <- 7
-n <- 32
-ref_image_name <- "data/model4/ref_image0/ref_image.npy"
-mask_file_name <- "data/model4/ref_image0/mask.npy"
-nrep <- 1
-range <- 1.0
-smooth <- 1.5
-nugget <- .00001
-generate_reference_data(number_of_replicates = nrep, range = range, smooth = smooth, m = m, n = n,
-                        mask_file = mask_file_name, ref_image_file = ref_image_name)
-fcs_file <- "data/model4/ref_image0/fcs_range_1.0_smooth_1.5_nugget_1e5_4000.npy"
-fcs(mask_file_name, ref_image_name, n, nrep, range, smooth, nugget, fcs_file)
+generate_unconditional_fcs <- function(m, n, nrep, range, smooth, nugget, fcs_file, mask_file, ref_file)
+{
+  conditional_simulations <- array(0, dim = c(nrep, ((n**2)-m)))
+  ref_images <- array(0, dim = c(nrep, n**2))
+  masks <- array(0, c(nrep, n**2))
+  for(i in 1:nrep)
+  {
+    print(i)
+    list_values <- generate_fcs_with_temporary_data(n, 1, range, smooth, nugget, m)
+    ref_images[i,] <- list_values[[1]]
+    masks[i,] <- list_values[[2]]
+    conditional_simulations[i,] <- list_values[[3]]
+  }
+  np <- import("numpy")
+  np$save(fcs_file, conditional_simulations)
+  np$save(ref_file, ref_images)
+  np$save(mask_file, masks)
+}
+
+generate_unconditional_fcs_multipe_files <- function(n, nrep, range, smooth, nugget, fcs_file, mask_file, ref_file,
+                                                     observed_location_numbers)
+{
+  for(i in 1:length(observed_location_numbers))
+  {
+    m <- observed_location_numbers[i]
+    current_fcs_file <- paste(paste(paste(fcs_file, as.character(m), sep = "_"),
+                                                    as.character(nrep), sep = "_"),
+                                                    "npy", sep = ".")
+    current_mask_file <- paste(paste(paste(mask_file, as.character(m), sep = "_"),
+                                                    as.character(nrep), sep = "_"),
+                                                    "npy", sep = ".")
+    current_ref_file <- paste(paste(paste(ref_file, as.character(m), sep = "_"),
+                                                    as.character(nrep), sep = "_"),
+                                                    "npy", sep = ".")
+    generate_unconditional_fcs(m, n, nrep, range, smooth, nugget, current_fcs_file, current_mask_file, current_ref_file)
+  }
+}
+
+generate_unconditional_fcs_multiple_files_with_variables <- function(range_values)
+{
+  n <- 32
+  nrep <- 4000
+  smooth <- 1.5
+  nugget <- .00001
+  observed_location_numbers <- seq(6,7,1)
+  evaluation_folder <- (strsplit(getwd(), "/fcs")[[1]])[1]
+  extremal_coefficient_and_high_dimensional_folder <- paste(evaluation_folder, "extremal_coefficient_and_high_dimensional_metrics/data/fcs", sep = "/")
+  for(i in 1:length(range_values))
+  {
+    fcs_file <- paste(paste(paste(extremal_coefficient_and_high_dimensional_folder,
+                    "unconditional_fcs_range", sep = "/"), as.character(range_values[i]), sep = "_"), "smooth_1.5_nugget_1e5_obs", sep = "_")
+    ref_file <- paste(paste(paste(extremal_coefficient_and_high_dimensional_folder,
+                    "unconditional_obs_fcs_range", sep = "/"), as.character(range_values[i]), sep = "_"), "smooth_1.5_nugget_1e5_obs", sep = "_")
+    mask_file <- paste(paste(paste(extremal_coefficient_and_high_dimensional_folder,
+                    "unconditional_mask_fcs_range", sep = "/"), as.character(range_values[i]), sep = "_"), "smooth_1.5_nugget_1e5_obs", sep = "_")
+    generate_unconditional_fcs_multipe_files(n, nrep, range_values[i], smooth, nugget, fcs_file, mask_file, ref_file,
+                                  observed_location_numbers)
+  } 
+}
+
+range_values <- seq(1.,5.)
+generate_unconditional_fcs_multiple_files_with_variables(range_values)

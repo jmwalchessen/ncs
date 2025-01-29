@@ -78,19 +78,20 @@ def visualize_fcs_and_true_extremal_coefficient(extremal_matrix, fcs_extremal_ma
 def visualize_fcs_and_true_extremal_coefficient_with_variables():
 
     smooth = 1.5
-    range_value = 3.0
+    range_values = [float(i) for i in range(1,6)]
     bins = 100
     nrep = 4000
     ms = [i for i in range(1,8)]
-    for m in ms:
-        extremal_matrix = load_numpy_file(("data/true/extremal_coefficient_range_" + str(range_value) + "_smooth_" + 
-                                  str(smooth) + "_bins_" + str(bins) + "_" + str(nrep) + ".npy"))
-        fcs_extremal_matrix = load_numpy_file(("data/fcs/extremal_coefficient_fcs_range_" + str(range_value) + "_smooth_" + str(smooth) 
-                                      + "_nugget_1e5_obs_" + str(m) + "_4000.npy"))
-        figname = ("extremal_coefficient/fcs/fcs_extremal_coefficient_smooth_" + str(smooth) + "_range_" + 
-                                  str(range_value) + "_nbins_" + str(bins) + "_obs_" + str(m) + ".png")
-        visualize_fcs_and_true_extremal_coefficient(extremal_matrix, fcs_extremal_matrix,
-                                                range_value, smooth, bins, figname)
+    for range_value in range_values:
+        for m in ms:
+            extremal_matrix = load_numpy_file(("data/true/extremal_coefficient_range_" + str(range_value) + "_smooth_" + 
+                                    str(smooth) + "_bins_" + str(bins) + "_" + str(nrep) + ".npy"))
+            fcs_extremal_matrix = load_numpy_file(("data/fcs/extremal_coefficient_fcs_range_" + str(range_value) + "_smooth_" + str(smooth) 
+                                        + "_nugget_1e5_obs_" + str(m) + "_4000.npy"))
+            figname = ("extremal_coefficient/fcs/fcs_extremal_coefficient_smooth_" + str(smooth) + "_range_" + 
+                                    str(range_value) + "_nbins_" + str(bins) + "_obs_" + str(m) + ".png")
+            visualize_fcs_and_true_extremal_coefficient(extremal_matrix, fcs_extremal_matrix,
+                                                    range_value, smooth, bins, figname)
     
 
 
