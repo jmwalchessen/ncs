@@ -49,6 +49,26 @@ generate_reference_data <- function(number_of_replicates, coord, range, smooth, 
   np$save(ref_image_file, ref_image)
 }
 
+generate_reference_data_extreme <- function(number_of_replicates, coord, range, smooth, m, n, mask_file, ref_image_file)
+{
+  np <- import("numpy")
+  extreme_value_cutoff <- 4
+  extreme_value <- 0
+  mask <- produce_random_mask(m,n)
+  while(extreme_value < extreme_value_cutoff)
+  {
+    ref_image <- brown_resnick_data_generation(number_of_replicates = 1, n = n, range = range, smooth = smooth)
+    observed_values <- ref_image[mask == 1]
+    print(observed_values)
+    extreme_value <- max(log(observed_values))
+  }
+  dim(ref_image) <- c(n,n)
+  dim(mask) <- c(n,n)
+  np <- import("numpy")
+  np$save(mask_file, mask)
+  np$save(ref_image_file, ref_image)
+}
+
 generate_reference_data_without_mask <- function(number_of_replicates, coord, range, smooth, n, ref_image_file)
 {
   np <- import("numpy")
@@ -154,17 +174,19 @@ generate_fcs_multiple_ranges_fixed <- function()
   nugget <- .00001
   np <- import("numpy")
   ms <- seq(1,7)
-  range_values <- seq(1.,5.,1)
+  range_values <- seq(1.,5.,1.)
 
 
   for(j in 1:length(ms))
   {
     for(i in 1:length(range_values))
-    {
+    { 
+      print(i)
+      print(range_values[i])
       ref_folder_name <- paste(paste(paste("data/model4/obs", as.character(ms[j]), sep = ""), "ref_image", sep = "/"), as.character((range_values[i]-1)), sep = "")
       ref_image_name <- paste(ref_folder_name, "ref_image.npy", sep = "/")
       mask_file_name <- paste(ref_folder_name, "mask.npy", sep = "/")
-      generate_reference_data(number_of_replicates, coord, range_values[i], smooth, ms[j], n, mask_file_name, ref_image_name)
+      generate_reference_data_extreme(number_of_replicates, coord, range_values[i], smooth, ms[j], n, mask_file_name, ref_image_name)
       fcs_file <- paste(paste(paste(paste(paste("fcs_range", as.character(range_values[i]), sep = "_"),
                                     "smooth_1.5_nugget_1e5_obs", sep = "_"), as.character(ms[j]), sep = "_"),
                                     as.character(number_of_replicates), sep = "_"), "npy", sep = ".")
@@ -341,3 +363,5 @@ generate_fixed_locations_unconditional_fcs_multiple_ranges_multipe_obs_with_vari
   }
 } 
 
+
+generate_fcs_multiple_ranges_fixed()

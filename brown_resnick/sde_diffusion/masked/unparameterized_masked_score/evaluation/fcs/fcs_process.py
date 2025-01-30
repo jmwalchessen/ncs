@@ -36,27 +36,33 @@ def process_unconditional_fcs_file(ref_folder, mask_file, obs_file, fcs_file,
     np.save((ref_folder + "/" + processesed_fcs_file), fcs_images)
 
     
-def proocess_unconditional_fcs_file_with_variables():
+def process_unconditional_fcs_file_with_variables():
     
     evaluation_folder = append_directory(2)
     ref_folder = (evaluation_folder + "/extremal_coefficient_and_high_dimensional_metrics/data/fcs")
-    ms = [i for i in range(1,6)]
+    ms = [i for i in range(1,8)]
     n = 32
     nrep = 4000
+    range_values = [float(i) for i in range(1,6)]
     for m in ms:
-        nrep = 4000
-        fcs_file = "unconditional_fcs_range_3.0_smooth_1.5_nugget_1e5_obs_" + str(m) + "_" + str(nrep) + ".npy"
-        processed_fcs_file = "processed_unconditional_fcs_range_3.0_smooth_1.5_nugget_1e5_obs_" + str(m) + "_" + str(nrep) + ".npy"
-        mask_file = "unconditional_mask_fcs_range_3.0_smooth_1.5_nugget_1e5_obs_" + str(m) + "_" + str(nrep) + ".npy"
-        obs_file = "unconditional_obs_fcs_range_3.0_smooth_1.5_nugget_1e5_obs_" + str(m) + "_" + str(nrep) + ".npy"
-        process_unconditional_fcs_file(ref_folder, mask_file, obs_file, fcs_file,
-                                       processed_fcs_file, nrep, n, m)
-        
-m = 7
-ref_folder = "data/ranges/ref_image4"
-fcs_file = "fcs_range_5_smooth_1.5_nugget_1e5_obs_" + str(m) + "_10.npy"
-processed_fcs_file = "processed_log_scale_fcs_range_5_smooth_1.5_nugget_1e5_obs_" + str(m) + "_10.npy"
-nrep = 10
-n = 32
-mask_file = ("mask_obs_" + str(m) + ".npy")
-process_fcs_file(ref_folder, mask_file, fcs_file, processed_fcs_file, nrep, n)
+        for range_value in range_values:
+            fcs_file = "unconditional_fcs_range_" + str(range_value) + "_smooth_1.5_nugget_1e5_obs_" + str(m) + "_" + str(nrep) + ".npy"
+            processed_fcs_file = "processed_unconditional_fcs_range_" + str(range_value) + "_smooth_1.5_nugget_1e5_obs_" + str(m) + "_" + str(nrep) + ".npy"
+            mask_file = "unconditional_mask_fcs_range_" + str(range_value) + "_smooth_1.5_nugget_1e5_obs_" + str(m) + "_" + str(nrep) + ".npy"
+            obs_file = "unconditional_obs_fcs_range_" + str(range_value) + "_smooth_1.5_nugget_1e5_obs_" + str(m) + "_" + str(nrep) + ".npy"
+            process_unconditional_fcs_file(ref_folder, mask_file, obs_file, fcs_file,
+                                        processed_fcs_file, nrep, n, m)
+
+
+def process_conditional_fcs():          
+    m = 1
+    range_value = 1.0
+    nrep = 4000
+    ref_folder = "data/model4/obs" + str(m) + "/ref_image" + str(int(range_value-1))
+    fcs_file = "fcs_range_" + str(range_value) + "_smooth_1.5_nugget_1e5_obs_" + str(m) + "_" + str(nrep) + ".npy"
+    processed_fcs_file = "processed_log_scale_fcs_range_" + str(range_value) + "_smooth_1.5_nugget_1e5_obs_" + str(m) + "_" + str(nrep) + ".npy"
+    n = 32
+    mask_file = "mask.npy"
+    process_fcs_file(ref_folder, mask_file, fcs_file, processed_fcs_file, nrep, n)
+
+process_unconditional_fcs_file_with_variables()

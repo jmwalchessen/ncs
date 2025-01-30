@@ -86,7 +86,7 @@ compute_fcs_extremal_coefficient_with_variables <- function()
   ranges <- seq(1.,5.,1.)
   smooth <- 1.5
   nbins <- 100
-  ms <- seq(1,5,1)
+  ms <- seq(1,7,1)
   n <- 32
   for(i in 1:length(ms))
   { 
@@ -104,4 +104,4 @@ compute_fcs_extremal_coefficient_with_variables <- function()
   }
 }
 
-compute_true_extremal_coefficient_with_variables()
+compute_fcs_extremal_coefficient_with_variables()

@@ -73,6 +73,6 @@ range_values = [float(i) for i in range(1,6)]
 smooth = 1.5
 bins = 100
 nrep = 4000
-obs = 5
+obs = 6
 figname = "figures/paper_fcs_vs_true_obs_" + str(obs) + "_extremal_coefficient.png"
 visualize_fcs_and_true_extremal_coefficient_multiple_ranges(range_values, smooth, bins, figname, nrep, obs)

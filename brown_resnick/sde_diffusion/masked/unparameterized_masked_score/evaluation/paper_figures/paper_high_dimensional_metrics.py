@@ -316,7 +316,7 @@ def compute_fcs_vs_true_absolute_summation_statistic(figname, obs):
     plt.savefig(figname)
     plt.clf()
 
-obs = 5
+obs = 7
 figname = "figures/paper_fcs_vs_true_obs_" + str(obs) + "_abs_summation.png"
 compute_fcs_vs_true_absolute_summation_statistic(figname, obs)
 figname = "figures/paper_fcs_vs_true_obs_" + str(obs) + "_summation.png"
