@@ -7,6 +7,7 @@ import pandas as pd
 import os
 import sys
 from append_directories import *
+import scipy
 
 #index is assumed to be in i*n+j form where (i,j) is index of matrix
 def index_to_spatial_location(minX, maxX, minY, maxY, n, index):
@@ -180,11 +181,44 @@ def produce_multiple_true_and_fcs_unconditional_bivariate_densities(m, missing_i
                                                             unconditional_fcs_file,
                                                             unconditional_true_file,
                                                             figname)
-        
-n = 32
-missing_indices = [i for i in range(0, n**2)]
-missing_indices1 = np.random.randint(0, n**2, 10)
-missing_indices2 = np.random.randint(0, n**2, 10)
-for m in range(1,7):
-    produce_multiple_true_and_fcs_unconditional_marginal_densities(m, missing_indices)
-    produce_multiple_true_and_fcs_unconditional_bivariate_densities(m, missing_indices1, missing_indices2)
+            
+
+            
+def goodness_of_fit_unconditional_true_vs_fcs_marginal_ks():
+
+    n = 32
+    range_values = [float(i) for i in range(1,6)]
+    smooth_value = 1.5
+    number_of_replicates = 4000
+    ms = [i for i in range(1,8)]
+    extr_folder = append_directory(2) + "/extremal_coefficient_and_high_dimensional_metrics"
+    ks_gof_statistic = np.zeros((len(range_values),len(ms),n,n))
+    ks_gof_pvalue = np.zeros((len(range_values),len(ms),n,n))
+    avg_ks_gof_statistic = np.zeros((len(range_values), len(ms)))
+    for i,range_value in enumerate(range_values):
+        for j,m in enumerate(ms):
+            unconditional_fcs_file = (extr_folder + "/data/fcs/processed_unconditional_fcs_range_" + str(range_value)
+                                      + "_smooth_1.5_nugget_1e5_obs_" + str(m) + "_4000.npy")
+            unconditional_true_file = (extr_folder + "/data/true/brown_resnick_images_range_" 
+                                       + str(range_value) + "_smooth_1.5_4000.npy")
+            unconditional_fcs_images = (np.load(unconditional_fcs_file)).reshape((number_of_replicates,n**2))
+            unconditional_true_images = (np.load(unconditional_true_file)).reshape((number_of_replicates,n**2))
+            ks_gof_product = scipy.stats.kstest(unconditional_fcs_images, unconditional_true_images, axis = 0)
+            ks_gof_statistic[i,j,:,:] = (ks_gof_product.statistic).reshape((n,n))
+            ks_gof_pvalue[i,j,:,:] = (ks_gof_product.pvalue).reshape((n,n))
+            avg_ks_gof_statistic[i,j] = np.mean(ks_gof_statistic[i,j,:,:], axis = (0,1))
+
+    ks_gof_statistic_file = (extr_folder + "/data/fcs/ks_gof_statistic_obs_1_7_range_1_5_smooth_1.5_nugget_1e5_obs_" + str(m) + ".npy")
+    np.save(ks_gof_statistic_file, ks_gof_statistic)
+    ks_gof_pvalue_file = (extr_folder + "/data/fcs/ks_gof_pvalue_obs_1_7_range_1_5_smooth_1.5_nugget_1e5_obs_" + str(m) + ".npy")
+    np.save(ks_gof_pvalue_file, ks_gof_pvalue)
+    avg_ks_gof_statistic_file = (extr_folder + "/data/fcs/avg_ks_gof_statistic_obs_1_7_range_1_5_smooth_1.5_nugget_1e5_obs_" + str(m) + ".npy")
+    np.save(avg_ks_gof_statistic_file, avg_ks_gof_statistic)
+
+
+goodness_of_fit_unconditional_true_vs_fcs_marginal_ks()
+
+
+            
+
+
