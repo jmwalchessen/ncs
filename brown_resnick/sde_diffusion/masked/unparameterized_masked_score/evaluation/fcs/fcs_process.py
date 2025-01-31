@@ -56,13 +56,13 @@ def process_unconditional_fcs_file_with_variables():
 
 def process_conditional_fcs():          
     m = 1
-    range_value = 1.0
+    range_value = 5
     nrep = 4000
-    ref_folder = "data/model4/obs" + str(m) + "/ref_image" + str(int(range_value-1))
+    ref_folder = "data/model4/obs" + str(m) + "/ref_image" + str(range_value-1)
     fcs_file = "fcs_range_" + str(range_value) + "_smooth_1.5_nugget_1e5_obs_" + str(m) + "_" + str(nrep) + ".npy"
     processed_fcs_file = "processed_log_scale_fcs_range_" + str(range_value) + "_smooth_1.5_nugget_1e5_obs_" + str(m) + "_" + str(nrep) + ".npy"
     n = 32
     mask_file = "mask.npy"
     process_fcs_file(ref_folder, mask_file, fcs_file, processed_fcs_file, nrep, n)
 
-process_unconditional_fcs_file_with_variables()
+process_conditional_fcs()

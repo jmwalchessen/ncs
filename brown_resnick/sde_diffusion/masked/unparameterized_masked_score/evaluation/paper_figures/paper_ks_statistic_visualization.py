@@ -7,30 +7,30 @@ import torch as th
 evaluation_folder = append_directory(2)
 
 
-def visualize_ks_statistic_multiple_ranges(range_values, smooth, bins, figname, nrep, obs):
-    
-    extremal_matrices = np.zeros((len(range_values), (bins+1),3))
-    fcs_extremal_matrices = np.zeros((len(range_values), (bins+1),3))
-    for i in range(len(range_values)):
+def visualize_ks_statistic_multiple_ranges(obs):
 
-        extremal_matrices[i,:,:] = load_numpy_file((evaluation_folder + "/extremal_coefficient_and_high_dimensional_metrics/data/true/extremal_coefficient_range_"
-                                                    + str(range_values[i]) + "_smooth_" + str(smooth) + "_nbins_" + str(bins) + "_" + str(nrep) + ".npy"))
-        fcs_extremal_matrices[i,:,:] = load_numpy_file((evaluation_folder + "/extremal_coefficient_and_high_dimensional_metrics/data/fcs/extremal_coefficient_fcs_range_" + str(range_values[i]) + "_smooth_" + str(smooth) 
-                                            + "_nugget_1e5_obs_" + str(obs) + "_" + str(nrep) + ".npy"))
+    figname = "figures/paper_fcs_vs_true_ks_obs_"+str(obs) + "_range_1_5_smooth_1.5_nugget_1e5.png"
+    n = 32
+    nrep = 4000
+    range_values = [float(i) for i in range(1,6)]
+    ks_statistics = np.load((evaluation_folder + "/extremal_coefficient_and_high_dimensional_metrics/data/fcs/ks_gof_statistic_obs_1_7_range_1_5_smooth_1.5_nugget_1e5.npy"))
+    fig = plt.figure(figsize=(10,2))
+    grid = ImageGrid(fig, 111,  # similar to subplot(111)
+                 nrows_ncols=(1, 5),  # creates 2x2 grid of Axes
+                 axes_pad=0.1,  # pad between Axes in inch.
+                 cbar_mode="single"
+                 )
 
-    fig, axes = plt.subplots(figsize=(10,2.5), nrows = 1, ncols = 5, sharey=True)
-    h = extremal_matrices[0,:,0]
+    for i, ax in enumerate(grid):
 
-    for i in range(len(range_values)):
-
-        ext_coeff = 2-extremal_matrices[i,:,2]
-        fcs_ext_coeff = 2-fcs_extremal_matrices[i,:,2]
-        axes[i].plot(h, ext_coeff, "blue")
-        axes[i].plot(h, fcs_ext_coeff, "purple", linestyle = "dashed")
-        axes[i].set_xlabel("Distance Lag (h)")
-        axes[i].set_ylabel("2-Extremal Coefficient")
-        axes[i].legend(labels = ['true', 'FCS'])
+        im = ax.imshow(ks_statistics[i,(obs-1),:,:], vmin = 0, vmax = 1)
+        ax.set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
+        ax.set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
     
     #fig.text(0.3, .9, "Extremal Coefficient", fontsize = 15)
+    ax.cax.colorbar(im)
     plt.tight_layout()
     plt.savefig(figname)
+
+obs = 5
+visualize_ks_statistic_multiple_ranges(obs)

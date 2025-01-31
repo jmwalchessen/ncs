@@ -17,7 +17,7 @@ def visualize_conditional_mean_observed_and_fcs(figname, m):
     reference_images = np.zeros((5,n,n))
     masks = np.zeros((5,n,n))
     range_values = [1.0,2.0,3.0,4.0,5.0]
-    for i in range(0, 4):
+    for i in range(0, 5):
         ref_folder = (fcs_folder + "/data/model4/obs" + str(m) + "/ref_image" + str(i))
         masks[i,:,:] = np.load((ref_folder + "/mask.npy"))
         fcs_images[i,:,:,:] = np.load((ref_folder + "/processed_log_scale_fcs_range_" + str(range_values[i]) +
@@ -45,7 +45,7 @@ def visualize_conditional_mean_observed_and_fcs(figname, m):
                            )
             ax.set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
             ax.set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
-        elif(i < 14):
+        elif(i < 15):
             im = ax.imshow(fcs_conditional_means[(i % 5),:,:], cmap='viridis', vmin = -2, vmax = 6)
             ax.set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
             ax.set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))

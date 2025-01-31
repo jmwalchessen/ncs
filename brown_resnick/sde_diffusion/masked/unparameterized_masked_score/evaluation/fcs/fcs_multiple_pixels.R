@@ -173,7 +173,7 @@ generate_fcs_multiple_ranges_fixed <- function()
   smooth <- 1.5
   nugget <- .00001
   np <- import("numpy")
-  ms <- seq(1,7)
+  ms <- seq(2,7)
   range_values <- seq(1.,5.,1.)
 
 
@@ -181,8 +181,6 @@ generate_fcs_multiple_ranges_fixed <- function()
   {
     for(i in 1:length(range_values))
     { 
-      print(i)
-      print(range_values[i])
       ref_folder_name <- paste(paste(paste("data/model4/obs", as.character(ms[j]), sep = ""), "ref_image", sep = "/"), as.character((range_values[i]-1)), sep = "")
       ref_image_name <- paste(ref_folder_name, "ref_image.npy", sep = "/")
       mask_file_name <- paste(ref_folder_name, "mask.npy", sep = "/")
