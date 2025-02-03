@@ -49,6 +49,18 @@ def generate_random_masks_on_the_fly(n, number_of_random_replicates, random_miss
         mask_matrices = np.concatenate([mask_matrices, current_mask_matrices])
     return mask_matrices
 
+def generate_random_masks_via_observed_numbers_on_the_fly(n, number_of_random_replicates, observed_numbers):
+    
+    mask_matrices = np.zeros((len(observed_numbers),number_of_random_replicates,n**2))
+    for i,m in enumerate(observed_numbers):
+        for irep in range(number_of_random_replicates):
+
+            obs_indices = np.random.randint(low = 0, high = n**2, size = m)
+            mask_matrices[i,irep,obs_indices] = 1
+    
+    mask_matrices = mask_matrices.reshape((len(observed_numbers),number_of_random_replicates,n,n))
+    return mask_matrices
+
 def generate_block_masks_on_the_fly(n, number_of_replicates_per_mask, weighted_lower_half_percentages, weighted_upper_half_percentages):
 
     block_masks = produce_nonrandom_block_masks(n, weighted_lower_half_percentages, weighted_upper_half_percentages)
@@ -234,6 +246,46 @@ def get_training_and_evaluation_data_per_percentages(number_of_random_replicates
     eval_dataloader = DataLoader(eval_dataset, batch_size = eval_batch_size, shuffle = True)
     return train_dataloader, eval_dataloader
 
+#seeds values list is a list of lists of tuples of length equal to number of missing percentages
+def get_training_and_evaluation_data_per_observed_number(number_of_random_replicates, observed_numbers,
+                                                     number_of_evaluation_random_replicates, number_of_masks_per_image,
+                                                     number_of_evaluation_masks_per_image, batch_size, eval_batch_size,
+                                                     range_value, smooth_value, seed_values_list, spatial_process_type):
+    
+    n = 32
+    train_images = np.zeros((0,1,n,n))
+    eval_images = np.zeros((0,1,n,n))
+
+    for i, m in enumerate(observed_numbers):
+        print(i)
+        seed_values = seed_values_list[i]
+
+        if(spatial_process_type == "schlather"):
+
+            timages = generate_schlather_process(range_value, smooth_value, seed_values[0],
+                                                    number_of_random_replicates, n)
+            eimages = generate_schlather_process(range_value, smooth_value, seed_values[1],
+                                                    number_of_evaluation_random_replicates, n)
+
+        elif(spatial_process_type == "brown"):
+            timages = generate_brown_resnick_process(range_value, smooth_value, seed_values[0],
+                                                    number_of_random_replicates, n)
+            eimages = generate_brown_resnick_process(range_value, smooth_value, seed_values[1],
+                                                    number_of_evaluation_random_replicates, n)
+
+        train_images = np.concatenate([train_images, np.repeat(timages, number_of_masks_per_image, axis = 0)])
+        eval_images = np.concatenate([eval_images, np.repeat(eimages, number_of_evaluation_masks_per_image, axis = 0)])
+
+    train_images = np.log(train_images)
+    eval_images = np.log(eval_images)
+    train_masks = generate_random_masks_via_observed_numbers_on_the_fly(n, train_images.shape[0], observed_numbers)
+    eval_masks = generate_random_masks_via_observed_numbers_on_the_fly(n, eval_images.shape[0], observed_numbers)
+    train_dataset = CustomSpatialImageMaskDataset(train_images, train_masks)
+    eval_dataset = CustomSpatialImageMaskDataset(eval_images, eval_masks)
+    train_dataloader = DataLoader(train_dataset, batch_size = batch_size, shuffle = True)
+    eval_dataloader = DataLoader(eval_dataset, batch_size = eval_batch_size, shuffle = True)
+    return train_dataloader, eval_dataloader
+
 
 def produce_percentages_via_uniform(number_of_percentages, boundary_start, boundary_end):
 
@@ -248,6 +300,19 @@ def get_training_and_evaluation_data_for_percentages(number_of_percentages, boun
     
     random_missingness_percentages = produce_percentages_via_uniform(number_of_percentages, boundary_start, boundary_end)
     train_dataloader, eval_dataloader = get_training_and_evaluation_data_per_percentages(number_of_random_replicates, random_missingness_percentages,
+                                                     number_of_evaluation_random_replicates, number_of_masks_per_image,
+                                                     number_of_evaluation_masks_per_image, batch_size, eval_batch_size,
+                                                     range_value, smooth_value, seed_values_list, spatial_process_type)
+    return train_dataloader, eval_dataloader
+
+
+def get_training_and_evaluation_data_for_observed_numbers(observed_number_start, observed_number_end, number_of_random_replicates, 
+                                                     number_of_evaluation_random_replicates, number_of_masks_per_image,
+                                                     number_of_evaluation_masks_per_image, batch_size, eval_batch_size, range_value, smooth_value,
+                                                     seed_values_list, spatial_process_type):
+    
+    observed_numbers = [i for i in range(observed_number_start, observed_number_end, 1)]
+    train_dataloader, eval_dataloader = get_training_and_evaluation_data_per_observed_number(number_of_random_replicates, observed_numbers,
                                                      number_of_evaluation_random_replicates, number_of_masks_per_image,
                                                      number_of_evaluation_masks_per_image, batch_size, eval_batch_size,
                                                      range_value, smooth_value, seed_values_list, spatial_process_type)
