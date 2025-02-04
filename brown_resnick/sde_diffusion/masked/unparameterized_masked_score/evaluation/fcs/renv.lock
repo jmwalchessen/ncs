@@ -1,0 +1,210 @@
+{
+  "R": {
+    "Version": "4.4.2",
+    "Repositories": [
+      {
+        "Name": "CRAN",
+        "URL": "https://cloud.r-project.org"
+      }
+    ]
+  },
+  "Packages": {
+    "SpatialExtremes": {
+      "Package": "SpatialExtremes",
+      "Version": "2.1-0",
+      "Source": "Repository",
+      "Date": "2022-04-19",
+      "Title": "Modelling Spatial Extremes",
+      "Authors@R": "c(person(\"Mathieu\", \"Ribatet\", role = c(\"aut\", \"cre\"), email = \"mathieu.ribatet@ec-nantes.fr\"), person(\"Richard\", \"Singleton\", role = \"ctb\"), person(\"R Core team\", role = \"ctb\"))",
+      "Depends": [
+        "R (>= 1.8.0)"
+      ],
+      "Imports": [
+        "maps",
+        "fields"
+      ],
+      "Description": "Tools for the statistical modelling of spatial extremes using max-stable processes, copula or Bayesian hierarchical models. More precisely, this package allows (conditional) simulations from various parametric max-stable models, analysis of the extremal spatial dependence, the fitting of such processes using composite likelihoods or least square (simple max-stable processes only), model checking and selection and prediction. Other approaches (although not completely in agreement with the extreme value theory) are available such as the use of (spatial) copula and Bayesian hierarchical models assuming the so-called conditional assumptions. The latter approaches is handled through an (efficient) Gibbs sampler. Some key references: Davison et al. (2012) <doi:10.1214/11-STS376>, Padoan et al. (2010) <doi:10.1198/jasa.2009.tm08577>, Dombry et al. (2013) <doi:10.1093/biomet/ass067>.",
+      "License": "GPL (>= 2)",
+      "URL": "http://spatialextremes.r-forge.r-project.org/",
+      "NeedsCompilation": "yes",
+      "Author": "Mathieu Ribatet [aut, cre], Richard Singleton [ctb], R Core team [ctb]",
+      "Maintainer": "Mathieu Ribatet <mathieu.ribatet@ec-nantes.fr>",
+      "Repository": "CRAN"
+    },
+    "dotCall64": {
+      "Package": "dotCall64",
+      "Version": "1.2",
+      "Source": "Repository",
+      "Type": "Package",
+      "Title": "Enhanced Foreign Function Interface Supporting Long Vectors",
+      "Date": "2024-10-03",
+      "Authors@R": "c(person(\"Kaspar\", \"Moesinger\", role = c(\"aut\"), email = \"kaspar.moesinger@gmail.com\"),  person(\"Florian\", \"Gerber\", role = c(\"aut\"), email = \"flora.fauna.gerber@gmail.com\", comment = c(ORCID = \"0000-0001-8545-5263\")), person(\"Reinhard\", \"Furrer\", role = c(\"cre\", \"ctb\"), email = \"reinhard.furrer@uzh.ch\", comment = c(ORCID = \"0000-0002-6319-2332\")))",
+      "Description": "Provides .C64(), which is an enhanced version of .C() and .Fortran() from the foreign function interface. .C64() supports long vectors, arguments of type 64-bit integer, and provides a mechanism to avoid unnecessary copies of read-only and write-only arguments. This makes it a convenient and fast interface to C/C++ and Fortran code.",
+      "License": "GPL (>= 2)",
+      "URL": "https://git.math.uzh.ch/reinhard.furrer/dotCall64",
+      "BugReports": "https://git.math.uzh.ch/reinhard.furrer/dotCall64/-/issues",
+      "Depends": [
+        "R (>= 4.0)"
+      ],
+      "Suggests": [
+        "microbenchmark",
+        "RhpcBLASctl",
+        "RColorBrewer",
+        "roxygen2",
+        "spam",
+        "testthat"
+      ],
+      "Collate": "'vector_dc.R' 'dotCall64.R' 'zzz.R'",
+      "RoxygenNote": "7.2.3",
+      "NeedsCompilation": "yes",
+      "Author": "Kaspar Moesinger [aut], Florian Gerber [aut] (<https://orcid.org/0000-0001-8545-5263>), Reinhard Furrer [cre, ctb] (<https://orcid.org/0000-0002-6319-2332>)",
+      "Maintainer": "Reinhard Furrer <reinhard.furrer@uzh.ch>",
+      "Repository": "CRAN"
+    },
+    "fields": {
+      "Package": "fields",
+      "Version": "16.3",
+      "Source": "Repository",
+      "Date": "2024-09-30",
+      "Title": "Tools for Spatial Data",
+      "Authors@R": "c( person(\"Douglas\", \"Nychka\", role = c(\"aut\", \"cre\"), email = \"douglasnychka@gmail.com\"), person(\"Reinhard\", \"Furrer\", role = c(\"aut\"), email = \"reinhard.furrer@math.uzh.ch\"), person(\"John\", \"Paige\", role = c(\"aut\"), email = \"paigejo@uw.edu\"), person(\"Stephan\", \"Sain\", role = \"aut\", email = \"sainsr2@gmail.com\"), person(\"Florian\", \"Gerber\", role = \"aut\", email = \"flora.fauna.gerber@gmail.com\"), person(\"Matthew\", \"Iverson\", role = \"aut\", email = \"miverson@mines.edu\"), person(\"Rider\", \"Johnson\", role = \"aut\", email = \"riderjohnson@mines.edu\") )",
+      "Maintainer": "Douglas Nychka <douglasnychka@gmail.com>",
+      "Description": "For curve, surface and function fitting with an emphasis on splines, spatial data, geostatistics,  and spatial statistics. The major methods include cubic, and thin plate splines, Kriging, and compactly supported covariance functions for large data sets. The splines and Kriging methods are supported by functions that can determine the smoothing parameter (nugget and sill variance) and other covariance function parameters by cross validation and also by restricted maximum likelihood. For Kriging there is an easy to use function that also estimates the correlation scale (range parameter).  A major feature is that any covariance function implemented in R and following a simple format can be used for spatial prediction. There are also many useful functions for plotting and working with spatial data as images. This package also contains an implementation of sparse matrix methods for large spatial data sets and currently requires the sparse matrix (spam) package. Use help(fields) to get started and for an overview.  The fields source code is deliberately commented and provides useful explanations of numerical details as a companion to the manual pages. The commented source code can be viewed by expanding the source code version and looking in the R subdirectory. The reference for fields can be generated by the citation function in R and has DOI <doi:10.5065/D6W957CT>. Development of this package was supported in part by the National Science Foundation  Grant 1417857,  the National Center for Atmospheric Research, and Colorado School of Mines. See the Fields URL for a vignette on using this package and some background on spatial statistics.",
+      "License": "GPL (>= 2)",
+      "URL": "https://github.com/dnychka/fieldsRPackage",
+      "Depends": [
+        "R (>= 3.5.0)",
+        "methods",
+        "spam",
+        "viridisLite"
+      ],
+      "Imports": [
+        "maps"
+      ],
+      "NeedsCompilation": "yes",
+      "Repository": "CRAN",
+      "Author": "Douglas Nychka [aut, cre], Reinhard Furrer [aut], John Paige [aut], Stephan Sain [aut], Florian Gerber [aut], Matthew Iverson [aut], Rider Johnson [aut]"
+    },
+    "maps": {
+      "Package": "maps",
+      "Version": "3.4.2.1",
+      "Source": "Repository",
+      "Title": "Draw Geographical Maps",
+      "Date": "2023-12-14",
+      "Author": "Original S code by Richard A. Becker and Allan R. Wilks. R version by Ray Brownrigg. Enhancements by Thomas P Minka and Alex Deckmyn.",
+      "Description": "Display of maps.  Projection code and larger maps are in separate packages ('mapproj' and 'mapdata').",
+      "Depends": [
+        "R (>= 3.5.0)"
+      ],
+      "Imports": [
+        "graphics",
+        "utils"
+      ],
+      "LazyData": "yes",
+      "Suggests": [
+        "mapproj (>= 1.2-0)",
+        "mapdata (>= 2.3.0)",
+        "sp",
+        "rnaturalearth"
+      ],
+      "License": "GPL-2",
+      "Maintainer": "Alex Deckmyn <alex.deckmyn@meteo.be>",
+      "NeedsCompilation": "yes",
+      "Repository": "CRAN"
+    },
+    "renv": {
+      "Package": "renv",
+      "Version": "1.1.0",
+      "Source": "Repository",
+      "Type": "Package",
+      "Title": "Project Environments",
+      "Authors@R": "c( person(\"Kevin\", \"Ushey\", role = c(\"aut\", \"cre\"), email = \"kevin@rstudio.com\", comment = c(ORCID = \"0000-0003-2880-7407\")), person(\"Hadley\", \"Wickham\", role = c(\"aut\"), email = \"hadley@rstudio.com\", comment = c(ORCID = \"0000-0003-4757-117X\")), person(\"Posit Software, PBC\", role = c(\"cph\", \"fnd\")) )",
+      "Description": "A dependency management toolkit for R. Using 'renv', you can create and manage project-local R libraries, save the state of these libraries to a 'lockfile', and later restore your library as required. Together, these tools can help make your projects more isolated, portable, and reproducible.",
+      "License": "MIT + file LICENSE",
+      "URL": "https://rstudio.github.io/renv/, https://github.com/rstudio/renv",
+      "BugReports": "https://github.com/rstudio/renv/issues",
+      "Imports": [
+        "utils"
+      ],
+      "Suggests": [
+        "BiocManager",
+        "cli",
+        "compiler",
+        "covr",
+        "cpp11",
+        "devtools",
+        "gitcreds",
+        "jsonlite",
+        "jsonvalidate",
+        "knitr",
+        "miniUI",
+        "modules",
+        "packrat",
+        "pak",
+        "R6",
+        "remotes",
+        "reticulate",
+        "rmarkdown",
+        "rstudioapi",
+        "shiny",
+        "testthat",
+        "uuid",
+        "waldo",
+        "yaml",
+        "webfakes"
+      ],
+      "Encoding": "UTF-8",
+      "RoxygenNote": "7.3.2",
+      "VignetteBuilder": "knitr",
+      "Config/Needs/website": "tidyverse/tidytemplate",
+      "Config/testthat/edition": "3",
+      "Config/testthat/parallel": "true",
+      "Config/testthat/start-first": "bioconductor,python,install,restore,snapshot,retrieve,remotes",
+      "NeedsCompilation": "no",
+      "Author": "Kevin Ushey [aut, cre] (<https://orcid.org/0000-0003-2880-7407>), Hadley Wickham [aut] (<https://orcid.org/0000-0003-4757-117X>), Posit Software, PBC [cph, fnd]",
+      "Maintainer": "Kevin Ushey <kevin@rstudio.com>",
+      "Repository": "CRAN"
+    },
+    "spam": {
+      "Package": "spam",
+      "Version": "2.11-1",
+      "Source": "Repository",
+      "Type": "Package",
+      "Title": "SPArse Matrix",
+      "Date": "2025-01-20",
+      "Authors@R": "c(person(\"Reinhard\", \"Furrer\", role = c(\"aut\", \"cre\"), email = \"reinhard.furrer@math.uzh.ch\", comment = c(ORCID = \"0000-0002-6319-2332\")), person(\"Florian\", \"Gerber\", role = c(\"aut\"), email = \"florian.gerber@math.uzh.ch\", comment = c(ORCID = \"0000-0001-8545-5263\")), person(\"Roman\", \"Flury\", role = c(\"aut\"), email = \"roman.flury@math.uzh.ch\", comment = c(ORCID = \"0000-0002-0349-8698\")), person(\"Daniel\", \"Gerber\", role = \"ctb\", email = \"daniel_gerber_2222@hotmail.com\"), person(\"Kaspar\", \"Moesinger\", role = \"ctb\", email = \"kaspar.moesinger@gmail.com\"), person(\"Annina\", \"Cincera\", email = \"annina.cincera@math.uzh.ch\", role = \"ctb\"), person(\"Youcef\", \"Saad\", role = \"ctb\", comment = \"SPARSEKIT http://www-users.cs.umn.edu/~saad/software/SPARSKIT/\"), person(c(\"Esmond\", \"G.\"), \"Ng\", role = \"ctb\", comment = \"Fortran Cholesky routines\"), person(c(\"Barry\", \"W.\"), \"Peyton\", role = \"ctb\", comment = \"Fortran Cholesky routines\"), person(c(\"Joseph\", \"W.H.\"), \"Liu\", role = \"ctb\", comment = \"Fortran Cholesky routines\"), person(c(\"Alan\", \"D.\"), \"George\", role = \"ctb\", comment = \"Fortran Cholesky routines\"), person(c(\"Lehoucq\", \"B.\"), \"Rich\", role = \"ctb\", comment = \"ARPACK\"), person(c(\"Maschhoff\"), \"Kristi\", role = \"ctb\", comment = \"ARPACK\"), person(c(\"Sorensen\", \"C.\"), \"Danny\", role = \"ctb\", comment = \"ARPACK\"), person(c(\"Yang\"), \"Chao\", role = \"ctb\", comment = \"ARPACK\"))",
+      "Depends": [
+        "R (>= 4.0)"
+      ],
+      "Imports": [
+        "dotCall64",
+        "grid",
+        "methods",
+        "Rcpp (>= 1.0.8.3)"
+      ],
+      "LinkingTo": [
+        "Rcpp"
+      ],
+      "Suggests": [
+        "spam64",
+        "fields",
+        "Matrix",
+        "testthat",
+        "R.rsp",
+        "truncdist",
+        "knitr",
+        "rmarkdown"
+      ],
+      "VignetteBuilder": "R.rsp, knitr",
+      "Description": "Set of functions for sparse matrix algebra. Differences with other sparse matrix packages are: (1) we only support (essentially) one sparse matrix format, (2) based on transparent and simple structure(s), (3) tailored for MCMC calculations within G(M)RF. (4) and it is fast and scalable (with the extension package spam64). Documentation about 'spam' is provided by vignettes included in this package, see also Furrer and Sain (2010) <doi:10.18637/jss.v036.i10>; see 'citation(\"spam\")' for details.",
+      "LazyData": "true",
+      "License": "LGPL-2 | BSD_3_clause + file LICENSE",
+      "URL": "https://www.math.uzh.ch/pages/spam/",
+      "BugReports": "https://git.math.uzh.ch/reinhard.furrer/spam/-/issues",
+      "NeedsCompilation": "yes",
+      "Author": "Reinhard Furrer [aut, cre] (<https://orcid.org/0000-0002-6319-2332>), Florian Gerber [aut] (<https://orcid.org/0000-0001-8545-5263>), Roman Flury [aut] (<https://orcid.org/0000-0002-0349-8698>), Daniel Gerber [ctb], Kaspar Moesinger [ctb], Annina Cincera [ctb], Youcef Saad [ctb] (SPARSEKIT http://www-users.cs.umn.edu/~saad/software/SPARSKIT/), Esmond G. Ng [ctb] (Fortran Cholesky routines), Barry W. Peyton [ctb] (Fortran Cholesky routines), Joseph W.H. Liu [ctb] (Fortran Cholesky routines), Alan D. George [ctb] (Fortran Cholesky routines), Lehoucq B. Rich [ctb] (ARPACK), Maschhoff Kristi [ctb] (ARPACK), Sorensen C. Danny [ctb] (ARPACK), Yang Chao [ctb] (ARPACK)",
+      "Maintainer": "Reinhard Furrer <reinhard.furrer@math.uzh.ch>",
+      "Repository": "CRAN"
+    }
+  }
+}
