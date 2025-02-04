@@ -203,11 +203,11 @@ boundary_start = .5
 boundary_end = 5.5
 eval_range_value = 3
 eval_smooth_value = 1.5
-score_model_path = "trained_score_models/vpsde/model4/model4_beta_min_max_01_20_range_.5_5.5_smooth_1.5_random05_log_parameterized_mask.pth"
-loss_path = "trained_score_models/vpsde/model4/model4_beta_min_max_01_20_range_.5_5.5_smooth_1.5_random05_log_parameterized_mask_loss.png"
+score_model_path = "trained_score_models/vpsde/model5/model5_beta_min_max_01_20_range_.5_5.5_smooth_1.5_random05_log_parameterized_mask.pth"
+loss_path = "trained_score_models/vpsde/model5/model5_beta_min_max_01_20_range_.5_5.5_smooth_1.5_random05_log_parameterized_mask_loss.png"
 torch.cuda.empty_cache()
 spatial_process_type = "brown"
-folder_name = "trained_score_models/vpsde/model4"
+folder_name = "trained_score_models/vpsde/model5"
 vmin = -2
 vmax = 6
 eval_seed_values_list = [[(int(np.random.randint(0, 100000)), int(np.random.randint(0, 100000))) for j in range(0, len(random_missingness_percentages))] for i in range(0, data_draws)]

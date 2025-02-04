@@ -333,17 +333,20 @@ generate_fcs_with_temporary_data_fixed_mask <- function(n, nrep, range, smooth, 
 
 generate_fixed_locations_unconditional_fcs_multiple_ranges_multipe_obs_with_variables <- function()
 {
-  range_values <- seq(1.,5.,1)
-  ms <- seq(1,7)
+  range_values <- seq(4.,5.,1)
+  ms <- c(7)
   n <- 32
   nrep <- 400
-  for(i in 1:len(range_values))
+  np <- import("numpy")
+  smooth <- 1.5
+  nugget <- 1e-5
+  for(i in 1:length(range_values))
   {
-    for(j in 1:len(ms))
+    for(j in 1:length(ms))
     {
-      br_images <- array(data = NA, dim = c(rep,n**2))
+      br_images <- array(data = NA, dim = c(nrep,n**2))
       condsim <- array(data = NA, dim = c(nrep,((n**2)-ms[j])))
-      ref_folder <- paste(paste("data/fcs/unconditional/fixed_locations/obs", as.character(ms[j], sep = ""),
+      ref_folder <- paste(paste(paste("data/unconditional/fixed_locations/obs", as.character(ms[j]), sep = ""),
                           "ref_image", sep = "/"), as.character(range_values[i]-1), sep = "")
       mask_file <- paste(ref_folder, "mask.npy", sep = "/")
       generate_mask(n, mask_file, ms[j])
@@ -364,4 +367,4 @@ generate_fixed_locations_unconditional_fcs_multiple_ranges_multipe_obs_with_vari
 } 
 
 
-generate_fcs_multiple_ranges_fixed()
+generate_fixed_locations_unconditional_fcs_multiple_ranges_multipe_obs_with_variables()
