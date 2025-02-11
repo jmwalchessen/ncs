@@ -98,9 +98,11 @@ def produce_true_and_ncs_unconditional_bivariate_density(n, range_value, smooth_
     axs[0].plot(matrix_index1[1], matrix_index1[0], "rx", markersize = 20, linewidth = 20)
     axs[0].plot(matrix_index2[1], matrix_index2[0], "rx", markersize = 20, linewidth = 20)
     sns.kdeplot(x = biv_density[:,0], y = biv_density[:,1],
-                ax = axs[1])
+                ax = axs[1], color = "blue")
     sns.kdeplot(x = fcs_biv_density[:,0], y = fcs_biv_density[:,1],
-                ax = axs[1])
+                ax = axs[1], color = "purple")
+    print(biv_density)
+    print(fcs_biv_density)
     axs[1].set_title("Bivariate")
     axs[1].set_xlim(-4,8)
     axs[1].set_ylim(-4,8)
@@ -130,6 +132,26 @@ def produce_true_and_fcs_unconditional_marginal_density_files(n, range_value, sm
                                                         unconditional_true_samples,
                                                         ref_figname)
     
+
+def produce_true_and_fcs_fixed_locations_unconditional_marginal_density_files(n, range_value, smooth_value,
+                                                                              number_of_replicates, missing_index,
+                                                                              unconditional_fcs_file,
+                                                                              unconditional_true_file, obs,
+                                                                              figname):
+    eval_folder = append_directory(2)
+    ref_folder = (eval_folder + "/extremal_coefficient_and_high_dimensional_metrics")
+    fcs_folder = (eval_folder + "/fcs")
+    unconditional_fcs_samples = np.log(np.load((fcs_folder + "/data/fcs/unconditional/fixed_locations/obs" + 
+                                                str(obs) + "/ref_image" + str(int(range_value-1)) + unconditional_fcs_file)))
+    unconditional_true_samples = np.log(np.load((ref_folder + "/data/true/" + unconditional_true_file)))
+    ref_figname = (eval_folder + "/" + "/data/fcs/unconditional/fixed_locations/obs" + str(obs) + "/ref_image" + str(int(range_value-1)) + "/marginal_density/" + figname)
+    produce_true_and_ncs_unconditional_marginal_density(n, range_value, smooth_value,
+                                                        number_of_replicates, missing_index,
+                                                        unconditional_fcs_samples,
+                                                        unconditional_true_samples,
+                                                        ref_figname)
+
+    
 def produce_true_and_fcs_unconditional_bivariate_density_files(n, range_value, smooth_value,
                                                                number_of_replicates, missing_index1,
                                                                missing_index2, unconditional_fcs_file,
@@ -140,6 +162,26 @@ def produce_true_and_fcs_unconditional_bivariate_density_files(n, range_value, s
     unconditional_fcs_samples = np.log(np.load((ref_folder + "/data/fcs/" + unconditional_fcs_file)))
     unconditional_true_samples = np.log(np.load((ref_folder + "/data/true/" + unconditional_true_file)))
     ref_figname = (eval_folder + "/extremal_coefficient_and_high_dimensional_metrics/" + figname)
+    produce_true_and_ncs_unconditional_bivariate_density(n, range_value, smooth_value,
+                                                        number_of_replicates, missing_index1,
+                                                        missing_index2,
+                                                        unconditional_fcs_samples,
+                                                        unconditional_true_samples,
+                                                        ref_figname)
+    
+
+def produce_true_and_fcs_fixed_locations_unconditional_bivariate_density_files(n, range_value, smooth_value,
+                                                                        number_of_replicates, missing_index1,
+                                                                        missing_index2, unconditional_fcs_file,
+                                                                        unconditional_true_file, obs, figname):
+    
+    eval_folder = append_directory(2)
+    ref_folder = (eval_folder + "/extremal_coefficient_and_high_dimensional_metrics")
+    fcs_folder = (eval_folder + "/fcs")
+    unconditional_fcs_samples = np.log(np.load((fcs_folder + "/data/unconditional/fixed_locations/obs" + str(obs) + "/ref_image"
+                                                + str(int(range_value-1)) + "/" + unconditional_fcs_file)))
+    unconditional_true_samples = np.log(np.load((ref_folder + "/data/true/" + unconditional_true_file)))
+    ref_figname = (eval_folder + "/fcs/data/unconditional/fixed_locations/obs" + str(obs) + "/ref_image" + str(int(range_value-1)) + "/bivariate_density/" + figname)
     produce_true_and_ncs_unconditional_bivariate_density(n, range_value, smooth_value,
                                                         number_of_replicates, missing_index1,
                                                         missing_index2,
@@ -164,6 +206,23 @@ def produce_multiple_true_and_fcs_unconditional_marginal_densities(m, missing_in
                                                             unconditional_true_file,
                                                             figname)
         
+
+def produce_multiple_true_and_fcs_fixed_locations_unconditional_marginal_densities(m, missing_indices):
+    
+    n = 32
+    range_value = 3.
+    smooth_value = 1.5
+    number_of_replicates = 4000
+    unconditional_fcs_file = ("processed_unconditional_fcs_fixed_mask_range_3.0_smooth_1.5_nugget_1e5_obs_" + str(m) + "_4000.npy")
+    unconditional_true_file = "brown_resnick_images_range_3.0_smooth_1.5_4000.npy"
+    for missing_index in missing_indices:
+        figname = ("unconditional_fixed_locations_true_vs_fcs_obs_" + str(m) + "_range_3.0_smooth_1.5_" + str(missing_index) + ".png")
+        produce_true_and_fcs_fixed_locations_unconditional_marginal_density_files(n, range_value, smooth_value,
+                                                                                  number_of_replicates, missing_index,
+                                                                                  unconditional_fcs_file,
+                                                                                  unconditional_true_file, m,
+                                                                                  figname)
+        
 def produce_multiple_true_and_fcs_unconditional_bivariate_densities(m, missing_indices1, missing_indices2):
     
     n = 32
@@ -180,6 +239,31 @@ def produce_multiple_true_and_fcs_unconditional_bivariate_densities(m, missing_i
                                                             missing_index2,
                                                             unconditional_fcs_file,
                                                             unconditional_true_file,
+                                                            figname)
+            
+
+def produce_multiple_true_and_fcs_fixed_locations_unconditional_bivariate_densities(m, missing_indices1):
+    
+    n = 32
+    range_value = 3.
+    smooth_value = 1.5
+    number_of_replicates = 4000
+    unconditional_fcs_file = ("processed_unconditional_fcs_fixed_mask_range_3.0_smooth_1.5_nugget_1e5_obs_" + str(m) + "_4000.npy")
+    unconditional_true_file = "brown_resnick_images_range_3.0_smooth_1.5_4000.npy"
+    fcs_folder = (append_directory(2) + "/fcs/data/unconditional/fixed_locations/obs" + str(m) + "/ref_image"
+                                                + str(int(range_value-1)))
+    mask = np.load((fcs_folder + "/mask.npy"))
+    missing_indices2 = (np.array((np.where(mask.reshape((n**2)) == 1)))).reshape((m)).tolist()
+    print(missing_indices2)
+    for missing_index1 in missing_indices1:
+        for missing_index2 in missing_indices2:
+            print(missing_index2)
+            figname = ("unconditional_fixed_locations_true_vs_fcs_obs_" + str(m) + "_range_3.0_smooth_1.5_" + str(missing_index1) + "_" + str(missing_index2) + ".png")
+            produce_true_and_fcs_fixed_locations_unconditional_bivariate_density_files(n, range_value, smooth_value,
+                                                            number_of_replicates, missing_index1,
+                                                            missing_index2,
+                                                            unconditional_fcs_file,
+                                                            unconditional_true_file, m,
                                                             figname)
             
 
@@ -215,8 +299,9 @@ def goodness_of_fit_unconditional_true_vs_fcs_marginal_ks():
     avg_ks_gof_statistic_file = (extr_folder + "/data/fcs/avg_ks_gof_statistic_obs_1_7_range_1_5_smooth_1.5_nugget_1e5_obs_" + str(m) + ".npy")
     np.save(avg_ks_gof_statistic_file, avg_ks_gof_statistic)
 
-
-goodness_of_fit_unconditional_true_vs_fcs_marginal_ks()
+m = 3
+missing_indices1 = [2,500,600]
+produce_multiple_true_and_fcs_fixed_locations_unconditional_bivariate_densities(m, missing_indices1)
 
 
             
