@@ -173,16 +173,14 @@ generate_fcs_multiple_ranges_fixed <- function()
   smooth <- 1.5
   nugget <- .00001
   np <- import("numpy")
-  ms <- seq(6,7,1)
-  range_values <- seq(1.,5.,1.)
+  ms <- seq(3,5,1)
+  range_values <- c(1.)
 
 
   for(j in 1:length(ms))
   {
     for(i in 1:length(range_values))
     { 
-      print(i)
-      print(range_values[i])
       ref_folder_name <- paste(paste(paste("data/model4/obs", as.character(ms[j]), sep = ""), "ref_image", sep = "/"), as.character((range_values[i]-1)), sep = "")
       ref_image_name <- paste(ref_folder_name, "ref_image.npy", sep = "/")
       mask_file_name <- paste(ref_folder_name, "mask.npy", sep = "/")
@@ -367,4 +365,4 @@ generate_fixed_locations_unconditional_fcs_multiple_ranges_multipe_obs_with_vari
 } 
 
 
-generate_fixed_locations_unconditional_fcs_multiple_ranges_multipe_obs_with_variables()
+generate_fcs_multiple_ranges_fixed()
