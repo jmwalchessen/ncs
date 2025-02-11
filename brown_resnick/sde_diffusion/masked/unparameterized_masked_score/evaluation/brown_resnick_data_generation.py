@@ -30,3 +30,4 @@ def generate_smith_process(range_value, smooth_value, seed_value, number_of_repl
     images = np.load("temporary_smith_samples.npy")
     os.remove("temporary_smith_samples.npy")
     return images
+

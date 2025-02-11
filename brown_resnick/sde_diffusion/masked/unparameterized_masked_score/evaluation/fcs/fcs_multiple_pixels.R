@@ -309,14 +309,18 @@ generate_fcs_with_temporary_data_fixed_mask <- function(n, nrep, range, smooth, 
   spatial_grid <- expand.grid(s1 = s1, 
                               s2 = s2)
   dim(mask) <- c(n**2)
-  ref_image <- brown_resnick_data_generation(1, n, range, smooth)
   observed_indices <- (1:n**2)[mask == 1]
   observed_spatial_grid <- spatial_grid[observed_indices,]
-  observations <- ref_image[observed_indices]
   unobserved_indices <- (1:n**2)[-observed_indices]
-  unobserved_observations <- ref_image[unobserved_indices]
   unobserved_spatial_grid <- spatial_grid[unobserved_indices,]
-  output <- SpatialExtremes::condrmaxstab(nrep, coord = unobserved_spatial_grid,
+  ref_images <- array(NA, dim = c(nrep,n**2))
+  condsims <- array(NA, dim = c(nrep,(n**2-m)))
+  for(irep in 1:nrep)
+  {
+    ref_images[irep,] <- brown_resnick_data_generation(1, n, range, smooth)
+    observations <- ref_image[observed_indices]
+    unobserved_observations <- ref_image[unobserved_indices]
+    output <- SpatialExtremes::condrmaxstab(1, coord = unobserved_spatial_grid,
                                           cond.coord = observed_spatial_grid,
                                           cond.data = observations,
                                           cov.mod = "brown", 
@@ -325,7 +329,10 @@ generate_fcs_with_temporary_data_fixed_mask <- function(n, nrep, range, smooth, 
                                           smooth = smooth,
                                           burnin = 1000,
                                           thin = 100)
-  return(list(ref_image, output$sim))
+    condsims[irep,] <- array(output$sim, dim = c(1,((n**2)-m)))
+    
+  }
+  return(list(ref_images, condsims))
 }
 
 
@@ -342,16 +349,14 @@ generate_fixed_locations_unconditional_fcs_multiple_ranges_multipe_obs_with_vari
   {
     for(j in 1:length(ms))
     {
-      br_images <- array(data = NA, dim = c(nrep,n**2))
-      condsim <- array(data = NA, dim = c(nrep,((n**2)-ms[j])))
       ref_folder <- paste(paste(paste("data/unconditional/fixed_locations/obs", as.character(ms[j]), sep = ""),
                           "ref_image", sep = "/"), as.character(range_values[i]-1), sep = "")
       mask_file <- paste(ref_folder, "mask.npy", sep = "/")
       generate_mask(n, mask_file, ms[j])
       mask <- np$load(mask_file)
       results <- generate_fcs_with_temporary_data_fixed_mask(n, nrep, range_values[i], smooth, nugget, ms[j], mask)
-      br_images[i,j,,] <- results[[1]]
-      condsim[i,j,,] <- results[[2]]
+      br_images <- results[[1]]
+      condsim <- results[[2]]
       br_images_file <- paste(paste(paste(paste(paste(ref_folder, "true_brown_resnick_images_range", sep = "/"), as.character(range_values[i]),
                                     sep = "_"), "smooth_1.5", sep = "_"), as.character(nrep), sep = "_"), "npy", sep = ".")
       condsim_file <- paste(paste(paste(paste(paste(paste(paste(ref_folder, "unconditional_fcs_fixed_mask_obs", sep = "/"), as.character(ms[j]), sep = ""),
