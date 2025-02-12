@@ -85,7 +85,7 @@ def process_unconditional_fixed_location_fcs_file_with_variables():
 
 
 def process_conditional_fcs():          
-    ms = [i for i in range(7,8)]
+    ms = [i for i in range(2,8)]
     range_values = [float(i) for i in range(1,6)]
     nrep = 4000
     for range_value in range_values:
@@ -98,4 +98,4 @@ def process_conditional_fcs():
             process_fcs_file(ref_folder, mask_file, fcs_file, processed_fcs_file, nrep, n)
 
 
-process_unconditional_fixed_location_fcs_file_with_variables()
+process_conditional_fcs()
