@@ -319,7 +319,9 @@ generate_fcs_with_temporary_data_fixed_mask <- function(n, nrep, range, smooth, 
   condsims <- array(NA, dim = c(nrep,(n**2-m)))
   for(irep in 1:nrep)
   {
-    ref_images[irep,] <- brown_resnick_data_generation(1, n, range, smooth)
+    print(irep)
+    ref_image <- brown_resnick_data_generation(1, n, range, smooth)
+    ref_images[irep,] <- ref_image
     observations <- ref_image[observed_indices]
     unobserved_observations <- ref_image[unobserved_indices]
     output <- SpatialExtremes::condrmaxstab(1, coord = unobserved_spatial_grid,
@@ -340,10 +342,10 @@ generate_fcs_with_temporary_data_fixed_mask <- function(n, nrep, range, smooth, 
 
 generate_fixed_locations_unconditional_fcs_multiple_ranges_multipe_obs_with_variables <- function()
 {
-  range_values <- c(1.)
-  ms <- seq(3,5,1)
+  range_values <- seq(1.,5.,1.)
+  ms <- c(7)
   n <- 32
-  nrep <- 400
+  nrep <- 4000
   np <- import("numpy")
   smooth <- 1.5
   nugget <- 1e-5
