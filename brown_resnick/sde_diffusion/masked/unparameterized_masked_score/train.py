@@ -105,7 +105,7 @@ def evaluate_diffusion_observed_number(score_model, sde, process_type, range_val
     score_model.eval()
     y = ((torch.mul(mask, (torch.from_numpy(ref_img)).to(device))).to(device)).float()
     diffusion_images = posterior_sample_with_p_mean_variance_via_mask(sde, score_model, device, mask,
-                                                   y, n, num_samples, range_value, smooth_value)
+                                                   y, n, num_samples)
 
     if(os.path.exists(os.path.join(os.getcwd(), folder_name)) == False):
         os.mkdir(os.path.join(os.getcwd(), folder_name))
