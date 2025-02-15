@@ -340,7 +340,7 @@ generate_fcs_with_temporary_data_fixed_mask <- function(n, nrep, range, smooth, 
 
 generate_fixed_locations_unconditional_fcs_multiple_ranges_multipe_obs_with_variables <- function()
 {
-  range_values <- seq(1.,5.,1.)
+  range_values <- c(3.)
   ms <- c(7)
   n <- 32
   nrep <- 4000
@@ -371,5 +371,4 @@ generate_fixed_locations_unconditional_fcs_multiple_ranges_multipe_obs_with_vari
   }
 } 
 
-
-generate_fcs_multiple_ranges_fixed()
+generate_fixed_locations_unconditional_fcs_multiple_ranges_multipe_obs_with_variables()
