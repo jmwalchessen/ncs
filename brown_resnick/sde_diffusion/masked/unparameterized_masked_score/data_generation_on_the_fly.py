@@ -53,9 +53,11 @@ def generate_random_masks_via_observed_numbers_on_the_fly(n, number_of_random_re
     
     mask_matrices = np.zeros((len(observed_numbers),number_of_random_replicates,n**2))
     for i,m in enumerate(observed_numbers):
+        print("obs in random masks generation")
+        print(m)
         for irep in range(number_of_random_replicates):
-
-            obs_indices = np.random.randint(low = 0, high = n**2, size = m)
+            #if there are replicates that is ok because range from 1 to 10 observed
+            obs_indices = [int((n**2)*np.random.random(size = 1)) for i in range(0,m)]
             mask_matrices = mask_matrices.astype('float')
             mask_matrices[i,irep,obs_indices] = 1
     
@@ -258,6 +260,7 @@ def get_training_and_evaluation_data_per_observed_number(number_of_random_replic
     eval_images = np.zeros((0,1,n,n))
 
     for i, m in enumerate(observed_numbers):
+        print("obns in generate images")
         print(i)
         seed_values = seed_values_list[i]
 
@@ -284,8 +287,10 @@ def get_training_and_evaluation_data_per_observed_number(number_of_random_replic
     train_masks = generate_random_masks_via_observed_numbers_on_the_fly(n, nrep, observed_numbers)
     print("train images shape")
     print(train_images.shape)
+    print(train_images.dtype)
     print("train masks shape")
     print(train_masks.shape)
+    print(train_masks.dtype)
     eval_masks = generate_random_masks_via_observed_numbers_on_the_fly(n, eval_nrep, observed_numbers)
     train_dataset = CustomSpatialImageMaskDataset(train_images, train_masks)
     eval_dataset = CustomSpatialImageMaskDataset(eval_images, eval_masks)

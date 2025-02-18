@@ -15,7 +15,7 @@ n.size <- 1024
 nn <- sqrt(n.size)
 x <- y <- seq(-10, 10, length = nn)
 coord <- expand.grid(x, y)
-number_of_replicates_per_call <- 25
+number_of_replicates_per_call <- 32
 calls <- as.integer(number_of_replicates/number_of_replicates_per_call)
 repnumberslist <- rep(number_of_replicates_per_call, calls)
 
