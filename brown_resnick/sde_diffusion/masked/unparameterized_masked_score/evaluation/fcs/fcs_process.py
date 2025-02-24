@@ -53,14 +53,16 @@ def process_unconditional_fcs_file_with_variables():
             process_unconditional_fcs_file(ref_folder, mask_file, obs_file, fcs_file,
                                         processed_fcs_file, nrep, n, m)
             
-def process_unconditional_fixed_location_fcs_file(ref_folder, mask_file, fcs_file, processed_fcs_file, nrep, n, m):
+def process_unconditional_fixed_location_fcs_file(ref_folder, mask_file, fcs_file, obs_file, processed_fcs_file, nrep, n, m):
 
     print(ref_folder)
     print(fcs_file)
     missing_fcs = (np.load((ref_folder + "/" + fcs_file))).reshape((nrep,(n**2-m)))
+    true_images = (np.load((ref_folder + "/" + obs_file))).reshape((nrep,n**2))
     fcs_mask = np.load((ref_folder + "/" + mask_file)).reshape((n**2))
     fcs_images = np.zeros((nrep,(n**2)))
     fcs_images[:,fcs_mask == 0] = missing_fcs
+    fcs_images[:,fcs_mask == 1] = true_images[:,fcs_mask == 1]
     fcs_images = fcs_images.reshape((nrep,n,n))
     np.save((ref_folder + "/" + processed_fcs_file), fcs_images)
 
@@ -79,17 +81,18 @@ def process_unconditional_fixed_location_fcs_file_with_variables():
             fcs_file = "unconditional_fcs_fixed_mask_obs" + str(m) + "_range_" + str(int(range_value)) + "_smooth_1.5_nugget_1e5_" + str(nrep) + ".npy"
             processed_fcs_file = "processed_unconditional_fcs_fixed_mask_range_" + str(range_value) + "_smooth_1.5_nugget_1e5_obs_" + str(m) + "_" + str(nrep) + ".npy"
             mask_file = "mask.npy"
+            obs_file = "true_brown_resnick_images_range_" + str(int(range_value)) + "_smooth_1.5_4000.npy"
             current_ref_folder = (ref_folder + "/obs" + str(m) + "/ref_image" + str(int(range_value-1)))
-            process_unconditional_fixed_location_fcs_file(current_ref_folder, mask_file, fcs_file,
+            process_unconditional_fixed_location_fcs_file(current_ref_folder, mask_file, fcs_file, obs_file,
                                         processed_fcs_file, nrep, n, m)
 
 
 def process_conditional_fcs():          
-    ms = [i for i in range(2,8)]
+    ms = [i for i in range(1,8)]
     range_values = [float(i) for i in range(1,6)]
     nrep = 4000
-    for range_value in range_values:
-        for m in ms:
+    for m in ms:
+        for range_value in range_values:
             ref_folder = "data/model4/obs" + str(m) + "/ref_image" + str(int(range_value-1))
             fcs_file = "fcs_range_" + str(int(range_value)) + "_smooth_1.5_nugget_1e5_obs_" + str(m) + "_" + str(nrep) + ".npy"
             processed_fcs_file = "processed_log_scale_fcs_range_" + str(range_value) + "_smooth_1.5_nugget_1e5_obs_" + str(m) + "_" + str(nrep) + ".npy"
@@ -97,5 +100,4 @@ def process_conditional_fcs():
             mask_file = "mask.npy"
             process_fcs_file(ref_folder, mask_file, fcs_file, processed_fcs_file, nrep, n)
 
-
-process_conditional_fcs()
+process_unconditional_fixed_location_fcs_file_with_variables()
