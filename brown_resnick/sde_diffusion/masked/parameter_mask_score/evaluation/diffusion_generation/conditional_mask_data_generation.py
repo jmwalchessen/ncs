@@ -7,11 +7,11 @@ import matplotlib.pyplot as plt
 
 evaluation_folder = append_directory(2)
 sys.path.append(evaluation_folder)
-from helper_functions import *
+import helper_functions
 
-score_model = load_score_model("brown", "model3/model3_beta_min_max_01_20_range_.5_5.5_smooth_1.5_random50_log_parameterized_mask.pth", "eval")
+score_model = helper_functions.load_score_model("brown", "model5/model5_beta_min_max_01_20_range_.5_5.5_smooth_1.5_random05_log_parameterized_mask.pth", "eval")
 
-sdevp = load_sde(beta_min = .1, beta_max = 20, N = 1000)
+sdevp = helper_functions.load_sde(beta_min = .1, beta_max = 20, N = 1000)
 #mask is a True/False (1,32,32) vector with .5 randomly missing pixels
 #function gen_mask is in image_utils.py, 50 at end of random50 denotes
 #50 percent missing
@@ -41,9 +41,9 @@ def generate_validation_data(process_type, folder_name, n, range_value, smooth_v
 
     if(process_type == "schlather"):
 
-        ref_img = np.log(generate_schlather_process(range_value, smooth_value, seed_value, number_of_replicates, n))
+        ref_img = np.log(helper_functions.generate_schlather_process(range_value, smooth_value, seed_value, number_of_replicates, n))
     else:
-        ref_img = np.log(generate_brown_resnick_process(range_value, smooth_value, seed_value, number_of_replicates, n))
+        ref_img = np.log(helper_functions.generate_brown_resnick_process(range_value, smooth_value, seed_value, number_of_replicates, n))
 
     device = "cuda:0"
     mask = (th.bernoulli(p*th.ones(n,n))).numpy()
@@ -62,7 +62,7 @@ def generate_validation_data(process_type, folder_name, n, range_value, smooth_v
 
     for i in range(0, calls):
 
-        conditional_samples = np.concatenate([conditional_samples, sample_unconditionally_multiple_calls(sdevp, score_model, device, mask, y, n,
+        conditional_samples = np.concatenate([conditional_samples, helper_functions.sample_unconditionally_multiple_calls(sdevp, score_model, device, mask, y, n,
                                           replicates_per_call, calls, range_value, smooth_value)], axis = 0)
 
     
@@ -75,17 +75,17 @@ def generate_validation_data(process_type, folder_name, n, range_value, smooth_v
                    vmin = -2, vmax = 6, mask = mask.int().float().detach().cpu().numpy().reshape((n,n)), figname = (folder_name + "/partially_observed_field.png"))
     
 
-range_values = [float(i) for i in range(1,6)]
+range_values = [float(i) for i in range(4,6)]
 for i,range_value in enumerate(range_values):
 
     process_type = "brown"
-    folder_name = "data/model3/ref_image" + str(i)
+    folder_name = "data/model5/ref_image" + str(range_value-1)
     n = 32
     smooth_value = 1.5
     replicates_per_call = 250
     calls = 4
-    p = .5
-    validation_data_name = "model3_range_" + str(range_value) + "_smooth_" + str(smooth_value) + "_random" + str(p) + "_4000.npy"
+    p = .05
+    validation_data_name = "model5_range_" + str(range_value) + "_smooth_" + str(smooth_value) + "_random" + str(p) + "_4000.npy"
     generate_validation_data(process_type, folder_name, n, range_value, smooth_value, replicates_per_call, calls, p, validation_data_name)
 
 

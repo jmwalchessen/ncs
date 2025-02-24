@@ -24,6 +24,90 @@ from models import model_utils as mutils
 from sde_lib import VPSDE, VESDE
 from utils import *
 
+
+
+def get_optimizer(config, params):
+  """Returns a flax optimizer object based on `config`."""
+  if config.optim.optimizer == 'Adam':
+    optimizer = optim.Adam(params, lr=config.optim.lr, betas=(config.optim.beta1, 0.999), eps=config.optim.eps,
+                           weight_decay=config.optim.weight_decay)
+  else:
+    raise NotImplementedError(
+      f'Optimizer {config.optim.optimizer} not supported yet!')
+
+  return optimizer
+
+
+def optimization_manager(config):
+  """Returns an optimize_fn based on `config`."""
+
+  def optimize_fn(optimizer, params, step, lr=config.optim.lr,
+                  warmup=config.optim.warmup,
+                  grad_clip=config.optim.grad_clip):
+    """Optimizes with warmup and gradient clipping (disabled if negative)."""
+    if warmup > 0:
+      for g in optimizer.param_groups:
+        #g['lr'] = lr * np.minimum(step / warmup, 1.0)
+        number_of_steps_per_epoch = int(config.training.data_size/config.training.batch_size) 
+        epoch = int(step/number_of_steps_per_epoch)
+        #g['lr'] = lr * (.99**epoch)
+        g['lr'] = lr * (.9**(int(step/250)))
+    if grad_clip >= 0:
+      torch.nn.utils.clip_grad_norm_(params, max_norm=grad_clip)
+    optimizer.step()
+
+  return optimize_fn
+
+def get_sde_loss_fn(sde, train, reduce_mean=True, continuous=True, likelihood_weighting=True, eps=1e-5):
+  """Create a loss function for training with arbirary SDEs.
+
+  Args:
+    sde: An `sde_lib.SDE` object that represents the forward SDE.
+    train: `True` for training loss and `False` for evaluation loss.
+    reduce_mean: If `True`, average the loss across data dimensions. Otherwise sum the loss across data dimensions.
+    continuous: `True` indicates that the model is defined to take continuous time steps. Otherwise it requires
+      ad-hoc interpolation to take continuous time steps.
+    likelihood_weighting: If `True`, weight the mixture of score matching losses
+      according to https://arxiv.org/abs/2101.09258; otherwise use the weighting recommended in our paper.
+    eps: A `float` number. The smallest time step to sample from.
+
+  Returns:
+    A loss function.
+  """
+  reduce_op = torch.mean if reduce_mean else lambda *args, **kwargs: 0.5 * torch.sum(*args, **kwargs)
+
+  def loss_fn(model, batch):
+    """Compute the loss function.
+
+    Args:
+      model: A score model.
+      batch: A mini-batch of training data.
+
+    Returns:
+      loss: A scalar that represents the average loss value across the mini-batch.
+    """
+    score_fn = mutils.get_score_fn(sde, model, train=train, continuous=continuous)
+    t = torch.rand(batch.shape[0], device=batch.device) * (sde.T - eps) + eps
+    batch_images = batch[0]
+    batch_masks = batch[1]
+    z = torch.randn_like(batch)
+    mean, std = sde.marginal_prob(batch_images, t)
+    perturbed_data = mean + std[:, None, None, None] * z
+    score = score_fn(perturbed_data, batch_masks, t)
+
+    if not likelihood_weighting:
+      losses = torch.square(score * std[:, None, None, None] + z)
+      losses = reduce_op(losses.reshape(losses.shape[0], -1), dim=-1)
+    else:
+      g2 = sde.sde(torch.zeros_like(batch_images), t)[1] ** 2
+      losses = torch.square(score + z / std[:, None, None, None])
+      losses = reduce_op(losses.reshape(losses.shape[0], -1), dim=-1) * g2
+
+    loss = torch.mean(losses)
+    return loss
+
+  return loss_fn
+
 def get_parameterized_masked_score_ddpm_loss_fn(vpsde, train, reduce_mean = True):
   """DDPM loss modified to incorporate a mask (fixed or not)"""
   assert isinstance(vpsde, VPSDE), "DDPM training only works for VPSDEs."
