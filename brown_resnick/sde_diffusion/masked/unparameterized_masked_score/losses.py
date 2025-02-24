@@ -190,6 +190,11 @@ def get_masked_score_ddpm_loss_fn(vpsde, train, reduce_mean = True):
     sqrt_1m_alphas_cumprod = vpsde.sqrt_1m_alphas_cumprod.to(batch.device)
     batch_images = batch[:,0:1,:,:]
     batch_masks = batch[:,1:2,:,:]
+    print("type batch")
+    print(batch_images.dtype)
+    print(batch_masks.dtype)
+    print(batch_images.shape)
+    print(batch_masks.shape)
     noise = torch.randn_like(batch_images)
     perturbed_image = sqrt_alphas_cumprod[labels, None, None, None] * batch_images + \
                      sqrt_1m_alphas_cumprod[labels, None, None, None] * noise

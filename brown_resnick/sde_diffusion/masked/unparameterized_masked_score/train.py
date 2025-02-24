@@ -8,7 +8,9 @@ import losses
 import sde_lib
 from configs.vp import ncsnpp_config as vp_ncsnpp_config
 import matplotlib.pyplot as plt
-from evaluation.helper_functions import *
+from evaluation import helper_functions
+from mpl_toolkits.axes_grid1 import ImageGrid
+
 
 def visualize_loss(epochs_and_draws, train_losses, eval_losses, figname):
 
@@ -61,17 +63,17 @@ def evaluate_diffusion(score_model, sde, process_type, range_value, smooth_value
 
     if(process_type == "schlather"):
 
-        number_of_replicates = 1
+        number_of_replicates = 32
         ref_img = np.log(generate_schlather_process(range_value, smooth_value, seed_value, number_of_replicates, n))
     else:
-        number_of_replicates = 50
+        number_of_replicates = 32
         seed_value = int(np.random.randint(0, 1000000))
         ref_img = np.log(generate_brown_resnick_process(range_value, smooth_value, seed_value, number_of_replicates, n))
         ref_img = ref_img[0:1,:,:,:]
     
     score_model.eval()
     y = ((torch.mul(mask, (torch.from_numpy(ref_img)).to(device))).to(device)).float()
-    diffusion_images = posterior_sample_with_p_mean_variance_via_mask(sde, score_model, device, mask,
+    diffusion_images = helper_functions.posterior_sample_with_p_mean_variance_via_mask(sde, score_model, device, mask,
                                                    y, n, num_samples, range_value, smooth_value)
 
     if(os.path.exists(os.path.join(os.getcwd(), folder_name)) == False):
@@ -89,23 +91,23 @@ def evaluate_diffusion_observed_number(score_model, sde, process_type, range_val
     device = "cuda:0"
     mask_indices = np.random.randint(low = 0, high = n**2, size = m)
     mask = np.zeros((1,1,n**2))
-    mask[0,0,mask_indices] = 1
-    mask = (th.from_numpy(mask.reshape((1,1,n,n)))).to(device)
+    mask[0,0,mask_indices] = 1.
+    mask = (torch.from_numpy(mask.reshape((1,1,n,n)).astype(float))).to(device).float()
 
     if(process_type == "schlather"):
 
-        number_of_replicates = 1
+        number_of_replicates = 32
         ref_img = np.log(generate_schlather_process(range_value, smooth_value, seed_value, number_of_replicates, n))
     else:
-        number_of_replicates = 50
+        number_of_replicates = 32
         seed_value = int(np.random.randint(0, 1000000))
         ref_img = np.log(generate_brown_resnick_process(range_value, smooth_value, seed_value, number_of_replicates, n))
         ref_img = ref_img[0:1,:,:,:]
     
     score_model.eval()
-    y = ((torch.mul(mask, (torch.from_numpy(ref_img)).to(device))).to(device)).float()
-    diffusion_images = posterior_sample_with_p_mean_variance_via_mask(sde, score_model, device, mask,
-                                                   y, n, num_samples, range_value, smooth_value)
+    y = ((torch.mul(mask, (torch.from_numpy(ref_img.astype(float))).to(device))).to(device)).float()
+    diffusion_images = helper_functions.posterior_sample_with_p_mean_variance_via_mask(sde, score_model, device, mask,
+                                                   y, n, num_samples)
 
     if(os.path.exists(os.path.join(os.getcwd(), folder_name)) == False):
         os.mkdir(os.path.join(os.getcwd(), folder_name))
@@ -295,6 +297,7 @@ def train_per_multiple_random_masks_observed_number_based_data_generation(config
             while True:
                 try:
                     batch = get_next_batch(train_iterator, config)
+                    print(batch.shape)
                     loss = train_step_fn(state, batch)
                     train_losses_per_epoch.append(float(loss))
                 except StopIteration:
@@ -331,8 +334,8 @@ vpconfig = vp_ncsnpp_configuration
 
 data_draws = 40
 epochs_per_data_draws = 10
-number_of_random_replicates = 50
-number_of_evaluation_random_replicates = 25
+number_of_random_replicates = 64
+number_of_evaluation_random_replicates = 32
 number_of_masks_per_image = 200
 number_of_evaluation_masks_per_image = 1
 #smaller p means less ones which means more observed values
@@ -343,7 +346,7 @@ observed_number_start = 1
 observed_number_end = 10
 eval_m = 3
 batch_size = 2048
-eval_batch_size = 32
+eval_batch_size = 10
 smooth_value = 1.5
 range_value = 3.0
 eval_p = .05
