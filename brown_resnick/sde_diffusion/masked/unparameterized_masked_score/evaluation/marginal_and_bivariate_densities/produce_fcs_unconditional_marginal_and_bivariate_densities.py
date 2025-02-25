@@ -5,6 +5,7 @@ from matplotlib import patches as mpatches
 import seaborn as sns
 import pandas as pd
 import os
+from matplotlib.patches import Rectangle
 import sys
 from append_directories import *
 import scipy
@@ -104,8 +105,56 @@ def produce_true_and_ncs_unconditional_bivariate_density(n, range_value, smooth_
     print(biv_density)
     print(fcs_biv_density)
     axs[1].set_title("Bivariate")
-    axs[1].set_xlim(-4,8)
-    axs[1].set_ylim(-4,8)
+    axs[1].set_xlim(-32,8)
+    axs[1].set_ylim(-32,8)
+    #location = index_to_spatial_location(minX, maxX, minY, maxY, n, index)
+    #rlocation = (round(location[0],2), round(location[1],2))
+    #axs[1].set_xlabel("location: " + str(rlocation))
+    axs[1].legend(labels = ['true', 'FCS'])
+    axs[0].set_xticks(ticks = [0,7,15,23,31], labels = [-10,-5,0,5,10])
+    axs[0].set_yticks(ticks = [0,7,15,23,31], labels = [-10,-5,0,5,10])
+    plt.savefig(figname)
+    plt.clf()
+
+def produce_true_and_fcs_unconditional_bivariate_density(n, range_value, smooth_value,
+                                                        number_of_replicates, missing_index1,
+                                                        missing_index2,
+                                                        unconditional_fcs_samples,
+                                                        unconditional_true_samples,
+                                                        mask,
+                                                        figname):
+
+    unconditional_matrices = unconditional_true_samples.reshape((number_of_replicates,1,n,n))
+    #conditional_vectors is shape (number of replicates, m)
+    matrix_index1 = index_to_matrix_index(missing_index1, n)
+    matrix_index2 = index_to_matrix_index(missing_index2, n)
+    observed_indices = np.argwhere(mask.reshape((n,n)) > 0)
+    print(observed_indices)
+    biv_density = np.concatenate([(unconditional_matrices[:,0,matrix_index1[0],matrix_index1[1]]).reshape((number_of_replicates,1)),
+                                  (unconditional_matrices[:,0,matrix_index2[0],matrix_index2[1]]).reshape((number_of_replicates,1))], axis = 1)
+    fcs_biv_density = np.concatenate([(unconditional_fcs_samples[:,int(matrix_index1[0]),int(matrix_index1[1])]).reshape((number_of_replicates,1)),
+                                       (unconditional_fcs_samples[:,int(matrix_index2[0]),int(matrix_index2[1])]).reshape((number_of_replicates,1))], axis = 1)
+
+    #fig, ax = plt.subplots(1)
+    #ax.hist(marginal_disalsotribution, density = True, histtype = 'step', bins = 100)
+    fig, axs = plt.subplots(ncols = 2, figsize = (10,5))
+
+    #partially_observed_field = np.multiply(mask.astype(bool), observed_vector.reshape((n,n)))
+    axs[0].imshow(unconditional_matrices[0,:,:,:].reshape((n,n)), vmin = -2, vmax = 4)
+    axs[0].plot(matrix_index1[1], matrix_index1[0], "rx", markersize = 20, linewidth = 20)
+    axs[0].plot(matrix_index2[1], matrix_index2[0], "rx", markersize = 20, linewidth = 20)
+    for i in range(observed_indices.shape[0]):
+        rect = Rectangle(((observed_indices[i,1]-.55), (observed_indices[i,0]-.55)), width=1, height=1, facecolor='none', edgecolor='r')
+        axs[0].add_patch(rect)
+    sns.kdeplot(x = biv_density[:,0], y = biv_density[:,1],
+                ax = axs[1], color = "blue")
+    sns.kdeplot(x = fcs_biv_density[:,0], y = fcs_biv_density[:,1],
+                ax = axs[1], color = "purple")
+    print(biv_density)
+    print(fcs_biv_density)
+    axs[1].set_title("Bivariate")
+    axs[1].set_xlim(-32,8)
+    axs[1].set_ylim(-32,8)
     #location = index_to_spatial_location(minX, maxX, minY, maxY, n, index)
     #rlocation = (round(location[0],2), round(location[1],2))
     #axs[1].set_xlabel("location: " + str(rlocation))
@@ -181,12 +230,14 @@ def produce_true_and_fcs_fixed_locations_unconditional_bivariate_density_files(n
     unconditional_fcs_samples = np.log(np.load((fcs_folder + "/data/unconditional/fixed_locations/obs" + str(obs) + "/ref_image"
                                                 + str(int(range_value-1)) + "/" + unconditional_fcs_file)))
     unconditional_true_samples = np.log(np.load((ref_folder + "/data/true/" + unconditional_true_file)))
+    mask = np.load((fcs_folder + "/data/unconditional/fixed_locations/obs" + str(obs) + "/ref_image" + str(int(range_value-1)) + "/" + "mask.npy"))
     ref_figname = (eval_folder + "/fcs/data/unconditional/fixed_locations/obs" + str(obs) + "/ref_image" + str(int(range_value-1)) + "/bivariate_density/" + figname)
-    produce_true_and_ncs_unconditional_bivariate_density(n, range_value, smooth_value,
+    produce_true_and_fcs_unconditional_bivariate_density(n, range_value, smooth_value,
                                                         number_of_replicates, missing_index1,
                                                         missing_index2,
                                                         unconditional_fcs_samples,
                                                         unconditional_true_samples,
+                                                        mask,
                                                         ref_figname)
 
     
@@ -242,14 +293,14 @@ def produce_multiple_true_and_fcs_unconditional_bivariate_densities(m, missing_i
                                                             figname)
             
 
-def produce_multiple_true_and_fcs_fixed_locations_unconditional_bivariate_densities(m, missing_indices1):
+def produce_multiple_true_and_fcs_fixed_locations_unconditional_bivariate_densities(m, range_value, missing_indices1):
     
     n = 32
-    range_value = 3.
     smooth_value = 1.5
     number_of_replicates = 4000
-    unconditional_fcs_file = ("processed_unconditional_fcs_fixed_mask_range_3.0_smooth_1.5_nugget_1e5_obs_" + str(m) + "_4000.npy")
-    unconditional_true_file = "brown_resnick_images_range_3.0_smooth_1.5_4000.npy"
+    unconditional_fcs_file = ("processed_unconditional_fcs_fixed_mask_range_" + str(range_value) + "_smooth_1.5_nugget_1e5_obs_" + str(m) + "_4000.npy")
+    unconditional_true_file = "brown_resnick_images_range_" + str(range_value) + "_smooth_1.5_4000.npy"
+    mask_file = "mask.npy"
     fcs_folder = (append_directory(2) + "/fcs/data/unconditional/fixed_locations/obs" + str(m) + "/ref_image"
                                                 + str(int(range_value-1)))
     mask = np.load((fcs_folder + "/mask.npy"))
@@ -258,7 +309,7 @@ def produce_multiple_true_and_fcs_fixed_locations_unconditional_bivariate_densit
     for missing_index1 in missing_indices1:
         for missing_index2 in missing_indices2:
             print(missing_index2)
-            figname = ("unconditional_fixed_locations_true_vs_fcs_obs_" + str(m) + "_range_3.0_smooth_1.5_" + str(missing_index1) + "_" + str(missing_index2) + ".png")
+            figname = ("unconditional_fixed_locations_true_vs_fcs_obs_" + str(m) + "_range_" + str(range_value) + "_smooth_1.5_" + str(missing_index1) + "_" + str(missing_index2) + ".png")
             produce_true_and_fcs_fixed_locations_unconditional_bivariate_density_files(n, range_value, smooth_value,
                                                             number_of_replicates, missing_index1,
                                                             missing_index2,
@@ -299,9 +350,12 @@ def goodness_of_fit_unconditional_true_vs_fcs_marginal_ks():
     avg_ks_gof_statistic_file = (extr_folder + "/data/fcs/avg_ks_gof_statistic_obs_1_7_range_1_5_smooth_1.5_nugget_1e5_obs_" + str(m) + ".npy")
     np.save(avg_ks_gof_statistic_file, avg_ks_gof_statistic)
 
-m = 3
-missing_indices1 = [2,500,600]
-produce_multiple_true_and_fcs_fixed_locations_unconditional_bivariate_densities(m, missing_indices1)
+ms = [i for i in range(1,8)]
+range_values = [float(i) for i in range(4,6)]
+for m in ms:
+    for range_value in range_values:
+        missing_indices1 = np.random.randint(0, 1024, 200)
+        produce_multiple_true_and_fcs_fixed_locations_unconditional_bivariate_densities(m, range_value, missing_indices1)
 
 
             
