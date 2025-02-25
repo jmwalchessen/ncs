@@ -46,17 +46,29 @@ def generate_ncs_images_multiple_files(vpsde, score_model, range_values,
         generate_ncs_images(ref_folder, vpsde, score_model, range_value,
                         smooth_value, ncs_images_file, batches_per_call, calls, n, device)
         
+def generate_ncs_images_for_conditional_fcs_multiple_files(vpsde, score_model, obs_numbers,
+                                        smooth_value, batches_per_call, calls, n, device,
+                                        range_value, model_name, nrep):
+    
+    for obs in range(obs_numbers):
+        ref_folder = ("data/conditional/obs" + str(obs) + "/ref_image" + str(int(range_value-1)))
+        ncs_images_file = (ref_folder + "/diffusion/" + model_name + "_range_" + str(range_value) +
+                           "_smooth_" + str(smooth_value) + "_" + str(nrep) + ".npy")
+        generate_ncs_images(ref_folder, vpsde, score_model, range_value,
+                        smooth_value, ncs_images_file, batches_per_call, calls, n, device)
+        
 
 
 range_value = 3.0
 smooth_value = 1.5
-batches_per_call = 500
-calls = 8
+batches_per_call = 100
+calls = 40
 n = 32
 device = "cuda:0"
-ref_numbers = [i for i in range(0,5)]
-generate_ncs_images_multiple_files(vpsde, score_model, range_value,
-                                   smooth_value, batches_per_call, calls,
-                                   n, device, ref_numbers) 
-
+model_name = "model5"
+obs_numbers = [i for i in range(1,8)]
+nrep = 4000
+generate_ncs_images_for_conditional_fcs_multiple_files(vpsde, score_model, obs_numbers,
+                                        smooth_value, batches_per_call, calls, n, device,
+                                        range_value, model_name, nrep)
     

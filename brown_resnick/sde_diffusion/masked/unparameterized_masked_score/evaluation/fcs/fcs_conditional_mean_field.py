@@ -5,6 +5,7 @@ from mpl_toolkits.axes_grid1 import ImageGrid
 import os
 import sys
 from append_directories import *
+from matplotlib.patches import Rectangle
 
 def visualize_conditional_mean_observed_and_fcs(figname, m):
 
@@ -79,7 +80,7 @@ def visualize_conditional_mean_observed_fcs_ncs(figname, m):
         fcs_conditional_means[i,:,:] = (np.mean(fcs_images[i,:,:,:], axis = (0))).reshape((n,n))
         reference_images[i,:,:] = np.log(np.load((ref_folder + "/ref_image.npy")))
         if(i == 2):
-            ncs_images[i,:,:,:] = np.load((ref_folder + "/diffusion/model5_range_3.0_smooth_1.5_4000_random.npy"))
+            ncs_images[i,:,:,:] = (np.load((ref_folder + "/diffusion/model5_range_3.0_smooth_1.5_4000_random.npy"))).reshape((nrep,n,n))
             ncs_conditional_means[i,:,:] = (np.mean(ncs_images[i,:,:,:], axis = (0))).reshape((n,n))
 
     fig = plt.figure(figsize=(10,6))
@@ -92,26 +93,36 @@ def visualize_conditional_mean_observed_fcs_ncs(figname, m):
     for i, ax in enumerate(grid):
 
         if(i < 5):
-            im = ax.imshow(reference_images[(i % 5),:,:], cmap='viridis', vmin = -2, vmax = 6,
-                           alpha = (masks[(i % 5),:,:].astype(float)))
+            im = ax.imshow(reference_images[(i % 5),:,:], cmap='viridis', vmin = -2, vmax = 6)
+            observed_indices = np.argwhere(masks[(i%5),:,:].reshape((n,n)) > 0)
+            for j in range(observed_indices.shape[0]):
+                rect = Rectangle(((observed_indices[j,1]-.55), (observed_indices[j,0]-.55)), width=1, height=1, facecolor='none', edgecolor='r')
+                ax.add_patch(rect)
             ax.set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
             ax.set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
         elif(i < 10):
-            im = ax.imshow(reference_images[(i % 5),:,:], cmap='viridis', vmin = -2, vmax = 6,
-                           )
+            observed_indices = np.argwhere(masks[(i%5),:,:].reshape((n,n)) > 0)
+            for j in range(observed_indices.shape[0]):
+                rect = Rectangle(((observed_indices[j,1]-.55), (observed_indices[j,0]-.55)), width=1, height=1, facecolor='none', edgecolor='r')
+                ax.add_patch(rect)
+            im = ax.imshow(fcs_conditional_means[(i % 5),:,:], cmap='viridis', vmin = -2, vmax = 6)
             ax.set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
             ax.set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
         elif(i < 15):
-            im = ax.imshow(fcs_conditional_means[(i % 5),:,:], cmap='viridis', vmin = -2, vmax = 6)
+            observed_indices = np.argwhere(masks[(i%5),:,:].reshape((n,n)) > 0)
+            for j in range(observed_indices.shape[0]):
+                rect = Rectangle(((observed_indices[j,1]-.55), (observed_indices[j,0]-.55)), width=1, height=1, facecolor='none', edgecolor='r')
+                ax.add_patch(rect)
+            im = ax.imshow(ncs_conditional_means[(i % 5),:,:], cmap='viridis', vmin = -2, vmax = 6)
             ax.set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
             ax.set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
 
 
     ax.cax.colorbar(im)
     plt.tight_layout()
-    figname = (fcs_folder + "/data/model4/obs" + str(m)  + "/" + figname)
+    figname = (fcs_folder + "/data/conditional/obs" + str(m)  + "/" + figname)
     plt.savefig(figname)
 
 m = 1
 figname = "conditional_mean_field_obs" + str(m) + "_nugget_1e5_4000.png"
-visualize_conditional_mean_observed_and_fcs(figname, m)
+visualize_conditional_mean_observed_fcs_ncs(figname, m)
