@@ -5,6 +5,7 @@ from mpl_toolkits.axes_grid1 import ImageGrid
 import os
 import sys
 from append_directories import *
+from matplotlib.patches import Rectangle
 
 def visualize_conditional_mean_observed_and_fcs(figname, m):
 
@@ -92,16 +93,26 @@ def visualize_conditional_mean_observed_fcs_ncs(figname, m):
     for i, ax in enumerate(grid):
 
         if(i < 5):
-            im = ax.imshow(reference_images[(i % 5),:,:], cmap='viridis', vmin = -2, vmax = 6,
-                           alpha = (masks[(i % 5),:,:].astype(float)))
+            im = ax.imshow(reference_images[(i % 5),:,:], cmap='viridis', vmin = -2, vmax = 6)
+            observed_indices = np.argwhere(masks[(i%5),:,:].reshape((n,n)) > 0)
+            for j in range(observed_indices.shape[0]):
+                rect = Rectangle(((observed_indices[j,1]-.55), (observed_indices[j,0]-.55)), width=1, height=1, facecolor='none', edgecolor='r')
+                ax.add_patch(rect)
             ax.set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
             ax.set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
         elif(i < 10):
-            im = ax.imshow(fcs_conditional_means[(i % 5),:,:], cmap='viridis', vmin = -2, vmax = 6,
-                           )
+            observed_indices = np.argwhere(masks[(i%5),:,:].reshape((n,n)) > 0)
+            for j in range(observed_indices.shape[0]):
+                rect = Rectangle(((observed_indices[j,1]-.55), (observed_indices[j,0]-.55)), width=1, height=1, facecolor='none', edgecolor='r')
+                ax.add_patch(rect)
+            im = ax.imshow(fcs_conditional_means[(i % 5),:,:], cmap='viridis', vmin = -2, vmax = 6)
             ax.set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
             ax.set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
         elif(i < 15):
+            observed_indices = np.argwhere(masks[(i%5),:,:].reshape((n,n)) > 0)
+            for j in range(observed_indices.shape[0]):
+                rect = Rectangle(((observed_indices[j,1]-.55), (observed_indices[j,0]-.55)), width=1, height=1, facecolor='none', edgecolor='r')
+                ax.add_patch(rect)
             im = ax.imshow(ncs_conditional_means[(i % 5),:,:], cmap='viridis', vmin = -2, vmax = 6)
             ax.set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
             ax.set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
