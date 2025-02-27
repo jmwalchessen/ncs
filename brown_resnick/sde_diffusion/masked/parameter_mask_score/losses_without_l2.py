@@ -24,6 +24,39 @@ from models import model_utils as mutils
 from sde_lib import VPSDE, VESDE
 from utils import *
 
+
+def get_optimizer(config, params):
+  """Returns a flax optimizer object based on `config`."""
+  if config.optim.optimizer == 'Adam':
+    optimizer = optim.Adam(params, lr=config.optim.lr, betas=(config.optim.beta1, 0.999), eps=config.optim.eps,
+                           weight_decay=config.optim.weight_decay)
+  else:
+    raise NotImplementedError(
+      f'Optimizer {config.optim.optimizer} not supported yet!')
+
+  return optimizer
+
+
+def optimization_manager(config):
+  """Returns an optimize_fn based on `config`."""
+
+  def optimize_fn(optimizer, params, step, lr=config.optim.lr,
+                  warmup=config.optim.warmup,
+                  grad_clip=config.optim.grad_clip):
+    """Optimizes with warmup and gradient clipping (disabled if negative)."""
+    if warmup > 0:
+      for g in optimizer.param_groups:
+        #g['lr'] = lr * np.minimum(step / warmup, 1.0)
+        number_of_steps_per_epoch = int(config.training.data_size/config.training.batch_size) 
+        epoch = int(step/number_of_steps_per_epoch)
+        #g['lr'] = lr * (.99**epoch)
+        g['lr'] = lr * (.9**(int(step/250)))
+    if grad_clip >= 0:
+      torch.nn.utils.clip_grad_norm_(params, max_norm=grad_clip)
+    optimizer.step()
+
+  return optimize_fn
+
 def get_parameterized_masked_score_ddpm_loss_fn(vpsde, train, reduce_mean = True):
   """DDPM loss modified to incorporate a mask (fixed or not)"""
   assert isinstance(vpsde, VPSDE), "DDPM training only works for VPSDEs."
