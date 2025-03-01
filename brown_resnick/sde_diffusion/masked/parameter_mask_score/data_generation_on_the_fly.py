@@ -90,6 +90,21 @@ def generate_random_masks_on_the_fly(n, number_of_random_replicates, random_miss
         mask_matrices = np.concatenate([mask_matrices, current_mask_matrices])
     return mask_matrices
 
+def generate_random_masks_via_observed_numbers_on_the_fly(n, number_of_random_replicates, observed_numbers):
+    
+    mask_matrices = np.zeros((len(observed_numbers),number_of_random_replicates,n**2))
+    for i,m in enumerate(observed_numbers):
+        print("obs in random masks generation")
+        print(m)
+        for irep in range(number_of_random_replicates):
+            #if there are replicates that is ok because range from 1 to 10 observed
+            obs_indices = [int((n**2)*np.random.random(size = 1)) for i in range(0,m)]
+            mask_matrices = mask_matrices.astype('float')
+            mask_matrices[i,irep,obs_indices] = 1
+    
+    mask_matrices = mask_matrices.reshape((len(observed_numbers)*number_of_random_replicates,1,n,n))
+    return mask_matrices
+
 
 #create matrix with masks from random_masks_on_the_fly and block_masks
 def generate_random_and_block_masks_on_the_fly(n, number_of_random_replicates_per_percentage, random_missingness_percentages, number_of_block_replicates_per_mask, weighted_lower_half_percentages, weighted_upper_half_percentages):
@@ -297,6 +312,51 @@ def get_training_and_evaluation_data_per_percentages(number_of_random_replicates
     eval_dataloader = DataLoader(eval_dataset, batch_size = eval_batch_size, shuffle = True)
     return train_dataloader, eval_dataloader
 
+#seeds values list is a list of lists of tuples of length equal to number of missing percentages
+def get_training_and_evaluation_data_per_observed_number(number_of_random_replicates, observed_numbers,
+                                                     number_of_evaluation_random_replicates, number_of_masks_per_image,
+                                                     number_of_evaluation_masks_per_image, batch_size, eval_batch_size,
+                                                     train_parameter_matrix, eval_parameter_matrix, seed_values_list, spatial_process_type):
+    
+    n = 32
+    train_images = np.zeros((0,1,n,n))
+    eval_images = np.zeros((0,1,n,n))
+    train_parameters = np.zeros((0,2))
+    eval_parameters = np.zeros((0,2))
+
+    for i, m in enumerate(observed_numbers):
+        print("obns in generate images")
+        print(i)
+        seed_values = seed_values_list[i]
+
+        if(spatial_process_type == "schlather"):
+
+            timages = generate_schlather_process(range_value, smooth_value, seed_values[0],
+                                                    number_of_random_replicates, n)
+            eimages = generate_schlather_process(range_value, smooth_value, seed_values[1],
+                                                    number_of_evaluation_random_replicates, n)
+
+        elif(spatial_process_type == "brown"):
+            timages, tparams = generate_brown_resnick_data_on_the_fly(train_parameter_matrix, number_of_random_replicates, n)
+            eimages, eparams = generate_brown_resnick_data_on_the_fly(eval_parameter_matrix, number_of_evaluation_random_replicates, n)
+
+        train_images = np.concatenate([train_images, np.repeat(timages, number_of_masks_per_image, axis = 0)])
+        train_parameters = np.concatenate([train_parameters, np.repeat(tparams, number_of_masks_per_image, axis = 0)], axis =0)
+        eval_images = np.concatenate([eval_images, np.repeat(eimages, number_of_evaluation_masks_per_image, axis = 0)])
+        eval_parameters = np.concatenate([eval_parameters, np.repeat(eparams, number_of_masks_per_image, axis = 0)], axis =0)
+
+    train_images = np.log(train_images)
+    eval_images = np.log(eval_images)
+    nrep = int(train_images.shape[0]/len(observed_numbers))
+    eval_nrep = int(eval_images.shape[0]/len(observed_numbers))
+    train_masks = generate_random_masks_via_observed_numbers_on_the_fly(n, nrep, observed_numbers)
+    eval_masks = generate_random_masks_via_observed_numbers_on_the_fly(n, eval_nrep, observed_numbers)
+    train_dataset = CustomSpatialImageMaskandParameterDataset(train_images, train_masks, train_parameters)
+    eval_dataset = CustomSpatialImageMaskandParameterDataset(eval_images, eval_masks, eval_parameters)
+    train_dataloader = DataLoader(train_dataset, batch_size = batch_size, shuffle = True)
+    eval_dataloader = DataLoader(eval_dataset, batch_size = eval_batch_size, shuffle = True)
+    return train_dataloader, eval_dataloader
+
 
 def get_training_and_evaluation_data_per_percentages_for_parameters(number_of_random_replicates, random_missingness_percentages,
                                                                     number_of_evaluation_random_replicates, number_of_masks_per_image,
@@ -312,8 +372,30 @@ def get_training_and_evaluation_data_per_percentages_for_parameters(number_of_ra
     eval_parameter_matrix = np.zeros((number_of_eval_parameters,2))
     eval_parameter_matrix[:,0] = eval_range_values.reshape((number_of_eval_parameters))
     eval_parameter_matrix[:,1] = smooth_value*np.ones((number_of_eval_parameters))
-    train_dataloader, eval_dataloader = get_training_and_evaluation_data_per_percentages(number_of_random_replicates, random_missingness_percentages,
-                                                                                         number_of_evaluation_random_replicates, number_of_masks_per_image,
-                                                                                         number_of_evaluation_masks_per_image, batch_size, eval_batch_size,
-                                                                                         parameter_matrix, eval_parameter_matrix, spatial_process_type)
+    train_dataloader, eval_dataloader = get_training_and_evaluation_data_per_observed_number(number_of_random_replicates, observed_numbers,
+                                                     number_of_evaluation_random_replicates, number_of_masks_per_image,
+                                                     number_of_evaluation_masks_per_image, batch_size, eval_batch_size,
+                                                     train_parameter_matrix, eval_parameter_matrix, seed_values_list, spatial_process_type)
+    return train_dataloader, eval_dataloader
+
+
+def get_training_and_evaluation_data_per_observed_number_for_parameters(number_of_random_replicates, observed_numbers,
+                                                                    number_of_evaluation_random_replicates, number_of_masks_per_image,
+                                                                    number_of_evaluation_masks_per_image, batch_size, eval_batch_size,
+                                                                    smooth_value, number_of_parameters, boundary_start, boundary_end,
+                                                                    number_of_eval_parameters, spatial_process_type):
+    
+    range_values = produce_parameters_via_uniform(number_of_parameters, boundary_start, boundary_end)
+    parameter_matrix = np.zeros((number_of_parameters,2))
+    parameter_matrix[:,0] = (range_values).reshape((number_of_parameters))
+    parameter_matrix[:,1] = smooth_value*np.ones((number_of_parameters))
+    eval_range_values = produce_parameters_via_uniform(number_of_eval_parameters, boundary_start, boundary_end)
+    eval_parameter_matrix = np.zeros((number_of_eval_parameters,2))
+    eval_parameter_matrix[:,0] = eval_range_values.reshape((number_of_eval_parameters))
+    eval_parameter_matrix[:,1] = smooth_value*np.ones((number_of_eval_parameters))
+    seed_values_list = [int(np.random.randint(0,100000,1)) for obs in observed_numbers]
+    train_dataloader, eval_dataloader = get_training_and_evaluation_data_per_observed_number(number_of_random_replicates, observed_numbers,
+                                                     number_of_evaluation_random_replicates, number_of_masks_per_image,
+                                                     number_of_evaluation_masks_per_image, batch_size, eval_batch_size,
+                                                     parameter_matrix, eval_parameter_matrix, seed_values_list, spatial_process_type)
     return train_dataloader, eval_dataloader

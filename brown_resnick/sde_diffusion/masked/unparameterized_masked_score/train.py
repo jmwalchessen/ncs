@@ -4,7 +4,7 @@ from torch.utils.data import Dataset, DataLoader
 from data_generation_on_the_fly import *
 from models.ema import ExponentialMovingAverage
 from models.ncsnpp import *
-import losses
+import losses_without_l2 as losses
 import sde_lib
 from configs.vp import ncsnpp_config as vp_ncsnpp_config
 import matplotlib.pyplot as plt
@@ -334,9 +334,9 @@ vpconfig = vp_ncsnpp_configuration
 
 data_draws = 40
 epochs_per_data_draws = 10
-number_of_random_replicates = 64
+number_of_random_replicates = 32
 number_of_evaluation_random_replicates = 32
-number_of_masks_per_image = 200
+number_of_masks_per_image = 100
 number_of_evaluation_masks_per_image = 1
 #smaller p means less ones which means more observed values
 number_of_percentages = 50
@@ -348,15 +348,15 @@ eval_m = 3
 batch_size = 2048
 eval_batch_size = 10
 smooth_value = 1.5
-range_value = 3.0
+range_value = 4.0
 eval_p = .05
-eval_range_value = 3.0
+eval_range_value = 4.0
 eval_smooth_value = 1.5
 spatial_process_type = "brown"
 seed_values_list = [[(int(np.random.randint(0, 100000)), int(np.random.randint(0, 100000))) for j in range(0, number_of_percentages)] for i in range(0, data_draws)]
-score_model_path = "trained_score_models/model5/vpsde/model5_beta_min_max_01_20_obs_num_1_10_smooth_1.5_range_3_channel_mask.pth"
-loss_path = "trained_score_models/vpsde/model5/model5_beta_min_max_01_20_obs_num_1_10_smooth_1.5_range_3_channel_mask_loss.png"
-folder_name = "trained_score_models/vpsde/model5"
+score_model_path = "trained_score_models/vpsde/model8/model8_wo_l2_beta_min_max_01_20_obs_num_1_10_smooth_1.5_range_4_channel_mask.pth"
+loss_path = "trained_score_models/vpsde/model8/model8_wo_l2_beta_min_max_01_20_obs_num_1_10_smooth_1.5_range_4_channel_mask_loss.png"
+folder_name = "trained_score_models/vpsde/model8"
 torch.cuda.empty_cache()
 train_per_multiple_random_masks_observed_number_based_data_generation(vpconfig, data_draws, epochs_per_data_draws,
                              observed_number_start, observed_number_end,
