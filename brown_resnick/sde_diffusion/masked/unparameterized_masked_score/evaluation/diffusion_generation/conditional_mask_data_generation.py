@@ -88,7 +88,7 @@ def generate_validation_data_with_reference_image(process_type, folder_name, n, 
     ref_img = th.from_numpy(ref_img.reshape((1,1,n,n)))
     y = ((th.mul(mask, ref_img)).to(device)).float()
     mask = mask.float().to(device)
-
+    print(y[y!=0])
 
     for i in range(0, calls):
         print(i)
@@ -164,13 +164,12 @@ def generate_validation_data_multiple_percentages(process_type, model_folder_nam
 
 
     
-def generate_validation_data_with_multiple_reference_images(model_name):
+def generate_validation_data_with_multiple_reference_images(model_name, range_value):
     
     process_type = "brown"
     n = 32
-    replicates_per_call = 50
-    calls = 20
-    range_value = 3.
+    replicates_per_call = 250
+    calls = 4
     smooth_value = 1.5
     folder_name = (evaluation_folder + "/fcs/data/conditional/")
     validation_data_name = (model_name + "_range_" + str(range_value) + "_smooth_1.5_4000_random")
@@ -181,4 +180,4 @@ def generate_validation_data_with_multiple_reference_images(model_name):
 
 
 
-generate_validation_data_with_multiple_reference_images("model6")
+generate_validation_data_with_multiple_reference_images("model9", 5.)

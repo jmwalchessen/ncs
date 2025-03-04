@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 
 from helper_functions import *
-score_model = load_score_model("brown", "model6/model6_wo_l2_beta_min_max_01_20_obs_num_1_10_smooth_1.5_range_1_channel_mask.pth", "eval")
+score_model = load_score_model("brown", "model9/model9_wo_l2_beta_min_max_01_20_obs_num_1_10_smooth_1.5_range_5_channel_mask.pth", "eval")
 vpsde = load_sde(beta_min = .1, beta_max = 20, N = 1000)
 
 def load_npfile(npfile):
@@ -90,9 +90,9 @@ def generate_unconditional_fixed_ncs_images_multi(vpsde, score_model, n, range_v
 
     
 n = 32
-range_value = 1.
+range_value = 5.
 smooth_value = 1.5
-number_of_replicates = 100
-for irep in range(40):
+number_of_replicates = 1000
+for irep in range(4):
     generate_unconditional_fixed_ncs_images_multi(vpsde, score_model, n, range_value, smooth_value,
                                                   number_of_replicates, irep)
