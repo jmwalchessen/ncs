@@ -85,7 +85,29 @@ def process_unconditional_fixed_location_fcs_file_with_variables():
             current_ref_folder = (ref_folder + "/obs" + str(m) + "/ref_image" + str(int(range_value-1)))
             process_unconditional_fixed_location_fcs_file(current_ref_folder, mask_file, fcs_file, obs_file,
                                         processed_fcs_file, nrep, n, m)
+            
+def collect_unconditional_ncs_file_with_variables():
 
+    evaluation_folder = append_directory(2)
+    ref_folder = (evaluation_folder + "/fcs/data/unconditional/fixed_locations")
+    ms = [i for i in range(1,8)]
+    n = 32
+    nrep = 4000
+    nrep_per_file = 1000
+    nofile = 4
+    range_values = [4.,5.]
+    for m in ms:
+        for range_value in range_values:
+            ncs_images = np.zeros((0,n,n))
+            for i in range(nofile):
+                ncs_file = "unconditional_fixed_ncs_images_range_" + str(range_value) + "_smooth_1.5_model5_" + str(nrep_per_file) + str(i) + ".npy"
+                current_ref_folder = (ref_folder + "/obs" + str(m) + "/ref_image" + str(int(range_value-1)) +"/diffusion")
+                current_images = np.load((current_ref_folder + "/" + ncs_file))
+                ncs_images = np.concatenate([ncs_images, current_images.reshape((nrep_per_file,n,n))], axis = 0)
+            ncs_file = "unconditional_fixed_ncs_images_range_" + str(range_value) + "_smooth_1.5_model5_" + str(nrep) + ".npy"
+            np.save((current_ref_folder + "/" + ncs_file), ncs_images)
+
+    return ncs_images
 
 def process_conditional_fcs():          
     ms = [i for i in range(1,8)]
@@ -100,4 +122,4 @@ def process_conditional_fcs():
             mask_file = "mask.npy"
             process_fcs_file(ref_folder, mask_file, fcs_file, processed_fcs_file, nrep, n)
 
-process_unconditional_fixed_location_fcs_file_with_variables()
+collect_unconditional_ncs_file_with_variables()
