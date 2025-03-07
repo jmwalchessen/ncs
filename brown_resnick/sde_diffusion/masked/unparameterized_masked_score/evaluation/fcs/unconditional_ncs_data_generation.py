@@ -82,7 +82,7 @@ def generate_unconditional_fixed_ncs_images_multi(vpsde, score_model, n, range_v
     for obs in obsn:
         ncs_file = ("data/unconditional/fixed_locations/obs" + str(obs) +
         "/ref_image" + str(int(range_value-1)) + "/diffusion/unconditional_fixed_ncs_images_range_" +
-        str(range_value) + "_smooth_1.5_model5_" + str(number_of_replicates) + str(irep) + ".npy")
+        str(range_value) + "_smooth_1.5_" + str(number_of_replicates) + str(irep) + ".npy")
         ncs_images = generate_unconditional_fixed_ncs_images(vpsde, score_model, n, range_value, smooth_value, obs,
                                                              number_of_replicates)
         ncs_images = ncs_images.detach().cpu().numpy()

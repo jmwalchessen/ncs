@@ -180,4 +180,4 @@ def generate_validation_data_with_multiple_reference_images(model_name, range_va
 
 
 
-generate_validation_data_with_multiple_reference_images("model9", 5.)
+generate_validation_data_with_multiple_reference_images("model7", 2.)
