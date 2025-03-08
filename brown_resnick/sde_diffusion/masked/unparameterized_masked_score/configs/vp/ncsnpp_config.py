@@ -49,8 +49,8 @@ def get_config():
   model.nf = 64
   #this is a channel multiplier per number of residual blocks
   model.ch_mult = (1, 2, 2, 2)
-  model.num_res_blocks = 2
-  model.attn_resolutions = (4,)
+  model.num_res_blocks = 4
+  model.attn_resolutions = (16,)
   model.resamp_with_conv = True
   model.conditional = True
   model.fir = True

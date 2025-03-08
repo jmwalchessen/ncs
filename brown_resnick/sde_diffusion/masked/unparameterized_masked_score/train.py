@@ -343,7 +343,7 @@ number_of_percentages = 50
 boundary_start = .01
 boundary_end = .525
 observed_number_start = 1
-observed_number_end = 10
+observed_number_end = 7
 eval_m = 3
 batch_size = 2048
 eval_batch_size = 10
@@ -354,9 +354,9 @@ eval_range_value = 5.0
 eval_smooth_value = 1.5
 spatial_process_type = "brown"
 seed_values_list = [[(int(np.random.randint(0, 100000)), int(np.random.randint(0, 100000))) for j in range(0, number_of_percentages)] for i in range(0, data_draws)]
-score_model_path = "trained_score_models/vpsde/model9/model9_wo_l2_beta_min_max_01_20_obs_num_1_10_smooth_1.5_range_5_channel_mask.pth"
-loss_path = "trained_score_models/vpsde/model9/model9_wo_l2_beta_min_max_01_20_obs_num_1_10_smooth_1.5_range_5_channel_mask_loss.png"
-folder_name = "trained_score_models/vpsde/model9"
+score_model_path = "trained_score_models/vpsde/model10/model10_wo_l2_res_4_attn_16_beta_min_max_01_20_obs_num_1_7_smooth_1.5_range_5_channel_mask.pth"
+loss_path = "trained_score_models/vpsde/model10/model10_wo_l2_res_4_attn_16_beta_min_max_01_20_obs_num_1_7_smooth_1.5_range_5_channel_mask_loss.png"
+folder_name = "trained_score_models/vpsde/model10"
 torch.cuda.empty_cache()
 train_per_multiple_random_masks_observed_number_based_data_generation(vpconfig, data_draws, epochs_per_data_draws,
                              observed_number_start, observed_number_end,
