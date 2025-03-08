@@ -7,7 +7,7 @@ np <- import("numpy")
 
 create_folder <- function(range, obs)
 {
-    ref_folder <- paste(paste(paste("data/unconditional/fixed_locations/obs", as.character(obs), sep = ""), "ref_image", as.character(range-1), sep = ""))
+    ref_folder <- paste(paste(paste(paste("data/unconditional/fixed_locations/obs", as.character(obs), sep = ""), "ref_image", sep = "/"), as.character(range-1), sep = ""))
     return(ref_folder)
 }
 
@@ -20,7 +20,7 @@ compute_true_extremal_coefficient <- function(number_of_replicates,
   x <- y <- seq(-10, 10, length = nn)
   coord <- expand.grid(x, y)
   ref_folder <- create_folder(range,obs)
-  y <- np$load(paste(paste(paste(ref_folder, "true_brown_resnick_images_range", sep = "/"), as.character(range), sep = "_"), ".0_smooth_1.5_4000.npy", sep = ""))
+  y <- np$load(paste(paste(paste(ref_folder, "true_brown_resnick_images_range", sep = "/"), as.character(range), sep = "_"), "_smooth_1.5_4000.npy", sep = ""))
   dim(y) <- c(number_of_replicates, n.size)
   mado <- madogram(data = y, coord = as.matrix(coord), which = "ext", n.bins = nbins)
   np$save(ext_file, mado)
@@ -77,7 +77,7 @@ compute_ncs_extremal_coefficient_with_variables <- function()
         ref_folder <- create_folder(range_values[i], obs_numbers[j])
         ncs_file <- paste(paste(paste(paste(paste(ref_folder, "diffusion/unconditional_fixed_ncs_images_range", sep = "/"),
                             as.character(range_values[i]), sep = "_"), ".0_smooth_1.5", sep = ""),
-                            as.character(nrep), sep = "_"), "npy", sep = ".")
+                            as.character(number_of_replicates), sep = "_"), "npy", sep = ".")
         ncs_ext_file <- paste(paste(paste(paste(ref_folder, "brown_resnick_ncs_extremal_matrix_bins_100_obs", sep = "/"),
                         as.character(obs_numbers[j]), sep = ""), "range_", sep = "_"), "smooth_1.5_4000.npy", sep = "_")
         compute_ncs_extremal_coefficient(number_of_replicates, range, smooth, nbins, ncs_file, ncs_ext_file, n)
@@ -110,8 +110,9 @@ compute_fcs_extremal_coefficient_with_variables <- function()
   { 
     for(j in 1:length(ranges))
     {
+        m <- ms[i]
         ref_folder <- create_folder(ranges[j], ms[i])
-        fcs_file <- paste(paste(paste(paste(ref_folder, "processed_unconditional_fcs_fixed_mask_range", as.character(ranges[j]), sep = "_"),
+        fcs_file <- paste(paste(paste(paste(paste(ref_folder, "processed_unconditional_fcs_fixed_mask_range", sep = "/"), as.character(ranges[j]), sep = "_"),
                             ".0_smooth_1.5_nugget_1e5_obs", sep = ""),
                             as.character(m), sep = "_"), "4000.npy", sep = "_")
         fcs_ext_file <- paste(paste(paste(paste(paste(ref_folder, "extremal_coefficient_fcs_range", sep = "/"), as.character(ranges[j]), sep = "_"),
@@ -122,6 +123,4 @@ compute_fcs_extremal_coefficient_with_variables <- function()
   }
 }
 
-compute_fcs_extremal_coefficient_with_variables()
-compute_ncs_extremal_coefficient_with_variables()
 compute_true_extremal_coefficient_with_variables()
