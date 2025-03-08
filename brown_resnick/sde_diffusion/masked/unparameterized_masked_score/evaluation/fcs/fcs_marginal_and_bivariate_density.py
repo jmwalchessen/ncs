@@ -48,7 +48,7 @@ def produce_true_fcs_ncs_unconditional_marginal_density(n, range_value, smooth_v
     sns.kdeplot(data = ncs_pdd, palette = ["orange"], ax = axs[1])
     sns.kdeplot(data = fcs_pdd, palette = ["purple"], ax = axs[1])
     axs[1].set_title("Marginal")
-    axs[1].set_xlim(-4,8)
+    axs[1].set_xlim(-30,8)
     axs[1].set_ylim(0,.5)
     index = matrix_index_to_index(matrix_index, n)
     #location = index_to_spatial_location(minX, maxX, minY, maxY, n, index)
@@ -114,20 +114,22 @@ def produce_multiple_true_fcs_ncs_unconditional_marginal_densities_with_variable
 
     n = 32
     eval_folder = append_directory(2)
-    range_values = [float(i) for i in range(3,4)]
+    range_values = [float(i) for i in range(1,6)]
     smooth_value = 1.5
     number_of_replicates = 4000
     missing_indices = [i for i in range(0,1000,35)]
     ms = [i for i in range(1,8)]
     for m in ms:
+        print(m)
         for range_value in range_values:
+            print(range_value)
             for missing_index in missing_indices:
                 fcs_folder = (eval_folder + "/fcs")
                 ref_folder = (fcs_folder + "/data/unconditional/fixed_locations/obs" + str(m) + "/ref_image" + str(int(range_value)-1))
                 unconditional_fcs_samples = np.log(np.load((ref_folder + "/processed_unconditional_fcs_fixed_mask_range_" + str(range_value) +
                                "_smooth_1.5_nugget_1e5_obs_" + str(m) + "_" + str(number_of_replicates) + ".npy")))
                 unconditional_true_samples = np.log((np.load((ref_folder + "/true_brown_resnick_images_range_" + str(int(range_value)) + "_smooth_1.5_4000.npy"))))
-                unconditional_ncs_samples = (np.load((ref_folder + "/diffusion/unconditional_fixed_ncs_images_range_" + str(range_value) + "_smooth_1.5_model5_4000.npy")))
+                unconditional_ncs_samples = (np.load((ref_folder + "/diffusion/unconditional_fixed_ncs_images_range_" + str(range_value) + "_smooth_1.5_4000.npy")))
                 figname = (ref_folder + "/marginal_density/unconditional_fixed_location_marginal_density_" + str(missing_index) + ".png")
                 mask = np.load((ref_folder + "/mask.npy"))
                 produce_true_fcs_ncs_unconditional_marginal_density(n, range_value, smooth_value,
@@ -143,7 +145,7 @@ def produce_multiple_true_fcs_ncs_unconditional_bivariate_densities_with_variabl
 
     n = 32
     eval_folder = append_directory(2)
-    range_values = [float(i) for i in range(3,4)]
+    range_values = [float(i) for i in range(1,6)]
     smooth_value = 1.5
     number_of_replicates = 4000
     missing_indices1 = (np.random.randint(0,1024,20)).tolist()
@@ -156,7 +158,7 @@ def produce_multiple_true_fcs_ncs_unconditional_bivariate_densities_with_variabl
                 unconditional_fcs_samples = np.log(np.load((ref_folder + "/processed_unconditional_fcs_fixed_mask_range_" + str(range_value) +
                             "_smooth_1.5_nugget_1e5_obs_" + str(m) + "_" + str(number_of_replicates) + ".npy")))
                 unconditional_true_samples = np.log((np.load((ref_folder + "/true_brown_resnick_images_range_" + str(int(range_value)) + "_smooth_1.5_4000.npy"))))
-                unconditional_ncs_samples = (np.load((ref_folder + "/diffusion/unconditional_fixed_ncs_images_range_" + str(range_value) + "_smooth_1.5_model5_4000.npy")))
+                unconditional_ncs_samples = (np.load((ref_folder + "/diffusion/unconditional_fixed_ncs_images_range_" + str(range_value) + "_smooth_1.5_4000.npy")))
                 mask = np.load((ref_folder + "/mask.npy"))
                 missing_indices2 = (np.array((np.where(mask.reshape((n**2)) == 1)))).reshape((m)).tolist()
                 for missing_index2 in missing_indices2:

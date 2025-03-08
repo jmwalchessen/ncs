@@ -31,9 +31,8 @@ def visualize_unconditional_mean_observed_fcs_ncs(figname, m):
         true_images[i,:,:,:] = np.log((np.load((ref_folder + "/true_brown_resnick_images_range_" + str(int(range_values[i])) + "_smooth_1.5_4000.npy")))).reshape((nrep,n,n))
         true_unconditional_means[i,:,:] = (np.mean(true_images[i,:,:,:], axis = (0))).reshape((n,n))
         fcs_unconditional_means[i,:,:] = (np.mean(fcs_images[i,:,:,:], axis = (0))).reshape((n,n))
-        if((i != 1)):
-            ncs_images[i,:,:,:] = (np.load((ref_folder + "/diffusion/unconditional_fixed_ncs_images_range_" + str(range_values[i]) + "_smooth_1.5_model5_4000.npy"))).reshape((nrep,n,n))
-            ncs_unconditional_means[i,:,:] = (np.mean(ncs_images[i,:,:], axis = (0))).reshape((n,n))
+        ncs_images[i,:,:,:] = (np.load((ref_folder + "/diffusion/unconditional_fixed_ncs_images_range_" + str(range_values[i]) + "_smooth_1.5_4000.npy"))).reshape((nrep,n,n))
+        ncs_unconditional_means[i,:,:] = (np.mean(ncs_images[i,:,:], axis = (0))).reshape((n,n))
 
     fig = plt.figure(figsize=(10,6))
     grid = ImageGrid(fig, 111,  # similar to subplot(111)
