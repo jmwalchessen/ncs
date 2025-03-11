@@ -123,4 +123,55 @@ compute_fcs_extremal_coefficient_with_variables <- function()
   }
 }
 
-compute_ncs_extremal_coefficient_with_variables()
+
+compute_extreme_ncs_extremal_coefficient_with_variables <- function()
+{
+  number_of_replicates <- 4000
+  ranges <- seq(1.,5.,1.)
+  smooth <- 1.5
+  nbins <- 100
+  ms <- seq(1,7,1)
+  n <- 32
+  np <- import("numpy")
+  for(i in 1:length(ms))
+  { 
+    for(j in 1:length(ranges))
+    {
+        m <- ms[i]
+        ref_folder <- create_folder(ranges[j], ms[i])
+        ncs_file <- paste(paste(paste(paste(paste(ref_folder, "diffusion/extreme_unconditional_fixed_ncs_images_range", sep = "/"),
+                            as.character(ranges[i]), sep = "_"), ".0_smooth_1.5", sep = ""),
+                            as.character(number_of_replicates), sep = "_"), "npy", sep = ".")
+        ncs_ext_file <- paste(paste(paste(paste(paste(ref_folder, "extreme_brown_resnick_ncs_extremal_matrix_bins_100_obs", sep = "/"),
+                        as.character(ms[i]), sep = ""), "range", sep = "_"), as.character(ranges[i]), sep = "_"), "smooth_1.5_4000.npy", sep = "_")
+        ncs_images <- np$load(ncs_file)
+        print(dim(ncs_images))
+        compute_extreme_extremal_coefficient(number_of_replicates, ranges[j], smooth, nbins, ncs_file, ncs_ext_file, n)
+    }
+  }
+}
+
+compute_extreme_true_extremal_coefficient_with_variables <- function()
+{
+  number_of_replicates <- 4000
+  smooth <- 1.5
+  nbins <- 100
+  n <- 32
+  obs_numbers <- seq(1,7,1)
+  range_values <- seq(1.,5.,1.)
+  for(i in 1:length(range_values))
+  {
+    for(j in 1:length(obs_numbers))
+    {
+        ref_folder <- create_folder(range_values[i], obs_numbers[j])
+        ext_file <- paste(paste(paste(ref_folder, "extreme_true_extremal_coefficient_range", sep = "/"), as.character(range_values[i]), sep = "_"),
+                            ".0_smooth_1.5_nbins_100_4000.npy", sep= "")
+        true_file <- paste(paste(paste(ref_folder, "true_brown_resnick_images_range", sep = "/"), as.character(range_values[i]), sep = "_"),
+                                       "smooth_1.5_4000.npy", sep = "_")
+        compute_ncs_extremal_coefficient(number_of_replicates, range_values[i], smooth, nbins, true_file, ext_file, n)
+    }
+  }
+}
+
+#compute_extreme_true_extremal_coefficient_with_variables()
+compute_extreme_ncs_extremal_coefficient_with_variables()

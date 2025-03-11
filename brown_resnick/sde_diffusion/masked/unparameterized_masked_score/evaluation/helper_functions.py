@@ -3,6 +3,7 @@ import numpy as np
 import subprocess
 import os
 from append_directories import *
+sys.path.append(append_directory(2))
 
 #get trained score model
 def load_score_model(process_type, model_name, mode):
@@ -31,7 +32,6 @@ def load_score_model(process_type, model_name, mode):
     return score_model
 
 def load_sde(beta_min, beta_max, N):
-
     import sde_lib
     sdevp = sde_lib.VPSDE(beta_min=beta_min, beta_max=beta_max, N=N)
     return sdevp
