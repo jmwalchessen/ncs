@@ -95,12 +95,13 @@ def collect_unconditional_ncs_file_with_variables():
     nrep = 4000
     nrep_per_file = 1000
     nofile = 4
-    range_values = [2.]
+    range_values = [5.]
+    model_name = "model10"
     for m in ms:
         for range_value in range_values:
             ncs_images = np.zeros((0,n,n))
             for i in range(nofile):
-                ncs_file = "unconditional_fixed_ncs_images_range_" + str(range_value) + "_smooth_1.5_" + str(nrep_per_file) + str(i) + ".npy"
+                ncs_file = "unconditional_fixed_" + str(model_name) + "_ncs_images_range_" + str(range_value) + "_smooth_1.5_" + str(nrep_per_file) + str(i) + ".npy"
                 current_ref_folder = (ref_folder + "/obs" + str(m) + "/ref_image" + str(int(range_value-1)) +"/diffusion")
                 current_images = np.load((current_ref_folder + "/" + ncs_file))
                 ncs_images = np.concatenate([ncs_images, current_images.reshape((nrep_per_file,n,n))], axis = 0)

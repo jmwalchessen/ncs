@@ -64,7 +64,7 @@ compute_ncs_extremal_coefficient <- function(number_of_replicates, range, smooth
 compute_ncs_extremal_coefficient_with_variables <- function()
 {
   number_of_replicates <- 4000
-  range_values <- seq(1.,5.,1.)
+  range_values <- c(5.)
   obs_numbers <- seq(1,7,1)
   number_of_replicates_per_call <- 50
   smooth <- 1.5
@@ -123,4 +123,4 @@ compute_fcs_extremal_coefficient_with_variables <- function()
   }
 }
 
-compute_true_extremal_coefficient_with_variables()
+compute_ncs_extremal_coefficient_with_variables()
