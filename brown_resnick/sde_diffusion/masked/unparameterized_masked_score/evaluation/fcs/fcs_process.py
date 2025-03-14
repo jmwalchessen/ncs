@@ -96,7 +96,7 @@ def collect_unconditional_ncs_file_with_variables():
     nrep_per_file = 1000
     nofile = 4
     range_values = [5.]
-    model_name = "model10"
+    model_name = "model11"
     for m in ms:
         for range_value in range_values:
             ncs_images = np.zeros((0,n,n))
