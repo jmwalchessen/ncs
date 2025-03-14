@@ -64,6 +64,23 @@ def generate_random_masks_via_observed_numbers_on_the_fly(n, number_of_random_re
     mask_matrices = mask_matrices.reshape((len(observed_numbers)*number_of_random_replicates,1,n,n))
     return mask_matrices
 
+
+def generate_random_masks_via_observed_numbers_on_the_fly(n,number_of_random_replicates, observed_numbers):
+
+    for i,m in enumerate(observed_numbers):
+        print("obs in random masks generation")
+        print(m)
+        masks_matrices = np.zeros((len(observed_numbers),number_of_random_replicates,n**2))
+        for obs in range(m):
+            obs_indices = (((n**2)*np.random.random(size = number_of_random_replicates)).astype(int)).reshape((number_of_random_replicates,1))
+            obs_indices = np.concatenate([(np.arange(number_of_random_replicates)).reshape((number_of_random_replicates,1)),
+                                          obs_indices], axis = 1)
+            masks_matrices[i,obs_indices[:,0],obs_indices[:,1]] = 1
+
+        print(np.sum(masks_matrices[0,0,:]))
+        masks_matrices = masks_matrices.reshape((len(observed_numbers)*number_of_random_replicates,1,n,n))
+        return masks_matrices
+
 def generate_block_masks_on_the_fly(n, number_of_replicates_per_mask, weighted_lower_half_percentages, weighted_upper_half_percentages):
 
     block_masks = produce_nonrandom_block_masks(n, weighted_lower_half_percentages, weighted_upper_half_percentages)
@@ -109,7 +126,6 @@ def generate_train_and_evaluation_schlather_process(range_value, smooth_value, s
                     str(smooth_value), str(number_of_evaluation_replicates), str(seed_values[1])],
                     check = True, capture_output = True, text = False)
     eval_images = np.load("temporary_schlather_samples.npy")
-    print(eval_images.shape)
     os.remove("temporary_schlather_samples.npy")
     #train_images = train_images.reshape((n,n,number_of_replicates))
     #eval_images = eval_images.reshape((n,n,number_of_evaluation_replicates))
@@ -285,12 +301,6 @@ def get_training_and_evaluation_data_per_observed_number(number_of_random_replic
     nrep = int(train_images.shape[0]/len(observed_numbers))
     eval_nrep = int(eval_images.shape[0]/len(observed_numbers))
     train_masks = generate_random_masks_via_observed_numbers_on_the_fly(n, nrep, observed_numbers)
-    print("train images shape")
-    print(train_images.shape)
-    print(train_images.dtype)
-    print("train masks shape")
-    print(train_masks.shape)
-    print(train_masks.dtype)
     eval_masks = generate_random_masks_via_observed_numbers_on_the_fly(n, eval_nrep, observed_numbers)
     train_dataset = CustomSpatialImageMaskDataset(train_images, train_masks)
     eval_dataset = CustomSpatialImageMaskDataset(eval_images, eval_masks)

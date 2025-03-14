@@ -23,7 +23,10 @@ def visualize_fcs_ncs_true_extremal_coefficient_multiple_ranges(range_values, sm
         ref_folder = return_ref_folder(range_values[i],obs)
         extremal_matrices[i,:,:] = load_numpy_file((ref_folder + "/true_extremal_coefficient_range_"
                                                     + str(range_values[i]) + "_smooth_" + str(smooth) + "_nbins_" + str(bins) + "_" + str(nrep) + ".npy"))
-        ncs_extremal_matrices[i,:,:] = load_numpy_file((ref_folder + "/brown_resnick_ncs_extremal_matrix_bins_100_obs" + str(obs) + "_range_" + str(range_values[i]) + "_smooth_1.5_" + str(nrep) + ".npy"))
+        if(i == 4):
+            ncs_extremal_matrices[i,:,:] = load_numpy_file((ref_folder + "/brown_resnick_model11_ncs_extremal_matrix_bins_100_obs" + str(obs) + "_range_" + str(range_values[i]) + "_smooth_1.5_" + str(nrep) + ".npy"))
+        else:
+            ncs_extremal_matrices[i,:,:] = load_numpy_file((ref_folder + "/brown_resnick_ncs_extremal_matrix_bins_100_obs" + str(obs) + "_range_" + str(range_values[i]) + "_smooth_1.5_" + str(nrep) + ".npy"))
         fcs_extremal_matrices[i,:,:] = load_numpy_file((ref_folder + "/extremal_coefficient_fcs_range_" + str(range_values[i]) + "_smooth_1.5_nugget_1e5_obs_" + str(obs) + "_" + str(nrep) + ".npy"))
 
     fig, axes = plt.subplots(figsize=(10,2.5), nrows = 1, ncols = 5, sharey=True)
@@ -49,7 +52,7 @@ def visualize_fcs_ncs_true_extremal_coefficient_multiple_ranges(range_values, sm
 
 def visualize_fcs_ncs_true_extremal_coefficient_with_variables():
 
-    obs_numbers = [i for i in range(1,8)]
+    obs_numbers = [i for i in range(7,8)]
     range_values = [float(i) for i in range(1,6)]
     smooth = 1.5
     bins = 100

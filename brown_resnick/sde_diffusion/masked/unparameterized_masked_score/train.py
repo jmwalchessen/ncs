@@ -52,6 +52,26 @@ def plot_original_and_diffusion_images(ref_image, mask, diffusion_images, vmin, 
     plt.tight_layout()
     plt.savefig(figname)
 
+def search_within_brown_resnick_images(brimages,mask):
+
+    nrep = brimages.shape[0]
+    ivalue = -1
+    for irep in range(nrep):
+        y = ((np.multiply(np.log(brimages[0:1,:,:,:]),mask)).flatten())
+        if(np.any(y>3.) == True):
+            ivalue = irep
+            break
+    return ivalue
+
+def generate_masked_extreme_brown_resnick(range_value, smooth_value, seed_value, number_of_replicates, n, mask):
+
+    brimages = generate_brown_resnick_process(range_value, smooth_value, seed_value, number_of_replicates, n)
+    value = -1
+    while(value == -1):
+        brimages = generate_brown_resnick_process(range_value, smooth_value, seed_value, number_of_replicates, n)
+        value = search_within_brown_resnick_images(brimages,mask)
+    return brimages[value:(value+1),:,:,:]
+
     
 def evaluate_diffusion(score_model, sde, process_type, range_value, smooth_value, p, folder_name,
                        vmin, vmax, figname):
@@ -68,8 +88,7 @@ def evaluate_diffusion(score_model, sde, process_type, range_value, smooth_value
     else:
         number_of_replicates = 32
         seed_value = int(np.random.randint(0, 1000000))
-        ref_img = np.log(generate_brown_resnick_process(range_value, smooth_value, seed_value, number_of_replicates, n))
-        ref_img = ref_img[0:1,:,:,:]
+        ref_img = generate_masked_extreme_brown_resnick(range_value, smooth_value, seed_value, number_of_replicates, n, mask)
     
     score_model.eval()
     y = ((torch.mul(mask, (torch.from_numpy(ref_img)).to(device))).to(device)).float()
@@ -92,7 +111,7 @@ def evaluate_diffusion_observed_number(score_model, sde, process_type, range_val
     mask_indices = np.random.randint(low = 0, high = n**2, size = m)
     mask = np.zeros((1,1,n**2))
     mask[0,0,mask_indices] = 1.
-    mask = (torch.from_numpy(mask.reshape((1,1,n,n)).astype(float))).to(device).float()
+    mask = mask.reshape((1,1,n,n))
 
     if(process_type == "schlather"):
 
@@ -101,9 +120,10 @@ def evaluate_diffusion_observed_number(score_model, sde, process_type, range_val
     else:
         number_of_replicates = 32
         seed_value = int(np.random.randint(0, 1000000))
-        ref_img = np.log(generate_brown_resnick_process(range_value, smooth_value, seed_value, number_of_replicates, n))
+        ref_img = np.log(generate_masked_extreme_brown_resnick(range_value, smooth_value, seed_value, number_of_replicates, n, mask))
         ref_img = ref_img[0:1,:,:,:]
     
+    mask = (torch.from_numpy(mask.reshape((1,1,n,n)).astype(float))).to(device).float()
     score_model.eval()
     y = ((torch.mul(mask, (torch.from_numpy(ref_img.astype(float))).to(device))).to(device)).float()
     diffusion_images = helper_functions.posterior_sample_with_p_mean_variance_via_mask(sde, score_model, device, mask,
@@ -333,18 +353,18 @@ vpconfig = vp_ncsnpp_configuration
 
 
 data_draws = 20
-epochs_per_data_draws = 10
-number_of_random_replicates = 32
+epochs_per_data_draws = 20
+number_of_random_replicates = 256
 number_of_evaluation_random_replicates = 32
-number_of_masks_per_image = 500
+number_of_masks_per_image = 200
 number_of_evaluation_masks_per_image = 1
 #smaller p means less ones which means more observed values
 number_of_percentages = 50
 boundary_start = .01
 boundary_end = .525
-observed_number_start = 1
-observed_number_end = 7
-eval_m = 3
+observed_number_start = 7
+observed_number_end = 8
+eval_m = 7
 batch_size = 512
 eval_batch_size = 10
 smooth_value = 1.5
@@ -354,9 +374,9 @@ eval_range_value = 5.0
 eval_smooth_value = 1.5
 spatial_process_type = "brown"
 seed_values_list = [[(int(np.random.randint(0, 100000)), int(np.random.randint(0, 100000))) for j in range(0, number_of_percentages)] for i in range(0, data_draws)]
-score_model_path = "trained_score_models/vpsde/model11/model11_wo_l2_beta_min_max_01_20_obs_num_1_7_smooth_1.5_range_5_channel_mask.pth"
-loss_path = "trained_score_models/vpsde/model11/model11_wo_l2_beta_min_max_01_20_obs_num_1_7_smooth_1.5_range_5_channel_mask_loss.png"
-folder_name = "trained_score_models/vpsde/model10"
+score_model_path = "trained_score_models/vpsde/model11/model11_wo_l2_beta_min_max_01_20_obs_num_7_smooth_1.5_range_5_channel_mask.pth"
+loss_path = "trained_score_models/vpsde/model11/model11_wo_l2_beta_min_max_01_20_obs_num_7_smooth_1.5_range_5_channel_mask_loss.png"
+folder_name = "trained_score_models/vpsde/model11"
 torch.cuda.empty_cache()
 train_per_multiple_random_masks_observed_number_based_data_generation(vpconfig, data_draws, epochs_per_data_draws,
                              observed_number_start, observed_number_end,
@@ -365,3 +385,4 @@ train_per_multiple_random_masks_observed_number_based_data_generation(vpconfig, 
                              number_of_masks_per_image, number_of_evaluation_masks_per_image,
                              seed_values_list, smooth_value, range_value, batch_size,
                              eval_batch_size, score_model_path, loss_path, spatial_process_type, folder_name, eval_m)
+

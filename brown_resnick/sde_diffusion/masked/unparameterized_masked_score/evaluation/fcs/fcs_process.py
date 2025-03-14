@@ -90,12 +90,12 @@ def collect_unconditional_ncs_file_with_variables():
 
     evaluation_folder = append_directory(2)
     ref_folder = (evaluation_folder + "/fcs/data/unconditional/fixed_locations")
-    ms = [i for i in range(1,8)]
+    ms = [i for i in range(7,8)]
     n = 32
     nrep = 4000
     nrep_per_file = 1000
     nofile = 4
-    range_values = [2.]
+    range_values = [5.]
     for m in ms:
         for range_value in range_values:
             ncs_images = np.zeros((0,n,n))

@@ -9,7 +9,7 @@ evaluation_folder = append_directory(2)
 sys.path.append(evaluation_folder)
 from helper_functions import *
 
-score_model = load_score_model("brown", "model6/model6_wo_l2_beta_min_max_01_20_obs_num_1_10_smooth_1.5_range_1_channel_mask.pth", "eval")
+score_model = load_score_model("brown", "model11/model11_wo_l2_beta_min_max_01_20_obs_num_7_smooth_1.5_range_5_channel_mask.pth", "eval")
 
 sdevp = load_sde(beta_min = .1, beta_max = 20, N = 1000)
 #mask is a True/False (1,32,32) vector with .5 randomly missing pixels
@@ -173,11 +173,11 @@ def generate_validation_data_with_multiple_reference_images(model_name, range_va
     smooth_value = 1.5
     folder_name = (evaluation_folder + "/fcs/data/conditional/")
     validation_data_name = (model_name + "_range_" + str(range_value) + "_smooth_1.5_4000_random")
-    for obs in range(1,8):
+    for obs in range(7,8):
         current_folder = (folder_name + "obs" + str(obs) + "/ref_image" + str(int(range_value-1)))
         generate_validation_data_with_reference_image(process_type, current_folder, n, range_value, smooth_value,
                                                                     replicates_per_call, calls, validation_data_name)
 
 
 
-generate_validation_data_with_multiple_reference_images("model7", 2.)
+generate_validation_data_with_multiple_reference_images("model11", 5.)

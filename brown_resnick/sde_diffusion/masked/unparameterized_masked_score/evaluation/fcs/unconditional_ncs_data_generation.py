@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 
 from helper_functions import *
-score_model = load_score_model("brown", "model10/model10_wo_l2_res_4_attn_16_beta_min_max_01_20_obs_num_1_7_smooth_1.5_range_5_channel_mask.pth", "eval")
+score_model = load_score_model("brown", "model11/model11_wo_l2_beta_min_max_01_20_obs_num_7_smooth_1.5_range_5_channel_mask.pth", "eval")
 vpsde = load_sde(beta_min = .1, beta_max = 20, N = 1000)
 
 def load_npfile(npfile):
@@ -78,10 +78,10 @@ def generate_unconditional_fixed_ncs_images(vpsde, score_model, n, range_value, 
 def generate_unconditional_fixed_ncs_images_multi(vpsde, score_model, n, range_value, smooth_value,
                                                   number_of_replicates, irep):
 
-    obsn = [i for i in range(1,8)]
+    obsn = [i for i in range(7,8)]
     for obs in obsn:
         ncs_file = ("data/unconditional/fixed_locations/obs" + str(obs) +
-        "/ref_image" + str(int(range_value-1)) + "/diffusion/unconditional_fixed_model10_ncs_images_range_" +
+        "/ref_image" + str(int(range_value-1)) + "/diffusion/unconditional_fixed_model11_ncs_images_range_" +
         str(range_value) + "_smooth_1.5_" + str(number_of_replicates) + str(irep) + ".npy")
         ncs_images = generate_unconditional_fixed_ncs_images(vpsde, score_model, n, range_value, smooth_value, obs,
                                                              number_of_replicates)
