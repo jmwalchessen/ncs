@@ -186,12 +186,12 @@ def generate_ncs_images():
 
 def visualize_images_from_ncs_unconditional():
 
-    m = 1
+    m = 7
     nrep = 200
     n = 32
     eval_folder = append_directory(2)
-    mask = np.load((eval_folder + "/fcs/data/unconditional/fixed_locations/obs1/ref_image4/mask.npy"))
-    images = np.load((eval_folder + "/fcs/data/unconditional/fixed_locations/obs1/ref_image4/diffusion/unconditional_fixed_ncs_images_range_5.0_smooth_1.5_4000.npy"))
+    mask = np.load((eval_folder + "/fcs/data/unconditional/fixed_locations/obs" + str(m) + "/ref_image4/mask.npy"))
+    images = np.load((eval_folder + "/fcs/data/unconditional/fixed_locations/obs" + str(m) + "/ref_image4/diffusion/unconditional_fixed_ncs_images_range_5.0_smooth_1.5_4000.npy"))
     for irep in range(nrep):
         print(irep)
         fig,ax = plt.subplots()
@@ -202,7 +202,7 @@ def visualize_images_from_ncs_unconditional():
                 rect = Rectangle(((observed_indices[j,1]-.55), (observed_indices[j,0]-.55)), width=1, height=1, facecolor='none', edgecolor='r')
                 ax.add_patch(rect)
         plt.colorbar(im)
-        figname = "figures/ncs_image_model10_obs_" + str(m) + "_range_5_" + str(irep) + ".png"
+        figname = "figures/ncs_image_model11_obs_" + str(m) + "_range_5_" + str(irep) + ".png"
         plt.savefig(figname)
         plt.clf()
 
@@ -213,7 +213,7 @@ def visualize_images_from_ncs_unconditional_extreme():
     n = 32
     eval_folder = append_directory(2)
     mask = np.load((eval_folder + "/fcs/data/unconditional/fixed_locations/obs7/ref_image4/mask.npy"))
-    images = np.load((eval_folder + "/fcs/data/unconditional/fixed_locations/obs7/ref_image4/diffusion/unconditional_fixed_ncs_images_range_5.0_smooth_1.5_4000.npy"))
+    images = np.load((eval_folder + "/fcs/data/unconditional/fixed_locations/obs7/ref_image4/diffusion/unconditional_fixed_model11_ncs_images_range_5.0_smooth_1.5_4000.npy"))
     for irep in range(0,nrep):
         fig,ax = plt.subplots()
         observed_indices = np.argwhere(mask.reshape((n,n)) > 0)
@@ -224,7 +224,7 @@ def visualize_images_from_ncs_unconditional_extreme():
                 rect = Rectangle(((observed_indices[j,1]-.55), (observed_indices[j,0]-.55)), width=1, height=1, facecolor='none', edgecolor='r')
                 ax.add_patch(rect)
             plt.colorbar(im)
-            figname = "figures/extremed_ncs_image_model10_obs_" + str(m) + "_range_5_" + str(irep) + ".png"
+            figname = "figures/extremed_ncs_image_obs_" + str(m) + "_range_5_" + str(irep) + ".png"
             plt.savefig(figname)
             plt.clf()
 
@@ -251,6 +251,30 @@ def visualize_true_images_extreme():
             plt.savefig(figname)
             plt.clf()
 
+def visualize_true_images():
+    m = 7
+    nrep = 4000
+    n = 32
+    eval_folder = append_directory(2)
+    mask = np.load((eval_folder + "/fcs/data/unconditional/fixed_locations/obs" + str(m) + "/ref_image4/mask.npy"))
+    images = np.log(np.load((eval_folder + "/fcs/data/unconditional/fixed_locations/obs" + str(m) + "/ref_image4/true_brown_resnick_images_range_5_smooth_1.5_4000.npy")))
+    images = images.reshape((nrep,n,n))
+    for irep in range(0,nrep):
+        fig,ax = plt.subplots()
+        observed_indices = np.argwhere(mask.reshape((n,n)) > 0)
+        values = images[irep,observed_indices[:,0],observed_indices[:,1]]
+        ncs_values = images[irep,observed_indices[:,0],observed_indices[:,1]]
+        if(np.any(values > 4.)):
+            im = ax.imshow(images[irep,:,:].reshape((n,n)), vmin = -2, vmax = 6)
+            for j in range(observed_indices.shape[0]):
+                rect = Rectangle(((observed_indices[j,1]-.55), (observed_indices[j,0]-.55)), width=1, height=1, facecolor='none', edgecolor='r')
+                ax.add_patch(rect)
+            plt.colorbar(im)
+            figname = "figures/true_image_obs_" + str(m) + "_range_5_" + str(irep) + ".png"
+            plt.savefig(figname)
+            plt.clf()
+
+
 
 def visualize_images():
 
@@ -272,4 +296,4 @@ def visualize_images():
         plt.savefig(figname)
 
 
-visualize_true_images_extreme()
+visualize_true_images()

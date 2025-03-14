@@ -65,7 +65,7 @@ compute_ncs_extremal_coefficient_with_variables <- function()
 {
   number_of_replicates <- 4000
   range_values <- c(5.)
-  obs_numbers <- seq(1,7,1)
+  obs_numbers <- seq(7,8,1)
   number_of_replicates_per_call <- 50
   smooth <- 1.5
   nbins <- 100
@@ -75,7 +75,7 @@ compute_ncs_extremal_coefficient_with_variables <- function()
     for(j in 1:length(obs_numbers))
     {
         ref_folder <- create_folder(range_values[i], obs_numbers[j])
-        ncs_file <- paste(paste(paste(paste(paste(ref_folder, "diffusion/unconditional_fixed_model11_ncs_images_range", sep = "/"),
+        ncs_file <- paste(paste(paste(paste(paste(ref_folder, "diffusion/unconditional_fixed_ncs_images_range", sep = "/"),
                             as.character(range_values[i]), sep = "_"), ".0_smooth_1.5", sep = ""),
                             as.character(number_of_replicates), sep = "_"), "npy", sep = ".")
         ncs_ext_file <- paste(paste(paste(paste(ref_folder, "brown_resnick_model11_ncs_extremal_matrix_bins_100_obs", sep = "/"),
@@ -174,4 +174,4 @@ compute_extreme_true_extremal_coefficient_with_variables <- function()
 }
 
 #compute_extreme_true_extremal_coefficient_with_variables()
-compute_extreme_ncs_extremal_coefficient_with_variables()
+compute_ncs_extremal_coefficient_with_variables()

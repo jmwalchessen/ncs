@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 
 from helper_functions import *
-score_model = load_score_model("brown", "model9/model9_wo_l2_beta_min_max_01_20_obs_num_1_10_smooth_1.5_range_5_channel_mask.pth", "eval")
+score_model = load_score_model("brown", "model11/model11_wo_l2_beta_min_max_01_20_obs_num_7_smooth_1.5_range_5_channel_mask.pth", "eval")
 vpsde = load_sde(beta_min = .1, beta_max = 20, N = 1000)
 
 def load_npfile(npfile):
@@ -89,6 +89,22 @@ def generate_unconditional_fixed_ncs_images_multi(vpsde, score_model, n, range_v
         np.save(ncs_file,ncs_images)
 
 
+def generate_unconditional_fixed_ncs_images_multi_with_variables():
+
+    range_values = [float(i) for i in range(5,6)]
+    beta_min = .1
+    beta_max = 20
+    N = 1000
+    smooth_value = 1.5
+    number_of_replicates_per_call = 1000
+    vpsde = load_sde(beta_min, beta_max, N)
+    calls = 4
+    n = 32
+    for range_value in range_values:
+        for irep in range(calls):
+            generate_unconditional_fixed_ncs_images_multi(vpsde, score_model, n, range_value, smooth_value,
+                                                      number_of_replicates_per_call, irep)
+
 
 def split_extreme_unconditional_images():
 
@@ -128,4 +144,4 @@ def split_extreme_unconditional_images():
             break
 
 
-split_extreme_unconditional_images()
+generate_unconditional_fixed_ncs_images_multi_with_variables()

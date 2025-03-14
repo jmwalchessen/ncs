@@ -61,6 +61,49 @@ def produce_true_fcs_ncs_unconditional_marginal_density(n, range_value, smooth_v
     plt.clf()
 
 
+def produce_fcs_ncs_conditional_marginal_density(n, range_value, smooth_value,
+                                                        number_of_replicates, missing_index,
+                                                        conditional_fcs_samples,
+                                                        conditional_ncs_samples,
+                                                        mask,ref_image,
+                                                        figname):
+
+    #conditional_vectors is shape (number of replicates, m)
+    matrix_index = index_to_matrix_index(missing_index, n)
+    fcs_marginal_density = conditional_fcs_samples[:,int(matrix_index[0]),int(matrix_index[1])]
+    ncs_marginal_density = (conditional_ncs_samples[:,:,int(matrix_index[0]),int(matrix_index[1])]).reshape((number_of_replicates,1))
+
+    #fig, ax = plt.subplots(1)
+    #ax.hist(marginal_disalsotribution, density = True, histtype = 'step', bins = 100)
+    fig, axs = plt.subplots(ncols = 2, figsize = (10,5))
+    fcs_pdd = pd.DataFrame(fcs_marginal_density,
+                                    columns = None)
+    ncs_pdd = pd.DataFrame(ncs_marginal_density,
+                                    columns = None)
+    #partially_observed_field = np.multiply(mask.astype(bool), observed_vector.reshape((n,n)))
+    observed_indices = np.argwhere(mask.reshape((n,n)) > 0)
+    print(ref_image)
+    axs[0].imshow(np.log(ref_image).reshape((n,n)), vmin = -2, vmax = 6)
+    for j in range(observed_indices.shape[0]):
+        rect = Rectangle(((observed_indices[j,1]-.55), (observed_indices[j,0]-.55)), width=1, height=1, facecolor='none', edgecolor='r')
+        axs[0].add_patch(rect)
+    axs[0].plot(matrix_index[1], matrix_index[0], "rx", markersize = 20, linewidth = 20)
+    sns.kdeplot(data = ncs_pdd, palette = ["orange"], ax = axs[1])
+    sns.kdeplot(data = fcs_pdd, palette = ["purple"], ax = axs[1])
+    axs[1].axvline(x = np.log(ref_image[matrix_index[0],matrix_index[1]]), color = "red", linestyle = "dashed")
+    axs[1].set_title("Marginal")
+    axs[1].set_xlim(-2,8)
+    axs[1].set_ylim(0,.5)
+    index = matrix_index_to_index(matrix_index, n)
+    #location = index_to_spatial_location(minX, maxX, minY, maxY, n, index)
+    #rlocation = (round(location[0],2), round(location[1],2))
+    #axs[1].set_xlabel("location: " + str(rlocation))
+    axs[1].legend(labels = ['NCS', 'FCS'])
+    axs[0].set_xticks(ticks = [0,7,15,23,31], labels = [-10,-5,0,5,10])
+    axs[0].set_yticks(ticks = [0,7,15,23,31], labels = [-10,-5,0,5,10])
+    plt.savefig(figname)
+    plt.clf()
+
 def produce_true_fcs_ncs_unconditional_bivariate_density(n, range_value, smooth_value,
                                                         number_of_replicates, missing_index1,
                                                         missing_index2,
@@ -114,11 +157,11 @@ def produce_multiple_true_fcs_ncs_unconditional_marginal_densities_with_variable
 
     n = 32
     eval_folder = append_directory(2)
-    range_values = [float(i) for i in range(1,6)]
+    range_values = [float(i) for i in range(5,6)]
     smooth_value = 1.5
     number_of_replicates = 4000
-    missing_indices = [i for i in range(0,1000,35)]
-    ms = [i for i in range(1,8)]
+    missing_indices = [i for i in range(0,1000,5)]
+    ms = [i for i in range(7,8)]
     for m in ms:
         print(m)
         for range_value in range_values:
@@ -138,6 +181,37 @@ def produce_multiple_true_fcs_ncs_unconditional_marginal_densities_with_variable
                                                         unconditional_true_samples,
                                                         unconditional_ncs_samples,
                                                         mask,
+                                                        figname)
+
+
+def produce_multiple_true_fcs_ncs_conditional_marginal_densities_with_variables():
+
+    n = 32
+    eval_folder = append_directory(2)
+    range_values = [float(i) for i in range(5,6)]
+    smooth_value = 1.5
+    number_of_replicates = 4000
+    missing_indices = [i for i in range(0,1000,5)]
+    ms = [i for i in range(7,8)]
+    model_names = ["model11"]
+    for m in ms:
+        print(m)
+        for i, range_value in enumerate(range_values):
+            print(range_value)
+            for missing_index in missing_indices:
+                fcs_folder = (eval_folder + "/fcs")
+                ref_folder = (fcs_folder + "/data/conditional/obs" + str(m) + "/ref_image" + str(int(range_value)-1))
+                ref_image = np.load((ref_folder + "/ref_image.npy"))
+                conditional_fcs_samples = np.load((ref_folder + "/processed_log_scale_fcs_range_" + str(range_value) +
+                               "_smooth_1.5_nugget_1e5_obs_" + str(m) + "_" + str(number_of_replicates) + ".npy"))
+                conditional_ncs_samples = (np.load((ref_folder + "/diffusion/" + model_names[i] + "_range_" + str(range_value) + "_smooth_1.5_4000_random.npy")))
+                figname = (ref_folder + "/marginal_density/marginal_density_" + str(missing_index) + ".png")
+                mask = np.load((ref_folder + "/mask.npy"))
+                produce_fcs_ncs_conditional_marginal_density(n, range_value, smooth_value,
+                                                        number_of_replicates, missing_index,
+                                                        conditional_fcs_samples,
+                                                        conditional_ncs_samples,
+                                                        mask, ref_image,
                                                         figname)
                 
 
@@ -172,4 +246,4 @@ def produce_multiple_true_fcs_ncs_unconditional_bivariate_densities_with_variabl
                                                         mask,
                                                         figname)
                     
-produce_multiple_true_fcs_ncs_unconditional_bivariate_densities_with_variables()
+produce_multiple_true_fcs_ncs_unconditional_marginal_densities_with_variables()

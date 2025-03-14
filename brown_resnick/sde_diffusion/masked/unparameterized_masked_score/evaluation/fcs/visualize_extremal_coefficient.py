@@ -60,7 +60,7 @@ def visualize_fcs_ncs_true_extremal_coefficient_with_variables():
     for obs in obs_numbers:
         print(obs)
         obs_folder = "data/unconditional/fixed_locations/obs" + str(obs)
-        figname = (obs_folder + "/unconditional_fixed_locations_extremal_coefficient_nbins_" + str(bins) + "_visualization_obs_" + str(obs) + ".png")
+        figname = (obs_folder + "/unconditional_fixed_locations_model11_extremal_coefficient_nbins_" + str(bins) + "_visualization_obs_" + str(obs) + ".png")
         visualize_fcs_ncs_true_extremal_coefficient_multiple_ranges(range_values, smooth, bins, figname, nrep, obs)
 
 
