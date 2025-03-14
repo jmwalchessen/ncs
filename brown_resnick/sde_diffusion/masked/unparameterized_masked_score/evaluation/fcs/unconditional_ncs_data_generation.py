@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 
 from helper_functions import *
-score_model = load_score_model("brown", "model11/model11_wo_l2_beta_min_max_01_20_obs_num_7_smooth_1.5_range_5_channel_mask.pth", "eval")
+score_model = load_score_model("brown", "model9/model9_wo_l2_beta_min_max_01_20_obs_num_1_10_smooth_1.5_range_5_channel_mask.pth", "eval")
 vpsde = load_sde(beta_min = .1, beta_max = 20, N = 1000)
 
 def load_npfile(npfile):
@@ -88,11 +88,44 @@ def generate_unconditional_fixed_ncs_images_multi(vpsde, score_model, n, range_v
         ncs_images = ncs_images.detach().cpu().numpy()
         np.save(ncs_file,ncs_images)
 
-    
-n = 32
-range_value = 5.
-smooth_value = 1.5
-number_of_replicates = 1000
-for irep in range(4):
-    generate_unconditional_fixed_ncs_images_multi(vpsde, score_model, n, range_value, smooth_value,
-                                                  number_of_replicates, irep)
+
+
+def split_extreme_unconditional_images():
+
+    range_values = [float(i) for i in range(1,6)]
+    obsn = [i for i in range(1,8)]
+    n = 32
+    nrep = 4000
+    for range_value in range_values:
+        for obs in obsn:
+            ref_folder = "data/unconditional/fixed_locations/obs" + str(obs) + "/ref_image" + str(int(range_value-1))
+            ncs_images = np.load((ref_folder + "/diffusion/unconditional_fixed_ncs_images_range_" + str(range_value) + "_smooth_1.5_4000.npy"))
+            true_images = (np.log(np.load((ref_folder + "/true_brown_resnick_images_range_" + str(int(range_value)) + "_smooth_1.5_4000.npy")))).reshape((nrep,n,n))
+            mask = np.load((ref_folder + "/mask.npy"))
+            extreme_ncs_images = np.zeros((0,n,n))
+            nonextreme_ncs_images = np.zeros((0,n,n))
+            extreme_true_images = np.zeros((0,n,n))
+            nonextreme_true_images = np.zeros((0,n,n))
+            for irep in range(nrep):
+                observed_indices = np.argwhere(mask.reshape((n,n)) > 0)
+                print(observed_indices)
+                values = true_images[irep,observed_indices[:,0],observed_indices[:,1]]
+                print(values)
+                ncs_values = ncs_images[irep,observed_indices[:,0],observed_indices[:,1]]
+                print(ncs_values)
+                if(np.any(ncs_values) > 4.):
+                    extreme_ncs_images = np.concatenate([extreme_ncs_images,ncs_images[irep:(irep+1),:,:]],axis = 0)
+                    extreme_true_images = np.concatenate([extreme_true_images,true_images[irep:(irep+1),:,:]],axis = 0)
+                else:
+                    nonextreme_ncs_images = np.concatenate([extreme_ncs_images,ncs_images[irep:(irep+1),:,:]],axis = 0)
+                    nonextreme_true_images = np.concatenate([extreme_true_images,true_images[irep:(irep+1),:,:]],axis = 0)
+
+            print(extreme_ncs_images.shape)
+            np.save((ref_folder + "/diffusion/extreme_unconditional_fixed_ncs_images_range_" + str(range_value) + "_smooth_1.5_4000.npy"), extreme_ncs_images)
+            np.save((ref_folder + "/diffusion/nonextreme_unconditional_fixed_ncs_images_range_" + str(range_value) + "_smooth_1.5_4000.npy"), nonextreme_ncs_images)
+            np.save((ref_folder + "/extreme_true_brown_resnick_images_range_" + str(int(range_value)) + "_smooth_1.5_4000.npy"), extreme_true_images)
+            np.save((ref_folder + "/nonextreme_true_brown_resnick_images_range_" + str(int(range_value)) + "_smooth_1.5_4000.npy"), nonextreme_true_images)
+            break
+
+
+split_extreme_unconditional_images()
