@@ -4,10 +4,18 @@ import torch as th
 
 
 
-def visualize_ncs_and_fcs_timing_array(ncs_timing_file, fcs_time_array, tnrep, figname):
+def visualize_ncs_and_fcs_timing_array(figname):
 
-    ncs_time_array = np.load("data/model4/" + ncs_timing_file)
-    fcs_time_array = np.load("data/model4/" + fcs_time_array)
+    range_values = [float(i) for i in range(1,6)]
+    tnrep = 50
+    obs = [i for i in range(1,8)]
+    model_versions = [6,7,4,8,9]
+    ncs_times = np.zeros((len(range_values),len(obs),tnrep))
+    fcs_times = np.zeros((len(range_values),len(obs),tnrep))
+    for i in range(len(range_values)):
+        ncs_times[i,:,:] = np.load(("data/model" + str(model_versions) + "_range_" + str(range_values[i]) + 
+                                   "_ncs_timing_array_azure_gpu_1_7_tnrep_50.npy"))
+        fcs_times[i,:,:] = np.load("data/model4/" + fcs_time_array)
     ncs_spatial_location_numbers = ncs_time_array[:,0]
     fcs_spatial_location_numbers = np.array([i for i in range(1,8)])
     ncs_time_avg = np.mean(ncs_time_array[:,1:(tnrep+1)], axis = 1)
