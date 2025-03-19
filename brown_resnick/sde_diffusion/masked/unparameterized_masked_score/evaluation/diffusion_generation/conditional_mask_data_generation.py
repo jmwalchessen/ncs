@@ -9,8 +9,6 @@ evaluation_folder = append_directory(2)
 sys.path.append(evaluation_folder)
 from helper_functions import *
 
-score_model = load_score_model("brown", "model11/model11_wo_l2_beta_min_max_01_20_obs_num_7_smooth_1.5_range_5_channel_mask.pth", "eval")
-
 sdevp = load_sde(beta_min = .1, beta_max = 20, N = 1000)
 #mask is a True/False (1,32,32) vector with .5 randomly missing pixels
 #function gen_mask is in image_utils.py, 50 at end of random50 denotes
@@ -171,6 +169,7 @@ def generate_validation_data_with_multiple_reference_images(model_name, range_va
     replicates_per_call = 250
     calls = 4
     smooth_value = 1.5
+    score_model = load_score_model("brown", model_name)
     folder_name = (evaluation_folder + "/fcs/data/conditional/")
     validation_data_name = (model_name + "_range_" + str(range_value) + "_smooth_1.5_4000_random")
     for obs in range(7,8):
@@ -179,5 +178,13 @@ def generate_validation_data_with_multiple_reference_images(model_name, range_va
                                                                     replicates_per_call, calls, validation_data_name)
 
 
+def generate_validation_data_with_multiple_reference_images_with_variables():
 
-generate_validation_data_with_multiple_reference_images("model11", 5.)
+    model_names = ["model6/model6_wo_l2_beta_min_max_01_20_obs_num_1_10_smooth_1.5_range_1_channel_mask.pth",
+                   "model7/model7_wo_l2_beta_min_max_01_20_obs_num_1_10_smooth_1.5_range_2_channel_mask.pth",
+                   "model5/model5_beta_min_max_01_20_obs_num_1_10_smooth_1.5_range_3_channel_mask.pth",
+                   "model8/model8_wo_l2_beta_min_max_01_20_obs_num_1_10_smooth_1.5_range_4_channel_mask.pth",
+                   "model9/model9_wo_l2_beta_min_max_01_20_obs_num_1_10_smooth_1.5_range_5_channel_mask.pth"]
+    range_values = [float(i) for i in range(1,6)]
+    for i in range(0,5):
+        generate_validation_data_with_multiple_reference_images(model_names[i], range_values[i])
