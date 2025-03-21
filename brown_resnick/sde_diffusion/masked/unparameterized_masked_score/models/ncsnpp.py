@@ -430,7 +430,10 @@ class NCSNpp(nn.Module):
 
     return h
 
-
+vconfig = get_config()
+ncsn = NCSNpp(vconfig)
+n = 24
+print(ncsn.forward(torch.ones(1,2,n,n), torch.ones((1))))
 
 
 
