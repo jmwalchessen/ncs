@@ -71,6 +71,7 @@ def visualize_conditional_mean_observed_fcs_ncs(figname, m):
     range_values = [1.0,2.0,3.0,4.0,5.0]
     ncs_images = np.zeros((5,nrep,n,n))
     ncs_conditional_means = np.zeros((5,n,n))
+    model_versions = [6,7,5,8,9]
     for i in range(0, 5):
         ref_folder = (fcs_folder + "/data/conditional/obs" + str(m) + "/ref_image" + str(i))
         masks[i,:,:] = np.load((ref_folder + "/mask.npy"))
@@ -79,9 +80,8 @@ def visualize_conditional_mean_observed_fcs_ncs(figname, m):
                                str(nrep) + ".npy"))
         fcs_conditional_means[i,:,:] = (np.mean(fcs_images[i,:,:,:], axis = (0))).reshape((n,n))
         reference_images[i,:,:] = np.log(np.load((ref_folder + "/ref_image.npy")))
-        if(i == 2):
-            ncs_images[i,:,:,:] = (np.load((ref_folder + "/diffusion/model5_range_3.0_smooth_1.5_4000_random.npy"))).reshape((nrep,n,n))
-            ncs_conditional_means[i,:,:] = (np.mean(ncs_images[i,:,:,:], axis = (0))).reshape((n,n))
+        ncs_images[i,:,:,:] = (np.load((ref_folder + "/diffusion/model" + str(model_versions[i]) + "_range_" + str(range_values[i]) + "_smooth_1.5_4000_random.npy"))).reshape((nrep,n,n))
+        ncs_conditional_means[i,:,:] = (np.mean(ncs_images[i,:,:,:], axis = (0))).reshape((n,n))
 
     fig = plt.figure(figsize=(10,6))
     grid = ImageGrid(fig, 111,  # similar to subplot(111)
@@ -123,6 +123,6 @@ def visualize_conditional_mean_observed_fcs_ncs(figname, m):
     figname = (fcs_folder + "/data/conditional/obs" + str(m)  + "/" + figname)
     plt.savefig(figname)
 
-m = 1
+m = 7
 figname = "conditional_mean_field_obs" + str(m) + "_nugget_1e5_4000.png"
 visualize_conditional_mean_observed_fcs_ncs(figname, m)

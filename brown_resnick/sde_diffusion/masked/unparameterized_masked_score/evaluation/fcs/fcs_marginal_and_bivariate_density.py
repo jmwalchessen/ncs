@@ -82,7 +82,6 @@ def produce_fcs_ncs_conditional_marginal_density(n, range_value, smooth_value,
                                     columns = None)
     #partially_observed_field = np.multiply(mask.astype(bool), observed_vector.reshape((n,n)))
     observed_indices = np.argwhere(mask.reshape((n,n)) > 0)
-    print(ref_image)
     axs[0].imshow(np.log(ref_image).reshape((n,n)), vmin = -2, vmax = 6)
     for j in range(observed_indices.shape[0]):
         rect = Rectangle(((observed_indices[j,1]-.55), (observed_indices[j,0]-.55)), width=1, height=1, facecolor='none', edgecolor='r')
@@ -92,7 +91,7 @@ def produce_fcs_ncs_conditional_marginal_density(n, range_value, smooth_value,
     sns.kdeplot(data = fcs_pdd, palette = ["purple"], ax = axs[1])
     axs[1].axvline(x = np.log(ref_image[matrix_index[0],matrix_index[1]]), color = "red", linestyle = "dashed")
     axs[1].set_title("Marginal")
-    axs[1].set_xlim(-2,8)
+    axs[1].set_xlim(-2,10)
     axs[1].set_ylim(0,.5)
     index = matrix_index_to_index(matrix_index, n)
     #location = index_to_spatial_location(minX, maxX, minY, maxY, n, index)
@@ -188,12 +187,12 @@ def produce_multiple_true_fcs_ncs_conditional_marginal_densities_with_variables(
 
     n = 32
     eval_folder = append_directory(2)
-    range_values = [float(i) for i in range(5,6)]
+    range_values = [float(i) for i in range(4,5)]
     smooth_value = 1.5
     number_of_replicates = 4000
     missing_indices = [i for i in range(0,1000,5)]
-    ms = [i for i in range(7,8)]
-    model_names = ["model11"]
+    ms = [i for i in range(1,7)]
+    model_names = ["model9"]
     for m in ms:
         print(m)
         for i, range_value in enumerate(range_values):
@@ -246,4 +245,4 @@ def produce_multiple_true_fcs_ncs_unconditional_bivariate_densities_with_variabl
                                                         mask,
                                                         figname)
                     
-produce_multiple_true_fcs_ncs_unconditional_marginal_densities_with_variables()
+produce_multiple_true_fcs_ncs_conditional_marginal_densities_with_variables()
