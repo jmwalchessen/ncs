@@ -352,15 +352,15 @@ vp_ncsnpp_configuration = vp_ncsnpp_config.get_config()
 vpconfig = vp_ncsnpp_configuration
 
 
-data_draws = 20
+data_draws = 10
 epochs_per_data_draws = 20
-number_of_random_replicates = 256
+number_of_random_replicates = 64
 number_of_evaluation_random_replicates = 32
-number_of_masks_per_image = 200
+number_of_masks_per_image = 100
 number_of_evaluation_masks_per_image = 1
 #smaller p means less ones which means more observed values
 number_of_percentages = 50
-boundary_start = .01
+boundary_start = .005
 boundary_end = .525
 observed_number_start = 7
 observed_number_end = 8
@@ -369,20 +369,20 @@ batch_size = 512
 eval_batch_size = 10
 smooth_value = 1.5
 range_value = 5.0
-eval_p = .05
+eval_p = .01
 eval_range_value = 5.0
 eval_smooth_value = 1.5
 spatial_process_type = "brown"
 seed_values_list = [[(int(np.random.randint(0, 100000)), int(np.random.randint(0, 100000))) for j in range(0, number_of_percentages)] for i in range(0, data_draws)]
-score_model_path = "trained_score_models/vpsde/model11/model11_wo_l2_beta_min_max_01_20_obs_num_7_smooth_1.5_range_5_channel_mask.pth"
-loss_path = "trained_score_models/vpsde/model11/model11_wo_l2_beta_min_max_01_20_obs_num_7_smooth_1.5_range_5_channel_mask_loss.png"
-folder_name = "trained_score_models/vpsde/model11"
+score_model_path = "trained_score_models/vpsde/model12/model11_wo_l2_beta_min_max_005_20_1_525_smooth_1.5_range_5_channel_mask.pth"
+loss_path = "trained_score_models/vpsde/model12/model12_wo_l2_beta_min_max_01_20_005_525_smooth_1.5_range_5_channel_mask_loss.png"
+folder_name = "trained_score_models/vpsde/model12"
 torch.cuda.empty_cache()
-train_per_multiple_random_masks_observed_number_based_data_generation(vpconfig, data_draws, epochs_per_data_draws,
-                             observed_number_start, observed_number_end,
+train_per_multiple_random_masks_percentage_based_data_generation(vpconfig, data_draws, epochs_per_data_draws,
+                             number_of_percentages, boundary_start, boundary_end,
                              number_of_random_replicates,
                              number_of_evaluation_random_replicates,
                              number_of_masks_per_image, number_of_evaluation_masks_per_image,
                              seed_values_list, smooth_value, range_value, batch_size,
-                             eval_batch_size, score_model_path, loss_path, spatial_process_type, folder_name, eval_m)
+                             eval_batch_size, score_model_path, loss_path, spatial_process_type)
 
