@@ -123,6 +123,6 @@ def visualize_conditional_mean_observed_fcs_ncs(figname, m):
     figname = (fcs_folder + "/data/conditional/obs" + str(m)  + "/" + figname)
     plt.savefig(figname)
 
-m = 7
+m = 1
 figname = "conditional_mean_field_obs" + str(m) + "_nugget_1e5_4000.png"
 visualize_conditional_mean_observed_fcs_ncs(figname, m)

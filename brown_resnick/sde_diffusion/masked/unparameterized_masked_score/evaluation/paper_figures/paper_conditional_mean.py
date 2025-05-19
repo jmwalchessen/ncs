@@ -6,6 +6,7 @@ import os
 import sys
 from append_directories import *
 from paper_figure_helper_functions import *
+from matplotlib.patches import Rectangle
 
 def visualize_conditional_mean_observed_and_diffusion(figname, n, model_name):
 
@@ -61,9 +62,79 @@ def visualize_conditional_mean_observed_and_diffusion(figname, n, model_name):
     plt.tight_layout()
     plt.savefig(figname)
 
-range_value = 3.0
-smooth_value = 1.5
-model_name = "model4"
-n = 32
-figname = "figures/br_percentage_conditional_mean_model4.png"
-visualize_conditional_mean_observed_and_diffusion(figname, n, model_name)
+def visualize_conditional_mean_fcs_ncs(range_value, model_version, figname):
+
+    nrep = 4000
+    obs_numbers = [1,2,3,5,7]
+    n = 32
+    evaluation_folder = append_directory(2)
+    fcs_images = np.zeros((len(obs_numbers),nrep,n,n))
+    ref_images = np.zeros((len(obs_numbers),n,n))
+    ncs_images = np.zeros((len(obs_numbers),nrep,n,n))
+    fcs_means = np.zeros((len(obs_numbers),n,n))
+    ncs_means = np.zeros((len(obs_numbers),n,n))
+    masks = np.zeros((len(obs_numbers),n,n))
+    fig = plt.figure(figsize=(10,4))
+    grid = ImageGrid(fig, 111,  # similar to subplot(111)
+                 nrows_ncols=(3, 5),  # creates 2x2 grid of Axes
+                 axes_pad=0.1,  # pad between Axes in inch.
+                 cbar_mode="single"
+                 )
+    
+    for i in range(len(obs_numbers)):
+        fcs_images[i,:,:,:] = np.load((evaluation_folder + "/fcs/data/conditional/obs" + str(obs_numbers[i])
+                                     + "/ref_image" + str(int(range_value-1)) + "/processed_log_scale_fcs_range_" + str(range_value)
+                                     + "_smooth_1.5_nugget_1e5_obs_" + str(obs_numbers[i]) + "_" + str(nrep) + ".npy"))
+        ref_images[i,:,:] = np.log(np.load((evaluation_folder + "/fcs/data/conditional/obs" + str(obs_numbers[i]) + 
+                                     "/ref_image" + str(int(range_value-1)) + "/ref_image.npy")))
+        masks[i,:,:] = np.load((evaluation_folder + "/fcs/data/conditional/obs" + str(obs_numbers[i]) + "/ref_image"
+                                + str(int(range_value-1)) + "/mask.npy"))
+        ncs_images[i,:,:,:] = (np.load((evaluation_folder + "/fcs/data/conditional/obs" + str(obs_numbers[i])
+                                     + "/ref_image" + str(int(range_value-1)) + "/diffusion/model" + str(model_version) + "_range_"
+                                     + str(range_value) + "_smooth_1.5_" + str(nrep) + "_random.npy"))).reshape((nrep,n,n))
+        ncs_means[i,:,:] = np.mean(ncs_images[i,:,:,:], axis = 0)
+        fcs_means[i,:,:] = np.mean(fcs_images[i,:,:,:], axis = 0)
+
+    fig = plt.figure(figsize=(10,6))
+    grid = ImageGrid(fig, 111,  # similar to subplot(111)
+                 nrows_ncols=(3, 5),  # creates 2x2 grid of Axes
+                 axes_pad=0.1,  # pad between Axes in inch.
+                 cbar_mode="single"
+                 )
+    
+    for i, ax in enumerate(grid):
+
+        if(i < 5):
+            im = ax.imshow(ref_images[(i % 5),:,:], cmap='viridis', vmin = -2, vmax = 6,
+                           alpha = (masks[(i % 5),:,:].astype(float)))
+            observed_indices = np.argwhere(masks[(i%5),:,:].reshape((n,n)) > 0)
+            for j in range(observed_indices.shape[0]):
+                rect = Rectangle(((observed_indices[j,1]-.55), (observed_indices[j,0]-.55)), width=1, height=1, facecolor='none', edgecolor='r')
+                ax.add_patch(rect)
+            ax.set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
+            ax.set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
+        elif(i < 10):
+            im = ax.imshow(fcs_means[(i % 5),:,:], cmap='viridis', vmin = -2, vmax = 6)
+            observed_indices = np.argwhere(masks[(i%5),:,:].reshape((n,n)) > 0)
+            for j in range(observed_indices.shape[0]):
+                rect = Rectangle(((observed_indices[j,1]-.55), (observed_indices[j,0]-.55)), width=1, height=1, facecolor='none', edgecolor='r')
+                ax.add_patch(rect)
+            ax.set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
+            ax.set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
+
+        else:
+            im = ax.imshow(ncs_means[(i % 5),:,:], cmap='viridis', vmin = -2, vmax = 6,
+                           )
+            observed_indices = np.argwhere(masks[(i%5),:,:].reshape((n,n)) > 0)
+            for j in range(observed_indices.shape[0]):
+                rect = Rectangle(((observed_indices[j,1]-.55), (observed_indices[j,0]-.55)), width=1, height=1, facecolor='none', edgecolor='r')
+                ax.add_patch(rect)
+            ax.set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
+            ax.set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
+
+
+    ax.cax.colorbar(im)
+    plt.tight_layout()
+    plt.savefig(figname)
+
+

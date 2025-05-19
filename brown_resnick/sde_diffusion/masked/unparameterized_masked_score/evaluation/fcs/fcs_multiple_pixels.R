@@ -341,7 +341,7 @@ generate_fcs_with_temporary_data_fixed_mask <- function(n, nrep, range, smooth, 
 generate_fixed_locations_unconditional_fcs_multiple_ranges_multipe_obs_with_variables <- function()
 {
   range_values <- c(3.)
-  ms <- c(7)
+  ms <- c(8)
   n <- 32
   nrep <- 4000
   np <- import("numpy")

@@ -89,19 +89,26 @@ def visualize_observed_and_diffusion(lengthscale, variance, figname, n, model_na
             im = ax.imshow(reference_visualizations[(i % 5),:,:], cmap='viridis', vmin = -4, vmax = 4,
                            alpha = (masks[(i % 5),:,:].astype(float)))
             ax.set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
-            ax.set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
+            ax.set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]), fontsize = 15)
         elif(i < 10):
             im = ax.imshow(true_visualizations[(i % 5),:,:], cmap='viridis', vmin = -4, vmax = 4)
             ax.set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
-            ax.set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
+            ax.set_yticks(ticks = [8, 16, 24], labels = np.array([-5,0,5]), fontsize = 15)
 
         else:
             im = ax.imshow(diffusion_visualizations[(i % 5),:,:], cmap='viridis', vmin = -4, vmax = 4)
-            ax.set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
-            ax.set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
+            if((i % 2) == 0):
+                ax.set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]), fontsize = 15)
+                ax.set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]), fontsize = 15)
+            else:
+                ax.set_xticks(ticks = [8, 16, 24], labels = np.array([-5,0,5]), fontsize = 15)
+                ax.set_yticks(ticks = [8, 16, 24], labels = np.array([-5,0,5]), fontsize = 15)
 
 
-    ax.cax.colorbar(im)
+    cbar = ax.cax.colorbar(im)
+    cbar.ax.tick_params(labelsize=15)
+    fig.text(x = .4, y = .95, s = "Percentage U-Net", fontsize = 25)
+    plt.tight_layout()
     plt.savefig(figname)
 
 variance = 1.5

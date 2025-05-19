@@ -94,6 +94,7 @@ collect_time_fcs <- function(n, nrep, range, smooth, nugget, time_nrep, spatial_
             user_time_array[i,j] <- current_time[1]
             sys_time_array[i,j] <- current_time[2]
             elapsed_time_array[i,j] <- current_time[3]
+            print(current_time)
         }
     }
     np$save(user_time_array_file, user_time_array)
@@ -109,16 +110,16 @@ nrep <- 1
 smooth <- 1.5
 nugget <- .00001
 time_nrep <- 50
-spatial_location_numbers <- seq(1,7,1)
+spatial_location_numbers <- seq(7,10,1)
 range_values <- seq(1,5,1)
 for(i in 1:length(range_values))
 {
   user_time_array_file <- paste(paste("data/range", as.character(range_values[i]), sep = "_"),
-                                    "fcs_user_timing_azure_gpu_1_7_tnrep_50.npy", sep = "_")
+                                    "fcs_user_timing_azure_gpu_8_10_tnrep_50.npy", sep = "_")
   sys_time_array_file <- paste(paste("data/range", as.character(range_values[i]), sep = "_"),
-                                    "fcs_system_timing_azure_gpu_1_7_tnrep_50.npy", sep = "_")
+                                    "fcs_system_timing_azure_gpu_8_10_tnrep_50.npy", sep = "_")
   elapsed_time_array_file <- paste(paste("data/range", as.character(range_values[i]), sep = "_"),
-                                    "fcs_elapsed_timing_azure_gpu_1_7_tnrep_50.npy", sep = "_")
+                                    "fcs_elapsed_timing_azure_gpu_8_10_tnrep_50.npy", sep = "_")
   collect_time_fcs(n, nrep, range_values[i], smooth, nugget, time_nrep, spatial_location_numbers,
                  user_time_array_file, sys_time_array_file, elapsed_time_array_file)
 }

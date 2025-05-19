@@ -76,7 +76,7 @@ def visualize_ncs_vs_univariate_lcs_marginal_and_bivariate_density(model_name, u
     # set width of each subplot as 8
     fig.set_figwidth(10)
     spec = gridspec.GridSpec(ncols=5, nrows=3,
-                         width_ratios=[1,1,1,1,1], wspace=0.1,
+                         width_ratios=[1,1,1,1,1], wspace=0.15,
                          hspace=0.25, height_ratios=[1, 1, 1])
     
     for i in range(0,15):
@@ -88,29 +88,29 @@ def visualize_ncs_vs_univariate_lcs_marginal_and_bivariate_density(model_name, u
             matrix_index1 = index_to_matrix_index(missing_index1, n)
             matrix_index2 = index_to_matrix_index(missing_index2, n)
             im = ax.imshow(reference_images[i,:,:], cmap = 'viridis', vmin = -2, vmax = 6, alpha = masks[i,:,:].astype(float))
-            ax.plot(matrix_index[1], matrix_index[0], "rP", markersize = 6, linewidth = 20)
+            ax.plot(matrix_index[1], matrix_index[0], "rP", markersize = 15, linewidth = 20)
             if(i == 0):
-                ax.set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
+                ax.set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]), fontsize = 15)
             else:
                 ax.set_yticks([])
-            ax.set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
-            ax.plot(matrix_index1[1], matrix_index1[0], "r*", markersize = 6, linewidth = 20)
-            ax.plot(matrix_index2[1], matrix_index2[0], "r*", markersize = 6, linewidth = 20)
+            ax.set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]), fontsize = 15)
+            ax.plot(matrix_index1[1], matrix_index1[0], "r*", markersize = 15, linewidth = 20)
+            ax.plot(matrix_index2[1], matrix_index2[0], "r*", markersize = 15, linewidth = 20)
         elif(i < 10):
-            sns.kdeplot(diffusion_marginal_densities[(i % 5),:], ax = ax, color = 'orange')
             sns.kdeplot(univariate_lcs_marginal_densities[(i % 5),:], ax = ax, color = 'purple')
+            sns.kdeplot(diffusion_marginal_densities[(i % 5),:], ax = ax, color = 'orange', linestyle = "dashed")
             ax.axvline(reference_images[(i%5),matrix_index[1],matrix_index[0]], color='red', linestyle = 'dashed')
             ax.set_xlim([-2,6])
             ax.set_ylim([0,1.75])
             ax.set_ylabel("")
             ax.set_yticks(ticks = [.5, 1, 1.5], labels = np.array([.5,1,1.5]))
             ax.tick_params(axis='both', which='major', labelsize=5, labelrotation=0)
-            ax.legend(labels = ['NCS', 'LCS'], fontsize = 7)
             if(i == 5):
-                ax.set_yticks([0.,.5,1.,1.5], [0.,.5,1.,1.5], fontsize = 10)
+                ax.set_yticks([0.,.5,1.,1.5], [0.,.5,1.,1.5], fontsize = 15)
+                ax.legend(labels = ['NCS', 'LCS'], fontsize = 12)
             else:
                 ax.set_yticks([])
-            ax.set_xticks([-2,0,2,4,6], [-2,0,2,4,6], fontsize = 10)
+            ax.set_xticks([-2,0,2,4,6], [-2,0,2,4,6], fontsize = 15)
         else:
             missing_index1 = missing_indices1[(i%5)]
             missing_index2 = missing_indices2[(i%5)]
@@ -120,9 +120,6 @@ def visualize_ncs_vs_univariate_lcs_marginal_and_bivariate_density(model_name, u
                                ax = ax, color = 'purple', alpha = .5)
             kde2 = sns.kdeplot(x = bivariate_densities[(i%5),:,0], y = bivariate_densities[(i%5),:,1],
                                ax = ax, color = 'orange', alpha = .5)
-            orange_patch = mpatches.Patch(color='orange')
-            purple_patch = mpatches.Patch(color='purple')
-            ax.legend(handles = [orange_patch, purple_patch], labels = ['NCS', 'LCS'], fontsize = 7)
             ax.set_xlabel("")
             ax.set_ylabel("")
             ax.axvline(reference_images[(i%5),matrix_index1[0],matrix_index1[1]], color='red', linestyle = 'dashed')
@@ -130,10 +127,13 @@ def visualize_ncs_vs_univariate_lcs_marginal_and_bivariate_density(model_name, u
             ax.set_xlim([-2,6])
             ax.set_ylim([-2,6])
             if(i == 10):
-                ax.set_yticks([-2,0,2,4,6], [-2,0,2,4,6])
+                op = mpatches.Patch(color='orange')
+                pp = mpatches.Patch(color='purple')
+                ax.set_yticks([-2,0,2,4,6], [-2,0,2,4,6], fontsize = 15)
+                ax.legend(handles = [op,pp], labels = ['NCS', 'LCS'], fontsize = 12)
             else:
                 ax.set_yticks([])
-            ax.set_xticks([-2,0,2,4,6], [-2,0,2,4,6])
+            ax.set_xticks([-2,0,2,4,6], [-2,0,2,4,6], fontsize = 15)
 
     plt.tight_layout()
     plt.savefig(figname)

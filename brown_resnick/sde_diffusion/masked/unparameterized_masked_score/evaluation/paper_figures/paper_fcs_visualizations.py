@@ -146,7 +146,7 @@ def visualize_fcs_ncs_multiple_obs_fixed_range(evaluation_folder, range_value, o
                 rect = Rectangle(((observed_indices[j,1]-.55), (observed_indices[j,0]-.55)), width=1, height=1, facecolor='none', edgecolor='r')
                 ax.add_patch(rect)
         else:
-            im = ax.imshow(ncs_images[(i%5),5,:,:], cmap='viridis', vmin = -2, vmax = 6)
+            im = ax.imshow(ncs_images[(i%5),190,:,:], cmap='viridis', vmin = -2, vmax = 6)
             ax.set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
             ax.set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
             observed_indices = np.argwhere(masks[(i%5),:,:] > 0)
@@ -171,4 +171,92 @@ def visualize_fcs_ncs_multiple_obs_fixed_range_with_variables():
         visualize_fcs_ncs_multiple_obs_fixed_range(evaluation_folder, range_value, obs_numbers, n, figname, folder_name,
                                                    model_versions[i])
         
-visualize_fcs_ncs_multiple_obs_fixed_range_with_variables()
+
+def visualize_fcs_ncs_multiple_ranges_fixed_obs(evaluation_folder, range_values, obs, n,
+                                                figname, folder_name, model_versions):
+    nrep = 4000
+    fcs_images = np.zeros((len(range_values),nrep,n,n))
+    ref_images = np.zeros((len(range_values),n,n))
+    ncs_images = np.zeros((len(range_values),nrep,n,n))
+    masks = np.zeros((len(range_values),n,n))
+    fig = plt.figure(figsize=(10,6))
+    grid = ImageGrid(fig, 111,  # similar to subplot(111)
+                 nrows_ncols=(3, 5),  # creates 2x2 grid of Axes
+                 axes_pad=0.1,  # pad between Axes in inch.
+                 cbar_mode="single"
+                 )
+    
+    for i in range(len(range_values)):
+        print(range_values[i])
+        fcs_images[i,:,:,:] = np.load((evaluation_folder + "/fcs/data/conditional/obs" + str(obs)
+                                     + "/ref_image" + str(int(range_values[i]-1)) + "/processed_log_scale_fcs_range_" + str(range_values[i])
+                                     + "_smooth_1.5_nugget_1e5_obs_" + str(obs) + "_" + str(nrep) + ".npy"))
+        ref_images[i,:,:] = np.load((evaluation_folder + "/fcs/data/conditional/obs" + str(obs) + 
+                                     "/ref_image" + str(int(range_values[i]-1)) + "/ref_image.npy"))
+        masks[i,:,:] = np.load((evaluation_folder + "/fcs/data/conditional/obs" + str(obs) + "/ref_image"
+                                + str(int(range_values[i]-1)) + "/mask.npy"))
+        print((evaluation_folder + "/fcs/data/conditional/obs" + str(obs)
+                                     + "/ref_image" + str(int(range_values[i]-1)) + "/diffusion/model" + str(model_versions[i]) + "_range_"
+                                     + str(range_values[i]) + "_smooth_1.5_" + str(nrep) + "_random.npy"))
+        ncs_images[i,:,:,:] = (np.load((evaluation_folder + "/fcs/data/conditional/obs" + str(obs)
+                                     + "/ref_image" + str(int(range_values[i]-1)) + "/diffusion/model" + str(model_versions[i]) + "_range_"
+                                     + str(range_values[i]) + "_smooth_1.5_" + str(nrep) + "_random.npy"))).reshape((nrep,n,n))
+        
+
+    ref_images[ref_images != 0] = np.log(ref_images[ref_images != 0])
+
+    for i, ax in enumerate(grid):
+        if(i < 5):
+            im = ax.imshow(ref_images[i,:,:], cmap='viridis', vmin = -2, vmax = 6)
+            ax.set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
+            ax.set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]), fontsize = 15)
+            observed_indices = np.argwhere(masks[i,:,:] > 0)
+            for j in range(observed_indices.shape[0]):
+                rect = Rectangle(((observed_indices[j,1]-.55), (observed_indices[j,0]-.55)), width=1, height=1, facecolor='none', edgecolor='r')
+                ax.add_patch(rect)
+        elif(i<10):
+            im = ax.imshow(fcs_images[(i%5),6,:,:], cmap='viridis', vmin = -2, vmax = 6)
+            ax.set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]),
+                          fontsize = 15)
+            ax.set_yticks(ticks = [8, 16, 24], labels = np.array([-5,0,5]), fontsize = 15)
+            observed_indices = np.argwhere(masks[(i%5),:,:] > 0)
+            for j in range(observed_indices.shape[0]):
+                rect = Rectangle(((observed_indices[j,1]-.55), (observed_indices[j,0]-.55)), width=1, height=1, facecolor='none', edgecolor='r')
+                ax.add_patch(rect)
+        else:
+
+            im = ax.imshow(ncs_images[(i%5),19,:,:], cmap='viridis', vmin = -2, vmax = 6)
+            if((i % 2) == 0):
+                ax.set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]), fontsize = 15)
+                ax.set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]), fontsize = 15)
+            else:
+                ax.set_xticks(ticks = [8, 16, 24], labels = np.array([-5,0,5]), fontsize = 15)
+                ax.set_yticks(ticks = [8, 16, 24], labels = np.array([-5,0,5]), fontsize = 15)
+            observed_indices = np.argwhere(masks[(i%5),:,:] > 0)
+            for j in range(observed_indices.shape[0]):
+                rect = Rectangle(((observed_indices[j,1]-.55), (observed_indices[j,0]-.55)), width=1, height=1, facecolor='none', edgecolor='r')
+                ax.add_patch(rect)
+
+    cbar = ax.cax.colorbar(im)
+    cbar.ax.tick_params(labelsize=15)
+    plt.tight_layout()
+    plt.savefig((folder_name + "/" + figname))
+
+
+
+def visualize_fcs_ncs_multiple_ranges_fixed_obs_with_variables():
+    
+    evaluation_folder = append_directory(2)
+    obs = 3
+    n = 32
+    range_values = [float(i) for i in range(1,6)]
+    obs_numbers = [i for i in range(1,8)]
+    model_versions = [6,7,5,8,9]
+    for i,obs in enumerate(obs_numbers):
+        figname = "paper_fcs_ncs_conditional_visualizations_obs_" + str(obs) + ".png"
+        folder_name = "figures/one_to_seven"
+        visualize_fcs_ncs_multiple_ranges_fixed_obs(evaluation_folder, range_values, obs, n, figname, folder_name,
+                                                   model_versions)
+        
+
+visualize_fcs_ncs_multiple_ranges_fixed_obs_with_variables()

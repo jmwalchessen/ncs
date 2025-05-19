@@ -53,8 +53,10 @@ def return_timings_multiple_ranges(tnrep):
                    "model5/model5_wo_l2_beta_min_max_01_20_obs_num_1_10_smooth_1.5_range_3_channel_mask.pth",
                    "model8/model8_wo_l2_beta_min_max_01_20_obs_num_1_10_smooth_1.5_range_4_channel_mask.pth",
                    "model9/model9_wo_l2_beta_min_max_01_20_obs_num_1_10_smooth_1.5_range_5_channel_mask.pth"]
-    model_versions = [6,7,5,8,9]
-    range_values = [float(i) for i in range(1,6)]
+    #model_versions = [6,7,5,8,9]
+    model_versions = [5]
+    #range_values = [float(i) for i in range(1,6)]
+    range_values = [3.]
     smooth_value = 1.5
     n = 32
     number_of_locations_list = [i for i in range(8,11)]

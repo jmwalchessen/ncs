@@ -83,16 +83,14 @@ def visualize_marginal_and_bivariate_density(model_name, missing_indices, missin
             matrix_index1 = index_to_matrix_index(missing_indices1[i], n)
             matrix_index2 = index_to_matrix_index(missing_indices2[i], n)
             im = ax.imshow(reference_images[i,:,:], cmap = 'viridis', vmin = -4, vmax = 4, alpha = masks[i,:,:].astype(float))
-            ax.plot(matrix_index[1], matrix_index[0], "rP", markersize = 6, linewidth = 20)
-            ax.set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
-            ax.set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
-            ax.plot(matrix_index1[1], matrix_index1[0], "r*", markersize = 6, linewidth = 20)
-            ax.plot(matrix_index2[1], matrix_index2[0], "r*", markersize = 6, linewidth = 20)
+            ax.plot(matrix_index[1], matrix_index[0], "rP", markersize = 15, linewidth = 20)
+            ax.plot(matrix_index1[1], matrix_index1[0], "r*", markersize = 15, linewidth = 20)
+            ax.plot(matrix_index2[1], matrix_index2[0], "r*", markersize = 15, linewidth = 20)
             if(i == 0):
-                ax.set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
+                ax.set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]), fontsize = 15)
             else:
                 ax.set_yticks([])
-            ax.set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
+            ax.set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]), fontsize = 15)
 
         elif(i < 10):
             matrix_index = index_to_matrix_index(missing_indices[(i%5)], n)
@@ -103,11 +101,11 @@ def visualize_marginal_and_bivariate_density(model_name, missing_indices, missin
             ax.set_ylim([0,1])
             ax.set_ylabel("")
             if(i == 5):
-                ax.set_yticks([0.,.25,.5,.75,1.], [0.,.25,.5,.75,1.])
+                ax.set_yticks([0.,.5,1.], [0.,.5,1.], fontsize = 15)
+                ax.legend(labels = ['true', 'NCS'], fontsize = 12)
             else:
                 ax.set_yticks([])
-            ax.set_xticks([-4,-2,0,2,4], [-4,-2,0,2,4])
-            ax.legend(labels = ['true', 'NCS'], fontsize = 7)
+            ax.set_xticks([-4,-2,0,2,4], [-4,-2,0,2,4], fontsize = 15)
         else:
             missing_index1 = missing_indices1[(i%5)]
             missing_index2 = missing_indices2[(i%5)]
@@ -117,10 +115,10 @@ def visualize_marginal_and_bivariate_density(model_name, missing_indices, missin
                                     columns = ['x', 'y', 'class'])
             pdd = pdd.astype({'x': 'float64', 'y': 'float64', 'class': 'float64'})
             kde1 = sns.kdeplot(data = pdd, x = 'x', y = 'y', ax = ax, hue = 'class',
-                               fill = False, levels = [.1,.2,.3,.4,.5,.6,.7,.8,.9,.95,.99], alpha = .5)
+                               fill = False, levels = [.1,.2,.3,.4,.5,.6,.7,.8,.9,.95,.99], alpha = .5,
+                               legend = False)
             blue_patch = mpatches.Patch(color='blue')
             orange_patch = mpatches.Patch(color='orange')
-            ax.legend(handles = [blue_patch, orange_patch], labels = ['true', 'NCS'], fontsize = 7)
             ax.axvline(reference_images[(i%5),matrix_index1[0],matrix_index1[1]], color='red', linestyle = 'dashed')
             ax.axhline(reference_images[(i%5),matrix_index2[0],matrix_index2[1]], color='red', linestyle = 'dashed')
             ax.set_xlim([-4.5,4.5])
@@ -128,23 +126,28 @@ def visualize_marginal_and_bivariate_density(model_name, missing_indices, missin
             ax.set_ylabel("")
             ax.set_xlabel("")
             if(i == 10):
-                ax.set_yticks([-4,-2,0,2,4], [-4,-2,0,2,4])
+                ax.set_yticks([-4,-2,0,2,4], [-4,-2,0,2,4], fontsize = 15)
             else:
                 ax.set_yticks([])
-            ax.set_xticks([-4,-2,0,2,4], [-4,-2,0,2,4])
+            if(i == 14):
+                ax.legend(handles = [blue_patch, orange_patch], labels = ['true', 'NCS'], fontsize = 12)
+            ax.set_xticks([-4,-2,0,2,4], [-4,-2,0,2,4], fontsize = 15)
 
     #fig.colorbar(im, shrink = 1)
     plt.tight_layout()
     plt.savefig(figname)
     plt.clf()
 
-model_name = "model7"
-missing_indices = [845, 700, 200, 301, 118]
-n = 32
-nrep = 4000
-variance = 1.5
-figname = "figures/gp_parameter_marginal_bivariate_density_model7_random05.png"
-missing_indices1 = [232,360,658,493,567]
-missing_indices2 = [233,362,654,505,568]
-visualize_marginal_and_bivariate_density(model_name, missing_indices, missing_indices1, missing_indices2,
-                                             n, nrep, variance, figname)
+def visualize_marginal_and_bivariate_density_with_variables():
+    model_name = "model7"
+    missing_indices = [845, 700, 200, 301, 118]
+    n = 32
+    nrep = 4000
+    variance = 1.5
+    figname = "figures/gp_parameter_marginal_bivariate_density_model7_random05.png"
+    missing_indices1 = [232,360,658,493,567]
+    missing_indices2 = [233,362,654,505,568]
+    visualize_marginal_and_bivariate_density(model_name, missing_indices, missing_indices1, missing_indices2,
+                                                n, nrep, variance, figname)
+    
+visualize_marginal_and_bivariate_density_with_variables()

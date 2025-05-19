@@ -64,54 +64,68 @@ def visualize_ncs_and_true_extremal_coefficient_and_high_dimensional_summary_met
             ax.plot(h, ext_coeff, "blue")
             ax.plot(h, ncs_ext_coeff, "orange", linestyle = "dashed")
             if(i == 0):
-                ax.set_xlabel("Distance Lag (h)")
-                ax.set_ylabel("2-Extremal Coefficient")
+                ax.set_xlabel("Distance Lag (h)", fontsize = 15)
+                ax.set_ylabel("2-Extremal Coeff.", fontsize = 15)
+                ax.set_yticks(ticks = [0,.25,.5,.75], labels = np.array([0.,.25,.5,.75]), fontsize = 15)
+                ax.set_xticks([])
+                #ax.set_xticks(ticks = [0,10,20], labels = np.array([0,10,20]), fontsize = 15)
             else:
                 ax.set_xlabel("")
                 ax.set_ylabel("")
-            ax.legend(labels = ['true', 'NCS'], fontsize = 7)
+            if(i != 0):
+                ax.set_xticks(ticks = [0,10,20], labels = np.array([0,10,20]), fontsize = 15)
+                ax.set_yticks([])
+
+            if(i == 4):
+                ax.legend(labels = ['true', 'NCS'], fontsize = 13.5)
         
         elif(i < 10):
             ncspdd = pd.DataFrame(ncs_mins[(i%5),:], columns = None)
             truepdd = pd.DataFrame(true_mins[(i%5),:], columns = None)
-            sns.kdeplot(data = truepdd, palette = ['blue'], ax = ax, legend = True)
-            sns.kdeplot(data = ncspdd, palette =['orange'], ax = ax, legend = True)
-            ax.legend(labels = ['true', 'NCS'], fontsize = 7)
+            sns.kdeplot(data = truepdd, palette = ['blue'], ax = ax, legend = False)
+            sns.kdeplot(data = ncspdd, palette =['orange'], ax = ax, legend = False)
             ax.set_xlim((-3,1))
             ax.set_ylim((0,1.5))
             ax.set_xlabel("")
             ax.set_ylabel("")
             if(i != 5):
-                #ax.set_xticks([])
+                ax.set_xticks(ticks = [-2.,0.], labels = np.array([-2.,0.]), fontsize = 15)
                 ax.set_yticks([])
+            else:
+                ax.set_xticks(ticks = [-2.,0.], labels = np.array([-2.,0.]), fontsize = 15)
+                ax.set_yticks(ticks = [0.,.5,1.,1.5], labels = np.array([0.,.5,1.,1.5]), fontsize = 15)
         
         elif(i < 15):
             ncspdd = pd.DataFrame(ncs_maxs[(i%5),:], columns = None)
             truepdd = pd.DataFrame(true_maxs[(i%5),:], columns = None)
-            sns.kdeplot(data = truepdd, palette = ['blue'], ax = ax, legend = True)
-            sns.kdeplot(data = ncspdd, palette =['orange'], ax = ax, legend = True)
-            ax.legend(labels = ['true', 'NCS'], fontsize = 7)
+            sns.kdeplot(data = truepdd, palette = ['blue'], ax = ax, legend = False)
+            sns.kdeplot(data = ncspdd, palette =['orange'], linestyle = "dashed", ax = ax, legend = False)
             ax.set_xlim((0,15))
             ax.set_ylim((0,.45))
             ax.set_xlabel("")
             ax.set_ylabel("")
             if(i != 10):
-                #ax.set_xticks([])
+                ax.set_xticks(ticks = [0,5,10,15], labels = np.array([0,5,10,15]), fontsize = 15)
                 ax.set_yticks([])
+            else:
+                ax.set_xticks(ticks = [0,5,10,15], labels = np.array([0,5,10,15]), fontsize = 15)
+                ax.set_yticks(ticks = [0.,.2,.4], labels = np.array([0.,.2,.4]), fontsize = 15)
 
         else:
             ncspdd = pd.DataFrame(ncs_abs_summation[(i%5),:], columns = None)
             truepdd = pd.DataFrame(true_abs_summation[(i%5),:], columns = None)
-            sns.kdeplot(data = truepdd, palette = ['blue'], ax = ax, legend = True)
-            sns.kdeplot(data = ncspdd, palette =['orange'], ax = ax, legend = True)
-            ax.legend(labels = ['true', 'NCS'], fontsize = 7)
+            sns.kdeplot(data = truepdd, palette = ['blue'], ax = ax, legend = False)
+            sns.kdeplot(data = ncspdd, palette =['orange'],linestyle = "dashed", ax = ax, legend = False)
             ax.set_xlim((0,5000))
             ax.set_ylim((0,.0025))
             ax.set_xlabel("")
             ax.set_ylabel("")
             if(i != 15):
-                #ax.set_xticks([])
+                ax.set_xticks(ticks = [0,2500,5000], labels = np.array([0,2500,5000]), fontsize = 15)
                 ax.set_yticks([])
+            else:
+                ax.set_xticks(ticks = [0,2500,5000], labels = np.array([0,2500,5000]), fontsize = 15)
+                ax.set_yticks(ticks = [0.,.001,.002], labels = np.array([0,.001,.002]), fontsize = 15)
         
     #fig.text(0.3, .9, "Extremal Coefficient", fontsize = 15)
     plt.tight_layout()
