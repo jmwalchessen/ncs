@@ -72,19 +72,24 @@ def visualize_true_and_diffusion_correlation_maps(missing_indices, n, nrep,
                 im = ax.imshow(true_cov_images[i,:,:], cmap='viridis', vmin = 0, vmax = 1,
                             alpha = (1-masks[(i % 5),:,:].astype(float)))
                 ax.set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
-                ax.set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
+                ax.set_yticks(ticks = [0,8, 16, 24,31], labels = np.array([-10,-5,0,5,10]), fontsize = 15)
             elif(i < 10):
                 im = ax.imshow(diffusion_cov_images[(i % 5),:,:], cmap='viridis', vmin = 0, vmax = 1,
                             alpha = (1-masks[(i % 5),:,:].astype(float)))
-                ax.set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
-                ax.set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
+                if(( i % 2) == 1):
+                    ax.set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]), fontsize = 15)
+                else:
+                    ax.set_xticks(ticks = [8, 16, 24], labels = np.array([-5,0,5]), fontsize = 15)
+                ax.set_yticks(ticks = [8, 16, 24], labels = np.array([-5,0,5]), fontsize = 15)
 
             else:
                 pass
 
 
-        ax.cax.colorbar(im)
-        plt.tight_layout()
+        cbar=ax.cax.colorbar(im)
+        cbar.ax.tick_params(labelsize=15)
+        fig.text(x = .23, y = .89, s = "Conditional Correlation Heatmap", fontsize = 25)
+        #plt.tight_layout()
         plt.savefig(figname)
     
 

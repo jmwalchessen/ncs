@@ -8,7 +8,7 @@ from append_directories import *
 from paper_figure_helper_functions import *
 from matplotlib.patches import Rectangle
 
-def visualize_conditional_mean_observed_and_diffusion(figname, n, model_name):
+def visualize_conditional_mean_observed_and_diffusion(range_value, smooth_value, figname, n, model_name):
 
     diffusion_means = np.zeros((5,n,n))
     reference_images = np.zeros((5,n,n))
@@ -43,22 +43,26 @@ def visualize_conditional_mean_observed_and_diffusion(figname, n, model_name):
         if(i < 5):
             im = ax.imshow(reference_images[(i % 5),:,:], cmap='viridis', vmin = -2, vmax = 6,
                            alpha = (masks[(i % 5),:,:].astype(float)))
-            ax.set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
-            ax.set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
+            ax.set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]), fontsize = 15)
+            ax.set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]), fontsize = 15)
         elif(i < 10):
             im = ax.imshow(univariate_lcs_means[(i % 5),:,:], cmap='viridis', vmin = -2, vmax = 6,
                            )
-            ax.set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
-            ax.set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
+            ax.set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]), fontsize = 15)
+            ax.set_yticks(ticks = [8, 16, 24], labels = np.array([-5,0,5]), fontsize = 15)
 
         else:
             im = ax.imshow(diffusion_means[(i % 5),:,:], cmap='viridis', vmin = -2, vmax = 6,
                            )
-            ax.set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
-            ax.set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
+            if(( i % 2) == 0):
+                ax.set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]), fontsize = 15)
+            else:
+                ax.set_xticks(ticks = [8, 16, 24], labels = np.array([-5,0,5]), fontsize = 15)
+            ax.set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]), fontsize = 15)
 
-
-    ax.cax.colorbar(im)
+    cbar=ax.cax.colorbar(im)
+    cbar.ax.tick_params(labelsize=15)
+    fig.text(x = .3, y = .95, s = "Conditional Mean Field", fontsize = 25)
     plt.tight_layout()
     plt.savefig(figname)
 
@@ -133,8 +137,19 @@ def visualize_conditional_mean_fcs_ncs(range_value, model_version, figname):
             ax.set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
 
 
-    ax.cax.colorbar(im)
+    cbar=ax.cax.colorbar(im)
+    cbar.ax.tick_params(labelsize=15)
+    fig.text(x = .3, y = .95, s = "Conditional Mean Field", fontsize = 25)
     plt.tight_layout()
     plt.savefig(figname)
 
+def visualize_conditional_mean_field_with_variables():
 
+    range_value = 3.
+    smooth_value = 1.5
+    figname = "figures/br_percentage_conditional_mean_model4.png"
+    n = 32
+    model_name = "model4"
+    visualize_conditional_mean_observed_and_diffusion(range_value, smooth_value, figname, n, model_name)
+
+visualize_conditional_mean_field_with_variables()

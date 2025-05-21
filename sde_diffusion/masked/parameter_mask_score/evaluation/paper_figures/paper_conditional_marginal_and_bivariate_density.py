@@ -90,7 +90,10 @@ def visualize_marginal_and_bivariate_density(model_name, missing_indices, missin
                 ax.set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]), fontsize = 15)
             else:
                 ax.set_yticks([])
-            ax.set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]), fontsize = 15)
+            if((i == 0) | (i == 4)):
+                ax.set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]), fontsize = 15)
+            else:
+                ax.set_xticks([])
 
         elif(i < 10):
             matrix_index = index_to_matrix_index(missing_indices[(i%5)], n)
@@ -105,7 +108,10 @@ def visualize_marginal_and_bivariate_density(model_name, missing_indices, missin
                 ax.legend(labels = ['true', 'NCS'], fontsize = 12)
             else:
                 ax.set_yticks([])
-            ax.set_xticks([-4,-2,0,2,4], [-4,-2,0,2,4], fontsize = 15)
+            if((i == 5) | (i == 9)):
+                ax.set_xticks([-4,-2,0,2,4], [-4,-2,0,2,4], fontsize = 15)
+            else:
+                ax.set_xticks([])
         else:
             missing_index1 = missing_indices1[(i%5)]
             missing_index2 = missing_indices2[(i%5)]
@@ -134,6 +140,9 @@ def visualize_marginal_and_bivariate_density(model_name, missing_indices, missin
             ax.set_xticks([-4,-2,0,2,4], [-4,-2,0,2,4], fontsize = 15)
 
     #fig.colorbar(im, shrink = 1)
+    fig.text(x = .38, y = .9, s = "Partially Observed Field", fontsize = 15)
+    fig.text(x = .35, y = .62, s = "Conditional Marginal Density", fontsize = 15)
+    fig.text(x = .35, y = .34, s = "Conditional Bivariate Density", fontsize = 15)
     plt.tight_layout()
     plt.savefig(figname)
     plt.clf()

@@ -52,7 +52,7 @@ def visualize_ncs_and_true_extremal_coefficient_and_high_dimensional_summary_met
     # set width of each subplot as 8
     fig.set_figwidth(11)
     spec = gridspec.GridSpec(ncols=5, nrows=4,
-                         width_ratios=[1,1,1,1,1], wspace=0.25,
+                         width_ratios=[1,1,1,1,1], wspace=0.1,
                          hspace=0.35, height_ratios=[1, 1, 1, 1])
     h = extremal_matrices[0,:,0]
 
@@ -65,19 +65,13 @@ def visualize_ncs_and_true_extremal_coefficient_and_high_dimensional_summary_met
             ax.plot(h, ncs_ext_coeff, "orange", linestyle = "dashed")
             if(i == 0):
                 ax.set_xlabel("Distance Lag (h)", fontsize = 15)
-                ax.set_ylabel("2-Extremal Coeff.", fontsize = 15)
-                ax.set_yticks(ticks = [0,.25,.5,.75], labels = np.array([0.,.25,.5,.75]), fontsize = 15)
-                ax.set_xticks([])
-                #ax.set_xticks(ticks = [0,10,20], labels = np.array([0,10,20]), fontsize = 15)
-            else:
-                ax.set_xlabel("")
-                ax.set_ylabel("")
-            if(i != 0):
+                ax.set_yticks([0.,.25,.5,.75,1.], [0.,.25,.5,.75,1.], fontsize = 15)
+            if((i != 0) & (i != 2)):
                 ax.set_xticks(ticks = [0,10,20], labels = np.array([0,10,20]), fontsize = 15)
+            else:
+                ax.set_xticks([])
+            if(i != 0):
                 ax.set_yticks([])
-
-            if(i == 4):
-                ax.legend(labels = ['true', 'NCS'], fontsize = 13.5)
         
         elif(i < 10):
             ncspdd = pd.DataFrame(ncs_mins[(i%5),:], columns = None)
@@ -89,12 +83,14 @@ def visualize_ncs_and_true_extremal_coefficient_and_high_dimensional_summary_met
             ax.set_ylim((0,1.5))
             ax.set_xlabel("")
             ax.set_ylabel("")
-            if(i != 5):
-                ax.set_xticks(ticks = [-2.,0.], labels = np.array([-2.,0.]), fontsize = 15)
+            if((i != 5)):
                 ax.set_yticks([])
             else:
-                ax.set_xticks(ticks = [-2.,0.], labels = np.array([-2.,0.]), fontsize = 15)
                 ax.set_yticks(ticks = [0.,.5,1.,1.5], labels = np.array([0.,.5,1.,1.5]), fontsize = 15)
+            if((i != 7)):
+                ax.set_xticks(ticks = [-2.,0.], labels = np.array([-2.,0.]), fontsize = 15)
+            else:
+                ax.set_xticks([])
         
         elif(i < 15):
             ncspdd = pd.DataFrame(ncs_maxs[(i%5),:], columns = None)
@@ -107,11 +103,18 @@ def visualize_ncs_and_true_extremal_coefficient_and_high_dimensional_summary_met
             ax.set_xlabel("")
             ax.set_ylabel("")
             if(i != 10):
-                ax.set_xticks(ticks = [0,5,10,15], labels = np.array([0,5,10,15]), fontsize = 15)
                 ax.set_yticks([])
             else:
-                ax.set_xticks(ticks = [0,5,10,15], labels = np.array([0,5,10,15]), fontsize = 15)
                 ax.set_yticks(ticks = [0.,.2,.4], labels = np.array([0.,.2,.4]), fontsize = 15)
+            if(i == 12):
+                ax.set_xticks([])
+            elif(i == 11):
+                ax.set_xticks(ticks = [5,10], labels = np.array([5,10]), fontsize = 15)
+            elif(i == 13):
+                ax.set_xticks(ticks = [5,10], labels = np.array([5,10]), fontsize = 15)
+            else:
+                ax.set_xticks(ticks = [0,5,10,15], labels = np.array([0,5,10,15]), fontsize = 15)
+            
 
         else:
             ncspdd = pd.DataFrame(ncs_abs_summation[(i%5),:], columns = None)
@@ -124,13 +127,16 @@ def visualize_ncs_and_true_extremal_coefficient_and_high_dimensional_summary_met
             ax.set_xlabel("")
             ax.set_ylabel("")
             if(i != 15):
-                ax.set_xticks(ticks = [0,2500,5000], labels = np.array([0,2500,5000]), fontsize = 15)
                 ax.set_yticks([])
+                ax.set_xticks(ticks = [2500,5000], labels = np.array([2500,5000]), fontsize = 15)
             else:
-                ax.set_xticks(ticks = [0,2500,5000], labels = np.array([0,2500,5000]), fontsize = 15)
                 ax.set_yticks(ticks = [0.,.001,.002], labels = np.array([0,.001,.002]), fontsize = 15)
+                ax.set_xticks(ticks = [0,2500,5000], labels = np.array([0,2500,5000]), fontsize = 15)
         
-    #fig.text(0.3, .9, "Extremal Coefficient", fontsize = 15)
+    fig.text(0.4, .89, "2-Extremal Coefficient", fontsize = 15)
+    fig.text(0.47, .69, "Minimum", fontsize = 15)
+    fig.text(0.47, .48, "Maximum", fontsize = 15)
+    fig.text(0.41, .28, "Absolute Summation", fontsize = 15)
     plt.tight_layout()
     plt.savefig(figname)
 
@@ -304,10 +310,11 @@ def visualize_ncs_fcs_and_true_extremal_coefficient_and_high_dimensional_summary
             ax.set_ylim((0,.45))
             ax.set_xlabel("")
             ax.set_ylabel("")
-            ax.set_xticks([0,5,10,15], [0,5,10,15], fontsize = 15)
             if(i != 10):
                 ax.set_yticks([])
+                ax.set_xticks([5,10,15], [5,10,15], fontsize = 15)
             else:
+                ax.set_xticks([0,5,10,15], [0,5,10,15], fontsize = 15)
                 #ax.legend(labels = ['true', 'NCS', 'FCS'], fontsize = 12)
                 ax.set_yticks([0.,.2,.4], [0.,.2,.4], fontsize = 15)
 
@@ -533,7 +540,7 @@ def visualize_ncs_fcs_and_true_extremal_coefficient_and_high_dimensional_summary
     # set width of each subplot as 8
     fig.set_figwidth(11)
     spec = gridspec.GridSpec(ncols=5, nrows=4,
-                         width_ratios=[1,1,1,1,1], wspace=0.13,
+                         width_ratios=[1,1,1,1,1], wspace=0.1,
                          hspace=0.3, height_ratios=[1, 1, 1, 1])
     h = extremal_matrices[0,:,0]
 
@@ -559,7 +566,10 @@ def visualize_ncs_fcs_and_true_extremal_coefficient_and_high_dimensional_summary
                 ax.set_ylabel("")
                 ax.set_yticks([])
                 ax.set_title((str(obs_numbers[i]) + " Obs."), fontsize = 15)
-                ax.set_xticks([0,10,20], [0,10,20], fontsize = 15)
+                if((i != 2)):
+                    ax.set_xticks([0,10,20], [0,10,20], fontsize = 15)
+                else:
+                    ax.set_xticks([])
         
         elif(i < 10):
             ncspdd = pd.DataFrame(ncs_mins[(i%5),:], columns = None)
@@ -572,13 +582,14 @@ def visualize_ncs_fcs_and_true_extremal_coefficient_and_high_dimensional_summary
             ax.set_ylim((0,2.25))
             ax.set_xlabel("")
             ax.set_ylabel("")
-            ax.set_xticks([-30,-20,-10,0], [-30,-20,-10,0], fontsize = 15)
-            if(i != 5):
-                #ax.set_xticks([])
+            if((i != 5)):
                 ax.set_yticks([])
             else:
-                #ax.legend(labels = ['true', 'NCS', 'FCS'], fontsize = 13.5)
-                ax.set_yticks([0.,.5,1.,1.5,2.], [0.,.5,1.,1.5,2.], fontsize = 15)
+                ax.set_yticks(ticks = [0.,1.,2.], labels = np.array([0.,]), fontsize = 15)
+            if((i != 7)):
+                ax.set_xticks(ticks = [-30,-20,-10,0], labels = np.array([-30,-20,-10,0]), fontsize = 15)
+            else:
+                ax.set_xticks([])
         
         elif(i < 15):
             ncspdd = pd.DataFrame(ncs_maxs[(i%5),:], columns = None)
@@ -588,15 +599,22 @@ def visualize_ncs_fcs_and_true_extremal_coefficient_and_high_dimensional_summary
             sns.kdeplot(data = ncspdd, palette =['orange'], ax = ax, legend = False, linestyle = "dashed")
             sns.kdeplot(data = fcspdd, palette =['purple'], ax = ax, legend = False)
             ax.set_xlim((0,15))
-            ax.set_ylim((0,.45))
+            ax.set_ylim((0,.5))
             ax.set_xlabel("")
             ax.set_ylabel("")
-            ax.set_xticks([0,5,10,15], [0,5,10,15], fontsize = 15)
             if(i != 10):
                 ax.set_yticks([])
             else:
-                #ax.legend(labels = ['true', 'NCS', 'FCS'], fontsize = 13.5)
-                ax.set_yticks([0.,.2,.4], [0.,.2,.4], fontsize = 15)
+                ax.set_yticks(ticks = [0.,.2,.4], labels = np.array([0.,.2,.4]), fontsize = 15)
+            if(i == 12):
+                ax.set_xticks([])
+            elif((i == 11) | (i == 14)):
+                ax.set_xticks(ticks = [5,10], labels = np.array([5,10]), fontsize = 15)
+            elif(i == 13):
+                ax.set_xticks(ticks = [5,10,15], labels = np.array([5,10,15]), fontsize = 15)
+            else:
+                ax.set_xticks(ticks = [0,5,10,15], labels = np.array([0,5,10,15]), fontsize = 15)
+
 
         else:
             ncspdd = pd.DataFrame(ncs_abs_summation[(i%5),:], columns = None)
@@ -609,15 +627,16 @@ def visualize_ncs_fcs_and_true_extremal_coefficient_and_high_dimensional_summary
             ax.set_ylim((0,.003))
             ax.set_xlabel("")
             ax.set_ylabel("")
-            ax.set_xticks([0,5000,10000], [0,5000,10000], fontsize = 15)
             if(i != 15):
-                #ax.set_xticks([])
                 ax.set_yticks([])
+                ax.set_xticks(ticks = [5000,10000], labels = np.array([5000,10000]), fontsize = 15)
             else:
-                #ax.legend(labels = ['true', 'NCS', 'FCS'], fontsize = 13.5)
-                ax.set_yticks([0.,0.001,.002, .003], [0.,0.001,.002,.003], fontsize = 15)
+                ax.set_yticks(ticks = [0.,.001,.002], labels = np.array([0,.001,.002]), fontsize = 15)
+                ax.set_xticks(ticks = [0,5000,10000], labels = np.array([0,5000,10000]), fontsize = 15)
         
-    #fig.text(0.3, .9, "Extremal Coefficient", fontsize = 15)
+    fig.text(0.47, .69, "Minimum", fontsize = 15)
+    fig.text(0.47, .48, "Maximum", fontsize = 15)
+    fig.text(0.41, .28, "Absolute Summation", fontsize = 15)
     plt.tight_layout()
     plt.savefig(figname)
 
@@ -630,8 +649,8 @@ nrep = 4000
 n = 32
 figname = "figures/paper_ncs_vs_true_extremal_coefficient_and_high_dimensional_summary_metrics.png"
 visualize_ncs_and_true_extremal_coefficient_and_high_dimensional_summary_metrics_multiple_percentages(range_value, smooth, ps, bins, figname, nrep, n)
-figname = "figures/presentation_ncs_vs_true_min_max.png"
-visualize_ncs_and_true_min_max(ps, figname, nrep, n)
+#figname = "figures/presentation_ncs_vs_true_min_max.png"
+#visualize_ncs_and_true_min_max(ps, figname, nrep, n)
 
 
 range_value = 1.

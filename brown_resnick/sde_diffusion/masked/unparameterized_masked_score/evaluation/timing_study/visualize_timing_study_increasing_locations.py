@@ -144,6 +144,7 @@ def visualize_ncs_and_fcs_timing_division_with_exponential_linear_extrapolation(
         ax.plot(obs, ncs_time_div[i,:], color = 'orange')
         x = [i for i in range(1,11)]
         y = [np.exp(lma[i]*x[j]+lmb[i]) for j in range(len(x))]
+        print(y)
         ax.plot(x, y, color = "purple", linestyle = "dashed")
         ax.plot(extr, ncs_time_extrp[i,:], color = 'orange', linestyle = "dashed")
         plt.savefig("visualizations/" + figname + "_range_" + str(range_values[i]) + ".png")

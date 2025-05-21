@@ -93,7 +93,10 @@ def visualize_ncs_vs_univariate_lcs_marginal_and_bivariate_density(model_name, u
                 ax.set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]), fontsize = 15)
             else:
                 ax.set_yticks([])
-            ax.set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]), fontsize = 15)
+            if(((i == 0)) | (i == 4)):
+                ax.set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]), fontsize = 15)
+            else:
+                ax.set_xticks([])
             ax.plot(matrix_index1[1], matrix_index1[0], "r*", markersize = 15, linewidth = 20)
             ax.plot(matrix_index2[1], matrix_index2[0], "r*", markersize = 15, linewidth = 20)
         elif(i < 10):
@@ -110,7 +113,11 @@ def visualize_ncs_vs_univariate_lcs_marginal_and_bivariate_density(model_name, u
                 ax.legend(labels = ['NCS', 'LCS'], fontsize = 12)
             else:
                 ax.set_yticks([])
-            ax.set_xticks([-2,0,2,4,6], [-2,0,2,4,6], fontsize = 15)
+            if((i == 5) | (i == 9)):
+                ax.set_xticks([-2,0,2,4,6], [-2,0,2,4,6], fontsize = 15)
+            else:
+                ax.set_xticks([])
+
         else:
             missing_index1 = missing_indices1[(i%5)]
             missing_index2 = missing_indices2[(i%5)]
@@ -135,22 +142,29 @@ def visualize_ncs_vs_univariate_lcs_marginal_and_bivariate_density(model_name, u
                 ax.set_yticks([])
             ax.set_xticks([-2,0,2,4,6], [-2,0,2,4,6], fontsize = 15)
 
+    fig.text(x = .38, y = .9, s = "Partially Observed Field", fontsize = 15)
+    fig.text(x = .35, y = .62, s = "Conditional Marginal Density", fontsize = 15)
+    fig.text(x = .35, y = .34, s = "Conditional Bivariate Density", fontsize = 15)
     plt.tight_layout()
     plt.savefig(figname)
     plt.clf()
 
+def visualize_ncs_vs_univariate_lcs_marginal_and_bivariate_densities_with_variables():
 
-n = 32
-range_values = [1.,2.,3.,4.,5.]
-model_name = "model4"
-#401, 597
-missing_indices1 = [292,242,849,724,682]
-missing_indices2 = [235,301,846,310,696]
-figname = "figures/br_parameter_lcs_vs_ncs_conditional_marginal_bivariate_density.png"
-nrep = 4000
-bivariate_lcs_file = "bivariate_lcs_4000_neighbors_7_nugget_1e5"
-univariate_lcs_file_name = "univariate_lcs_4000_neighbors_7_nugget_1e5"
-missing_indices = [642,129,392,497,829]
-visualize_ncs_vs_univariate_lcs_marginal_and_bivariate_density(model_name, univariate_lcs_file_name, missing_indices,
-                                                                   missing_indices1, missing_indices2, bivariate_lcs_file,
-                                                                   n, nrep, figname)
+    n = 32
+    range_values = [1.,2.,3.,4.,5.]
+    model_name = "model4"
+    #401, 597
+    missing_indices1 = [292,242,849,724,682]
+    missing_indices2 = [235,301,846,310,696]
+    figname = "figures/br_parameter_lcs_vs_ncs_conditional_marginal_bivariate_density.png"
+    nrep = 4000
+    bivariate_lcs_file = "bivariate_lcs_4000_neighbors_7_nugget_1e5"
+    univariate_lcs_file_name = "univariate_lcs_4000_neighbors_7_nugget_1e5"
+    missing_indices = [642,129,392,497,829]
+    visualize_ncs_vs_univariate_lcs_marginal_and_bivariate_density(model_name, univariate_lcs_file_name, missing_indices,
+                                                                    missing_indices1, missing_indices2, bivariate_lcs_file,
+                                                                    n, nrep, figname)
+    
+
+visualize_ncs_vs_univariate_lcs_marginal_and_bivariate_densities_with_variables()
