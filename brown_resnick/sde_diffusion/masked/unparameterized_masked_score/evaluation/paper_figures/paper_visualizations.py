@@ -102,9 +102,62 @@ def visualize_observed_and_diffusion(figname, n, model_name):
     plt.tight_layout()
     plt.savefig(figname)
 
+
+def visualize_observed_and_diffusion_transposed(figname, n, model_name):
+
+    diffusion_visualizations = np.zeros((5,n,n))
+    reference_visualizations = np.zeros((5,n,n))
+    masks = np.zeros((5,n,n))
+    percentages = [.01,.05,.1,.25,.5]
+    ref_numbers = [0,1,2,3,4]
+    for i in range(0, 5):
+        image_name = "ref_image" + str(ref_numbers[i])
+        ref_image = load_reference_image(model_name, image_name)
+        mask = load_mask(model_name, image_name)
+        y = load_observations(model_name, image_name, mask, n)
+        file_name = (model_name + "_range_3.0_smooth_1.5_4000_random" + str(percentages[i]))
+        diffusion_images = load_diffusion_images(model_name, image_name, file_name)
+        diffusion_visualizations[i,:,:] = (diffusion_images[20,:,:,:]).reshape((n,n))
+        reference_visualizations[i,:,:] = ref_image
+        masks[i,:,:] = mask
+
+    fig = plt.figure(figsize=(6,9))
+    grid = ImageGrid(fig, 111,  # similar to subplot(111)
+                 nrows_ncols=(5, 3),  # creates 2x2 grid of Axes
+                 axes_pad=0.1,  # pad between Axes in inch.
+                 cbar_mode="single"
+                 )
+    counter = -1
+    for i, ax in enumerate(grid):
+
+        if((i % 3) == 0):
+            counter = counter + 1
+            im = ax.imshow(reference_visualizations[counter,:,:], cmap='viridis', vmin = -2, vmax = 6,
+                           alpha = (masks[counter,:,:].astype(float)))
+            ax.set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]), fontsize = 15)
+            ax.set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]), fontsize = 15)
+        elif((i % 3) == 1):
+            im = ax.imshow(reference_visualizations[counter,:,:], cmap='viridis', vmin = -2, vmax = 6)
+            ax.set_xticks(ticks = [8, 16, 24], labels = np.array([-5,0,5]), fontsize = 15)
+            ax.set_yticks(ticks = [8, 16, 24], labels = np.array([-5,0,5]), fontsize = 15)
+        else:
+            im = ax.imshow(diffusion_visualizations[counter,:,:], cmap='viridis', vmin = -2, vmax = 6)
+            if((i % 2) == 0):
+                ax.set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]), fontsize = 15)
+                ax.set_yticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]), fontsize = 15)
+            else:
+                ax.set_xticks(ticks = [8, 16, 24], labels = np.array([-5,0,5]), fontsize = 15)
+                ax.set_yticks(ticks = [8, 16, 24], labels = np.array([-5,0,5]), fontsize = 15)
+
+    fig.text(x = .25, y = .94, s = "Proportion U-Net", fontsize = 25)
+    cbar = ax.cax.colorbar(im)
+    cbar.ax.tick_params(labelsize=15)
+    plt.tight_layout()
+    plt.savefig(figname, dpi = 500)
+
 smooth = 1.5
 range_value = 3.0
 model_name = "model4"
 n = 32
-figname = "figures/br_percentage_visualization_model4.png"
-visualize_observed_and_diffusion(figname, n, model_name)
+figname = "figures/br_percentage_visualization_model4_transposed.png"
+visualize_observed_and_diffusion_transposed(figname, n, model_name)

@@ -423,6 +423,119 @@ def visualize_conditional_fcs_ncs_marginal_bivariate_density(model_version, rang
     plt.savefig(figname)
     plt.clf()
 
+
+
+def visualize_conditional_marginal_bivariate_density_transposed(model_name, range_value, smooth, nrep, missing_indices,
+                                                     missing_indices1, missing_indices2, univariate_lcs_file,
+                                                     bivariate_lcs_file, n, figname):
+    
+    ps = [.01,.05,.1,.25,.5]
+    diffusion_bivariate_densities = np.zeros((5,nrep,2))
+    masks = np.zeros((5,n,n))
+    reference_images = np.zeros((5,n,n))
+    diffusion_marginal_densities = np.zeros((5,nrep))
+    lcs_marginal_density = np.zeros((len(ps),nrep))
+    univariate_lcs_images = np.zeros((5,nrep,n,n))
+    lcs_bivariate_density = np.zeros((5,nrep,2))
+
+    for i in range(0,5):
+
+        image_name = "ref_image" + str(i)
+        ref_image_folder = ("/data/model4/ref_image" + str(i))
+        missing_index = missing_indices[i]
+        matrix_missing_index = index_to_matrix_index(missing_index, n)
+        file_name = (model_name + "_range_" + str(range_value) + "_smooth_" + str(smooth) + "_4000_random" + str(ps[i]))
+        dbdensities = produce_bivariate_densities(model_name, range_value, smooth, 
+                                                              image_name, nrep, missing_indices1[i],
+                                                              missing_indices2[i], file_name)
+        masks[i,:,:] = load_mask(model_name, image_name)
+        reference_images[i,:,:] = load_reference_image(model_name, image_name)
+        diffusion_bivariate_densities[i,:,:] = dbdensities
+        diffusion_marginal_density = produce_marginal_density(model_name, image_name, file_name,
+                                                              missing_indices[i], n, nrep, range_value,
+                                                              smooth)
+        print('b')
+        diffusion_marginal_densities[i,:] = diffusion_marginal_density
+        print(univariate_lcs_file)
+        univariate_lcs_images[i,:,:,:] = (np.load((data_generation_folder + ref_image_folder + "/lcs/univariate/" + 
+                                                   univariate_lcs_file))).reshape((nrep,n,n))
+        lcs_marginal_density[i,:] = univariate_lcs_images[i,:,int(matrix_missing_index[0]),int(matrix_missing_index[1])]
+        print((data_generation_folder + ref_image_folder + "/lcs/bivariate/" +
+                               bivariate_lcs_file + "_random" + str(ps[i]) + "_" + str(missing_indices1[i])
+                               + "_" + str(missing_indices2[i]) + ".npy"))
+        bilcs = np.log(np.load((data_generation_folder + ref_image_folder + "/lcs/bivariate/" +
+                               bivariate_lcs_file + "_random" + str(ps[i]) + "_" + str(missing_indices1[i])
+                               + "_" + str(missing_indices2[i]) + ".npy")))
+        lcs_bivariate_density[i,:,:] = bilcs
+
+
+#fig, axs = plt.subplots(ncols = 5, nrows = 2, figsize = (9,2.5))
+    fig = plt.figure()
+    # set height of each subplot as 8
+    fig.set_figheight(9)
+ 
+    # set width of each subplot as 8
+    fig.set_figwidth(5.5)
+    spec = gridspec.GridSpec(ncols=3, nrows=5,
+                         width_ratios=[1,1,1], wspace=0.3,
+                         hspace=0.25, height_ratios=[1, 1, 1, 1, 1])
+
+    counter = -1
+    for i in range(0, 15):
+        ax = fig.add_subplot(spec[i])
+        if((i % 3) == 0):
+            counter = counter + 1
+            matrix_index = index_to_matrix_index(missing_indices[counter], n)
+            matrix_index1 = index_to_matrix_index(missing_indices1[counter], n)
+            matrix_index2 = index_to_matrix_index(missing_indices2[counter], n)
+            im = ax.imshow(reference_images[counter,:,:], cmap = 'viridis', vmin = -2, vmax = 6, alpha = masks[counter,:,:].astype(float))
+            ax.plot(matrix_index1[1], matrix_index1[0], "r*", markersize = 15, linewidth = 20)
+            ax.plot(matrix_index2[1], matrix_index2[0], "r*", markersize = 15, linewidth = 20)
+            ax.plot(matrix_index[1], matrix_index[0], "rP", markersize = 15, linewidth = 20)
+            ax.set_yticks(ticks = [0, 7, 15, 23, 31], labels = np.array([-10,-5,0,5,10]), fontsize = 12)
+            ax.set_xticks(ticks = [0, 7, 15, 23, 31], labels = np.array([-10,-5,0,5,10]), fontsize = 12)
+
+        elif((i % 3) == 1):
+            sns.kdeplot(lcs_marginal_density[counter,:], ax = ax, color = 'purple')
+            sns.kdeplot(diffusion_marginal_densities[counter,:], ax = ax, color = 'orange', linestyle = "dashed")
+            ax.axvline(reference_images[counter,matrix_index[1],matrix_index[0]], color='red', linestyle = 'dashed')
+            ax.set_xlim([-2,6])
+            ax.set_ylim([0,1.75])
+            ax.set_ylabel("")
+            ax.set_yticks([0.,.5,1.,1.5], [0.,.5,1.,1.5], fontsize = 12)
+            ax.set_xticks([-2,0,2,4,6], [-2,0,2,4,6], fontsize = 12)
+            ol = mpatches.Patch(color='orange', lw = .2)
+            pl = mpatches.Patch(color='purple', lw = .2)
+            if(i == 1):
+                ax.legend(handles = [ol,pl],labels = ['NCS', 'LCS'], fontsize = 12)
+        else:
+            matrix_index1 = index_to_matrix_index(missing_indices1[counter], n)
+            matrix_index2 = index_to_matrix_index(missing_indices2[counter], n)
+            ax.set_xlim([-2,6])
+            ax.set_ylim([-2,6])
+            ax.set_ylabel("")
+            ax.set_yticks([-2,0,2,4,6], [-2,0,2,4,6], fontsize = 12)
+            a1 = sns.kdeplot(x = lcs_bivariate_density[counter,:,0], y = lcs_bivariate_density[counter,:,1],
+                ax = ax, color = 'purple', levels = [.1,.2,.3,.4,.5,.6,.7,.8,.9,.95,.99], alpha = .5)
+            a2 = sns.kdeplot(x = diffusion_bivariate_densities[counter,:,0], y = diffusion_bivariate_densities[counter,:,1],
+                ax = ax, color = 'orange', levels = [.1,.2,.3,.4,.5,.6,.7,.8,.9,.95,.99], alpha = .5)
+            ol = mpatches.Patch(color='orange', lw = .2)
+            pl = mpatches.Patch(color='purple', lw = .2)
+            if(i == 2):
+                ax.legend(handles = [ol,pl],labels = ['NCS', 'LCS'], fontsize = 12)
+            ax.axvline(reference_images[counter,matrix_index1[0],matrix_index1[1]], color='red', linestyle = 'dashed')
+            ax.axhline(reference_images[counter,matrix_index2[0],matrix_index2[1]], color='red', linestyle = 'dashed')
+            
+            ax.set_xticks([-2,0,2,4,6], [-2,0,2,4,6], fontsize = 12)
+            ax.set_xticks([-2,0,2,4,6], [-2,0,2,4,6], fontsize = 12)
+
+    fig.text(x = .32, y = .89, s = "Proportion U-Net", fontsize = 18)
+    plt.tight_layout()
+    plt.savefig(figname, dpi = 500)
+    plt.clf()
+
+
+
 def visualize_conditional_marginal_bivariate_with_variables():
 
     model_name = "model4"
@@ -442,4 +555,24 @@ def visualize_conditional_marginal_bivariate_with_variables():
                                                         missing_indices1, missing_indices2, univariate_lcs_file,
                                                         bivariate_lcs_file, n, figname)
     
-visualize_conditional_marginal_bivariate_with_variables()
+
+def visualize_conditional_marginal_bivariate_transposed_with_variables():
+
+    model_name = "model4"
+    nrep = 4000
+    missing_indices = [100,245,874,568,398]
+    #390,303
+    #600,632
+    missing_indices1 = [375,303,618,710,245]
+    missing_indices2 = [439,326,689,675,268]
+    n = 32
+    bivariate_lcs_file = "bivariate_lcs_4000_neighbors_7_nugget_1e5"
+    univariate_lcs_file = "univariate_lcs_4000_neighbors_7_nugget_1e5.npy"
+    range_value = 3.
+    smooth = 1.5
+    figname = "figures/br_percentage_lcs_vs_ncs_conditional_marginal_bivariate_density_transposed.png"
+    visualize_conditional_marginal_bivariate_density_transposed(model_name, range_value, smooth, nrep, missing_indices,
+                                                     missing_indices1, missing_indices2, univariate_lcs_file,
+                                                     bivariate_lcs_file, n, figname)
+    
+visualize_conditional_marginal_bivariate_transposed_with_variables()

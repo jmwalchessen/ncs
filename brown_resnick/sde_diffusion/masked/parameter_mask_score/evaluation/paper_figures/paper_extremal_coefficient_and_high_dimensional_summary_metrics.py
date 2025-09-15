@@ -147,6 +147,148 @@ def visualize_ncs_and_true_extremal_coefficient_and_high_dimensional_summary_met
     plt.savefig(figname)
 
 
+def visualize_ncs_and_true_extremal_coefficient_and_high_dimensional_summary_metrics_multiple_ranges_small(range_values, smooth,
+                                                                                                          bins, figname, nrep):
+    
+    extremal_matrices = np.zeros((len(range_values), (bins+1),3))
+    ncs_extremal_matrices = np.zeros((len(range_values), (bins+1),3))
+    ncs_images = np.zeros((len(range_values),nrep,n,n))
+    true_images = np.zeros((len(range_values),nrep,n,n))
+    ncs_abs_summation = np.zeros((len(range_values),nrep))
+    true_abs_summation = np.zeros((len(range_values),nrep))
+    ncs_mins = np.zeros((len(range_values),nrep))
+    ncs_maxs = np.zeros((len(range_values),nrep))
+    true_mins = np.zeros((len(range_values),nrep))
+    true_maxs = np.zeros((len(range_values),nrep))
+
+    for i, range_value in enumerate(range_values):
+
+        extremal_matrices[i,:,:] = load_numpy_file((extr_folder + "/data/true/extremal_coefficient_smooth_" + str(smooth) + "_range_" + 
+                                  str(round(range_values[i])) + "_nbins_" + str(bins) + ".npy"))
+        ncs_extremal_matrices[i,:,:] = load_numpy_file((extr_folder + "/data/ncs/model4/extremal_coefficient_range_"
+                                            + str(range_values[i]) + "_smooth_" + str(smooth) 
+                                            + "_bins_" + str(bins) + "_" + str(nrep) + ".npy"))
+        ncs_images[i,:,:,:] = np.load((extr_folder + "/data/ncs/model4/brown_resnick_ncs_images_range_" + str(range_value) + "_smooth_1.5_4000.npy"))
+        true_images[i,:,:,:] = (np.log(np.load(extr_folder + "/data/true/brown_resnick_images_random05_smooth_1.5_range_" + str(int(range_value)) + ".npy"))).reshape((nrep,n,n))
+        ncs_abs_summation[i,:] = np.sum(np.abs(ncs_images[i,:,:,:]).reshape((nrep, n**2)), axis = 1)
+        true_abs_summation[i,:] = np.sum(np.abs(true_images[i,:,:,:]).reshape((nrep, n**2)), axis = 1)
+        ncs_mins[i,:] = np.min(ncs_images[i,:,:,:].reshape((nrep, n**2)), axis = 1)
+        true_mins[i,:] = np.min(true_images[i,:,:,:].reshape((nrep, n**2)), axis = 1)
+        ncs_maxs[i,:] = np.max(ncs_images[i,:,:,:].reshape((nrep, n**2)), axis = 1)
+        true_maxs[i,:] = np.max(true_images[i,:,:,:].reshape((nrep, n**2)), axis = 1)
+
+    fig = plt.figure()
+    # set height of each subplot as 8
+    fig.set_figheight(7.5)
+ 
+    # set width of each subplot as 8
+    fig.set_figwidth(8)
+    spec = gridspec.GridSpec(ncols=3, nrows=4,
+                         width_ratios=[1,1,1], wspace=0.1,
+                         hspace=0.3, height_ratios=[1, 1, 1, 1])
+    h = extremal_matrices[0,:,0]
+
+    obs_indices = [0,2,4]
+
+    for i in range(12):
+        ax = fig.add_subplot(spec[i])
+        if(i < 3):
+            ext_coeff = 2-extremal_matrices[obs_indices[i],:,2]
+            print(ext_coeff)
+            ncs_ext_coeff = 2-ncs_extremal_matrices[obs_indices[i],:,2]
+            ax.plot(h, ext_coeff, "blue")
+            ax.plot(h, ncs_ext_coeff, "orange", linestyle = "dashed")
+            ax.set_ylim(0,1)
+            if(i == 0):
+                ax.set_xlabel("Distance Lag (h)", fontsize = 15)
+                #ax.set_ylabel("2-Extremal Coeff.", fontsize = 15)
+                ax.set_yticks(ticks = [0,.25,.5,.75], labels = np.array([0.,.25,.5,.75]), fontsize = 15)
+                ax.set_xticks([])
+                #ax.set_xticks(ticks = [0,10,20], labels = np.array([0,10,20]), fontsize = 15)
+                ax.legend(labels = ['true', 'NCS'], fontsize = 13.5)
+                ax.set_ylim(0,1)
+            else:
+                ax.set_xlabel("")
+                ax.set_ylabel("")
+            if(i == 0):
+                ax.set_xlabel("Distance Lag (h)", fontsize = 18)
+                ax.set_yticks([0.,.25,.5,.75,1.], [0.,.25,.5,.75,1.], fontsize = 15)
+                ax.set_title(r"$\lambda = 1$", fontsize = 15)
+            if((i != 0) & (i != 1)):
+                ax.set_xticks(ticks = [0,10,20], labels = np.array([0,10,20]), fontsize = 15)
+                ax.set_title(r"$\lambda = 5$", fontsize = 15)
+                ax.set_ylim(0,1)
+            else:
+                ax.set_xticks([])
+                ax.set_title(r"$\lambda = 3$", fontsize = 15)
+                ax.set_ylim(0,1)
+            if(i != 0):
+                ax.set_yticks([])
+
+        elif(i < 6):
+            ncspdd = pd.DataFrame(ncs_mins[obs_indices[(i%3)],:], columns = None)
+            truepdd = pd.DataFrame(true_mins[obs_indices[(i%3)],:], columns = None)
+            sns.kdeplot(data = truepdd, palette = ['blue'], ax = ax, legend = False)
+            sns.kdeplot(data = ncspdd, palette =['orange'], ax = ax, legend = False, linestyle = "dashed")
+            ax.set_xlim((-3,1))
+            ax.set_ylim((0,2.))
+            ax.set_xlabel("")
+            ax.set_ylabel("")
+            if((i != 3)):
+                ax.set_yticks([])
+            else:
+                ax.set_yticks(ticks = [0.,.5,1.,1.5,2.], labels = np.array([0.,.5,1.,1.5,2.]), fontsize = 15)
+            if((i != 4)):
+                ax.set_xticks(ticks = [-2.,0.], labels = np.array([-2.,0.]), fontsize = 15)
+            else:
+                ax.set_xticks([])
+        
+        elif(i < 9):
+            ncspdd = pd.DataFrame(ncs_maxs[obs_indices[(i%3)],:], columns = None)
+            truepdd = pd.DataFrame(true_maxs[obs_indices[(i%3)],:], columns = None)
+            sns.kdeplot(data = truepdd, palette = ['blue'], ax = ax, legend = False)
+            sns.kdeplot(data = ncspdd, palette =['orange'], linestyle = "dashed", ax = ax, legend = False)
+            ax.set_xlim((0,15))
+            ax.set_ylim((0,.45))
+            ax.set_xlabel("")
+            ax.set_ylabel("")
+            if(i != 6):
+                ax.set_yticks([])
+            else:
+                ax.set_yticks(ticks = [0.,.2,.4], labels = np.array([0.,.2,.4]), fontsize = 15)
+            if(i == 7):
+                ax.set_xticks([])
+            else:
+                if(i == 6):
+                    ax.set_xticks(ticks = [0,5,10], labels = np.array([0,5,10]), fontsize = 15)
+                else:
+                   ax.set_xticks(ticks = [5,10,15], labels = np.array([5,10,15]), fontsize = 15) 
+
+        else:
+            ncspdd = pd.DataFrame(ncs_abs_summation[obs_indices[(i%3)],:], columns = None)
+            truepdd = pd.DataFrame(true_abs_summation[obs_indices[(i%3)],:], columns = None)
+            sns.kdeplot(data = truepdd, palette = ['blue'], ax = ax, legend = False)
+            sns.kdeplot(data = ncspdd, palette =['orange'],linestyle = "dashed", ax = ax, legend = False)
+            ax.set_xlim((0,5000))
+            ax.set_ylim((0,.0025))
+            ax.set_xlabel("")
+            ax.set_ylabel("")
+            if(i != 9):
+                ax.set_yticks([])
+                ax.set_xticks(ticks = [2500,5000], labels = np.array([2500,5000]), fontsize = 15)
+            else:
+                ax.set_yticks(ticks = [0.,.001,.002], labels = np.array([0,.001,.002]), fontsize = 15)
+                ax.set_xticks(ticks = [0,2500,5000], labels = np.array([0,2500,5000]), fontsize = 15)
+        
+    fig.text(0.02, .77, r"$\chi(h)$", rotation = "vertical", fontsize = 18)
+    fig.text(0.44, .69, "Minimum", fontsize = 18)
+    fig.text(0.44, .48, "Maximum", fontsize = 18)
+    fig.text(0.35, .28, "Absolute Summation", fontsize = 18)
+    fig.text(0.38, .93, "Parameter U-Net", fontsize = 18)
+    plt.tight_layout()
+    plt.savefig(figname, dpi = 500)
+
+
 def visualize_ncs_and_true_min_max(range_values, figname, nrep, n):
 
     ncs_images = np.zeros((len(range_values),nrep,n,n))
@@ -214,3 +356,5 @@ figname = "figures/br_parameter_ncs_vs_true_extremal_coefficient_and_high_dimens
 visualize_ncs_and_true_extremal_coefficient_and_high_dimensional_summary_metrics_multiple_ranges(range_values, smooth, bins, figname, nrep)
 figname = "figures/br_parameter_ncs_vs_true_min_max.png"
 visualize_ncs_and_true_min_max(range_values, figname, nrep, n)
+figname = "figures/br_parameter_ncs_vs_true_extremal_coefficient_and_high_dimensional_summary_metrics_small.png"
+visualize_ncs_and_true_extremal_coefficient_and_high_dimensional_summary_metrics_multiple_ranges_small(range_values, smooth, bins, figname, nrep)

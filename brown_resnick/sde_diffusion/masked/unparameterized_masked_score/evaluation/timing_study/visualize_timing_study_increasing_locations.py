@@ -139,14 +139,18 @@ def visualize_ncs_and_fcs_timing_division_with_exponential_linear_extrapolation(
     for i in range(len(range_values)):
         fig, ax = plt.subplots(nrows = 1, ncols = 1)
         #ax[0].set_xlim((0,520))
-        ax.set_ylim((-2,20))
-        ax.plot(obs, fcs_time_div[i,:], color = "purple")
-        ax.plot(obs, ncs_time_div[i,:], color = 'orange')
+        ax.plot(obs, fcs_time_div[i,:], color = "purple", label = "FCS")
         x = [i for i in range(1,11)]
         y = [np.exp(lma[i]*x[j]+lmb[i]) for j in range(len(x))]
-        print(y)
         ax.plot(x, y, color = "purple", linestyle = "dashed")
-        ax.plot(extr, ncs_time_extrp[i,:], color = 'orange', linestyle = "dashed")
+        ax.plot(obs, ncs_time_div[i,:], color = 'orange', label = "NCS")
+        ax.legend(['FCS',"FCS (extrapolated)","NCS"], fontsize = 15)
+        ax.plot(extr, ncs_time_extrp[i,:], color = 'orange')
+        ax.set_ylim((0,10))
+        ax.set_xticks([0,2,4,6,8,10],[0,2,4,6,8,10], fontsize = 15)
+        ax.set_yticks([0,2,4,6,8,10],[0,2,4,6,8,10], fontsize = 15)
+        ax.set_ylabel("Average Time Ratio", fontsize = 15)
+        ax.set_xlabel("Number of Observations", fontsize = 15)
         plt.savefig("visualizations/" + figname + "_range_" + str(range_values[i]) + ".png")
         plt.clf()
 
