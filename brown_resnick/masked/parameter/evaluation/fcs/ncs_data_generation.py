@@ -47,17 +47,17 @@ def generate_ncs_images_multiple_ranges(vpsde, score_model, range_values,
                            "_smooth_" + str(smooth_value) + "_" + str(nrep) + ".npy")
         generate_ncs_images(ref_folder, vpsde, score_model, range_values[i],
                         smooth_value, ncs_images_file, batches_per_call, calls, n, device)
-        
 
+def generate_ncs_images_multiple_ranges_with_variables():
 
-range_values = [1.,2.,3.,4.,5.]
-smooth_value = 1.5
-batches_per_call = 5
-calls = 2
-n = 32
-device = "cuda:0"
-generate_ncs_images_multiple_ranges(vpsde, score_model, range_values,
-                                    smooth_value,
-                                    batches_per_call, calls, n, device) 
+    range_values = [1.,2.,3.,4.,5.]
+    smooth_value = 1.5
+    batches_per_call = 5
+    calls = 2
+    n = 32
+    device = "cuda:0"
+    generate_ncs_images_multiple_ranges(vpsde, score_model, range_values,
+                                        smooth_value,
+                                        batches_per_call, calls, n, device) 
 
     

@@ -45,11 +45,13 @@ def visualie_fcs_multiple_ranges(evaluation_folder, range_values, smooth,
     ax.cax.colorbar(im)
     plt.savefig(figname)
 
-evaluation_folder = append_directory(2)
-range_values = [1.,2.,3.,4.,5.]
-smooth = 1.5
-figname = "figures/br_parameter_fcs_vs_ncs_nugget_1e5_obs_7.png"
-n = 32
-nrep = 10
-visualie_fcs_multiple_ranges(evaluation_folder, range_values, smooth,
-                                       figname, n, nrep)
+def visualize_fcs_multiple_ranges_with_variables():
+
+    evaluation_folder = append_directory(2)
+    range_values = [1.,2.,3.,4.,5.]
+    smooth = 1.5
+    figname = "figures/br_parameter_fcs_vs_ncs_nugget_1e5_obs_7.png"
+    n = 32
+    nrep = 10
+    visualie_fcs_multiple_ranges(evaluation_folder, range_values, smooth,
+                                        figname, n, nrep)

@@ -87,13 +87,14 @@ def visualize_bivariate_density(model_name, nrep, missing_indices1,
     plt.savefig(figname)
     plt.clf()
 
-
-model_name = "model4"
-smooth = 1.5
-nrep = 4000
-missing_indices1 = [120,772,810,307,450]
-missing_indices2 = [401,830,875,390,570]
-figname = "figures/br_parameter_close_bivairate_density_model4_random05.png" 
-n = 32
-visualize_bivariate_density(model_name, nrep, missing_indices1,
-                            missing_indices2, n, figname, smooth) 
+def visualize_bivariate_density_with_variables():
+    
+    model_name = "model4"
+    smooth = 1.5
+    nrep = 4000
+    missing_indices1 = [120,772,810,307,450]
+    missing_indices2 = [401,830,875,390,570]
+    figname = "figures/br_parameter_close_bivairate_density_model4_random05.png" 
+    n = 32
+    visualize_bivariate_density(model_name, nrep, missing_indices1,
+                                missing_indices2, n, figname, smooth) 

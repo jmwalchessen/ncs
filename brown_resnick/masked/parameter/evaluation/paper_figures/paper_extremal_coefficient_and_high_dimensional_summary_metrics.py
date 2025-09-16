@@ -194,7 +194,6 @@ def visualize_ncs_and_true_extremal_coefficient_and_high_dimensional_summary_met
         ax = fig.add_subplot(spec[i])
         if(i < 3):
             ext_coeff = 2-extremal_matrices[obs_indices[i],:,2]
-            print(ext_coeff)
             ncs_ext_coeff = 2-ncs_extremal_matrices[obs_indices[i],:,2]
             ax.plot(h, ext_coeff, "blue")
             ax.plot(h, ncs_ext_coeff, "orange", linestyle = "dashed")
@@ -345,16 +344,17 @@ def visualize_ncs_and_true_min_max(range_values, figname, nrep, n):
     plt.tight_layout()
     plt.savefig(figname)
 
+def visualize_ncs_and_true_high_dimensional_uncondtional_metrics_with_variables():
 
-range_value = 3.0
-smooth = 1.5
-range_values = [1.,2.,3.,4.,5.]
-bins = 100
-nrep = 4000
-n = 32
-figname = "figures/br_parameter_ncs_vs_true_extremal_coefficient_and_high_dimensional_summary_metrics.png"
-visualize_ncs_and_true_extremal_coefficient_and_high_dimensional_summary_metrics_multiple_ranges(range_values, smooth, bins, figname, nrep)
-figname = "figures/br_parameter_ncs_vs_true_min_max.png"
-visualize_ncs_and_true_min_max(range_values, figname, nrep, n)
-figname = "figures/br_parameter_ncs_vs_true_extremal_coefficient_and_high_dimensional_summary_metrics_small.png"
-visualize_ncs_and_true_extremal_coefficient_and_high_dimensional_summary_metrics_multiple_ranges_small(range_values, smooth, bins, figname, nrep)
+    range_value = 3.0
+    smooth = 1.5
+    range_values = [1.,2.,3.,4.,5.]
+    bins = 100
+    nrep = 4000
+    n = 32
+    figname = "figures/br_parameter_ncs_vs_true_extremal_coefficient_and_high_dimensional_summary_metrics.png"
+    visualize_ncs_and_true_extremal_coefficient_and_high_dimensional_summary_metrics_multiple_ranges(range_values, smooth, bins, figname, nrep)
+    figname = "figures/br_parameter_ncs_vs_true_min_max.png"
+    visualize_ncs_and_true_min_max(range_values, figname, nrep, n)
+    figname = "figures/br_parameter_ncs_vs_true_extremal_coefficient_and_high_dimensional_summary_metrics_small.png"
+    visualize_ncs_and_true_extremal_coefficient_and_high_dimensional_summary_metrics_multiple_ranges_small(range_values, smooth, bins, figname, nrep)

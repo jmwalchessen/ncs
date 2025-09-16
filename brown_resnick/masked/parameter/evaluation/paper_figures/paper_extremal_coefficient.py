@@ -40,10 +40,11 @@ def visualize_ncs_and_true_extremal_coefficient_multiple_ranges(range_values, sm
     plt.tight_layout()
     plt.savefig(figname)
 
-
-range_values = [1.0,2.0,3.0,4.0,5.0]
-smooth = 1.5
-bins = 100
-nrep = 4000
-figname = "figures/paper_ncs_vs_true_extremal_coefficient.png"
-visualize_ncs_and_true_extremal_coefficient_multiple_ranges(range_values, smooth, bins, figname, nrep)
+def visualize_ncs_and_true_extremal_coefficient_multiple_ranges_with_variables():
+    
+    range_values = [1.0,2.0,3.0,4.0,5.0]
+    smooth = 1.5
+    bins = 100
+    nrep = 4000
+    figname = "figures/paper_ncs_vs_true_extremal_coefficient.png"
+    visualize_ncs_and_true_extremal_coefficient_multiple_ranges(range_values, smooth, bins, figname, nrep)

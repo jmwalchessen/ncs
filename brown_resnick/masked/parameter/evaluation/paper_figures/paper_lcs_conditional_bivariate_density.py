@@ -11,13 +11,12 @@ evaluation_folder = append_directory(2)
 data_generation_folder = (evaluation_folder + "/diffusion_generation")
 sys.path.append(data_generation_folder)
 sys.path.append(evaluation_folder)
-from mcmc_interpolation_helper_functions import *
 from mpl_toolkits.axes_grid1 import ImageGrid
 from matplotlib.patches import Rectangle
 
 
 
-def produce_generated_and_bivariate_lcs_density_multiple_ranges(n, missing_indices1, missing_indices2,
+def produce_generated_and_bivariate_lcs_density_multiple_ranges(model_name, n, missing_indices1, missing_indices2,
                                                                 range_values, bivariate_lcs_file,
                                                                 figname, nrep):
 
@@ -88,15 +87,16 @@ def produce_generated_and_bivariate_lcs_density_multiple_ranges(n, missing_indic
     plt.savefig(figname)
     plt.clf()
 
-
-n = 32
-range_values = [1.,2.,3.,4.,5.]
-model_name = "model4"
-missing_indices1 = [401,500,934,200,822]
-missing_indices2 = [597,342,918,274,960]
-figname = "figures/br_parameter_lcs_vs_ncs_conditional_bivariate_density.png"
-nrep = 4000
-bivariate_lcs_file = "bivariate_lcs_4000_neighbors_7_nugget_1e5"
-produce_generated_and_bivariate_lcs_density_multiple_ranges(n, missing_indices1, missing_indices2,
-                                                            range_values, bivariate_lcs_file,
-                                                            figname, nrep)
+def produce_generated_and_bivariate_lcs_density_multiple_ranges_with_variables():
+    
+    n = 32
+    range_values = [1.,2.,3.,4.,5.]
+    model_name = "model4"
+    missing_indices1 = [401,500,934,200,822]
+    missing_indices2 = [597,342,918,274,960]
+    figname = "figures/br_parameter_lcs_vs_ncs_conditional_bivariate_density.png"
+    nrep = 4000
+    bivariate_lcs_file = "bivariate_lcs_4000_neighbors_7_nugget_1e5"
+    produce_generated_and_bivariate_lcs_density_multiple_ranges(model_name, n, missing_indices1, missing_indices2,
+                                                                range_values, bivariate_lcs_file,
+                                                                figname, nrep)

@@ -20,9 +20,11 @@ def process_fcs_file(ref_folder, fcs_file, processed_fcs_file, nrep, n):
     fcs = fcs.reshape((nrep,n,n))
     np.save((ref_folder + "/" + processed_fcs_file), fcs)
 
-ref_folder = "data/model4/ref_image4"
-fcs_file = "fcs_range_5.0_smooth_1.5_nugget_1e5_obs_7_10.npy"
-processed_fcs_file = "processed_fcs_range_5.0_smooth_1.5_nugget_1e5_obs_7_10.npy"
-nrep = 10
-n = 32
-process_fcs_file(ref_folder, fcs_file, processed_fcs_file, nrep, n)
+def process_fcs_file_with_variables():
+
+    ref_folder = "data/model4/ref_image4"
+    fcs_file = "fcs_range_5.0_smooth_1.5_nugget_1e5_obs_7_10.npy"
+    processed_fcs_file = "processed_fcs_range_5.0_smooth_1.5_nugget_1e5_obs_7_10.npy"
+    nrep = 10
+    n = 32
+    process_fcs_file(ref_folder, fcs_file, processed_fcs_file, nrep, n)

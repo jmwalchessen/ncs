@@ -28,7 +28,7 @@ def plot_masked_spatial_field(spatial_field, mask, vmin, vmax, figname):
     ax.imshow(spatial_field, vmin = vmin, vmax = vmax, alpha = mask)
     plt.savefig(figname)
 
-def generate_validation_data(process_type, folder_name, n, range_value, smooth_value, replicates_per_call, calls, p, validation_data_name):
+def generate_validation_data(folder_name, n, range_value, smooth_value, replicates_per_call, calls, p, validation_data_name):
 
     seed_value = int(np.random.randint(0, 100000))
     number_of_replicates = 1
@@ -39,11 +39,7 @@ def generate_validation_data(process_type, folder_name, n, range_value, smooth_v
     if(os.path.exists(os.path.join(os.getcwd(), folder_name, "diffusion")) == False):
         os.mkdir(os.path.join(os.getcwd(), folder_name, "diffusion"))
 
-    if(process_type == "schlather"):
-
-        ref_img = np.log(helper_functions.generate_schlather_process(range_value, smooth_value, seed_value, number_of_replicates, n))
-    else:
-        ref_img = np.log(helper_functions.generate_brown_resnick_process(range_value, smooth_value, seed_value, number_of_replicates, n))
+    ref_img = np.log(helper_functions.generate_brown_resnick_process(range_value, smooth_value, seed_value, number_of_replicates, n))
 
     device = "cuda:0"
     mask = (th.bernoulli(p*th.ones(n,n))).numpy()
@@ -74,19 +70,19 @@ def generate_validation_data(process_type, folder_name, n, range_value, smooth_v
     plot_masked_spatial_field(spatial_field = ref_img.reshape((n,n)),
                    vmin = -2, vmax = 6, mask = mask.int().float().detach().cpu().numpy().reshape((n,n)), figname = (folder_name + "/partially_observed_field.png"))
     
+def generate_validation_data_with_parameters():
 
-range_values = [float(i) for i in range(4,6)]
-for i,range_value in enumerate(range_values):
+    range_values = [float(i) for i in range(4,6)]
+    for i,range_value in enumerate(range_values):
 
-    process_type = "brown"
-    folder_name = "data/model5/ref_image" + str(range_value-1)
-    n = 32
-    smooth_value = 1.5
-    replicates_per_call = 250
-    calls = 4
-    p = .05
-    validation_data_name = "model5_range_" + str(range_value) + "_smooth_" + str(smooth_value) + "_random" + str(p) + "_4000.npy"
-    generate_validation_data(process_type, folder_name, n, range_value, smooth_value, replicates_per_call, calls, p, validation_data_name)
+        folder_name = "data/model5/ref_image" + str(range_value-1)
+        n = 32
+        smooth_value = 1.5
+        replicates_per_call = 250
+        calls = 4
+        p = .05
+        validation_data_name = "model5_range_" + str(range_value) + "_smooth_" + str(smooth_value) + "_random" + str(p) + "_4000.npy"
+        generate_validation_data(folder_name, n, range_value, smooth_value, replicates_per_call, calls, p, validation_data_name)
 
 
 

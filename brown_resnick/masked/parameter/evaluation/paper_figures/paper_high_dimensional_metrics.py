@@ -163,27 +163,28 @@ def compute_absolute_summation_statistic(ncs_images_file, true_images_file, fign
     plt.savefig(figname)
     plt.clf()
 
-
-eval_folder = append_directory(2)
-ncs_images_file = (eval_folder + "/extremal_coefficient_and_high_summary_statistics/data/ncs/model4/brown_resnick_ncs_images_range_")
-true_images_file = (eval_folder + "/extremal_coefficient_and_high_summary_statistics/data/true/brown_resnick_images_random05_smooth_")
-n = 32
-nrep = 4000
-q = .1
-range_values = [1.,2.,3.,4.,5.]
-smooth = 1.5
-figname = "figures/br_parameter_model4_max_summary_statistic.png"
-compute_maximum_summary_statistic(ncs_images_file, true_images_file, figname, nrep, n, range_values,
-                                      smooth)
-figname = "figures/br_parameter_model4_min_summary_statistic.png"
-compute_minimum_summary_statistic(ncs_images_file, true_images_file, figname, nrep,
-                                      n, range_values, smooth)
-figname = "figures/br_parameter_model4_quantile_.1_summary_statistic.png"
-compute_quantile_summary_statistic(ncs_images_file, true_images_file, figname, nrep,
-                                       n, q, range_values, smooth)
-figname = "figures/br_parameter_model4_summation_statistic.png"
-compute_summation_statistic(ncs_images_file, true_images_file, figname, nrep,
-                                n, range_values, smooth)
-figname = "figures/br_parameter_model4_absolute_summation_statistic.png"
-compute_absolute_summation_statistic(ncs_images_file, true_images_file, figname, nrep,
-                                n, range_values, smooth)
+def compute_high_dimensional_unconditional_metrics_with_variables():
+    
+    eval_folder = append_directory(2)
+    ncs_images_file = (eval_folder + "/extremal_coefficient_and_high_summary_statistics/data/ncs/model4/brown_resnick_ncs_images_range_")
+    true_images_file = (eval_folder + "/extremal_coefficient_and_high_summary_statistics/data/true/brown_resnick_images_random05_smooth_")
+    n = 32
+    nrep = 4000
+    q = .1
+    range_values = [1.,2.,3.,4.,5.]
+    smooth = 1.5
+    figname = "figures/br_parameter_model4_max_summary_statistic.png"
+    compute_maximum_summary_statistic(ncs_images_file, true_images_file, figname, nrep, n, range_values,
+                                        smooth)
+    figname = "figures/br_parameter_model4_min_summary_statistic.png"
+    compute_minimum_summary_statistic(ncs_images_file, true_images_file, figname, nrep,
+                                        n, range_values, smooth)
+    figname = "figures/br_parameter_model4_quantile_.1_summary_statistic.png"
+    compute_quantile_summary_statistic(ncs_images_file, true_images_file, figname, nrep,
+                                        n, q, range_values, smooth)
+    figname = "figures/br_parameter_model4_summation_statistic.png"
+    compute_summation_statistic(ncs_images_file, true_images_file, figname, nrep,
+                                    n, range_values, smooth)
+    figname = "figures/br_parameter_model4_absolute_summation_statistic.png"
+    compute_absolute_summation_statistic(ncs_images_file, true_images_file, figname, nrep,
+                                    n, range_values, smooth)

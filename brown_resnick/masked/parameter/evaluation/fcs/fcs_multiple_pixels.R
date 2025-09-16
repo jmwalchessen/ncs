@@ -81,7 +81,6 @@ generate_fcs <- function(mask_file_name, ref_image_name, n, nrep, range, smooth,
   observed_indices <- (1:n**2)[mask == 1]
   observed_spatial_grid <- spatial_grid[observed_indices,]
   observations <- ref_image[observed_indices]
-  print(observations)
   unobserved_indices <- (1:n**2)[-observed_indices]
   unobserved_observations <- ref_image[unobserved_indices]
   unobserved_spatial_grid <- spatial_grid[unobserved_indices,]
@@ -239,7 +238,6 @@ generate_unconditional_fcs <- function(m, n, nrep, range, smooth, nugget, fcs_fi
   masks <- array(0, c(nrep, n**2))
   for(i in 1:nrep)
   {
-    print(i)
     list_values <- generate_fcs_with_temporary_data(n, 1, range, smooth, nugget, m)
     ref_images[i,] <- list_values[[1]]
     masks[i,] <- list_values[[2]]

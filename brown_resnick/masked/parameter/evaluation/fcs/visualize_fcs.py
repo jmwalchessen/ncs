@@ -9,7 +9,6 @@ def preprocessing_fcs_file(ref_folder, fcs_file, nrep, n):
     mask = np.load((ref_folder + "/mask.npy"))
     fcs_images = np.zeros((nrep,n,n))
     repeated_refimage = np.repeat(ref_image, nrep)
-    print(repeated_refimage.shape)
     fcs_images[:,mask == 1] = np.tile(ref_image[:], reps = nrep)
     fcs_images[:,mask == 0] = fcs_unobserved
 
@@ -20,9 +19,10 @@ def visualize_fcs(ref_folder, fcs_file, figname, irep):
     ax.imshow(fcs_images[irep,:,:], vmin = -2, vmax = 6)
     plt.savefig(figname)
 
-
-ref_folder = "data/model4/ref_image1"
-fcs_file = "fcs_range_1.0_smooth_1.5_nugget_1e5_4000.npy"
-figname = "visualizations/fcs_range_1.0_smooth_1.5_nugget_1e5_0.png"
-irep = 0
-visualize_fcs(ref_folder, fcs_file, figname, irep)
+def visualize_fcs_with_variables():
+    
+    ref_folder = "data/model4/ref_image1"
+    fcs_file = "fcs_range_1.0_smooth_1.5_nugget_1e5_4000.npy"
+    figname = "visualizations/fcs_range_1.0_smooth_1.5_nugget_1e5_0.png"
+    irep = 0
+    visualize_fcs(ref_folder, fcs_file, figname, irep)

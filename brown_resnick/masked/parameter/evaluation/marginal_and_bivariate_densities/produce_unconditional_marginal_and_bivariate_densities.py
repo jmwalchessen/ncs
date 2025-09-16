@@ -241,59 +241,43 @@ def produce_true_and_generated_bivariate_density(n, range_value, smooth_value,
     plt.clf()
 
 
-eval_folder = append_directory(2)
-diffusion_generation_folder = (eval_folder + "/diffusion_generation")
-n = 32
-range_value = 1.6
-smooth_value = 1.6
-number_of_replicates = 4000
-matrix_index = (15,15)
-seed_value = 201852
-unconditional_true_samples = np.log(np.load("brown_resnick_samples_range_1.6_smooth_1.6_4000.npy"))
-unconditional_generated_samples = np.load(diffusion_generation_folder + "/data/model2/ref_image1/diffusion/model2_random0_beta_min_max_01_20_1000.npy")
-figname = (diffusion_generation_folder + "/data/model2/ref_image1/marginal_density/model2_diff_marginal_density.png")
-produce_true_and_generated_min_max_marginal_density(n, range_value, smooth_value, number_of_replicates,
-                                                        seed_value, unconditional_generated_samples,
-                                                        unconditional_true_samples,
-                                                        figname)
-
-figname = (diffusion_generation_folder + "/data/model2/ref_image1/marginal_density/model2_min_marginal_density.png")
-produce_true_and_generated_min_marginal_density(n, range_value, smooth_value, number_of_replicates,
-                                                        seed_value, unconditional_generated_samples,
-                                                        unconditional_true_samples,
-                                                        figname)
-
-figname = (diffusion_generation_folder + "/data/model2/ref_image1/marginal_density/model2_max_marginal_density.png")
-produce_true_and_generated_max_marginal_density(n, range_value, smooth_value, number_of_replicates,
-                                                        seed_value, unconditional_generated_samples,
-                                                        unconditional_true_samples,
-                                                        figname)
-for i in range(0, n, 4):
-    for j in range(0, n, 4):
-
-        matrix_index = (i,j)
-        seed_value = np.random.randint(0, 100000, 1)[0]
-        figname = (diffusion_generation_folder + "/data/model2/ref_image1/marginal_density/model2_marginal_density_" + str(i) + "_" + str(j) + ".png")
-        produce_true_and_generated_marginal_density(n, range_value, smooth_value, number_of_replicates,
-                                                    matrix_index, seed_value, unconditional_generated_samples,
-                                                    unconditional_true_samples, figname)
+def produce_unconditional_metrics_with_variables():
 
 
+    eval_folder = append_directory(2)
+    diffusion_generation_folder = (eval_folder + "/diffusion_generation")
+    n = 32
+    range_value = 1.6
+    smooth_value = 1.6
+    number_of_replicates = 4000
+    matrix_index = (15,15)
+    seed_value = 201852
+    unconditional_true_samples = np.log(np.load("brown_resnick_samples_range_1.6_smooth_1.6_4000.npy"))
+    unconditional_generated_samples = np.load(diffusion_generation_folder + "/data/model2/ref_image1/diffusion/model2_random0_beta_min_max_01_20_1000.npy")
+    figname = (diffusion_generation_folder + "/data/model2/ref_image1/marginal_density/model2_diff_marginal_density.png")
+    produce_true_and_generated_min_max_marginal_density(n, range_value, smooth_value, number_of_replicates,
+                                                            seed_value, unconditional_generated_samples,
+                                                            unconditional_true_samples,
+                                                            figname)
 
-"""
+    figname = (diffusion_generation_folder + "/data/model2/ref_image1/marginal_density/model2_min_marginal_density.png")
+    produce_true_and_generated_min_marginal_density(n, range_value, smooth_value, number_of_replicates,
+                                                            seed_value, unconditional_generated_samples,
+                                                            unconditional_true_samples,
+                                                            figname)
 
-indices1 = [(15+i,18) for i in range(-4,4)]
-indices2 = [(15,15)]
+    figname = (diffusion_generation_folder + "/data/model2/ref_image1/marginal_density/model2_max_marginal_density.png")
+    produce_true_and_generated_max_marginal_density(n, range_value, smooth_value, number_of_replicates,
+                                                            seed_value, unconditional_generated_samples,
+                                                            unconditional_true_samples,
+                                                            figname)
+    for i in range(0, n, 4):
+        for j in range(0, n, 4):
 
+            matrix_index = (i,j)
+            seed_value = np.random.randint(0, 100000, 1)[0]
+            figname = (diffusion_generation_folder + "/data/model2/ref_image1/marginal_density/model2_marginal_density_" + str(i) + "_" + str(j) + ".png")
+            produce_true_and_generated_marginal_density(n, range_value, smooth_value, number_of_replicates,
+                                                        matrix_index, seed_value, unconditional_generated_samples,
+                                                        unconditional_true_samples, figname)
 
-for i in indices1:
-    for j in indices2:
-        iindex = matrix_index_to_index(i, n)
-        jindex = matrix_index_to_index(j, n)
-        folder_name = (diffusion_generation_folder + "/data/schlather/model4/ref_image1/bivariate_density/")
-        figname = (folder_name + "/bivariate_density_model4_" + str(iindex) + "_" + str(jindex) + ".png")
-        seed_value = np.random.randint(0, 100000, 1)[0]
-        produce_true_and_generated_bivariate_density(n, range_value, smooth_value,
-                                                 number_of_replicates, i, j, seed_value,
-                                                 unconditional_generated_samples, unconditional_true_samples,
-                                                 figname)"""

@@ -7,23 +7,18 @@ import sys
 from append_directories import *
 from paper_figure_helper_functions import *
 
-def visualize_conditional_mean_observed_and_diffusion(variance, figname, n, model_name):
+def visualize_conditional_mean_observed_and_diffusion(figname, n, model_name):
 
     diffusion_means = np.zeros((5,n,n))
-    true_conditional_unobserved_means = np.zeros((5,n,n))
     reference_images = np.zeros((5,n,n))
     masks = np.zeros((5,n,n))
-    minX = minY = -10
-    maxX = maxY = 10
     range_values = [1.0,2.0,3.0,4.0,5.0]
     for i in range(0, 5):
         image_name = "ref_image" + str(i)
         ref_image = load_reference_image(model_name, image_name)
         mask = load_mask(model_name, image_name)
-        y = load_observations(model_name, image_name, mask, n)
         file_name = (model_name + "_range_" + str(range_values[i]) + "_smooth_1.5_random0.05_4000")
         diffusion_images = load_diffusion_images(model_name, image_name, file_name)
-        nrep = diffusion_images.shape[0]
         diffusion_means[i,:,:] = (np.mean(diffusion_images, axis = (0,1))).reshape((n,n))
         reference_images[i,:,:] = ref_image
         masks[i,:,:] = mask
@@ -112,7 +107,7 @@ def visualize_conditional_mean_observed_ncs_lcs(figname, n, model_name, lcs_file
     plt.savefig(figname)
 
 
-def visualize_conditional_mean_observed_and_diffusion_transposed(variance, figname, n, model_name):
+def visualize_conditional_mean_observed_and_diffusion_transposed(figname, n, model_name):
 
     diffusion_means = np.zeros((5,n,n))
     lcs_means = np.zeros((5,n,n))
@@ -120,14 +115,13 @@ def visualize_conditional_mean_observed_and_diffusion_transposed(variance, figna
     masks = np.zeros((5,n,n))
     range_values = [1.0,2.0,3.0,4.0,5.0]
     for i in range(0, 5):
+        lcs_file_name = "univariate_lcs_4000_neighbors_7_nugget_1e5"
         image_name = "ref_image" + str(i)
         ref_image = load_reference_image(model_name, image_name)
         mask = load_mask(model_name, image_name)
-        y = load_observations(model_name, image_name, mask, n)
         ncs_file_name = (model_name + "_range_" + str(range_values[i]) + "_smooth_1.5_random0.05_4000")
         diffusion_images = load_diffusion_images(model_name, image_name, ncs_file_name)
         lcs_images = load_univariate_lcs_images(model_name, image_name, lcs_file_name)
-        nrep = diffusion_images.shape[0]
         diffusion_means[i,:,:] = (np.mean(diffusion_images, axis = (0,1))).reshape((n,n))
         lcs_means[i,:,:] = (np.mean(lcs_images, axis = 0)).reshape((n,n))
         reference_images[i,:,:] = ref_image
@@ -179,12 +173,12 @@ def visualize_conditional_mean_observed_and_diffusion_transposed(variance, figna
     plt.tight_layout()
     plt.savefig(figname, dpi = 500)
 
-smooth = 1.5
-model_name = "model4"
-n = 32
-smooth_value = 1.5
-figname = "figures/br_parameter_conditional_mean_model4_random05.png"
-lcs_file_name = "univariate_lcs_4000_neighbors_7_nugget_1e5"
-visualize_conditional_mean_observed_ncs_lcs(figname, n, model_name, lcs_file_name)
-figname = "figures/br_parameter_conditional_mean_model4_random05_transposed.png"
-visualize_conditional_mean_observed_and_diffusion_transposed(smooth_value, figname, n, model_name)
+def visualize_conditional_mean_fields_with_variables():
+
+    model_name = "model4"
+    n = 32
+    figname = "figures/br_parameter_conditional_mean_model4_random05.png"
+    lcs_file_name = "univariate_lcs_4000_neighbors_7_nugget_1e5"
+    visualize_conditional_mean_observed_ncs_lcs(figname, n, model_name, lcs_file_name)
+    figname = "figures/br_parameter_conditional_mean_model4_random05_transposed.png"
+    visualize_conditional_mean_observed_and_diffusion_transposed(figname, n, model_name)

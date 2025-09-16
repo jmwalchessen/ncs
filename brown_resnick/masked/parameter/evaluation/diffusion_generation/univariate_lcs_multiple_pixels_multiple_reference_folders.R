@@ -4,7 +4,7 @@ source("univariate_lcs_multiple_pixels.R")
 n <- 32
 indices <- seq(100,570,1)
 n <- 32
-range_values <- seq(4.,5.,1)
+range_values <- seq(1.,5.,1)
 smooth <- 1.5
 nugget <- .00001
 cov_mod <- "brown"

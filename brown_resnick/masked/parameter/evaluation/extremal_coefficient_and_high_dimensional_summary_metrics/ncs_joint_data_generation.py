@@ -53,16 +53,16 @@ def generate_joint_ncs_images_multiple_ranges(masked_true_images_file, mask_file
         generate_joint_ncs_images(current_masked_true_images_file, current_mask_file, vpsde, score_model, range_value, smooth_value,
                                  current_ncs_images_file, batches_per_call, calls, n)
 
+def generate_joint_ncs_images_multiple_ranges_with_parameters():
 
-
-masked_true_images_file = "data/ncs/model4/true_masked_brown_resnick"
-mask_file = "data/ncs/model4/true_masks"
-range_values = [1.0,2.0,3.0,4.0,5.0]
-smooth_value = 1.5
-ncs_images_file = "data/ncs/model4/brown_resnick_ncs_images"
-nrep = 4000
-calls = 8
-batches_per_call = 500
-n = 32
-generate_joint_ncs_images_multiple_ranges(masked_true_images_file, mask_file, sdevp, score_model, range_values, smooth_value,
-                                          ncs_images_file, nrep, batches_per_call, calls, n)
+    masked_true_images_file = "data/ncs/model4/true_masked_brown_resnick"
+    mask_file = "data/ncs/model4/true_masks"
+    range_values = [1.0,2.0,3.0,4.0,5.0]
+    smooth_value = 1.5
+    ncs_images_file = "data/ncs/model4/brown_resnick_ncs_images"
+    nrep = 4000
+    calls = 8
+    batches_per_call = 500
+    n = 32
+    generate_joint_ncs_images_multiple_ranges(masked_true_images_file, mask_file, sdevp, score_model, range_values, smooth_value,
+                                            ncs_images_file, nrep, batches_per_call, calls, n)

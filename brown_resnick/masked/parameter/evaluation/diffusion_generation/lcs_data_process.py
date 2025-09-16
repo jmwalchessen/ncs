@@ -3,8 +3,6 @@ import torch as th
 import subprocess
 import os
 
-
-
 def extract_integer(filename):
 
 
@@ -40,14 +38,15 @@ def concatenate_lcs_files(ref_image_folder, nrep, n, unibi_type):
     lcs_mask = lcs_mask.reshape((n,n))
     return lcs_images, lcs_mask
         
+def concatenate_lcs_files_with_parameters():
 
-ref_image_folder = "data/model4/ref_image4"
-nrep = 4000
-n = 32
-unibi_type = "univariate"
-neighbors = 7
-lcs_images, lcs_mask = concatenate_lcs_files(ref_image_folder, nrep, n, unibi_type)
-lcs_file_name = "univariate_lcs_" + str(nrep) + "_neighbors_" + str(neighbors) + "_nugget_1e5"
-lcs_mask_name = "univariate_lcs_" + str(nrep) + "_neighbors_" + str(neighbors) + "_nugget_1e5_mask"
-np.save((ref_image_folder + "/lcs/univariate/" + lcs_file_name + ".npy"), lcs_images)
-np.save((ref_image_folder + "/lcs/univariate/" + lcs_file_name + "_mask.npy"), lcs_mask)
+    ref_image_folder = "data/model4/ref_image4"
+    nrep = 4000
+    n = 32
+    unibi_type = "univariate"
+    neighbors = 7
+    lcs_images, lcs_mask = concatenate_lcs_files(ref_image_folder, nrep, n, unibi_type)
+    lcs_file_name = "univariate_lcs_" + str(nrep) + "_neighbors_" + str(neighbors) + "_nugget_1e5"
+    lcs_mask_name = "univariate_lcs_" + str(nrep) + "_neighbors_" + str(neighbors) + "_nugget_1e5_mask"
+    np.save((ref_image_folder + "/lcs/univariate/" + lcs_file_name + ".npy"), lcs_images)
+    np.save((ref_image_folder + "/lcs/univariate/" + lcs_file_name + "_mask.npy"), lcs_mask)
