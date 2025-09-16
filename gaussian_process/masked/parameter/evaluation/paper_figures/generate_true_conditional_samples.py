@@ -1,7 +1,4 @@
 import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
-import pandas as pd
 
 def construct_norm_matrix(minX, maxX, minY, maxY, n):
     # create one-dimensional arrays for x and y
@@ -141,11 +138,6 @@ def construct_empirical_mean_variance(mask, minX, maxX, minY, maxY, n, variance,
     conditional_mean =  np.matmul(kriging_matrix, y)
     variance_matrix = construct_masked_exp_kernel(mask, minX, maxX, minY, maxY, n, variance, lengthscale)
     cov_part = np.matmul(kriging_matrix, masked_exp_kernel_vector)
-    #conditional_variance = variance - cov_part
-    #cvupper = np.triu(conditional_variance)
-    #cvreflected = cvupper.T + cvupper
-    #np.fill_diagonal(cvreflected, np.diag(cvupper))
-    #conditional_variance = cvreflected
     conditional_variance = variance_matrix - cov_part
     return conditional_mean, conditional_variance
 

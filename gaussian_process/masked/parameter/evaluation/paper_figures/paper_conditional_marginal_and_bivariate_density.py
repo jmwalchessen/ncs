@@ -7,6 +7,7 @@ from paper_figure_helper_functions import *
 import seaborn as sns
 from matplotlib import gridspec
 from matplotlib import patches as mpatches
+from pandas import pd
 
 def produce_marginal_density(model_name, image_name, file_name, missing_index, n, nrep, variance, lengthscale):
 
@@ -113,8 +114,6 @@ def visualize_marginal_and_bivariate_density(model_name, missing_indices, missin
             else:
                 ax.set_xticks([])
         else:
-            missing_index1 = missing_indices1[(i%5)]
-            missing_index2 = missing_indices2[(i%5)]
             matrix_index1 = index_to_matrix_index(missing_indices1[(i%5)], n)
             matrix_index2 = index_to_matrix_index(missing_indices2[(i%5)], n)
             pdd = pd.DataFrame(np.concatenate([bivariate_densities[(i%5),:,:], class_vector],axis = 1),
@@ -229,8 +228,6 @@ def visualize_marginal_and_bivariate_density_transposed(model_name, missing_indi
             #else:
                 #ax.set_xticks([])
         else:
-            missing_index1 = missing_indices1[counter]
-            missing_index2 = missing_indices2[counter]
             matrix_index1 = index_to_matrix_index(missing_indices1[counter], n)
             matrix_index2 = index_to_matrix_index(missing_indices2[counter], n)
             pdd = pd.DataFrame(np.concatenate([bivariate_densities[counter,:,:], class_vector],axis = 1),
@@ -239,8 +236,6 @@ def visualize_marginal_and_bivariate_density_transposed(model_name, missing_indi
             kde1 = sns.kdeplot(data = pdd, x = 'x', y = 'y', ax = ax, hue = 'class',
                                fill = False, levels = [.1,.2,.3,.4,.5,.6,.7,.8,.9,.95,.99], alpha = .5,
                                legend = False)
-            blue_patch = mpatches.Patch(color='blue')
-            orange_patch = mpatches.Patch(color='orange')
             ax.axvline(reference_images[counter,matrix_index1[0],matrix_index1[1]], color='red', linestyle = 'dashed')
             ax.axhline(reference_images[counter,matrix_index2[0],matrix_index2[1]], color='red', linestyle = 'dashed')
             ax.set_xlim([-4.5,4.5])

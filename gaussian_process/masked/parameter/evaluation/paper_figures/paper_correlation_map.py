@@ -1,5 +1,4 @@
 import numpy as np
-import torch as th
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import ImageGrid
 from generate_true_conditional_samples import *
@@ -40,8 +39,6 @@ def visualize_true_and_diffusion_correlation_maps(missing_indices, n, nrep,
     
     n = 32
     masks = np.zeros((5,n,n))
-    minX = minY = -10
-    maxX = maxY = 10
     lengthscales = [1.0,2.0,3.0,4.0,5.0]
     true_cov_images = np.zeros((5,n,n))
     diffusion_cov_images = np.zeros((5,n,n))
@@ -50,7 +47,6 @@ def visualize_true_and_diffusion_correlation_maps(missing_indices, n, nrep,
         ref_image = load_reference_image(model_name, image_name)
         mask = load_mask(model_name, image_name)
         masks[i,:,:] = mask
-        y = load_observations(model_name, image_name, mask, n)
         file_name = (model_name + "_variance_" + str(variance) + "_lengthscale_" + str(lengthscales[i]) + "_beta_min_max_01_20_random05_4000")
         diffusion_images = load_diffusion_images(model_name, image_name, file_name)
         true_cov_image, diffusion_cov_image = produce_true_and_diffusion_correlation_map_per_pixel(diffusion_images, mask, missing_indices[i], n, nrep,
@@ -96,11 +92,12 @@ def visualize_true_and_diffusion_correlation_maps(missing_indices, n, nrep,
         plt.tight_layout()
         plt.savefig(figname, dpi = 500)
     
+def visualize_true_and_diffusion_correlation_maps_with_variables():
 
-n = 32
-nrep = 4000
-variance = 1.5
-model_name = "model7"
-figname = "figures/paper_correlation_maps_model7_random05_transposed.png"
-missing_indices = [123, 203, 303, 403, 459]
-visualize_true_and_diffusion_correlation_maps(missing_indices, n, nrep, variance, model_name, figname)
+    n = 32
+    nrep = 4000
+    variance = 1.5
+    model_name = "model7"
+    figname = "figures/paper_correlation_maps_model7_random05_transposed.png"
+    missing_indices = [123, 203, 303, 403, 459]
+    visualize_true_and_diffusion_correlation_maps(missing_indices, n, nrep, variance, model_name, figname)

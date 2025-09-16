@@ -2,8 +2,6 @@ import numpy as np
 import torch as th
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import ImageGrid
-import os
-import sys
 from append_directories import *
 from generate_true_conditional_samples import *
 from paper_figure_helper_functions import *
@@ -154,10 +152,9 @@ def visualize_conditional_mean_observed_and_diffusion_transposed(variance, figna
     plt.tight_layout()
     plt.savefig(figname, dpi = 500)
 
-variance = 1.5
-model_name = "model7"
-n = 32
-figname = "figures/gp_parameter_conditional_mean_model7_random05.png"
-visualize_conditional_mean_observed_and_diffusion(variance, figname, n, model_name)
-figname = "figures/gp_parameter_conditional_mean_model7_random05_transposed.png"
-visualize_conditional_mean_observed_and_diffusion_transposed(variance, figname, n, model_name)
+def produce_paper_conditional_mean_field_visualizations_with_variables():
+    variance = 1.5
+    model_name = "model7"
+    n = 32
+    figname = "figures/gp_parameter_conditional_mean_model7_random05_transposed.png"
+    visualize_conditional_mean_observed_and_diffusion_transposed(variance, figname, n, model_name)
