@@ -15,11 +15,9 @@ def process_fcs_file(ref_folder, mask_file, fcs_file, processed_fcs_file, nrep, 
     mask = np.load((ref_folder + "/" + mask_file))
     ref_image = np.log(load_ref_image(ref_folder))
     observed_image = ((mask)*ref_image).reshape((1,n**2))
-    print(observed_image)
     missing_fcs = np.log(np.load((ref_folder + "/" + fcs_file)))
     fcs = (np.tile(observed_image, reps = nrep)).reshape((nrep,n**2))
     fcs[:,mask.flatten() == 0] = missing_fcs
-    print(fcs[0,mask.flatten() == 1])
     fcs = fcs.reshape((nrep,n,n))
     np.save((ref_folder + "/" + processed_fcs_file), fcs)
 
@@ -55,8 +53,6 @@ def process_unconditional_fcs_file_with_variables():
             
 def process_unconditional_fixed_location_fcs_file(ref_folder, mask_file, fcs_file, obs_file, processed_fcs_file, nrep, n, m):
 
-    print(ref_folder)
-    print(fcs_file)
     missing_fcs = (np.load((ref_folder + "/" + fcs_file))).reshape((nrep,(n**2-m)))
     true_images = (np.load((ref_folder + "/" + obs_file))).reshape((nrep,n**2))
     fcs_mask = np.load((ref_folder + "/" + mask_file)).reshape((n**2))

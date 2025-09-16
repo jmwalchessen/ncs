@@ -9,11 +9,8 @@ def preprocessing_fcs_file(ref_folder, fcs_file, nrep, n):
     fcs_unobserved = np.load((ref_folder + "/" + fcs_file))
     ref_image = np.load((ref_folder + "/ref_image.npy"))
     mask = np.load((ref_folder + "/mask.npy"))
-    print(mask.shape)
     fcs_images = np.zeros((nrep,n**2))
-    repeated_refimage = np.repeat(ref_image, nrep)
     fcs_images = (np.tile(ref_image.reshape((1,n**2)), reps = nrep)).reshape((n,nrep**2))
-    print((fcs_images).shape)
     fcs_images[:,mask.flatten() == 0] = np.log(fcs_unobserved)
     return fcs_images
 
@@ -23,9 +20,6 @@ def visualize_fcs(ref_folder, mask_file, fcs_file, figname, irep):
     mask = np.load(mask_file)
     observed_indices = np.argwhere(mask > 0)
     fcs_images = np.load((ref_folder + "/" + fcs_file))
-    print(mask.shape)
-    print(fcs_images.shape)
-    print(fcs_images[:,mask == 1])
     fig, ax = plt.subplots(nrows = 2, ncols = 2, figsize = (10,10))
     im = ax[0,0].imshow(np.log(ref_image), alpha = mask.astype(float), vmin = -2, vmax = 6)
     plt.colorbar(im, shrink = .6)
@@ -111,7 +105,3 @@ def visualize_fcs_multiple_ranges_and_locations(ireps):
                            "_smooth_1.5_nugget_1e5_obs_" + str(m) + "_" + str(nrep)
                            + "_" + str(irep) + ".png")
                 visualize_fcs(ref_folder, mask_file, fcs_file, figname, irep)
-
-
-ireps = [i for i in range(0,10)]
-visualize_fcs_multiple_ranges_and_locations(ireps)

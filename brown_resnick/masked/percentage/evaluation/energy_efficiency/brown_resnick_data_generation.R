@@ -18,7 +18,6 @@ coord <- expand.grid(x, y)
 number_of_replicates_per_call <- 1
 calls <- as.integer(number_of_replicates/number_of_replicates_per_call)
 repnumberslist <- rep(number_of_replicates_per_call, calls)
-print(repnumberslist)
 
 simulate_data_per_core <- function(number_of_replicates, nn, coord, range, smooth)
 {

@@ -55,7 +55,6 @@ compute_ncs_extremal_coefficient <- function(number_of_replicates, range, smooth
   x <- y <- seq(-10, 10, length = nn)
   coord <- expand.grid(x, y)
   ncs_images <- exp(np$load(ncs_file))
-  print(dim(ncs_images))
   dim(ncs_images) <- c(number_of_replicates,(n**2))
   mado <- madogram(data = ncs_images, coord = as.matrix(coord), which = "ext", n.bins = nbins)
   np$save(ncs_ext_file, mado)
@@ -92,7 +91,6 @@ compute_fcs_extremal_coefficient <- function(number_of_replicates, range, smooth
   x <- y <- seq(-10, 10, length = nn)
   coord <- expand.grid(x, y)
   fcs_images <- np$load(fcs_file)
-  print(dim(fcs_images))
   dim(fcs_images) <- c(number_of_replicates,(n**2))
   mado <- madogram(data = fcs_images, coord = as.matrix(coord), which = "ext", n.bins = nbins)
   np$save(fcs_ext_file, mado)
@@ -145,7 +143,6 @@ compute_extreme_ncs_extremal_coefficient_with_variables <- function()
         ncs_ext_file <- paste(paste(paste(paste(paste(ref_folder, "extreme_brown_resnick_ncs_extremal_matrix_bins_100_obs", sep = "/"),
                         as.character(ms[i]), sep = ""), "range", sep = "_"), as.character(ranges[i]), sep = "_"), "smooth_1.5_4000.npy", sep = "_")
         ncs_images <- np$load(ncs_file)
-        print(dim(ncs_images))
         compute_extreme_extremal_coefficient(number_of_replicates, ranges[j], smooth, nbins, ncs_file, ncs_ext_file, n)
     }
   }

@@ -22,10 +22,7 @@ def load_score_model(process_type, model_name, mode):
     config = ncsnpp_config.get_config()
 
     score_model = th.nn.DataParallel((ncsnpp.NCSNpp(config)).to("cuda:0"))
-    if(process_type == "schlather"):
-        score_model.load_state_dict(th.load((sde_folder + "/trained_score_models/vpsde/" + process_type + "/" + model_name)))
-    else:
-        score_model.load_state_dict(th.load((sde_folder + "/trained_score_models/vpsde/" + model_name)))
+    score_model.load_state_dict(th.load((sde_folder + "/trained_score_models/vpsde/" + model_name)))
     if(mode == "train"):
         score_model.train()
     else:
@@ -63,7 +60,6 @@ def multiple_p_mean_and_variance_from_score_via_mask(vpsde, score_model, device,
 
     num_samples = masked_xt.shape[0]
     timestep = ((th.tensor([t])).repeat(num_samples)).to(device)
-    reps = masked_xt.shape[0]
     masked_xt_and_mask = th.cat([masked_xt, masks], dim = 1)
     with th.no_grad():
         score_and_mask = score_model(masked_xt_and_mask, timestep)
@@ -147,16 +143,3 @@ def generate_brown_resnick_process(range_value, smooth_value, seed_value, number
     os.remove("temporary_brown_resnick_samples.npy")
     images = images.reshape((number_of_replicates,1,n,n))
     return images
-
-def generate_schlather_process(range_value, smooth_value, seed_value, number_of_replicates, n):
-
-    subprocess.run(["Rscript", "schlather_data_generation.R", str(range_value), str(smooth_value), str(number_of_replicates), str(seed_value)],
-                    check = True, capture_output = True, text = False)
-    images = np.load("temporary_schlather_samples.npy")
-    os.remove("temporary_schlather_samples.npy")
-    images = images.reshape((number_of_replicates,1,n,n))
-    return images
-
-def pwd_command():
-
-    subprocess.run(["pwd"], shell = True)

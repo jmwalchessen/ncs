@@ -213,7 +213,7 @@ def get_masked_score_ddpm_loss_fn(vpsde, train, reduce_mean = True):
     masked_image_losses = torch.mul((1-batch_masks), image_losses)
     masked_image_losses = reduce_op(masked_image_losses.reshape(masked_image_losses.shape[0], -1), dim=-1)
     ml = torch.mean(torch.square(torch.subtract(batch_masks,mask_score)))
-    mask_loss = torch.mean(masked_image_losses)+torch.mean(torch.square(torch.subtract(batch_masks,mask_score)))
+    mask_loss = torch.mean(masked_image_losses)
     return mask_loss
   
   return loss_fn

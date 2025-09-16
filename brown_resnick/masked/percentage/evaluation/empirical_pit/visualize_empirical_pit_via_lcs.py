@@ -11,7 +11,6 @@ evaluation_folder = append_directory(2)
 data_generation_folder = (evaluation_folder + "/diffusion_generation")
 sys.path.append(data_generation_folder)
 sys.path.append(evaluation_folder)
-from mcmc_interpolation_helper_functions import *
 from mpl_toolkits.axes_grid1 import ImageGrid
 from matplotlib.patches import Rectangle
 
@@ -52,10 +51,12 @@ def produce_pit_marginal_density(folder_name, pit_file, missing_index, figname):
     axs[1].hist(pit_values, bins = 20)
     plt.savefig((folder_name + "/visualizations/" + figname + "_" + str(missing_index) + ".png"))
 
-folder_name = (data_generation_folder + "/data/mcmc/mask1")
-pit_file = "pit_values_1000_range_1_smooth_1_neighbors_5_4000"
-missing_indices = [1,100,200,300,400,500,600,800,900,1000]
-figname = "pit_marginal_1000_range_1_smooth_1_neighbors_5_4000"
-for missing_index in missing_indices:
-    produce_pit_marginal_density(folder_name, pit_file, missing_index, figname)
+def produce_pit_marginal_density_with_variables():
+    
+    folder_name = (data_generation_folder + "/data/mcmc/mask1")
+    pit_file = "pit_values_1000_range_1_smooth_1_neighbors_5_4000"
+    missing_indices = [1,100,200,300,400,500,600,800,900,1000]
+    figname = "pit_marginal_1000_range_1_smooth_1_neighbors_5_4000"
+    for missing_index in missing_indices:
+        produce_pit_marginal_density(folder_name, pit_file, missing_index, figname)
 

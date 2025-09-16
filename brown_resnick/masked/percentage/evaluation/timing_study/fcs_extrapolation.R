@@ -45,4 +45,3 @@ exp_regression_per_range <- function(range_value, fcs_type)
 range_value <- 2.
 fcs_type <- "user"
 lin <- exp_regression_per_range(range_value, fcs_type)
-print(summary(lin))

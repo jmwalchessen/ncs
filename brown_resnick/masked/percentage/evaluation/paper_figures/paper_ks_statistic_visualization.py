@@ -31,6 +31,3 @@ def visualize_ks_statistic_multiple_ranges(obs):
     ax.cax.colorbar(im)
     plt.tight_layout()
     plt.savefig(figname)
-
-obs = 5
-visualize_ks_statistic_multiple_ranges(obs)

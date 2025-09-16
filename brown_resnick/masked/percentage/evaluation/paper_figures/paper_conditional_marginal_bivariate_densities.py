@@ -26,11 +26,7 @@ def produce_marginal_density(model_name, image_name, file_name, missing_index, n
 def produce_bivariate_densities(model_name, lengthscale, variance, image_name, nrep,
                                 missing_index1, missing_index2, file_name):
 
-    minX = minY = -10
-    maxX = maxY = 10
     n = 32
-    mask = load_mask(model_name, image_name)
-    observations = load_observations(model_name, image_name, mask, n)
     diffusion_images = load_diffusion_images(model_name, image_name, file_name)
     diffusion_images = diffusion_images.reshape((nrep,n**2))
     diffusion_bivariate_densities = np.concatenate([(diffusion_images[:,missing_index1]).reshape((nrep,1)),
@@ -88,15 +84,10 @@ def visualize_conditional_marginal_bivariate_density(model_name, range_value, sm
         diffusion_marginal_density = produce_marginal_density(model_name, image_name, file_name,
                                                               missing_indices[i], n, nrep, range_value,
                                                               smooth)
-        print('b')
         diffusion_marginal_densities[i,:] = diffusion_marginal_density
-        print(univariate_lcs_file)
         univariate_lcs_images[i,:,:,:] = (np.load((data_generation_folder + ref_image_folder + "/lcs/univariate/" + 
                                                    univariate_lcs_file))).reshape((nrep,n,n))
         lcs_marginal_density[i,:] = univariate_lcs_images[i,:,int(matrix_missing_index[0]),int(matrix_missing_index[1])]
-        print((data_generation_folder + ref_image_folder + "/lcs/bivariate/" +
-                               bivariate_lcs_file + "_random" + str(ps[i]) + "_" + str(missing_indices1[i])
-                               + "_" + str(missing_indices2[i]) + ".npy"))
         bilcs = np.log(np.load((data_generation_folder + ref_image_folder + "/lcs/bivariate/" +
                                bivariate_lcs_file + "_random" + str(ps[i]) + "_" + str(missing_indices1[i])
                                + "_" + str(missing_indices2[i]) + ".npy")))
@@ -129,10 +120,8 @@ def visualize_conditional_marginal_bivariate_density(model_name, range_value, sm
             else:
                 ax.set_yticks([])
             if(((i == 0)) | (i == 4)):
-                print("a")
                 ax.set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]), fontsize = 15)
             else:
-                print("c")
                 ax.set_xticks([])
 
         elif(i < 10):
@@ -221,13 +210,9 @@ def visualize_conditional_marginal_bivariate_density_other_grid(model_name, rang
                                                               missing_indices[i], n, nrep, range_value,
                                                               smooth)
         diffusion_marginal_densities[i,:] = diffusion_marginal_density
-        print(univariate_lcs_file)
         univariate_lcs_images[i,:,:,:] = (np.load((data_generation_folder + ref_image_folder + "/lcs/univariate/" + 
                                                    univariate_lcs_file))).reshape((nrep,n,n))
         lcs_marginal_density[i,:] = univariate_lcs_images[i,:,int(matrix_missing_index[0]),int(matrix_missing_index[1])]
-        print((data_generation_folder + ref_image_folder + "/lcs/bivariate/" +
-                               bivariate_lcs_file + "_random" + str(ps[i]) + "_" + str(missing_indices1[i])
-                               + "_" + str(missing_indices2[i]) + ".npy"))
         bilcs = np.log(np.load((data_generation_folder + ref_image_folder + "/lcs/bivariate/" +
                                bivariate_lcs_file + "_random" + str(ps[i]) + "_" + str(missing_indices1[i])
                                + "_" + str(missing_indices2[i]) + ".npy")))
@@ -387,7 +372,6 @@ def visualize_conditional_fcs_ncs_marginal_bivariate_density(model_version, rang
             matrix_index = index_to_matrix_index(missing_indices[i%5], n)
             sns.kdeplot(ncs_marginal_densities[(i % 5),:], ax = ax, color = 'orange')
             sns.kdeplot(fcs_marginal_densities[(i % 5),:], ax = ax, color = 'purple')
-            print(reference_images[(i%5),matrix_index[0],matrix_index[1]])
             ax.axvline(reference_images[(i%5),matrix_index[0],matrix_index[1]], color='red', linestyle = 'dashed')
             ax.set_xlim([-3,8])
             ax.set_ylim([0,1.75])
@@ -454,15 +438,10 @@ def visualize_conditional_marginal_bivariate_density_transposed(model_name, rang
         diffusion_marginal_density = produce_marginal_density(model_name, image_name, file_name,
                                                               missing_indices[i], n, nrep, range_value,
                                                               smooth)
-        print('b')
         diffusion_marginal_densities[i,:] = diffusion_marginal_density
-        print(univariate_lcs_file)
         univariate_lcs_images[i,:,:,:] = (np.load((data_generation_folder + ref_image_folder + "/lcs/univariate/" + 
                                                    univariate_lcs_file))).reshape((nrep,n,n))
         lcs_marginal_density[i,:] = univariate_lcs_images[i,:,int(matrix_missing_index[0]),int(matrix_missing_index[1])]
-        print((data_generation_folder + ref_image_folder + "/lcs/bivariate/" +
-                               bivariate_lcs_file + "_random" + str(ps[i]) + "_" + str(missing_indices1[i])
-                               + "_" + str(missing_indices2[i]) + ".npy"))
         bilcs = np.log(np.load((data_generation_folder + ref_image_folder + "/lcs/bivariate/" +
                                bivariate_lcs_file + "_random" + str(ps[i]) + "_" + str(missing_indices1[i])
                                + "_" + str(missing_indices2[i]) + ".npy")))

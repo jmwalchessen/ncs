@@ -11,7 +11,6 @@ evaluation_folder = append_directory(2)
 data_generation_folder = (evaluation_folder + "/diffusion_generation")
 sys.path.append(data_generation_folder)
 sys.path.append(evaluation_folder)
-from mcmc_interpolation_helper_functions import *
 from mpl_toolkits.axes_grid1 import ImageGrid
 from matplotlib.patches import Rectangle
 
@@ -167,38 +166,39 @@ def produce_generated_and_lcs_bivariate_density(ref_image_folder, n, missing_ind
         plt.clf()
 
 
+def produce_generated_and_univariate_lcs_marginal_density_with_variables():
 
-ref_image_folder = "data/model4/ref_image4"
-nrep = 4000
-neighbors = 7
-p = .5
-univariate_lcs_file = "univariate_lcs_" + str(nrep) + "_neighbors_" + str(neighbors) + "_nugget_1e5.npy"
-n = 32
-ncs_file_name = "model4_range_3.0_smooth_1.5_4000_random" + str(p) + ".npy"
-for missing_index in range(0,1000):
-    figname = ("univariate_lcs_" + str(nrep) + "neighbors_" + str(neighbors) + "_nugget_1e5_marginal_density_missing_index_"
-                + str(missing_index) + ".png")
+    ref_image_folder = "data/model4/ref_image4"
+    nrep = 4000
+    neighbors = 7
+    p = .5
+    univariate_lcs_file = "univariate_lcs_" + str(nrep) + "_neighbors_" + str(neighbors) + "_nugget_1e5.npy"
+    n = 32
+    ncs_file_name = "model4_range_3.0_smooth_1.5_4000_random" + str(p) + ".npy"
+    for missing_index in range(0,1000):
+        figname = ("univariate_lcs_" + str(nrep) + "neighbors_" + str(neighbors) + "_nugget_1e5_marginal_density_missing_index_"
+                    + str(missing_index) + ".png")
 
-    produce_generated_and_univariate_lcs_marginal_density(ref_image_folder, n, missing_index,
-                                                      ncs_file_name, univariate_lcs_file, figname)
-
-
-"""
-ref_image_folder = "data/model4/ref_image0"
-nrep = 4000
-neighbors = 7
-range_value = 3.0
-bivariate_lcs_file = "bivariate_lcs_" + str(nrep) + "_neighbors_" + str(neighbors) + "_nugget_1e5"
-n = 32
-p = .01
-ncs_file_name = "model4_range_" + str(range_value) + "_smooth_1.5_4000_random" + str(p) + ".npy"
-bilcs_folder = (evaluation_folder + "/diffusion_generation/" + ref_image_folder
-                 + "/lcs/bivariate")
-filenames = [f for f in os.listdir(bilcs_folder) if os.path.isfile(os.path.join(bilcs_folder, f))]
+        produce_generated_and_univariate_lcs_marginal_density(ref_image_folder, n, missing_index,
+                                                        ncs_file_name, univariate_lcs_file, figname)
 
 
-for i in range(len(filenames)):
+def produce_generated_and_bivariate_lcs_marginal_density_with_variables():
 
-    figname = ("bivariate_lcs_" + str(nrep) + "neighbors_" + str(neighbors) + "_nugget_1e5_bivariate_density_missing_index_")
-    produce_generated_and_lcs_bivariate_density(ref_image_folder, n,
-                                                ncs_file_name, filenames[i], figname, nrep)"""
+    ref_image_folder = "data/model4/ref_image0"
+    nrep = 4000
+    neighbors = 7
+    range_value = 3.0
+    n = 32
+    p = .01
+    ncs_file_name = "model4_range_" + str(range_value) + "_smooth_1.5_4000_random" + str(p) + ".npy"
+    bilcs_folder = (evaluation_folder + "/diffusion_generation/" + ref_image_folder
+                    + "/lcs/bivariate")
+    filenames = [f for f in os.listdir(bilcs_folder) if os.path.isfile(os.path.join(bilcs_folder, f))]
+
+
+    for i in range(len(filenames)):
+
+        figname = ("bivariate_lcs_" + str(nrep) + "neighbors_" + str(neighbors) + "_nugget_1e5_bivariate_density_missing_index_")
+        produce_generated_and_lcs_bivariate_density(ref_image_folder, n,
+                                                    ncs_file_name, filenames[i], figname, nrep)

@@ -112,14 +112,15 @@ def visualize_unconditional_fcs_vs_true_marginal_bivariate_density(nrep, missing
     plt.savefig(figname)
     plt.clf()
 
-
-nrep = 4000
-missing_indices = [100,100,100,100,100]
-missing_indices1 = [900,900,900,900,900]
-missing_indices2 = [500,500,500,500,500]
-n = 32
-obs = 7
-figname = "figures/paper_fcs_vs_true_obs_" + str(obs) + "_unconditional_marginal_bivariate.png"
-visualize_unconditional_fcs_vs_true_marginal_bivariate_density(nrep, missing_indices,
-                                                                   missing_indices1, missing_indices2,
-                                                                   n, figname, obs)
+def visualize_unconditional_fcs_vs_true_marginal_bivariate_density_with_variables():
+    
+    nrep = 4000
+    missing_indices = [100,100,100,100,100]
+    missing_indices1 = [900,900,900,900,900]
+    missing_indices2 = [500,500,500,500,500]
+    n = 32
+    obs = 7
+    figname = "figures/paper_fcs_vs_true_obs_" + str(obs) + "_unconditional_marginal_bivariate.png"
+    visualize_unconditional_fcs_vs_true_marginal_bivariate_density(nrep, missing_indices,
+                                                                    missing_indices1, missing_indices2,
+                                                                    n, figname, obs)

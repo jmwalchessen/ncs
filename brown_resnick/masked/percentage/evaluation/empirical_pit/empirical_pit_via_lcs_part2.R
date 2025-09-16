@@ -42,10 +42,6 @@ lcs_per_pixel <- function(observed_spatial_grid, observations, k, key_location,
     id_matrix <- located_neighboring_pixels(observed_spatial_grid, k, key_location)
     cond_data <- observations[id_matrix]
     cond_coord <- observed_spatial_grid[id_matrix,]
-    print("obs")
-    print(observations)
-    print("obs")
-    print(cond_data)
     output <- SpatialExtremes::condrmaxstab(nrep, coord = key_location,
               cond.coord = cond_coord,
               cond.data = cond_data,
@@ -55,9 +51,7 @@ lcs_per_pixel <- function(observed_spatial_grid, observations, k, key_location,
               smooth = smooth,
               burnin = 1000,
               thin = 100)
-    print(output$sim)
     condsim <- array(output$sim, dim = c(1,nrep))
-    print(condsim)
 }
 
 interruptor <- function(FUN,args, time.limit, ALTFUN){
@@ -118,7 +112,6 @@ produce_lcs_per_pixel <- function(argsList)
     key_location <- unobserved_spatial_grid[missing_index,]
     condsim <- lcs_per_pixel(observed_spatial_grid, observations, neighbors,
                              key_location, cov_mod, nugget, range, smooth, nrep)
-    print(condsim)
     return(condsim)
 }
 
@@ -166,14 +159,11 @@ produce_lcs_per_image_and_mask_interrupted_for_parallelization <- function(n, ra
   condmatrix_file <- paste(paste(condmatrix_file, as.character(ref_image_index), sep = "_"), "npy", sep = ".")
   for(missing_index in missing_indices)
   {
-    print(missing_index)
     current_results <- produce_lcs_per_pixel_via_mask_interrupted(n, range, smooth, nugget, cov_mod, mask_file_name,
                                                            ref_image_name, neighbors, nrep, missing_index,
                                                            ref_image_index)
-    print(current_results)
     condsim_matrix[missing_index,] <- current_results
   }
-  print(condsim_matrix)
   np$save(condmatrix_file, condsim_matrix)
 }
 
@@ -242,24 +232,28 @@ produce_lcs_parallelized <- function()
   }
 }
 
-n <- 32
-range <- 3.
-smooth <- 1.5
-nugget <- .00001
-cov_mod <- "brown"
-ps <- c(.01,.05,.1,.25,.5)
-p <- .01
-nrep <- 5
-ref_nrep <- 4000
-neighbors <- 7
-ref_folder <- paste("data/model4/random", as.character(p), sep = "")
-mask_file_name <- paste(ref_folder, "mask.npy", sep = "/")
-ref_image_name <- paste(paste(paste(ref_folder, "reference_images_range_3_smooth_1.5_random", sep = "/"),
-                                        as.character(p), sep = "_"), "4000.npy", sep = "_")
-ref_image_index <- 1
-condmatrix_file <- "test.npy"
-produce_lcs_per_image_and_mask_interrupted_for_parallelization(n, range, smooth, nugget, cov_mod, mask_file_name, ref_image_name,
-                                                 neighbors, nrep, ref_image_index, condmatrix_file)
+produce_lcs_per_image_and_mask_interrupted_for_parallelization_with_variables <- function()
+{
+
+  n <- 32
+  range <- 3.
+  smooth <- 1.5
+  nugget <- .00001
+  cov_mod <- "brown"
+  ps <- c(.01,.05,.1,.25,.5)
+  p <- .01
+  nrep <- 5
+  ref_nrep <- 4000
+  neighbors <- 7
+  ref_folder <- paste("data/model4/random", as.character(p), sep = "")
+  mask_file_name <- paste(ref_folder, "mask.npy", sep = "/")
+  ref_image_name <- paste(paste(paste(ref_folder, "reference_images_range_3_smooth_1.5_random", sep = "/"),
+                                          as.character(p), sep = "_"), "4000.npy", sep = "_")
+  ref_image_index <- 1
+  condmatrix_file <- "test.npy"
+  produce_lcs_per_image_and_mask_interrupted_for_parallelization(n, range, smooth, nugget, cov_mod, mask_file_name, ref_image_name,
+                                                  neighbors, nrep, ref_image_index, condmatrix_file)
+}
 
 
 

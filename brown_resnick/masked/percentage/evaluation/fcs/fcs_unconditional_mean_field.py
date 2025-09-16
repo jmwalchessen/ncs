@@ -73,6 +73,8 @@ def visualize_unconditional_mean_observed_fcs_ncs(figname, m):
     figname = (fcs_folder + "/data/unconditional/fixed_locations/obs" + str(m)  + "/" + figname)
     plt.savefig(figname)
 
-for m in range(1,8):
-    figname = "unconditional_mean_field_obs" + str(m) + "_nugget_1e5_4000.png"
-    visualize_unconditional_mean_observed_fcs_ncs(figname, m)
+def visualize_unconditional_mean_observed_fcs_ncs_with_variables():
+    
+    for m in range(1,8):
+        figname = "unconditional_mean_field_obs" + str(m) + "_nugget_1e5_4000.png"
+        visualize_unconditional_mean_observed_fcs_ncs(figname, m)

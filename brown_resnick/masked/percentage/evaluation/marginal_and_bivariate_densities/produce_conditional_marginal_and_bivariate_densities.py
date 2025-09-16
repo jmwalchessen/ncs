@@ -11,7 +11,6 @@ evaluation_folder = append_directory(2)
 data_generation_folder = (evaluation_folder + "/diffusion_generation")
 sys.path.append(data_generation_folder)
 sys.path.append(evaluation_folder)
-from mcmc_interpolation_helper_functions import *
 from mpl_toolkits.axes_grid1 import ImageGrid
 from matplotlib.patches import Rectangle
 

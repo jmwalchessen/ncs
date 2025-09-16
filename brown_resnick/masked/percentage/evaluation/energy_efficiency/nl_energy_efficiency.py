@@ -125,7 +125,3 @@ def evaluate_single_surface(iparam, imask):
     file_name = ("nl_image.png")
     visualize_image_and_nl_field(np.log(field), image, file_name, range_value, smooth_value, n, range_extent, range_number, mes)
 
-
-iparam = 34
-imask = 5
-evaluate_single_surface(iparam, imask)

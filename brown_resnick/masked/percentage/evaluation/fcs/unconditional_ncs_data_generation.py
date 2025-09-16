@@ -40,9 +40,9 @@ def generate_ncs_images_multiple_files(vpsde, score_model, range_values,
     for ref_number in range(ref_numbers):
 
         ref_folder = ("data/model4/ref_image" + str(ref_number))
-        ncs_images_file = (ref_folder + "/ncs_images_range_" + str(range_value) +
+        ncs_images_file = (ref_folder + "/ncs_images_range_" + str(range_values[ref_number]) +
                            "_smooth_" + str(smooth_value) + "_" + str(nrep) + ".npy")
-        generate_ncs_images(ref_folder, vpsde, score_model, range_value,
+        generate_ncs_images(ref_folder, vpsde, score_model, range_values[ref_number],
                         smooth_value, ncs_images_file, batches_per_call, calls, n, device)
 
 def return_observed_values(masks, brimages, nrep, n):
@@ -124,11 +124,8 @@ def split_extreme_unconditional_images():
             nonextreme_true_images = np.zeros((0,n,n))
             for irep in range(nrep):
                 observed_indices = np.argwhere(mask.reshape((n,n)) > 0)
-                print(observed_indices)
                 values = true_images[irep,observed_indices[:,0],observed_indices[:,1]]
-                print(values)
                 ncs_values = ncs_images[irep,observed_indices[:,0],observed_indices[:,1]]
-                print(ncs_values)
                 if(np.any(ncs_values) > 4.):
                     extreme_ncs_images = np.concatenate([extreme_ncs_images,ncs_images[irep:(irep+1),:,:]],axis = 0)
                     extreme_true_images = np.concatenate([extreme_true_images,true_images[irep:(irep+1),:,:]],axis = 0)
@@ -136,7 +133,6 @@ def split_extreme_unconditional_images():
                     nonextreme_ncs_images = np.concatenate([extreme_ncs_images,ncs_images[irep:(irep+1),:,:]],axis = 0)
                     nonextreme_true_images = np.concatenate([extreme_true_images,true_images[irep:(irep+1),:,:]],axis = 0)
 
-            print(extreme_ncs_images.shape)
             np.save((ref_folder + "/diffusion/extreme_unconditional_fixed_ncs_images_range_" + str(range_value) + "_smooth_1.5_4000.npy"), extreme_ncs_images)
             np.save((ref_folder + "/diffusion/nonextreme_unconditional_fixed_ncs_images_range_" + str(range_value) + "_smooth_1.5_4000.npy"), nonextreme_ncs_images)
             np.save((ref_folder + "/extreme_true_brown_resnick_images_range_" + str(int(range_value)) + "_smooth_1.5_4000.npy"), extreme_true_images)

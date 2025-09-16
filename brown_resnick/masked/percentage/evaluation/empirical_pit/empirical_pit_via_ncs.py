@@ -9,13 +9,20 @@ evaluation_folder = append_directory(2)
 sys.path.append(evaluation_folder)
 from helper_functions import *
 
+def load_score_model_with_variables():
 
-process_type = "brown"
-model_name = "model4_beta_min_max_01_20_random01525_smooth_1.5_range_3_channel_mask.pth"
-mode = "eval"
+    model_name = "model4_beta_min_max_01_20_random01525_smooth_1.5_range_3_channel_mask.pth"
+    mode = "eval"
+    score_model = load_score_model(model_name, mode)
+    return score_model
 
-sdevp = load_sde(beta_min = .1, beta_max = 20, N = 1000)
-score_model = load_score_model(process_type, model_name, mode)
+def load_sde_with_variables():
+
+    sdevp = load_sde(beta_min = .1, beta_max = 20, N = 1000)
+    return sdevp
+
+score_model = load_score_model_with_variables()
+sdevp = load_sde_with_variables()
 
 def random_mask_generation(n, p):
 

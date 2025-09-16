@@ -59,7 +59,6 @@ generate_reference_data_extreme <- function(number_of_replicates, coord, range, 
   {
     ref_image <- brown_resnick_data_generation(number_of_replicates = 1, n = n, range = range, smooth = smooth)
     observed_values <- ref_image[mask == 1]
-    print(observed_values)
     extreme_value <- max(log(observed_values))
   }
   dim(ref_image) <- c(n,n)
@@ -107,7 +106,6 @@ generate_fcs <- function(mask_file_name, ref_image_name, n, nrep, range, smooth,
   condsim <- array(0, dim = c(nrep,((n**2)-m)))
   for(i in 1:nrep)
   {
-    print(i)
     output <- SpatialExtremes::condrmaxstab(1, coord = unobserved_spatial_grid,
                                             cond.coord = observed_spatial_grid,
                                             cond.data = observations,
@@ -317,7 +315,6 @@ generate_fcs_with_temporary_data_fixed_mask <- function(n, nrep, range, smooth, 
   condsims <- array(NA, dim = c(nrep,(n**2-m)))
   for(irep in 1:nrep)
   {
-    print(irep)
     ref_image <- brown_resnick_data_generation(1, n, range, smooth)
     ref_images[irep,] <- ref_image
     observations <- ref_image[observed_indices]

@@ -58,17 +58,18 @@ def generate_ncs_images_for_conditional_fcs_multiple_files(vpsde, score_model, o
                         smooth_value, ncs_images_file, batches_per_call, calls, n, device)
         
 
-
-range_value = 3.0
-smooth_value = 1.5
-batches_per_call = 100
-calls = 40
-n = 32
-device = "cuda:0"
-model_name = "model5"
-obs_numbers = [i for i in range(1,8)]
-nrep = 4000
-generate_ncs_images_for_conditional_fcs_multiple_files(vpsde, score_model, obs_numbers,
-                                        smooth_value, batches_per_call, calls, n, device,
-                                        range_value, model_name, nrep)
+def generate_ncs_images_for_conditional_fcs_multiple_files_with_variables():
+    
+    range_value = 3.0
+    smooth_value = 1.5
+    batches_per_call = 100
+    calls = 40
+    n = 32
+    device = "cuda:0"
+    model_name = "model5"
+    obs_numbers = [i for i in range(1,8)]
+    nrep = 4000
+    generate_ncs_images_for_conditional_fcs_multiple_files(vpsde, score_model, obs_numbers,
+                                            smooth_value, batches_per_call, calls, n, device,
+                                            range_value, model_name, nrep)
     

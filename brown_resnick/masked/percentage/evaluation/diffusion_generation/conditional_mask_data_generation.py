@@ -1,7 +1,6 @@
 import torch as th
 import numpy as np
 from append_directories import *
-from functools import partial
 from brown_resnick_data_generation import *
 import matplotlib.pyplot as plt
 
@@ -26,7 +25,7 @@ def plot_masked_spatial_field(spatial_field, mask, vmin, vmax, figname):
     ax.imshow(spatial_field, vmin = vmin, vmax = vmax, alpha = mask)
     plt.savefig(figname)
 
-def generate_validation_data(process_type, folder_name, n, range_value, smooth_value, replicates_per_call, calls, p, validation_data_name):
+def generate_validation_data(folder_name, n, range_value, smooth_value, replicates_per_call, calls, p, validation_data_name, score_model):
 
     seed_value = int(np.random.randint(0, 100000))
     number_of_replicates = 1
@@ -37,11 +36,8 @@ def generate_validation_data(process_type, folder_name, n, range_value, smooth_v
     if(os.path.exists(os.path.join(os.getcwd(), folder_name, "diffusion")) == False):
         os.mkdir(os.path.join(os.getcwd(), folder_name, "diffusion"))
 
-    if(process_type == "schlather"):
-
-        ref_img = np.log(generate_schlather_process(range_value, smooth_value, seed_value, number_of_replicates, n))
-    else:
-        ref_img = np.log(generate_brown_resnick_process(range_value, smooth_value, seed_value, number_of_replicates, n))
+    
+    ref_img = np.log(generate_brown_resnick_process(range_value, smooth_value, seed_value, number_of_replicates, n))
 
     device = "cuda:0"
     mask = (th.bernoulli(p*th.ones(n,n))).numpy()
@@ -64,11 +60,9 @@ def generate_validation_data(process_type, folder_name, n, range_value, smooth_v
                                           replicates_per_call, calls)], axis = 0)
     np.save((folder_name + "/diffusion/" + validation_data_name), conditional_samples)
 
-def generate_validation_data_with_reference_image(process_type, folder_name, n, range_value, smooth_value,
+def generate_validation_data_with_reference_image(folder_name, n, range_value, smooth_value,
                                                   replicates_per_call, calls, validation_data_name, score_model):
 
-    seed_value = int(np.random.randint(0, 100000))
-    number_of_replicates = 1
 
     if(os.path.exists(os.path.join(os.getcwd(), folder_name, "diffusion")) == False):
         os.mkdir(os.path.join(os.getcwd(), folder_name, "diffusion"))
@@ -86,17 +80,12 @@ def generate_validation_data_with_reference_image(process_type, folder_name, n, 
     ref_img = th.from_numpy(ref_img.reshape((1,1,n,n)))
     y = ((th.mul(mask, ref_img)).to(device)).float()
     mask = mask.float().to(device)
-    print(y[y!=0])
 
     for i in range(0, calls):
-        print(i)
 
         conditional_samples = np.concatenate([conditional_samples, sample_unconditionally_multiple_calls(sdevp, score_model, device, mask, y, n,
                                           replicates_per_call, calls)], axis = 0)
 
-    
-    print(conditional_samples.shape)
-    print((folder_name + "/diffusion/" + validation_data_name))
     np.save((folder_name + "/diffusion/" + validation_data_name), conditional_samples)
 
     ref_img = ref_img.detach().cpu().numpy().reshape((n,n))
@@ -107,64 +96,22 @@ def generate_validation_data_with_reference_image(process_type, folder_name, n, 
                    vmin = -2, vmax = 6, mask = mask, figname = (folder_name + "/partially_observed_field.png"))
 
 
-def generate_parameter_validation_data_with_reference_image(process_type, folder_name, n, range_value, smooth_value,
-                                                  replicates_per_call, calls, validation_data_name, score_model):
 
-    seed_value = int(np.random.randint(0, 100000))
-    number_of_replicates = 1
-
-    if(os.path.exists(os.path.join(os.getcwd(), folder_name, "diffusion")) == False):
-        os.mkdir(os.path.join(os.getcwd(), folder_name, "diffusion"))
-
-
-    device = "cuda:0"
-    mask = np.load((folder_name + "/mask.npy"))
-    ref_img = np.load((folder_name + "/ref_image.npy"))
-    partially_observed = (mask*ref_img)
-
-    conditional_samples = np.zeros((0,1,n,n))
-    np.save((folder_name + "/partially_observed_field.npy"), partially_observed.reshape((n,n)))
-
-    mask = th.from_numpy(mask.reshape((1,1,n,n)))
-    ref_img = th.from_numpy(ref_img.reshape((1,1,n,n)))
-    y = ((th.mul(mask, ref_img)).to(device)).float()
-    mask = mask.float().to(device)
-
-
-    for i in range(0, calls):
-        print(i)
-
-        conditional_samples = np.concatenate([conditional_samples, sample_unconditionally_parameter_multiple_calls(sdevp, score_model, device, mask, y, n,
-                                          replicates_per_call, calls, range_value, smooth_value)], axis = 0)
-
-    
-    print(conditional_samples.shape)
-    print((folder_name + "/diffusion/" + validation_data_name))
-    np.save((folder_name + "/diffusion/" + validation_data_name), conditional_samples)
-
-    ref_img = ref_img.detach().cpu().numpy().reshape((n,n))
-    mask = mask.float().detach().cpu().numpy().reshape((n,n))
-    plot_spatial_field(ref_img, -2, 6, (folder_name + "/ref_image.png"))
-    plot_spatial_field((conditional_samples[0,:,:,:]).reshape((n,n)), -2, 6, (folder_name + "/diffusion_sample.png"))
-    plot_masked_spatial_field(spatial_field = ref_img,
-                   vmin = -2, vmax = 6, mask = mask, figname = (folder_name + "/partially_observed_field.png"))
-
-
-def generate_validation_data_multiple_percentages(process_type, model_folder_name, n, range_value, smooth_value,
-                                                  replicates_per_call, calls, ps, validation_data_name):
+def generate_validation_data_multiple_percentages(model_folder_name, n, range_value, smooth_value,
+                                                  replicates_per_call, calls, ps, validation_data_name,
+                                                  score_model):
 
     for i,p in enumerate(ps):
 
         current_validation_data_name = (validation_data_name + str(p) + ".npy")
         current_folder_name = (model_folder_name + "/ref_image" + str(i))
-        generate_validation_data(process_type, current_folder_name, n, range_value, smooth_value,
-                                 replicates_per_call, calls, p, current_validation_data_name)
+        generate_validation_data(current_folder_name, n, range_value, smooth_value,
+                                 replicates_per_call, calls, p, current_validation_data_name, score_model)
 
 
     
 def generate_validation_data_with_multiple_reference_images(model_name, model_number, range_value):
     
-    process_type = "brown"
     n = 32
     replicates_per_call = 250
     calls = 4
@@ -174,9 +121,9 @@ def generate_validation_data_with_multiple_reference_images(model_name, model_nu
     validation_data_name = ("model" + str(model_number) + "_range_" + str(range_value) + "_smooth_1.5_4000_random")
     for obs in range(1,7):
         current_folder = (folder_name + "obs" + str(obs) + "/ref_image" + str(int(range_value-1)))
-        generate_validation_data_with_reference_image(process_type, current_folder, n, range_value, smooth_value,
-                                                                    replicates_per_call, calls, validation_data_name,
-                                                                    score_model)
+        generate_validation_data_with_reference_image(current_folder, n, range_value, smooth_value,
+                                                      replicates_per_call, calls, validation_data_name,
+                                                      score_model)
 
 
 def generate_validation_data_with_multiple_reference_images_with_variables():

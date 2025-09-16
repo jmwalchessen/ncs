@@ -2,8 +2,6 @@ import numpy as np
 import torch as th
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import ImageGrid
-import os
-import sys
 from append_directories import *
 
 def load_diffusion_images(model_name, image_name, file_name):
@@ -155,9 +153,9 @@ def visualize_observed_and_diffusion_transposed(figname, n, model_name):
     plt.tight_layout()
     plt.savefig(figname, dpi = 500)
 
-smooth = 1.5
-range_value = 3.0
-model_name = "model4"
-n = 32
-figname = "figures/br_percentage_visualization_model4_transposed.png"
-visualize_observed_and_diffusion_transposed(figname, n, model_name)
+def visualize_observed_and_diffusion_transposed_with_variables():
+
+    model_name = "model4"
+    n = 32
+    figname = "figures/br_percentage_visualization_model4_transposed.png"
+    visualize_observed_and_diffusion_transposed(figname, n, model_name)

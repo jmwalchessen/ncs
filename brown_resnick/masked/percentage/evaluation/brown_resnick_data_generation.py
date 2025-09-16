@@ -12,22 +12,3 @@ def generate_brown_resnick_process(range_value, smooth_value, seed_value, number
     os.remove("temporary_brown_resnick_samples.npy")
     images = np.load("temporary_brown_resnick_samples.npy")
     return images
-
-def generate_schlather_process(range_value, smooth_value, seed_value, number_of_replicates, n):
-
-    subprocess.run(["Rscript", "schlather_data_generation.R", str(range_value),
-                    str(smooth_value), str(number_of_replicates), str(seed_value)],
-                    check = True, capture_output = True, text = False)
-    images = np.load("temporary_schalther_samples.npy")
-    os.remove("temporary_schalther_samples.npy")
-    return images
-
-def generate_smith_process(range_value, smooth_value, seed_value, number_of_replicates, n):
-
-    subprocess.run(["Rscript", "smith_data_generation.R", str(range_value),
-                    str(smooth_value), str(number_of_replicates), str(seed_value)],
-                    check = True, capture_output = True, text = False)
-    images = np.load("temporary_smith_samples.npy")
-    os.remove("temporary_smith_samples.npy")
-    return images
-

@@ -139,7 +139,6 @@ produce_bivariate_lcs_per_pixel_via_mask <- function(argsList)
       condsim <- bivariate_lcs_per_pixel(observed_spatial_grid, observations, neighbors,
                                          key_location1, key_location2, cov_mod, nugget,
                                          range, smooth, nrep)
-      print(condsim[0:10])
     }
     return(condsim)
 }

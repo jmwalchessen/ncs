@@ -60,7 +60,6 @@ def visualize_ncs_and_true_extremal_coefficient_and_high_dimensional_summary_met
         ax = fig.add_subplot(spec[i])
         if(i < 5):
             ext_coeff = 2-extremal_matrices[i,:,2]
-            print(ext_coeff)
             ncs_ext_coeff = 2-ncs_extremal_matrices[i,:,2]
             ax.plot(h, ext_coeff, "blue")
             ax.plot(h, ncs_ext_coeff, "orange", linestyle = "dashed")
@@ -1110,49 +1109,19 @@ def visualize_ncs_and_true_extr_coeff_and_high_dimensional_summary_metrics_multi
         visualize_ncs_and_true_extremal_coefficient_and_high_dimensional_summary_metrics_multiple_percentages_small(range_value, smooth,
                                                                                                           ps, bins, figname, nrep, n)
 
+def visualize_ncs_fcs_and_true_extremal_coefficient_and_high_dimensional_summary_metrics_1_3_7_with_variables():
 
-"""
-range_value = 3.0
-smooth = 1.5
-ps = [.01,.05,.1,.25,.5]
-bins = 100
-nrep = 4000
-n = 32
-figname = "figures/paper_ncs_vs_true_extremal_coefficient_and_high_dimensional_summary_metrics.png"
-visualize_ncs_and_true_extremal_coefficient_and_high_dimensional_summary_metrics_multiple_percentages(range_value, smooth, ps, bins, figname, nrep, n)
-#figname = "figures/presentation_ncs_vs_true_min_max.png"
-#visualize_ncs_and_true_min_max(ps, figname, nrep, n)"""
-
-"""
-range_value = 1.
-smooth = 1.5
-bins = 100
-figname = "figures/paper_ncs_fcs_vs_true_extremal_coefficient_and_high_dimensional_summary_metrics_range_" + str(range_value) + ".png"
-nrep = 4000
-n = 32
-visualize_ncs_fcs_and_true_extremal_coefficient_and_high_dimensional_summary_metrics_one_to_seven_range_1(range_value, smooth,
-                                                                                                      bins, figname, nrep, n)
-range_value = 5.
-figname = "figures/paper_ncs_fcs_vs_true_extremal_coefficient_and_high_dimensional_summary_metrics_range_" + str(range_value) + ".png"
-visualize_ncs_fcs_and_true_extremal_coefficient_and_high_dimensional_summary_metrics_one_to_seven_range_5(range_value, smooth,
-                                                                                                      bins, figname, nrep, n)"""
-
-range_value = 1.
-smooth = 1.5
-bins = 100
-figname = "figures/paper_ncs_fcs_vs_true_extremal_coefficient_and_high_dimensional_summary_metrics_1_3_7_range_" + str(range_value) + ".png"
-nrep = 4000
-n = 32
-visualize_ncs_fcs_and_true_extremal_coefficient_and_high_dimensional_summary_metrics_1_3_7_range_1(range_value, smooth,
-                                                                                                      bins, figname, nrep, n)
-
-range_value = 5.
-smooth = 1.5
-bins = 100
-figname = "figures/paper_ncs_fcs_vs_true_extremal_coefficient_and_high_dimensional_summary_metrics_1_3_7_range_" + str(range_value) + ".png"
-nrep = 4000
-n = 32
-visualize_ncs_fcs_and_true_extremal_coefficient_and_high_dimensional_summary_metrics_1_3_7_range_5(range_value, smooth,
-                                                                                                      bins, figname, nrep, n)
+    range_value = 1.
+    smooth = 1.5
+    bins = 100
+    figname = "figures/paper_ncs_fcs_vs_true_extremal_coefficient_and_high_dimensional_summary_metrics_1_3_7_range_" + str(range_value) + ".png"
+    nrep = 4000
+    n = 32
+    visualize_ncs_fcs_and_true_extremal_coefficient_and_high_dimensional_summary_metrics_1_3_7_range_1(range_value, smooth,
+                                                                                                        bins, figname, nrep, n)
+    range_value = 5.
+    figname = "figures/paper_ncs_fcs_vs_true_extremal_coefficient_and_high_dimensional_summary_metrics_1_3_7_range_" + str(range_value) + ".png"
+    visualize_ncs_fcs_and_true_extremal_coefficient_and_high_dimensional_summary_metrics_1_3_7_range_5(range_value, smooth,
+                                                                                                        bins, figname, nrep, n)
 
 visualize_ncs_and_true_extr_coeff_and_high_dimensional_summary_metrics_multiple_percentages_with_variables()

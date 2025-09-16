@@ -9,13 +9,19 @@ evaluation_folder = append_directory(2)
 sys.path.append(evaluation_folder)
 from helper_functions import *
 
+def load_score_model_with_variables():
+    model_name = "model4_beta_min_max_01_20_random01525_smooth_1.5_range_3_channel_mask.pth"
+    mode = "eval"
+    score_model = load_score_model(model_name, mode)
+    return score_model
 
-process_type = "brown"
-model_name = "model4_beta_min_max_01_20_random01525_smooth_1.5_range_3_channel_mask.pth"
-mode = "eval"
+def load_sde_with_variables():
 
-vpsde = load_sde(beta_min = .1, beta_max = 20, N = 1000)
-score_model = load_score_model(process_type, model_name, mode)
+    vpsde = load_sde(beta_min = .1, beta_max = 20, N = 1000)
+    return vpsde
+
+vpsde = load_sde_with_variables()
+score_model = load_score_model_with_variables()
 
 def random_mask_generation(n, p):
 
@@ -51,17 +57,18 @@ def produce_pit_ncs_data(range_value, smooth_value, p, n, vpsde, score_model,
                                              device, nrep_per_reference, ncs_image_file,
                                              ref_image_file)
 
-        
-range_value = 3.
-smooth_value = 1.5
-p = .01
-n = 32
-device = "cuda:0"
-nrep_per_reference = 4000
-nrep = 1000
-pit_ncs_folder = "data/ncs/model4/random"
-produce_pit_ncs_data(range_value, smooth_value, p, n, vpsde, score_model,
-                         device, nrep_per_reference, nrep, pit_ncs_folder)
+def produce_pit_ncs_data_with_variables():
+            
+    range_value = 3.
+    smooth_value = 1.5
+    p = .01
+    n = 32
+    device = "cuda:0"
+    nrep_per_reference = 4000
+    nrep = 1000
+    pit_ncs_folder = "data/ncs/model4/random"
+    produce_pit_ncs_data(range_value, smooth_value, p, n, vpsde, score_model,
+                            device, nrep_per_reference, nrep, pit_ncs_folder)
 
 
   

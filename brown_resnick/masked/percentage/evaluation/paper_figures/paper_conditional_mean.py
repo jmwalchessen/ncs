@@ -2,8 +2,6 @@ import numpy as np
 import torch as th
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import ImageGrid
-import os
-import sys
 from append_directories import *
 from paper_figure_helper_functions import *
 from matplotlib.patches import Rectangle

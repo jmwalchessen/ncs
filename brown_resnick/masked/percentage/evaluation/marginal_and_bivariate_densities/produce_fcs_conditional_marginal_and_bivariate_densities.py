@@ -11,7 +11,6 @@ evaluation_folder = append_directory(2)
 fcs_folder = (evaluation_folder + "/fcs")
 sys.path.append(fcs_folder)
 sys.path.append(evaluation_folder)
-from mcmc_interpolation_helper_functions import *
 from mpl_toolkits.axes_grid1 import ImageGrid
 from matplotlib.patches import Rectangle
 
@@ -166,8 +165,6 @@ def produce_ncs_and_fcs_bivariate_density(ref_image_folder, n,
                     ax = axs[1], color = 'orange')
     plt.axvline(ref_image[int(matrix_missing_index1[0]),int(matrix_missing_index1[1])], color='red', linestyle = 'dashed')
     plt.axhline(ref_image[int(matrix_missing_index2[0]),int(matrix_missing_index2[1])], color='red', linestyle = 'dashed')
-    print(ref_image[int(matrix_missing_index1[0]),int(matrix_missing_index1[1])])
-    print(ref_image[int(matrix_missing_index2[0]),int(matrix_missing_index2[1])])
     axs[1].set_xlim(-4,8)
     axs[1].set_ylim(-4,8)
         #location = index_to_spatial_location(minX, maxX, minY, maxY, n, missing_true_index)
@@ -196,23 +193,4 @@ def produce_multiple_ncs_and_fcs_bivariate_densities(ref_image_folder, n,
                                           missing_index1, missing_index2,
                                           current_figname, nrep)
 
-ref_image_folder = "data/model4/ref_image2"
-n = 32
-nrep = 4000
-obs = 3
-ncs_file_name = ("ncs_images_range_3.0_smooth_1.5_" + str(nrep) + ".npy")
-fcs_file = ("processed_fcs_range_3.0_smooth_1.5_nugget_1e5_obs_" + str(obs)
-            + "_" + str(nrep) + ".npy")
-"""
-missing_indices1 = (np.random.randint(0, 1024, size = 2)).tolist()
-missing_indices2 = (np.random.randint(0, 1024, size = 2)).tolist()
-figname = ("bivariate_fcs_vs_ncs_range_3.0_smooth_1.5_nugget_1e5_obs_" + str(obs))
-produce_multiple_ncs_and_fcs_bivariate_densities(ref_image_folder, n,
-                                                 ncs_file_name, fcs_file,
-                                                 missing_indices1, missing_indices2,
-                                                 figname, nrep)"""
 
-missing_indices = [i for i in range(0,200)]
-figname = ("marginal_fcs_vs_ncs_range_3.0_smooth_1.5_nugget_1e5_obs_" + str(obs))
-produce_multiple_ncs_and_fcs_marginal_density(ref_image_folder, n, missing_indices,
-                                                  ncs_file_name, fcs_file, figname)

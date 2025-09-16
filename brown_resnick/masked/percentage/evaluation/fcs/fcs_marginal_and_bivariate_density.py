@@ -207,9 +207,7 @@ def produce_multiple_true_fcs_ncs_unconditional_marginal_densities_with_variable
     missing_indices = [i for i in range(0,1000,5)]
     ms = [i for i in range(7,8)]
     for m in ms:
-        print(m)
         for range_value in range_values:
-            print(range_value)
             for missing_index in missing_indices:
                 fcs_folder = (eval_folder + "/fcs")
                 ref_folder = (fcs_folder + "/data/unconditional/fixed_locations/obs" + str(m) + "/ref_image" + str(int(range_value)-1))
@@ -239,9 +237,7 @@ def produce_multiple_true_fcs_ncs_conditional_marginal_densities_with_variables(
     ms = [i for i in range(7,8)]
     model_names = ["model6", "model7", "model5", "model8","model9"]
     for m in ms:
-        print(m)
         for i, range_value in enumerate(range_values):
-            print(range_value)
             for missing_index in missing_indices:
                 fcs_folder = (eval_folder + "/fcs")
                 ref_folder = (fcs_folder + "/data/conditional/obs" + str(m) + "/ref_image" + str(int(range_value)-1))
@@ -297,7 +293,6 @@ def produce_multiple_true_fcs_ncs_conditional_bivariate_densities_with_variables
     eval_folder = append_directory(2)
     range_values = [float(i) for i in range(1,6)]
     model_names = ["model6", "model7", "model5", "model8", "model9"]
-    smooth_value = 1.5
     number_of_replicates = 4000
     missing_indices1 = (np.random.randint(0,1024,20)).tolist()
     ms = [i for i in range(6,8)]

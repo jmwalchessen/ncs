@@ -79,27 +79,15 @@ def compute_high_dimensional_summary_metrics(qs, approx_images_file, true_images
                                            current_quant_figname, nrep, n, q)
     
 
-"""
-p = .01
-figname = "high_dimensional_summary_statistics/ncs/model4/maximum_summary_statistics_ncs_vs_true_4000_random" + str(p) + ".png"
-ncs_images_file = "data/ncs/model4/brown_resnick_ncs_images_range_3.0_smooth_1.5_4000_random" + str(p) + ".npy"
-true_images_file = "data/true/brown_resnick_images_range_3.0_smooth_1.5_4000.npy"
-nrep = 4000
-n = 32
-compute_maximum_summary_statistic(ncs_images_file, true_images_file, figname, nrep, n)
-figname = "high_dimensional_summary_statistics/ncs/model4/minimum_summary_statistics_ncs_vs_true_4000_random" + str(p) + ".png"
-compute_minimum_summary_statistic(ncs_images_file, true_images_file, figname, nrep, n)
-q = .01
-figname = "high_dimensional_summary_statistics/ncs/model4/quantile_" + str(q) + "_summary_statistics_ncs_vs_true_4000_random" + str(p) + ".png"
-compute_quantile_summary_statistic(ncs_images_file, true_images_file, figname, nrep, n, q)"""
-
-qs = [.01,.05,.1,.2,.3,.4,.5,.6,.7,.8,.9,.95,.99]
-n = 32
-m = 5
-nrep = 4000
-approx_label = "FCS"
-approx_images_file = ("data/fcs/processed_unconditional_fcs_range_3.0_smooth_1.5_nugget_1e5_obs_" + str(m) + "_4000.npy")
-true_images_file = ("data/true/brown_resnick_images_range_3.0_smooth_1.5_4000.npy")
-compute_high_dimensional_summary_metrics(qs, approx_images_file,
-                                         true_images_file, approx_label,
-                                         nrep, n, m)
+def compute_high_dimensional_summary_metrics_with_variables():
+    
+    qs = [.01,.05,.1,.2,.3,.4,.5,.6,.7,.8,.9,.95,.99]
+    n = 32
+    m = 5
+    nrep = 4000
+    approx_label = "FCS"
+    approx_images_file = ("data/fcs/processed_unconditional_fcs_range_3.0_smooth_1.5_nugget_1e5_obs_" + str(m) + "_4000.npy")
+    true_images_file = ("data/true/brown_resnick_images_range_3.0_smooth_1.5_4000.npy")
+    compute_high_dimensional_summary_metrics(qs, approx_images_file,
+                                            true_images_file, approx_label,
+                                            nrep, n, m)
