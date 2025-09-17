@@ -196,7 +196,7 @@ def visualize_marginal_bivariate_density_transposed(model_name, missing_indices,
             matrix_index2 = index_to_matrix_index(missing_indices2[counter], n)
             im = ax.imshow(reference_images[counter,:,:], cmap = 'viridis', vmin = -4, vmax = 4, alpha = masks[counter,:,:].astype(float))
             ax.plot(matrix_index[1], matrix_index[0], "rP", markersize = 15, linewidth = 20)
-            #if(i == 0):
+
             if((i%2)==0):
                 ax.set_yticks(ticks = [0, 7, 15, 23, 31], labels = np.array([-10,-5,0,5,10]), fontsize = 15)
             else:
@@ -205,12 +205,7 @@ def visualize_marginal_bivariate_density_transposed(model_name, missing_indices,
                 ax.set_xticks(ticks = [0, 7, 15, 23, 31], labels = np.array([-10,-5,0,5,10]), fontsize = 15)
             else:
                 ax.set_xticks([])
-            #else:
-                #ax.set_yticks([])
-            #if((i == 0) | (i == 4)):
-                #ax.set_xticks(ticks = [0, 7, 15, 23, 31], labels = np.array([-10,-5,0,5,10]), fontsize = 15)
-            #else:
-                #ax.set_xticks([])
+
             ax.plot(matrix_index1[1], matrix_index1[0], "r*", markersize = 15, linewidth = 20)
             ax.plot(matrix_index2[1], matrix_index2[0], "r*", markersize = 15, linewidth = 20)
 
@@ -227,14 +222,6 @@ def visualize_marginal_bivariate_density_transposed(model_name, missing_indices,
             if(i == 1):
                 ax.legend(labels = ['true', 'NCS'], fontsize = 12)
         
-                #ax.set_yticks([0.,.5,1.], [0.,.5,1.], fontsize = 15)
-                #ax.legend(labels = ['true', 'NCS'], fontsize = 13.5)
-            #else:
-                #ax.set_yticks([])
-            #if((i == 5) | (i == 9)):
-                #ax.set_xticks([-4,-2,0,2,4], [-4,-2,0,2,4], fontsize = 15)
-            #else:
-                #ax.set_xticks([])
             if(i == 13):
                 ax.set_xticks([-4,-2,0,2,4], [-4,-2,0,2,4], fontsize = 15)
         else:

@@ -94,31 +94,6 @@ def construct_masked_norm_vector(mask, minX, maxX, minY, maxY, n):
 
     return masked_norm_vector
 
-def construct_masked_norm_vector1(mask, minX, maxX, minY, maxY, n):
-
-    x = np.linspace(minX, maxX, n)
-    y = np.linspace(minY, maxY, n)
-    # create the mesh based on these arrays
-    X, Y = np.meshgrid(x, y)
-    X = X.reshape((np.prod(X.shape),1))
-    Y = Y.reshape((np.prod(Y.shape),1))
-    missing_indices = (np.argwhere(mask.reshape((n**2))))
-    m = missing_indices.shape[0]
-    missing_indices = missing_indices.reshape((m))
-    missing_xlocations = X[missing_indices]
-    missing_ylocations = Y[missing_indices]
-    missing_locations = np.zeros((m,2))
-    missing_locations[:,0] = missing_xlocations.reshape((m))
-    missing_locations[:,1] = missing_ylocations.reshape((m))
-    masked_norm_vector = np.zeros(((n**2), m))
-    for i in range(0, m):
-        norm_vector = (np.sqrt(np.add(np.square(X-missing_locations[i,0]),
-                                      np.square(Y-missing_locations[i,1]))))
-        masked_norm_vector[:,i] = norm_vector.reshape((n**2))
-    
-    masked_norm_vector = np.delete(masked_norm_vector, missing_indices, axis = 0)
-    return masked_norm_vector
-
 
 def construct_masked_exp_kernel_vector(mask, minX, maxX, minY, maxY, n, variance, lengthscale):
 

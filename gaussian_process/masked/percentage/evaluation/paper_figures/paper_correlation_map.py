@@ -35,63 +35,6 @@ def produce_true_and_diffusion_correlation_map_per_pixel(diffusion_images, mask,
 
     return true_cov_image, diffusion_cov_image
 
-def visualize_true_and_diffusion_correlation_maps(missing_indices, n, nrep,
-                                                  lengthscale, variance, model_name, figname):
-    
-    n = 32
-    masks = np.zeros((5,n,n))
-    minX = minY = -10
-    maxX = maxY = 10
-    percentages = [.01,.05,.1,.25,.5]
-    ref_numbers = [0,1,2,4,7]
-    true_cov_images = np.zeros((5,n,n))
-    diffusion_cov_images = np.zeros((5,n,n))
-    for i in range(0, 5):
-        image_name = "ref_image" + str(ref_numbers[i])
-        ref_image = load_reference_image(model_name, image_name)
-        mask = load_mask(model_name, image_name)
-        masks[i,:,:] = mask
-        y = load_observations(model_name, image_name, mask, n)
-        file_name = (model_name + "_beta_min_max_01_20_1000_" + str(percentages[i]))
-        diffusion_images = load_diffusion_images(model_name, image_name, file_name)
-        true_cov_image, diffusion_cov_image = produce_true_and_diffusion_correlation_map_per_pixel(diffusion_images, mask, missing_indices[i], n, nrep,
-                                                                                                   variance, lengthscale, ref_image)
-        true_cov_images[i,:,:] = true_cov_image.reshape((n,n))
-        print(np.min(true_cov_images))
-        diffusion_cov_images[i,:,:] = diffusion_cov_image.reshape((n,n))
-
-        
-        fig = plt.figure(figsize=(10,4))
-        grid = ImageGrid(fig, 111,  # similar to subplot(111)
-                    nrows_ncols=(2, 5),  # creates 2x2 grid of Axes
-                    axes_pad=0.1,  # pad between Axes in inch.
-                    cbar_mode="single"
-                    )
-        
-        for i, ax in enumerate(grid):
-
-            if(i < 5):
-                im = ax.imshow(true_cov_images[i,:,:], cmap='viridis', vmin = 0, vmax = 1,
-                            alpha = (1-masks[(i % 5),:,:].astype(float)))
-                ax.set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]))
-                ax.set_yticks(ticks = [0,8, 16, 24,31], labels = np.array([-10,-5,0,5,10]), fontsize = 15)
-            elif(i < 10):
-                im = ax.imshow(diffusion_cov_images[(i % 5),:,:], cmap='viridis', vmin = 0, vmax = 1,
-                            alpha = (1-masks[(i % 5),:,:].astype(float)))
-                if(( i % 2) == 1):
-                    ax.set_xticks(ticks = [0, 8, 16, 24, 31], labels = np.array([-10,-5,0,5,10]), fontsize = 15)
-                else:
-                    ax.set_xticks(ticks = [8, 16, 24], labels = np.array([-5,0,5]), fontsize = 15)
-                ax.set_yticks(ticks = [8, 16, 24], labels = np.array([-5,0,5]), fontsize = 15)
-
-            else:
-                pass
-
-
-        cbar=ax.cax.colorbar(im)
-        cbar.ax.tick_params(labelsize=15)
-        fig.text(x = .23, y = .89, s = "Conditional Correlation Heatmap", fontsize = 25)
-        plt.savefig(figname)
 
 
 
@@ -111,13 +54,11 @@ def visualize_true_and_diffusion_correlation_maps_transposed(missing_indices, n,
         ref_image = load_reference_image(model_name, image_name)
         mask = load_mask(model_name, image_name)
         masks[i,:,:] = mask
-        y = load_observations(model_name, image_name, mask, n)
         file_name = (model_name + "_beta_min_max_01_20_1000_" + str(percentages[i]))
         diffusion_images = load_diffusion_images(model_name, image_name, file_name)
         true_cov_image, diffusion_cov_image = produce_true_and_diffusion_correlation_map_per_pixel(diffusion_images, mask, missing_indices[i], n, nrep,
                                                                                                    variance, lengthscale, ref_image)
         true_cov_images[i,:,:] = true_cov_image.reshape((n,n))
-        print(np.min(true_cov_images))
         diffusion_cov_images[i,:,:] = diffusion_cov_image.reshape((n,n))
 
         
@@ -157,14 +98,13 @@ def visualize_true_and_diffusion_correlation_maps_transposed(missing_indices, n,
         plt.tight_layout()
         plt.savefig(figname, dpi = 500)
     
-
-n = 32
-nrep = 4000
-variance = 1.5
-lengthscale = 3.0
-model_name = "model7"
-figname = "figures/paper_correlation_map_far_from_observed.png"
-missing_indices = [455, 103, 500, 200, 305]
-visualize_true_and_diffusion_correlation_maps(missing_indices, n, nrep, lengthscale, variance, model_name, figname)
-figname = "figures/paper_correlation_map_far_from_observed_transposed.png"
-visualize_true_and_diffusion_correlation_maps_transposed(missing_indices, n, nrep, lengthscale, variance, model_name, figname)
+def visualize_true_and_diffusion_correlation_maps_transposed_with_variables():
+    
+    n = 32
+    nrep = 4000
+    variance = 1.5
+    lengthscale = 3.0
+    model_name = "model7"
+    missing_indices = [455, 103, 500, 200, 305]
+    figname = "figures/paper_correlation_map_far_from_observed_transposed.png"
+    visualize_true_and_diffusion_correlation_maps_transposed(missing_indices, n, nrep, lengthscale, variance, model_name, figname)

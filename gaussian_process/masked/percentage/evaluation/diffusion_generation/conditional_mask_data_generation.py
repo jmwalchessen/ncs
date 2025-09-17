@@ -1,7 +1,6 @@
 import torch as th
 import numpy as np
 from append_directories import *
-from functools import partial
 from generate_true_conditional_samples import *
 import matplotlib.pyplot as plt
 import sys
@@ -14,14 +13,16 @@ import ncsnpp_config
 from sde_lib import *
 from models import ncsnpp
 
-#get trained score model
-config = ncsnpp_config.get_config()
-config.model.num_scales = 1000
-config.model.beta_max = 20
+def load_score_model_with_variables():
 
-score_model = th.nn.DataParallel((ncsnpp.NCSNpp(config)).to("cuda:0"))
-score_model.load_state_dict(th.load((sde_folder + "/trained_score_models/vpsde/model7_beta_min_max_01_20_random01525_variance_1.5_lengthscale_3_channel_mask.pth")))
-score_model.eval()
+    config = ncsnpp_config.get_config()
+    config.model.num_scales = 1000
+    config.model.beta_max = 20
+
+    score_model = th.nn.DataParallel((ncsnpp.NCSNpp(config)).to("cuda:0"))
+    score_model.load_state_dict(th.load((sde_folder + "/trained_score_models/vpsde/model7_beta_min_max_01_20_random01525_variance_1.5_lengthscale_3_channel_mask.pth")))
+    score_model.eval()
+    return score_model
 
 
 
@@ -154,21 +155,18 @@ def generate_validation_data(folder_name, n, variance, lengthscale, replicates_p
 def generate_validation_data_multiple_percentages(folder_name, n, variance, lengthscale, replicates_per_call, calls, ps, validation_data_name):
 
     for i,p in enumerate(ps):
-        print(i)
         current_folder_name = (folder_name + "/ref_image" + str(i))
         current_validation_data_name = (validation_data_name + "_" + str(p) + ".npy")
         generate_validation_data(current_folder_name, n, variance, lengthscale, replicates_per_call, calls, p, current_validation_data_name)
 
-minX = -10
-maxX = 10
-minY = -10
-maxY = 10
-n = 32
-variance = 1.5
-lengthscale = 3
-replicates_per_call = 250
-calls = 4
-ps = [.01,.05,.1,.2,.25,.3,.4,.5]
-folder_name = "data/model7"
-validation_data_name = "model7_beta_min_max_01_20_1000"
-generate_validation_data_multiple_percentages(folder_name, n, variance, lengthscale, replicates_per_call, calls, ps, validation_data_name)
+def generate_validation_data_multiple_percentages_with_variables():
+
+    n = 32
+    variance = 1.5
+    lengthscale = 3
+    replicates_per_call = 250
+    calls = 4
+    ps = [.01,.05,.1,.2,.25,.3,.4,.5]
+    folder_name = "data/model7"
+    validation_data_name = "model7_beta_min_max_01_20_1000"
+    generate_validation_data_multiple_percentages(folder_name, n, variance, lengthscale, replicates_per_call, calls, ps, validation_data_name)
