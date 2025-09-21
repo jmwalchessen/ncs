@@ -1,0 +1,21 @@
+Our setup was linux operating system with Nvidia GPUs.
+
+Packages required:
+
+Python:
+
+ninja
+torch
+torchvision
+torchaudio
+matplotlib
+numpy
+scipy
+pandas
+seaborn
+
+R:
+devtools
+reticulate
+SpatialExtremes
+
