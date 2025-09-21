@@ -4,7 +4,7 @@ Source code for:
 J. Walchessen, A. Zammit-Mangion, R. Huser, M. Kuusela (2024). Neural Conditional Simulation for Complex Spatial Processes. arXiv preprint arXiv:2505.24556.
 
 ## Getting Started
-This repository contains the code and training details for each case study in "Neural Conditional Simulation for Complex Spatial Processes." This document information about the training details and the contents of the repository. To quickly understand what a folder pertains to, please scroll down to find the information. **The package environment for this project is contained in requirements.txt**
+This repository contains the code and training details for each case study in "Neural Conditional Simulation for Complex Spatial Processes." **The package environment for this project is contained in requirements.txt**
 
 ## Training Details Common to Both  Case Studies
 
