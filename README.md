@@ -6,6 +6,23 @@ J. Walchessen, A. Zammit-Mangion, R. Huser, M. Kuusela (2024). Neural Conditiona
 ## Getting Started
 This repository contains the code and training details for each case study in "Neural Conditional Simulation for Complex Spatial Processes." **The package environment for this project is contained in requirements.txt**
 
+## Creating Virtual Environments
+We recommend creating a python virtual environment via the following commands:
+
+1. Create the python environment.
+```
+python3 -m venv ~/ncs
+```
+2. Activate the environment.
+```
+source ~/ncs/bin/activate
+```
+3. Install main dependencies.
+```
+python -m pip install ninja torch torchvision torchaudio
+```
+4. Install remaining dependencies according to the requirements.txt
+
 ## Training Details Common to Both  Case Studies
 
 From experimentation, there are few hyperparameters that are sensitive to how well the U-Net approximates the true conditional score function. As such, the reason the hyperparameters vary between the U-Net and spatial process types is due to computational constraints, not training issues. The only training sensitivity we encountered pertains to amortization---the amortized variable ought to be sampled from a continuous, positive distribution.
