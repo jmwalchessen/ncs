@@ -10,3 +10,10 @@ This repository contains the code and training details for each case study in "N
 
 From experimentation, there are few hyperparameters that are sensitive to how well the U-Net approximates the true conditional score function. As such, the reason the hyperparameters vary between the U-Net and spatial process types is due to computational constraints, not training issues. The only training sensitivity we encountered pertains to amortization---the amortized variable ought to be sampled from a continuous, positive distribution.
 
+## Hyperparameters
+
+### Gaussian Process
+
+#### Parameter U-Net
+There are $10$ epochs per data draw and $40$ total draws. The batch size is 2048.
+
