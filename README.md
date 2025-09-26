@@ -25,7 +25,7 @@ python -m pip install ninja torch torchvision torchaudio
 
 ## Training Details Common to Both  Case Studies
 
-From experimentation, there are few hyperparameters that are sensitive to how well the U-Net approximates the true conditional score function. As such, the reason the hyperparameters vary between the U-Net and spatial process types is due to computational constraints, not training issues. The only training sensitivity we encountered pertains to amortization---the amortized variable ought to be sampled from a continuous, positive distribution.
+From experimentation, there are no hyperparameters that are sensitive to how well the U-Net approximates the true conditional score function. As such, the reason the hyperparameters vary between the U-Net and spatial process types is due to computational constraints, not training issues. The only crucial training choice we encountered pertains to amortization---the amortized variable ought to be sampled from a continuous, positive distribution.
 
 ## Hyperparameters
 
